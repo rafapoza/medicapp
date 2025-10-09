@@ -4,11 +4,13 @@ class Medication {
   final String id;
   final String name;
   final MedicationType type;
+  final int dosageIntervalHours;
 
   Medication({
     required this.id,
     required this.name,
     required this.type,
+    required this.dosageIntervalHours,
   });
 
   Map<String, dynamic> toJson() {
@@ -16,6 +18,7 @@ class Medication {
       'id': id,
       'name': name,
       'type': type.name,
+      'dosageIntervalHours': dosageIntervalHours,
     };
   }
 
@@ -27,6 +30,7 @@ class Medication {
         (e) => e.name == json['type'],
         orElse: () => MedicationType.pastilla,
       ),
+      dosageIntervalHours: json['dosageIntervalHours'] as int? ?? 8,
     );
   }
 }

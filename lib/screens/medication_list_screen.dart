@@ -73,11 +73,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         ),
       ),
       builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+        return SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               Container(
                 width: 40,
                 height: 4,
@@ -105,6 +106,20 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                       color: medication.type.getColor(context),
                     ),
                 textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.schedule, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Cada ${medication.dosageIntervalHours} horas',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -155,6 +170,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                 ),
               ),
             ],
+            ),
           ),
         );
       },
@@ -216,11 +232,29 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                       medication.name,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    subtitle: Text(
-                      medication.type.displayName,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: medication.type.getColor(context),
-                          ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          medication.type.displayName,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: medication.type.getColor(context),
+                              ),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.schedule, size: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Cada ${medication.dosageIntervalHours} horas',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     onTap: () => _showDeleteModal(medication),
                   ),

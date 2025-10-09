@@ -3,6 +3,25 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:medicapp/main.dart';
 
+// Helper function to scroll and make a widget visible
+Future<void> scrollToWidget(WidgetTester tester, Finder finder) async {
+  // Try to make the widget visible by dragging until we can see it
+  final scrollView = find.byType(SingleChildScrollView);
+  if (scrollView.evaluate().isNotEmpty) {
+    try {
+      await tester.dragUntilVisible(
+        finder,
+        scrollView.first,
+        const Offset(0, -50),
+      );
+    } catch (e) {
+      // If dragUntilVisible fails, try a simple large drag
+      await tester.drag(scrollView.first, const Offset(0, -800));
+      await tester.pumpAndSettle();
+    }
+  }
+}
+
 void main() {
   testWidgets('MedicApp should load', (WidgetTester tester) async {
     // Build our app and trigger a frame.
@@ -33,8 +52,7 @@ void main() {
     await tester.enterText(find.byType(TextFormField).first, 'Paracetamol');
 
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     // Tap save button
     await tester.tap(find.text('Guardar Medicamento'));
@@ -61,8 +79,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     // Save
     await tester.tap(find.text('Guardar Medicamento'));
@@ -82,8 +99,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Paracetamol');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -93,8 +109,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Paracetamol');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -113,8 +128,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Ibuprofeno');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -124,8 +138,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'IBUPROFENO');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -143,8 +156,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Aspirina');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -170,8 +182,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Omeprazol');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -206,8 +217,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Loratadina');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -223,8 +233,7 @@ void main() {
     expect(find.text('Loratadina'), findsNWidgets(2));
 
     // Scroll to make the cancel button visible
-    await tester.ensureVisible(find.text('Cancelar'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Cancelar'));
 
     // Tap the cancel button
     await tester.tap(find.text('Cancelar'));
@@ -246,8 +255,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Medicamento A');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -257,8 +265,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Medicamento B');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -268,8 +275,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Medicamento C');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -303,8 +309,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Metformina');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -328,8 +333,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Atorvastatina');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -359,8 +363,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Simvastatina');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -381,8 +384,7 @@ void main() {
 
     // Save changes
     // Scroll to make button visible
-    await tester.ensureVisible(find.text('Guardar Cambios'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Cambios'));
 
     await tester.tap(find.text('Guardar Cambios'));
     await tester.pumpAndSettle();
@@ -404,8 +406,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Medicina');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -424,8 +425,7 @@ void main() {
 
     // Save
     // Scroll to make button visible
-    await tester.ensureVisible(find.text('Guardar Cambios'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Cambios'));
 
     await tester.tap(find.text('Guardar Cambios'));
     await tester.pumpAndSettle();
@@ -443,8 +443,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Levotiroxina');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -482,8 +481,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Amoxicilina');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -493,8 +491,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Azitromicina');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -508,8 +505,7 @@ void main() {
     // Try to change it to the name of the first medication
     await tester.enterText(find.byType(TextFormField).first, 'Amoxicilina');
     // Scroll to make button visible
-    await tester.ensureVisible(find.text('Guardar Cambios'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Cambios'));
 
     await tester.tap(find.text('Guardar Cambios'));
     await tester.pumpAndSettle();
@@ -530,8 +526,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Insulina');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -544,8 +539,7 @@ void main() {
 
     // Keep the same name (just trigger save without changing anything)
     // Scroll to make button visible
-    await tester.ensureVisible(find.text('Guardar Cambios'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Cambios'));
 
     await tester.tap(find.text('Guardar Cambios'));
     await tester.pumpAndSettle();
@@ -566,8 +560,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Captopril');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -577,8 +570,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Enalapril');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -592,8 +584,7 @@ void main() {
     // Try to change it to the first medication's name with different case
     await tester.enterText(find.byType(TextFormField).first, 'CAPTOPRIL');
     // Scroll to make button visible
-    await tester.ensureVisible(find.text('Guardar Cambios'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Cambios'));
 
     await tester.tap(find.text('Guardar Cambios'));
     await tester.pumpAndSettle();
@@ -618,8 +609,7 @@ void main() {
 
     // Save medication
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -645,8 +635,7 @@ void main() {
 
     // Save medication
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -666,8 +655,7 @@ void main() {
     await tester.enterText(find.byType(TextFormField).first, 'Omeprazol');
     await tester.enterText(find.byType(TextFormField).last, '24');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -696,8 +684,7 @@ void main() {
 
     // Try to save
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -723,8 +710,7 @@ void main() {
 
     // Try to save
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -750,8 +736,7 @@ void main() {
 
     // Try to save
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -770,8 +755,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Amoxicilina');
     // Scroll to make the save button visible
-    await tester.ensureVisible(find.text('Guardar Medicamento'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Medicamento'));
 
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
@@ -790,8 +774,7 @@ void main() {
 
     // Save changes
     // Scroll to make button visible
-    await tester.ensureVisible(find.text('Guardar Cambios'));
-    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Guardar Cambios'));
 
     await tester.tap(find.text('Guardar Cambios'));
     await tester.pumpAndSettle();

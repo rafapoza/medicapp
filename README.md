@@ -9,22 +9,31 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
 ## Características principales
 
 - **Persistencia de datos**: Tus medicamentos se guardan localmente en SQLite y persisten entre sesiones
-- **Registro de medicamentos**: Añade nuevos medicamentos a tu lista con un flujo guiado de dos pasos
+- **Registro de medicamentos**: Añade nuevos medicamentos a tu lista con un flujo guiado de tres pasos
 - **Tipos de medicamento**: Clasifica cada medicamento por su formato (pastilla, jarabe, inyección, cápsula, crema, gotas, spray, inhalador, parche, supositorio) con iconos representativos
+- **Frecuencia de tomas**: Define cada cuántas horas tomarás el medicamento (1, 2, 3, 4, 6, 8, 12, 24 horas)
+- **Programación de horarios**:
+  - Establece las horas exactas de cada toma del día
+  - El sistema calcula automáticamente el número de tomas según la frecuencia
+  - Validación de horas duplicadas con indicadores visuales
+  - Formato de 24 horas para mayor precisión
 - **Duración del tratamiento**: Define cuánto tiempo tomarás cada medicamento:
   - **Todos los días**: Para tratamientos continuos sin fecha de finalización
   - **Hasta acabar la medicación**: Para tratamientos que terminarán cuando se acabe el medicamento
   - **Personalizado**: Especifica el número exacto de días del tratamiento (1-365 días)
-- **Edición completa**: Modifica tanto la información básica como la duración del tratamiento
+- **Próxima toma**: Visualiza la hora de la siguiente toma de cada medicamento en la lista principal
+- **Edición completa**: Modifica tanto la información básica como la duración del tratamiento y horarios
 - **Eliminación**: Elimina medicamentos de tu lista
 - **Validación inteligente**:
   - Previene la creación de medicamentos duplicados (case-insensitive)
   - Valida rangos de días en tratamientos personalizados
+  - Valida frecuencias de tomas que dividan 24 horas exactamente
+  - Previene horarios duplicados con alertas visuales
 - **Interfaz responsiva**:
   - Diseño moderno con Material Design 3
   - Layout adaptable que muestra 3 tipos de medicamento por fila en todos los dispositivos
   - Scroll optimizado para pantallas pequeñas
-- **Visualización detallada**: Cada medicamento muestra su tipo, nombre y duración del tratamiento en la lista
+- **Visualización detallada**: Cada medicamento muestra su tipo, nombre, duración del tratamiento y próxima toma
 
 ## Tecnologías
 
@@ -70,7 +79,8 @@ lib/
 │   ├── medication_list_screen.dart     # Pantalla principal con lista de medicamentos
 │   ├── add_medication_screen.dart      # Pantalla para añadir medicamento (paso 1)
 │   ├── edit_medication_screen.dart     # Pantalla para editar medicamento
-│   └── treatment_duration_screen.dart  # Pantalla de duración del tratamiento (paso 2)
+│   ├── treatment_duration_screen.dart  # Pantalla de duración del tratamiento (paso 2)
+│   └── medication_schedule_screen.dart # Pantalla de programación de horarios (paso 3)
 ├── main.dart                            # Punto de entrada
 └── test/
     └── widget_test.dart                 # Suite completa de tests con persistencia
@@ -91,26 +101,33 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `dosageIntervalHours` (INTEGER NOT NULL)
   - `durationType` (TEXT NOT NULL)
   - `customDays` (INTEGER NULLABLE)
+  - `doseTimes` (TEXT NOT NULL) - Horarios de tomas en formato "HH:mm" separados por comas
+- **Migraciones**: Sistema de versionado para actualizar el esquema sin perder datos
 - **Testing**: Los tests utilizan una base de datos en memoria para aislamiento completo
 
 ## Flujo de uso
 
 ### Añadir un medicamento
 
-1. **Paso 1 - Información básica**: Introduce el nombre del medicamento y selecciona su tipo
+1. **Paso 1 - Información básica**: Introduce el nombre del medicamento, la frecuencia de tomas (cada cuántas horas) y selecciona su tipo
 2. **Paso 2 - Duración del tratamiento**: Selecciona cuánto tiempo tomarás el medicamento
    - Todos los días (sin límite)
    - Hasta acabar la medicación
    - Personalizado (introduce el número de días)
-3. El medicamento se añade a tu lista con toda la información
+3. **Paso 3 - Programación de horarios**: Define las horas exactas de cada toma
+   - El sistema calcula automáticamente el número de tomas según la frecuencia
+   - Selecciona la hora de cada toma usando el selector de tiempo
+   - Validación automática de horarios duplicados
+4. El medicamento se añade a tu lista con toda la información
 
 ### Editar un medicamento
 
 1. Toca el medicamento que quieres editar
 2. En el modal, selecciona "Editar medicamento"
-3. Modifica la información básica (nombre y tipo)
+3. Modifica la información básica (nombre, frecuencia de tomas y tipo)
 4. Actualiza la duración del tratamiento si es necesario
-5. Los cambios se guardan automáticamente
+5. Ajusta los horarios de las tomas en la pantalla de programación
+6. Los cambios se guardan automáticamente
 
 ### Eliminar un medicamento
 

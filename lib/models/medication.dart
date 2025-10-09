@@ -8,6 +8,7 @@ class Medication {
   final int dosageIntervalHours;
   final TreatmentDurationType durationType;
   final int? customDays; // Only used when durationType is custom
+  final List<String> doseTimes; // List of dose times in "HH:mm" format
 
   Medication({
     required this.id,
@@ -16,6 +17,7 @@ class Medication {
     required this.dosageIntervalHours,
     required this.durationType,
     this.customDays,
+    this.doseTimes = const [],
   });
 
   Map<String, dynamic> toJson() {
@@ -26,10 +28,17 @@ class Medication {
       'dosageIntervalHours': dosageIntervalHours,
       'durationType': durationType.name,
       'customDays': customDays,
+      'doseTimes': doseTimes.join(','), // Store as comma-separated string
     };
   }
 
   factory Medication.fromJson(Map<String, dynamic> json) {
+    // Parse dose times from comma-separated string
+    final doseTimesString = json['doseTimes'] as String?;
+    final doseTimes = doseTimesString != null && doseTimesString.isNotEmpty
+        ? doseTimesString.split(',')
+        : <String>[];
+
     return Medication(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -43,6 +52,7 @@ class Medication {
         orElse: () => TreatmentDurationType.everyday,
       ),
       customDays: json['customDays'] as int?,
+      doseTimes: doseTimes,
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
+import '../database/database_helper.dart';
 import 'add_medication_screen.dart';
 import 'edit_medication_screen.dart';
 
@@ -12,6 +13,23 @@ class MedicationListScreen extends StatefulWidget {
 
 class _MedicationListScreenState extends State<MedicationListScreen> {
   final List<Medication> _medications = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMedications();
+  }
+
+  Future<void> _loadMedications() async {
+    final medications = await DatabaseHelper.instance.getAllMedications();
+    if (!mounted) return; // Check if widget is still mounted
+    setState(() {
+      _medications.clear();
+      _medications.addAll(medications);
+      _isLoading = false;
+    });
+  }
 
   void _navigateToAddMedication() async {
     final newMedication = await Navigator.push<Medication>(
@@ -24,6 +42,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     );
 
     if (newMedication != null) {
+      // Save to database
+      await DatabaseHelper.instance.insertMedication(newMedication);
+
       setState(() {
         _medications.add(newMedication);
       });
@@ -42,6 +63,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     );
 
     if (updatedMedication != null) {
+      // Update in database
+      await DatabaseHelper.instance.updateMedication(updatedMedication);
+
       setState(() {
         final index = _medications.indexWhere((m) => m.id == medication.id);
         if (index != -1) {
@@ -148,7 +172,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.tonalIcon(
-                  onPressed: () {
+                  onPressed: () async {
+                    // Delete from database
+                    await DatabaseHelper.instance.deleteMedication(medication.id);
+
                     setState(() {
                       _medications.remove(medication);
                     });
@@ -194,7 +221,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       appBar: AppBar(
         title: const Text('Mis Medicamentos'),
       ),
-      body: _medications.isEmpty
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : _medications.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

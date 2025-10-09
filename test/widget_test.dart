@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:medicapp/main.dart';
+import 'package:medicapp/database/database_helper.dart';
+
+// Helper function to wait for database operations to complete
+Future<void> waitForDatabase(WidgetTester tester) async {
+  // Use runAsync to allow async operations to complete
+  await tester.runAsync(() async {
+    // Give time for database operations
+    await Future.delayed(const Duration(milliseconds: 100));
+  });
+
+  // Pump frames to rebuild UI after async operations
+  await tester.pump();
+  await tester.pump();
+}
 
 // Helper function to scroll to a widget if needed
 Future<void> scrollToWidget(WidgetTester tester, Finder finder) async {
@@ -64,12 +79,43 @@ Future<void> addMedicationWithDuration(
   await scrollToWidget(tester, find.text('Continuar'));
   await tester.tap(find.text('Continuar'));
   await tester.pumpAndSettle();
+
+  // Wait for database save operation to complete
+  await tester.runAsync(() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+  });
+  await tester.pump();
+  await tester.pump();
 }
 
 void main() {
+  // Initialize sqflite for testing on desktop/VM
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    // Initialize ffi implementation for desktop testing
+    sqfliteFfiInit();
+    // Set global factory to use ffi implementation
+    databaseFactory = databaseFactoryFfi;
+  });
+
+  // Clean up database before each test to ensure test isolation
+  setUp(() async {
+    // Close and reset the database to get a fresh in-memory instance
+    await DatabaseHelper.resetDatabase();
+    // Enable in-memory mode for this test
+    DatabaseHelper.setInMemoryDatabase(true);
+  });
+
   testWidgets('MedicApp should load', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MedicApp());
+
+    // Initial pump to let initState run
+    await tester.pump();
+
+    // Wait for database operations to complete
+    await waitForDatabase(tester);
 
     // Verify that the app shows the correct title.
     expect(find.text('Mis Medicamentos'), findsOneWidget);
@@ -85,6 +131,9 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MedicApp());
 
+    // Wait for database to load
+    await waitForDatabase(tester);
+
     // Add medication with default values
     await addMedicationWithDuration(tester, 'Paracetamol');
 
@@ -97,6 +146,7 @@ void main() {
   testWidgets('Should navigate to treatment duration screen after entering medication info', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Open add screen
     await tester.tap(find.byIcon(Icons.add));
@@ -121,6 +171,7 @@ void main() {
   testWidgets('Should add medication with "Hasta acabar la medicación" duration', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add medication with "until finished" duration
     await addMedicationWithDuration(
@@ -137,6 +188,7 @@ void main() {
   testWidgets('Should add medication with custom duration', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add medication with custom duration
     await addMedicationWithDuration(
@@ -154,6 +206,7 @@ void main() {
   testWidgets('Should validate custom days input', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Start adding medication
     await tester.tap(find.byIcon(Icons.add));
@@ -179,6 +232,7 @@ void main() {
   testWidgets('Should not allow custom days greater than 365', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Start adding medication
     await tester.tap(find.byIcon(Icons.add));
@@ -203,6 +257,7 @@ void main() {
   testWidgets('Should not allow custom days less than or equal to 0', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Start adding medication
     await tester.tap(find.byIcon(Icons.add));
@@ -227,6 +282,7 @@ void main() {
   testWidgets('Should select different medication type', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add medication with Jarabe type
     await addMedicationWithDuration(tester, 'Medicina X', type: 'Jarabe');
@@ -239,6 +295,7 @@ void main() {
   testWidgets('Should show error when adding duplicate medication', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add first medication
     await addMedicationWithDuration(tester, 'Paracetamol');
@@ -259,6 +316,7 @@ void main() {
   testWidgets('Duplicate validation should be case-insensitive', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add first medication
     await addMedicationWithDuration(tester, 'Ibuprofeno');
@@ -278,6 +336,7 @@ void main() {
   testWidgets('Should open modal when tapping a medication', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication first
     await addMedicationWithDuration(tester, 'Aspirina');
@@ -297,6 +356,7 @@ void main() {
   testWidgets('Modal should display treatment duration', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication with custom duration
     await addMedicationWithDuration(
@@ -317,6 +377,7 @@ void main() {
   testWidgets('Should delete medication when delete button is pressed', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Omeprazol');
@@ -333,6 +394,12 @@ void main() {
     await tester.tap(find.text('Eliminar medicamento'));
     await tester.pumpAndSettle();
 
+    // Wait for database delete operation to complete
+    await waitForDatabase(tester);
+
+    // Additional pump to ensure modal is fully closed
+    await tester.pumpAndSettle();
+
     // Verify medication is no longer in the list
     expect(find.text('Omeprazol'), findsNothing);
 
@@ -346,6 +413,7 @@ void main() {
   testWidgets('Should cancel deletion when cancel button is pressed', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Loratadina');
@@ -372,6 +440,7 @@ void main() {
   testWidgets('Should delete correct medication when multiple medications exist', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add three medications
     await addMedicationWithDuration(tester, 'Medicamento A');
@@ -390,6 +459,12 @@ void main() {
     await tester.tap(find.text('Eliminar medicamento'));
     await tester.pumpAndSettle();
 
+    // Wait for database delete operation to complete
+    await waitForDatabase(tester);
+
+    // Additional pump to ensure modal is fully closed
+    await tester.pumpAndSettle();
+
     // Verify only Medicamento B was deleted
     expect(find.text('Medicamento A'), findsOneWidget);
     expect(find.text('Medicamento B'), findsNothing);
@@ -402,6 +477,7 @@ void main() {
   testWidgets('Should show edit button in modal', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Metformina');
@@ -418,6 +494,7 @@ void main() {
   testWidgets('Should open edit screen when edit button is pressed', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Atorvastatina');
@@ -442,6 +519,7 @@ void main() {
   testWidgets('Should update medication name when changes are saved', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Simvastatina');
@@ -471,6 +549,12 @@ void main() {
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
+    // Wait for database update operation to complete
+    await waitForDatabase(tester);
+
+    // Additional pump to ensure modal is fully closed
+    await tester.pumpAndSettle();
+
     // Verify old name is gone and new name is in the list
     expect(find.text('Simvastatina'), findsNothing);
     expect(find.text('Rosuvastatina'), findsOneWidget);
@@ -482,6 +566,7 @@ void main() {
   testWidgets('Should update medication type when editing', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication with default type (Pastilla)
     await addMedicationWithDuration(tester, 'Medicina');
@@ -509,6 +594,12 @@ void main() {
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
+    // Wait for database update operation to complete
+    await waitForDatabase(tester);
+
+    // Additional pump to ensure modal is fully closed
+    await tester.pumpAndSettle();
+
     // Verify type was updated - should now show Cápsula
     expect(find.text('Cápsula'), findsOneWidget);
   });
@@ -516,6 +607,7 @@ void main() {
   testWidgets('Should update medication duration when editing', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication with "Todos los días" duration
     await addMedicationWithDuration(tester, 'Vitaminas');
@@ -546,6 +638,12 @@ void main() {
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
+    // Wait for database update operation to complete
+    await waitForDatabase(tester);
+
+    // Additional pump to ensure modal is fully closed
+    await tester.pumpAndSettle();
+
     // Verify duration was updated
     expect(find.text('15 días'), findsOneWidget);
   });
@@ -553,6 +651,7 @@ void main() {
   testWidgets('Should not save when edit is cancelled', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Levotiroxina');
@@ -587,6 +686,7 @@ void main() {
   testWidgets('Should not allow duplicate names when editing', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add two medications
     await addMedicationWithDuration(tester, 'Amoxicilina');
@@ -615,6 +715,7 @@ void main() {
   testWidgets('Should allow keeping the same name when editing', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Insulina');
@@ -636,6 +737,12 @@ void main() {
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
+    // Wait for database update operation to complete
+    await waitForDatabase(tester);
+
+    // Additional pump to ensure modal is fully closed
+    await tester.pumpAndSettle();
+
     // Verify the medication is still there with the same name
     expect(find.text('Insulina'), findsOneWidget);
 
@@ -646,6 +753,7 @@ void main() {
   testWidgets('Edit validation should be case-insensitive', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add two medications
     await addMedicationWithDuration(tester, 'Captopril');
@@ -671,6 +779,7 @@ void main() {
   testWidgets('Edit screen should preserve existing duration values', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Add a medication with custom duration
     await addMedicationWithDuration(
@@ -702,6 +811,7 @@ void main() {
   testWidgets('Should cancel adding medication from duration screen', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
 
     // Start adding a medication
     await tester.tap(find.byIcon(Icons.add));

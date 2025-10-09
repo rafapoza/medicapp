@@ -88,14 +88,22 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                 ),
               ),
               Icon(
-                Icons.medication,
+                medication.type.icon,
                 size: 48,
-                color: Theme.of(context).colorScheme.primary,
+                color: medication.type.getColor(context),
               ),
               const SizedBox(height: 16),
               Text(
                 medication.name,
                 style: Theme.of(context).textTheme.titleLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                medication.type.displayName,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: medication.type.getColor(context),
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -198,15 +206,21 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   ),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                      backgroundColor: medication.type.getColor(context).withOpacity(0.2),
                       child: Icon(
-                        Icons.medication,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        medication.type.icon,
+                        color: medication.type.getColor(context),
                       ),
                     ),
                     title: Text(
                       medication.name,
                       style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    subtitle: Text(
+                      medication.type.displayName,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: medication.type.getColor(context),
+                          ),
                     ),
                     onTap: () => _showDeleteModal(medication),
                   ),

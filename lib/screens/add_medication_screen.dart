@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
+import '../models/medication_type.dart';
 
 class AddMedicationScreen extends StatefulWidget {
   final List<Medication> existingMedications;
@@ -16,6 +17,7 @@ class AddMedicationScreen extends StatefulWidget {
 class _AddMedicationScreenState extends State<AddMedicationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  MedicationType _selectedType = MedicationType.pastilla;
 
   @override
   void dispose() {
@@ -34,6 +36,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       final newMedication = Medication(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text.trim(),
+        type: _selectedType,
       );
 
       Navigator.pop(context, newMedication);
@@ -88,6 +91,71 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
 
                           return null;
                         },
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Tipo de medicamento',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: MedicationType.values.map((type) {
+                          final isSelected = _selectedType == type;
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                _selectedType = type;
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              width: 100,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? type.getColor(context).withOpacity(0.2)
+                                    : Colors.transparent,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? type.getColor(context)
+                                      : Theme.of(context).dividerColor,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    type.icon,
+                                    size: 32,
+                                    color: isSelected
+                                        ? type.getColor(context)
+                                        : Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    type.displayName,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: isSelected
+                                              ? type.getColor(context)
+                                              : Theme.of(context).colorScheme.onSurface,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                        ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ],
                   ),

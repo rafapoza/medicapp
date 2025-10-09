@@ -18,7 +18,7 @@ void main() {
     expect(find.byIcon(Icons.add), findsOneWidget);
   });
 
-  testWidgets('Should show error when adding duplicate medication', (WidgetTester tester) async {
+  testWidgets('Should add medication with default type', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MedicApp());
 
@@ -38,22 +38,52 @@ void main() {
 
     // Verify we're back to the list screen and medication was added
     expect(find.text('Paracetamol'), findsOneWidget);
+    expect(find.text('Pastilla'), findsAtLeastNWidgets(1)); // Default type
+  });
+
+  testWidgets('Should select different medication type', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+
+    // Open add screen
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    // Enter name
+    await tester.enterText(find.byType(TextFormField), 'Jarabe');
+
+    // Tap on Jarabe type
+    await tester.tap(find.text('Jarabe'));
+    await tester.pumpAndSettle();
+
+    // Save
+    await tester.tap(find.text('Guardar Medicamento'));
+    await tester.pumpAndSettle();
+
+    // Verify medication was added with Jarabe type
+    expect(find.text('Jarabe'), findsNWidgets(2)); // Name and type
+  });
+
+  testWidgets('Should show error when adding duplicate medication', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(const MedicApp());
+
+    // Add first medication
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField), 'Paracetamol');
+    await tester.tap(find.text('Guardar Medicamento'));
+    await tester.pumpAndSettle();
 
     // Try to add the same medication again
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
-
-    // Enter the same medication name
     await tester.enterText(find.byType(TextFormField), 'Paracetamol');
-
-    // Tap save button
     await tester.tap(find.text('Guardar Medicamento'));
     await tester.pumpAndSettle();
 
     // Verify error message is shown
     expect(find.text('Este medicamento ya existe en tu lista'), findsOneWidget);
-
-    // Verify we're still on the add medication screen
     expect(find.text('Añadir Medicamento'), findsOneWidget);
   });
 
@@ -79,7 +109,7 @@ void main() {
     expect(find.text('Este medicamento ya existe en tu lista'), findsOneWidget);
   });
 
-  testWidgets('Should open delete modal when tapping a medication', (WidgetTester tester) async {
+  testWidgets('Should open modal when tapping a medication', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
 
@@ -94,8 +124,9 @@ void main() {
     await tester.tap(find.text('Aspirina'));
     await tester.pumpAndSettle();
 
-    // Verify delete modal is shown
+    // Verify modal is shown
     expect(find.text('Eliminar medicamento'), findsOneWidget);
+    expect(find.text('Editar medicamento'), findsOneWidget);
     expect(find.text('Cancelar'), findsOneWidget);
     // The medication name should appear twice: once in the list and once in the modal
     expect(find.text('Aspirina'), findsNWidgets(2));
@@ -115,7 +146,7 @@ void main() {
     // Verify medication is in the list
     expect(find.text('Omeprazol'), findsOneWidget);
 
-    // Tap on the medication to open delete modal
+    // Tap on the medication to open modal
     await tester.tap(find.text('Omeprazol'));
     await tester.pumpAndSettle();
 
@@ -147,7 +178,7 @@ void main() {
     // Verify medication is in the list
     expect(find.text('Loratadina'), findsOneWidget);
 
-    // Tap on the medication to open delete modal
+    // Tap on the medication to open modal
     await tester.tap(find.text('Loratadina'));
     await tester.pumpAndSettle();
 
@@ -255,7 +286,7 @@ void main() {
     expect(find.text('Atorvastatina'), findsOneWidget);
   });
 
-  testWidgets('Should update medication when changes are saved', (WidgetTester tester) async {
+  testWidgets('Should update medication name when changes are saved', (WidgetTester tester) async {
     // Build our app and trigger a frame
     await tester.pumpWidget(const MedicApp());
 
@@ -290,6 +321,37 @@ void main() {
 
     // Verify confirmation message
     expect(find.text('Rosuvastatina actualizado'), findsOneWidget);
+  });
+
+  testWidgets('Should update medication type when editing', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+
+    // Add a medication with default type (Pastilla)
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField), 'Medicina');
+    await tester.tap(find.text('Guardar Medicamento'));
+    await tester.pumpAndSettle();
+
+    // Tap on medication to open modal
+    await tester.tap(find.text('Medicina'));
+    await tester.pumpAndSettle();
+
+    // Tap edit button
+    await tester.tap(find.text('Editar medicamento'));
+    await tester.pumpAndSettle();
+
+    // Change type to Cápsula
+    await tester.tap(find.text('Cápsula'));
+    await tester.pumpAndSettle();
+
+    // Save
+    await tester.tap(find.text('Guardar Cambios'));
+    await tester.pumpAndSettle();
+
+    // Verify type was updated - should now show Cápsula
+    expect(find.text('Cápsula'), findsOneWidget);
   });
 
   testWidgets('Should not save when edit is cancelled', (WidgetTester tester) async {

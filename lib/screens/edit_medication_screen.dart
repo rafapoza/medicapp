@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
+import '../models/medication_type.dart';
 
 class EditMedicationScreen extends StatefulWidget {
   final Medication medication;
@@ -18,11 +19,13 @@ class EditMedicationScreen extends StatefulWidget {
 class _EditMedicationScreenState extends State<EditMedicationScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
+  late MedicationType _selectedType;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.medication.name);
+    _selectedType = widget.medication.type;
   }
 
   @override
@@ -45,6 +48,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
       final updatedMedication = Medication(
         id: widget.medication.id, // Keep the same ID
         name: _nameController.text.trim(),
+        type: _selectedType,
       );
 
       Navigator.pop(context, updatedMedication);
@@ -99,6 +103,71 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
 
                           return null;
                         },
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Tipo de medicamento',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: MedicationType.values.map((type) {
+                          final isSelected = _selectedType == type;
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                _selectedType = type;
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              width: 100,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? type.getColor(context).withOpacity(0.2)
+                                    : Colors.transparent,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? type.getColor(context)
+                                      : Theme.of(context).dividerColor,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    type.icon,
+                                    size: 32,
+                                    color: isSelected
+                                        ? type.getColor(context)
+                                        : Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    type.displayName,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: isSelected
+                                              ? type.getColor(context)
+                                              : Theme.of(context).colorScheme.onSurface,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                        ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ],
                   ),

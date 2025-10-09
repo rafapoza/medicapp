@@ -50,6 +50,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           name: _nameController.text.trim(),
           type: _selectedType,
+          dosageIntervalHours: int.parse(_dosageIntervalController.text),
           durationType: result['durationType'],
           customDays: result['customDays'],
         );

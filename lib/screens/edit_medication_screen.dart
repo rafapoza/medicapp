@@ -68,6 +68,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
           id: widget.medication.id, // Keep the same ID
           name: _nameController.text.trim(),
           type: _selectedType,
+          dosageIntervalHours: int.parse(_dosageIntervalController.text),
           durationType: result['durationType'],
           customDays: result['customDays'],
         );

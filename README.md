@@ -9,10 +9,11 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
 ## Características principales
 
 - **Registro de medicamentos**: Añade nuevos medicamentos a tu lista
-- **Tipos de medicamento**: Clasifica cada medicamento por su formato (pastilla, jarabe, inyección, etc.) con iconos representativos
+- **Tipos de medicamento**: Clasifica cada medicamento por su formato (pastilla, cápsula, inyección, jarabe, óvulo, supositorio, inhalador, sobre, spray, pomada, loción) con iconos representativos
+- **Gestión de dosis**: Define el intervalo de tiempo entre dosis (cada cuántas horas debe administrarse el medicamento)
 - **Edición**: Modifica la información de medicamentos existentes
 - **Eliminación**: Elimina medicamentos de tu lista
-- **Validación**: Previene la creación de medicamentos duplicados
+- **Validación**: Previene la creación de medicamentos duplicados y valida los intervalos de dosificación
 - **Interfaz intuitiva**: Diseño moderno con Material Design 3
 
 ## Tecnologías
@@ -20,6 +21,7 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
 - Flutter 3.9.2+
 - Dart
 - Material Design 3
+
 
 ## Instalación
 

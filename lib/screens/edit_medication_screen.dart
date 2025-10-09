@@ -19,18 +19,23 @@ class EditMedicationScreen extends StatefulWidget {
 class _EditMedicationScreenState extends State<EditMedicationScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
+  late final TextEditingController _dosageIntervalController;
   late MedicationType _selectedType;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.medication.name);
+    _dosageIntervalController = TextEditingController(
+      text: widget.medication.dosageIntervalHours.toString(),
+    );
     _selectedType = widget.medication.type;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _dosageIntervalController.dispose();
     super.dispose();
   }
 
@@ -49,6 +54,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
         id: widget.medication.id, // Keep the same ID
         name: _nameController.text.trim(),
         type: _selectedType,
+        dosageIntervalHours: int.parse(_dosageIntervalController.text),
       );
 
       Navigator.pop(context, updatedMedication);
@@ -61,13 +67,14 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
       appBar: AppBar(
         title: const Text('Editar Medicamento'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -169,6 +176,43 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                           );
                         }).toList(),
                       ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Frecuencia de administración',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _dosageIntervalController,
+                        decoration: InputDecoration(
+                          labelText: 'Intervalo entre dosis (horas)',
+                          hintText: 'Ej: 8',
+                          prefixIcon: const Icon(Icons.schedule),
+                          suffixText: 'horas',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Por favor, introduce el intervalo entre dosis';
+                          }
+
+                          final hours = int.tryParse(value.trim());
+                          if (hours == null || hours <= 0) {
+                            return 'El intervalo debe ser un número mayor a 0';
+                          }
+
+                          if (hours > 24) {
+                            return 'El intervalo no puede ser mayor a 24 horas';
+                          }
+
+                          return null;
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -186,6 +230,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                 label: const Text('Cancelar'),
               ),
             ],
+            ),
           ),
         ),
       ),

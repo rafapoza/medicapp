@@ -1,16 +1,52 @@
-# medicapp
+# MedicApp
 
-A new Flutter project.
+Una aplicación móvil desarrollada en Flutter para la gestión personal de medicamentos.
 
-## Getting Started
+## Descripción
 
-This project is a starting point for a Flutter application.
+MedicApp permite a los usuarios llevar un registro organizado de sus medicamentos de forma sencilla e intuitiva. La aplicación ofrece funcionalidades CRUD (Crear, Leer, Actualizar, Eliminar) para gestionar una lista personalizada de medicamentos.
 
-A few resources to get you started if this is your first Flutter project:
+## Características principales
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Registro de medicamentos**: Añade nuevos medicamentos a tu lista
+- **Tipos de medicamento**: Clasifica cada medicamento por su formato (pastilla, jarabe, inyección, etc.) con iconos representativos
+- **Edición**: Modifica la información de medicamentos existentes
+- **Eliminación**: Elimina medicamentos de tu lista
+- **Validación**: Previene la creación de medicamentos duplicados
+- **Interfaz intuitiva**: Diseño moderno con Material Design 3
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Tecnologías
+
+- Flutter 3.9.2+
+- Dart
+- Material Design 3
+
+## Instalación
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/rafapoza/medicapp.git
+
+# Instalar dependencias
+flutter pub get
+
+# Ejecutar la aplicación
+flutter run
+```
+
+## Tests
+
+El proyecto incluye una suite completa de tests de widgets:
+
+```bash
+flutter test
+```
+
+## Estructura del proyecto
+
+```
+lib/
+├── models/          # Modelos de datos
+├── screens/         # Pantallas de la aplicación
+└── main.dart        # Punto de entrada
+```

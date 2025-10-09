@@ -37,12 +37,15 @@ Future<void> scrollToWidget(WidgetTester tester, Finder finder) async {
 }
 
 // Helper function to add a medication through the complete flow
+// Note: This uses MedicationScheduleScreen's autoFillForTesting mode to avoid
+// complex time picker interactions during automated testing
 Future<void> addMedicationWithDuration(
   WidgetTester tester,
   String name, {
   String? type,
   String? durationType,
   String? customDays,
+  int dosageIntervalHours = 8, // Default to 8 hours
 }) async {
   // Tap the add button
   await tester.tap(find.byIcon(Icons.add));
@@ -51,6 +54,15 @@ Future<void> addMedicationWithDuration(
   // Enter medication name
   await tester.enterText(find.byType(TextFormField).first, name);
   await tester.pumpAndSettle();
+
+  // Enter dosage interval if different from default
+  if (dosageIntervalHours != 8) {
+    final dosageFields = find.byType(TextFormField);
+    if (dosageFields.evaluate().length >= 2) {
+      await tester.enterText(dosageFields.at(1), dosageIntervalHours.toString());
+      await tester.pumpAndSettle();
+    }
+  }
 
   // Select type if specified
   if (type != null) {
@@ -75,9 +87,22 @@ Future<void> addMedicationWithDuration(
     }
   }
 
-  // Scroll to and tap continue button to save the medication
+  // Scroll to and tap continue button to go to schedule screen
   await scrollToWidget(tester, find.text('Continuar'));
   await tester.tap(find.text('Continuar'));
+  await tester.pumpAndSettle();
+
+  // Now we're on the medication schedule screen
+  // The screen will auto-fill times in testing mode
+  // Just verify we're there and save
+  expect(find.text('Horario de tomas'), findsOneWidget);
+
+  // Wait a moment for auto-fill to complete
+  await tester.pump(const Duration(milliseconds: 100));
+
+  // Scroll to and tap save schedule button
+  await scrollToWidget(tester, find.text('Guardar horario'));
+  await tester.tap(find.text('Guardar horario'));
   await tester.pumpAndSettle();
 
   // Wait for database save operation to complete
@@ -127,21 +152,6 @@ void main() {
     expect(find.byIcon(Icons.add), findsOneWidget);
   });
 
-  testWidgets('Should add medication with default type and everyday duration', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MedicApp());
-
-    // Wait for database to load
-    await waitForDatabase(tester);
-
-    // Add medication with default values
-    await addMedicationWithDuration(tester, 'Paracetamol');
-
-    // Verify we're back to the list screen and medication was added
-    expect(find.text('Paracetamol'), findsOneWidget);
-    expect(find.text('Pastilla'), findsAtLeastNWidgets(1)); // Default type
-    expect(find.text('Todos los días'), findsAtLeastNWidgets(1)); // Default duration
-  });
 
   testWidgets('Should navigate to treatment duration screen after entering medication info', (WidgetTester tester) async {
     // Build our app
@@ -152,8 +162,8 @@ void main() {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
 
-    // Enter name
-    await tester.enterText(find.byType(TextFormField), 'Ibuprofeno');
+    // Enter name (use .first to get the name field, not the frequency field)
+    await tester.enterText(find.byType(TextFormField).first, 'Ibuprofeno');
 
     // Scroll to and tap continue
     await scrollToWidget(tester, find.text('Continuar'));
@@ -168,37 +178,36 @@ void main() {
     expect(find.text('Personalizado'), findsOneWidget);
   });
 
-  testWidgets('Should add medication with "Hasta acabar la medicación" duration', (WidgetTester tester) async {
-    // Build our app
+  testWidgets('Should add medication with default type and everyday duration', (WidgetTester tester) async {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
+    await addMedicationWithDuration(tester, 'Paracetamol');
+    expect(find.text('Paracetamol'), findsOneWidget);
+    expect(find.text('Pastilla'), findsAtLeastNWidgets(1));
+    expect(find.text('Todos los días'), findsAtLeastNWidgets(1));
+  });
 
-    // Add medication with "until finished" duration
+  testWidgets('Should add medication with "Hasta acabar la medicación" duration', (WidgetTester tester) async {
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
     await addMedicationWithDuration(
       tester,
       'Antibiótico',
       durationType: 'Hasta acabar la medicación',
     );
-
-    // Verify medication was added with correct duration
     expect(find.text('Antibiótico'), findsOneWidget);
     expect(find.text('Hasta acabar'), findsOneWidget);
   });
 
   testWidgets('Should add medication with custom duration', (WidgetTester tester) async {
-    // Build our app
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
-
-    // Add medication with custom duration
     await addMedicationWithDuration(
       tester,
       'Tratamiento Corto',
       durationType: 'Personalizado',
       customDays: '7',
     );
-
-    // Verify medication was added with correct duration
     expect(find.text('Tratamiento Corto'), findsOneWidget);
     expect(find.text('7 días'), findsOneWidget);
   });
@@ -303,7 +312,7 @@ void main() {
     // Try to add the same medication again
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField), 'Paracetamol');
+    await tester.enterText(find.byType(TextFormField).first, 'Paracetamol');
     await scrollToWidget(tester, find.text('Continuar'));
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
@@ -324,7 +333,7 @@ void main() {
     // Try to add the same medication with different case
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField), 'IBUPROFENO');
+    await tester.enterText(find.byType(TextFormField).first, 'IBUPROFENO');
     await scrollToWidget(tester, find.text('Continuar'));
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
@@ -544,9 +553,14 @@ void main() {
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
-    // Continue to save
+    // Continue to schedule screen
     await scrollToWidget(tester, find.text('Continuar').first);
     await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Save schedule (times should already be filled from original medication)
+    await scrollToWidget(tester, find.text('Guardar horario'));
+    await tester.tap(find.text('Guardar horario'));
     await tester.pumpAndSettle();
 
     // Wait for database update operation to complete
@@ -589,9 +603,14 @@ void main() {
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
-    // Continue to save
+    // Continue to schedule screen
     await scrollToWidget(tester, find.text('Continuar').first);
     await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Save schedule
+    await scrollToWidget(tester, find.text('Guardar horario'));
+    await tester.tap(find.text('Guardar horario'));
     await tester.pumpAndSettle();
 
     // Wait for database update operation to complete
@@ -633,9 +652,14 @@ void main() {
     await tester.enterText(find.byType(TextFormField).first, '15');
     await tester.pumpAndSettle();
 
-    // Save changes
+    // Continue to schedule screen
     await scrollToWidget(tester, find.text('Continuar').first);
     await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Save schedule
+    await scrollToWidget(tester, find.text('Guardar horario'));
+    await tester.tap(find.text('Guardar horario'));
     await tester.pumpAndSettle();
 
     // Wait for database update operation to complete
@@ -732,9 +756,14 @@ void main() {
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
-    // Continue to save
+    // Continue to schedule screen
     await scrollToWidget(tester, find.text('Continuar').first);
     await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Save schedule
+    await scrollToWidget(tester, find.text('Guardar horario'));
+    await tester.tap(find.text('Guardar horario'));
     await tester.pumpAndSettle();
 
     // Wait for database update operation to complete
@@ -816,7 +845,7 @@ void main() {
     // Start adding a medication
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField), 'TestMed');
+    await tester.enterText(find.byType(TextFormField).first, 'TestMed');
     await scrollToWidget(tester, find.text('Continuar'));
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();

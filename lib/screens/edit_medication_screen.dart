@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
 import '../models/medication_type.dart';
 import 'treatment_duration_screen.dart';
+import 'medication_schedule_screen.dart';
 
 class EditMedicationScreen extends StatefulWidget {
   final Medication medication;
@@ -52,7 +54,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
   void _continueToNextStep() async {
     if (_formKey.currentState!.validate()) {
       // Navigate to treatment duration screen with existing data
-      final result = await Navigator.push(
+      final durationResult = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => TreatmentDurationScreen(
@@ -62,18 +64,33 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
         ),
       );
 
-      if (result != null && mounted) {
-        // Create updated medication with all information
-        final updatedMedication = Medication(
-          id: widget.medication.id, // Keep the same ID
-          name: _nameController.text.trim(),
-          type: _selectedType,
-          dosageIntervalHours: int.parse(_dosageIntervalController.text),
-          durationType: result['durationType'],
-          customDays: result['customDays'],
+      if (durationResult != null && mounted) {
+        // Navigate to medication schedule screen with existing data
+        final scheduleResult = await Navigator.push<List<String>>(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MedicationScheduleScreen(
+              dosageIntervalHours: int.parse(_dosageIntervalController.text),
+              initialDoseTimes: widget.medication.doseTimes,
+              autoFillForTesting: kDebugMode, // Auto-fill in debug mode for testing
+            ),
+          ),
         );
 
-        Navigator.pop(context, updatedMedication);
+        if (scheduleResult != null && mounted) {
+          // Create updated medication with all information
+          final updatedMedication = Medication(
+            id: widget.medication.id, // Keep the same ID
+            name: _nameController.text.trim(),
+            type: _selectedType,
+            dosageIntervalHours: int.parse(_dosageIntervalController.text),
+            durationType: durationResult['durationType'],
+            customDays: durationResult['customDays'],
+            doseTimes: scheduleResult,
+          );
+
+          Navigator.pop(context, updatedMedication);
+        }
       }
     }
   }
@@ -123,6 +140,41 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
 
                           if (_medicationExists(value.trim())) {
                             return 'Este medicamento ya existe en tu lista';
+                          }
+
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      TextFormField(
+                        controller: _dosageIntervalController,
+                        decoration: InputDecoration(
+                          labelText: 'Frecuencia de tomas',
+                          hintText: 'Ej: 8',
+                          prefixIcon: const Icon(Icons.access_time),
+                          suffixText: 'horas',
+                          helperText: 'Cada cuántas horas tomarás este medicamento',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Por favor, introduce la frecuencia de horas';
+                          }
+
+                          final hours = int.tryParse(value.trim());
+                          if (hours == null || hours <= 0) {
+                            return 'El número de horas debe ser mayor a 0';
+                          }
+
+                          if (hours > 24) {
+                            return 'El número de horas no puede ser mayor a 24';
+                          }
+
+                          if (24 % hours != 0) {
+                            return 'Las horas deben dividir 24 exactamente (1, 2, 3, 4, 6, 8, 12, 24)';
                           }
 
                           return null;

@@ -119,24 +119,30 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                             ),
                       ),
                       const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: MedicationType.values.map((type) {
-                          final isSelected = _selectedType == type;
-                          return InkWell(
-                            onTap: () {
-                              setState(() {
-                                _selectedType = type;
-                              });
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              width: 100,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 8,
-                              ),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Calcular el ancho para 3 elementos por fila
+                          final spacing = 8.0;
+                          final itemWidth = (constraints.maxWidth - (spacing * 2)) / 3;
+
+                          return Wrap(
+                            spacing: spacing,
+                            runSpacing: spacing,
+                            children: MedicationType.values.map((type) {
+                              final isSelected = _selectedType == type;
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedType = type;
+                                  });
+                                },
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  width: itemWidth,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 8,
+                                  ),
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? type.getColor(context).withOpacity(0.2)
@@ -172,9 +178,11 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                                   ),
                                 ],
                               ),
-                            ),
+                                ),
+                              );
+                            }).toList(),
                           );
-                        }).toList(),
+                        },
                       ),
                       const SizedBox(height: 24),
                       Text(

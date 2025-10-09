@@ -88,6 +88,48 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     }
   }
 
+  String? _getNextDoseTime(Medication medication) {
+    if (medication.doseTimes.isEmpty) return null;
+
+    final now = TimeOfDay.now();
+    final currentMinutes = now.hour * 60 + now.minute;
+
+    // Convert all dose times to minutes and sort them
+    final doseTimesInMinutes = medication.doseTimes.map((timeString) {
+      final parts = timeString.split(':');
+      final hours = int.parse(parts[0]);
+      final minutes = int.parse(parts[1]);
+      return hours * 60 + minutes;
+    }).toList()..sort();
+
+    // Find the next dose time
+    for (final doseMinutes in doseTimesInMinutes) {
+      if (doseMinutes > currentMinutes) {
+        return medication.doseTimes[doseTimesInMinutes.indexOf(doseMinutes)];
+      }
+    }
+
+    // If no dose is left today, return the first dose of tomorrow
+    return medication.doseTimes[doseTimesInMinutes.indexOf(doseTimesInMinutes.first)];
+  }
+
+  String _formatNextDose(String? nextDoseTime) {
+    if (nextDoseTime == null) return '';
+
+    final now = TimeOfDay.now();
+    final parts = nextDoseTime.split(':');
+    final doseHour = int.parse(parts[0]);
+    final doseMinute = int.parse(parts[1]);
+    final doseMinutes = doseHour * 60 + doseMinute;
+    final currentMinutes = now.hour * 60 + now.minute;
+
+    if (doseMinutes <= currentMinutes) {
+      return 'Próxima toma: $nextDoseTime (mañana)';
+    } else {
+      return 'Próxima toma: $nextDoseTime';
+    }
+  }
+
   void _showDeleteModal(Medication medication) {
     showModalBottomSheet(
       context: context,
@@ -289,6 +331,26 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                         ),
+                        if (_getNextDoseTime(medication) != null) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.alarm,
+                                size: 14,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                _formatNextDose(_getNextDoseTime(medication)),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                     onTap: () => _showDeleteModal(medication),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
 import '../models/medication_type.dart';
+import 'treatment_duration_screen.dart';
 
 class AddMedicationScreen extends StatefulWidget {
   final List<Medication> existingMedications;
@@ -33,16 +34,28 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
     );
   }
 
-  void _saveMedication() {
+  void _continueToNextStep() async {
     if (_formKey.currentState!.validate()) {
-      final newMedication = Medication(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: _nameController.text.trim(),
-        type: _selectedType,
-        dosageIntervalHours: int.parse(_dosageIntervalController.text),
+      // Navigate to treatment duration screen
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const TreatmentDurationScreen(),
+        ),
       );
 
-      Navigator.pop(context, newMedication);
+      if (result != null && mounted) {
+        // Create medication with all information
+        final newMedication = Medication(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          name: _nameController.text.trim(),
+          type: _selectedType,
+          durationType: result['durationType'],
+          customDays: result['customDays'],
+        );
+
+        Navigator.pop(context, newMedication);
+      }
     }
   }
 
@@ -106,7 +119,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                       const SizedBox(height: 16),
                       LayoutBuilder(
                         builder: (context, constraints) {
-                          // Calcular el ancho para 3 elementos por fila
                           final spacing = 8.0;
                           final itemWidth = (constraints.maxWidth - (spacing * 2)) / 3;
 
@@ -128,82 +140,45 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                                     vertical: 12,
                                     horizontal: 8,
                                   ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? type.getColor(context).withOpacity(0.2)
-                                    : Colors.transparent,
-                                border: Border.all(
-                                  color: isSelected
-                                      ? type.getColor(context)
-                                      : Theme.of(context).dividerColor,
-                                  width: isSelected ? 2 : 1,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    type.icon,
-                                    size: 32,
+                                  decoration: BoxDecoration(
                                     color: isSelected
-                                        ? type.getColor(context)
-                                        : Theme.of(context).colorScheme.onSurface,
+                                        ? type.getColor(context).withOpacity(0.2)
+                                        : Colors.transparent,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? type.getColor(context)
+                                          : Theme.of(context).dividerColor,
+                                      width: isSelected ? 2 : 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    type.displayName,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: isSelected
-                                              ? type.getColor(context)
-                                              : Theme.of(context).colorScheme.onSurface,
-                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                        ),
-                                    textAlign: TextAlign.center,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        type.icon,
+                                        size: 32,
+                                        color: isSelected
+                                            ? type.getColor(context)
+                                            : Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        type.displayName,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: isSelected
+                                                  ? type.getColor(context)
+                                                  : Theme.of(context).colorScheme.onSurface,
+                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                            ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
                                 ),
                               );
                             }).toList(),
                           );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Frecuencia de administración',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _dosageIntervalController,
-                        decoration: InputDecoration(
-                          labelText: 'Intervalo entre dosis (horas)',
-                          hintText: 'Ej: 8',
-                          prefixIcon: const Icon(Icons.schedule),
-                          suffixText: 'horas',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Por favor, introduce el intervalo entre dosis';
-                          }
-
-                          final hours = int.tryParse(value.trim());
-                          if (hours == null || hours <= 0) {
-                            return 'El intervalo debe ser un número mayor a 0';
-                          }
-
-                          if (hours > 24) {
-                            return 'El intervalo no puede ser mayor a 24 horas';
-                          }
-
-                          return null;
                         },
                       ),
                     ],
@@ -212,9 +187,9 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
               ),
               const SizedBox(height: 16),
               FilledButton.icon(
-                onPressed: _saveMedication,
-                icon: const Icon(Icons.save),
-                label: const Text('Guardar Medicamento'),
+                onPressed: _continueToNextStep,
+                icon: const Icon(Icons.arrow_forward),
+                label: const Text('Continuar'),
               ),
               const SizedBox(height: 8),
               OutlinedButton.icon(
@@ -222,7 +197,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 icon: const Icon(Icons.cancel),
                 label: const Text('Cancelar'),
               ),
-            ],
+              ],
             ),
           ),
         ),

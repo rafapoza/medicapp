@@ -108,18 +108,29 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.schedule, size: 16),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Cada ${medication.dosageIntervalHours} horas',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ],
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      medication.durationType.icon,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      medication.durationDisplayText,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -169,7 +180,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   ),
                 ),
               ),
-            ],
+              ],
             ),
           ),
         );
@@ -241,18 +252,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                                 color: medication.type.getColor(context),
                               ),
                         ),
-                        const SizedBox(height: 2),
-                        Row(
-                          children: [
-                            const Icon(Icons.schedule, size: 14),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Cada ${medication.dosageIntervalHours} horas',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
-                            ),
-                          ],
+                        Text(
+                          medication.durationDisplayText,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                         ),
                       ],
                     ),

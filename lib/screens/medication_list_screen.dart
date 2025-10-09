@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
+import '../database/database_helper.dart';
 import 'add_medication_screen.dart';
 import 'edit_medication_screen.dart';
 
@@ -12,6 +13,23 @@ class MedicationListScreen extends StatefulWidget {
 
 class _MedicationListScreenState extends State<MedicationListScreen> {
   final List<Medication> _medications = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMedications();
+  }
+
+  Future<void> _loadMedications() async {
+    final medications = await DatabaseHelper.instance.getAllMedications();
+    if (!mounted) return; // Check if widget is still mounted
+    setState(() {
+      _medications.clear();
+      _medications.addAll(medications);
+      _isLoading = false;
+    });
+  }
 
   void _navigateToAddMedication() async {
     final newMedication = await Navigator.push<Medication>(
@@ -24,6 +42,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     );
 
     if (newMedication != null) {
+      // Save to database
+      await DatabaseHelper.instance.insertMedication(newMedication);
+
       setState(() {
         _medications.add(newMedication);
       });
@@ -42,6 +63,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     );
 
     if (updatedMedication != null) {
+      // Update in database
+      await DatabaseHelper.instance.updateMedication(updatedMedication);
+
       setState(() {
         final index = _medications.indexWhere((m) => m.id == medication.id);
         if (index != -1) {
@@ -108,18 +132,29 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.schedule, size: 16),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Cada ${medication.dosageIntervalHours} horas',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ],
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      medication.durationType.icon,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      medication.durationDisplayText,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -137,7 +172,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.tonalIcon(
-                  onPressed: () {
+                  onPressed: () async {
+                    // Delete from database
+                    await DatabaseHelper.instance.deleteMedication(medication.id);
+
                     setState(() {
                       _medications.remove(medication);
                     });
@@ -169,7 +207,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   ),
                 ),
               ),
-            ],
+              ],
             ),
           ),
         );
@@ -183,7 +221,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       appBar: AppBar(
         title: const Text('Mis Medicamentos'),
       ),
-      body: _medications.isEmpty
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : _medications.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -241,18 +283,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                                 color: medication.type.getColor(context),
                               ),
                         ),
-                        const SizedBox(height: 2),
-                        Row(
-                          children: [
-                            const Icon(Icons.schedule, size: 14),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Cada ${medication.dosageIntervalHours} horas',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
-                            ),
-                          ],
+                        Text(
+                          medication.durationDisplayText,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                         ),
                       ],
                     ),

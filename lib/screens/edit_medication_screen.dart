@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
 import '../models/medication_type.dart';
+import 'treatment_duration_screen.dart';
 
 class EditMedicationScreen extends StatefulWidget {
   final Medication medication;
@@ -48,16 +49,32 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
     );
   }
 
-  void _saveMedication() {
+  void _continueToNextStep() async {
     if (_formKey.currentState!.validate()) {
-      final updatedMedication = Medication(
-        id: widget.medication.id, // Keep the same ID
-        name: _nameController.text.trim(),
-        type: _selectedType,
-        dosageIntervalHours: int.parse(_dosageIntervalController.text),
+      // Navigate to treatment duration screen with existing data
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TreatmentDurationScreen(
+            initialDurationType: widget.medication.durationType,
+            initialCustomDays: widget.medication.customDays,
+          ),
+        ),
       );
 
-      Navigator.pop(context, updatedMedication);
+      if (result != null && mounted) {
+        // Create updated medication with all information
+        final updatedMedication = Medication(
+          id: widget.medication.id, // Keep the same ID
+          name: _nameController.text.trim(),
+          type: _selectedType,
+          dosageIntervalHours: int.parse(_dosageIntervalController.text),
+          durationType: result['durationType'],
+          customDays: result['customDays'],
+        );
+
+        Navigator.pop(context, updatedMedication);
+      }
     }
   }
 
@@ -121,7 +138,6 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                       const SizedBox(height: 16),
                       LayoutBuilder(
                         builder: (context, constraints) {
-                          // Calcular el ancho para 3 elementos por fila
                           final spacing = 8.0;
                           final itemWidth = (constraints.maxWidth - (spacing * 2)) / 3;
 
@@ -143,82 +159,45 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                                     vertical: 12,
                                     horizontal: 8,
                                   ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? type.getColor(context).withOpacity(0.2)
-                                    : Colors.transparent,
-                                border: Border.all(
-                                  color: isSelected
-                                      ? type.getColor(context)
-                                      : Theme.of(context).dividerColor,
-                                  width: isSelected ? 2 : 1,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    type.icon,
-                                    size: 32,
+                                  decoration: BoxDecoration(
                                     color: isSelected
-                                        ? type.getColor(context)
-                                        : Theme.of(context).colorScheme.onSurface,
+                                        ? type.getColor(context).withOpacity(0.2)
+                                        : Colors.transparent,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? type.getColor(context)
+                                          : Theme.of(context).dividerColor,
+                                      width: isSelected ? 2 : 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    type.displayName,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: isSelected
-                                              ? type.getColor(context)
-                                              : Theme.of(context).colorScheme.onSurface,
-                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                        ),
-                                    textAlign: TextAlign.center,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        type.icon,
+                                        size: 32,
+                                        color: isSelected
+                                            ? type.getColor(context)
+                                            : Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        type.displayName,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: isSelected
+                                                  ? type.getColor(context)
+                                                  : Theme.of(context).colorScheme.onSurface,
+                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                            ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
                                 ),
                               );
                             }).toList(),
                           );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Frecuencia de administración',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _dosageIntervalController,
-                        decoration: InputDecoration(
-                          labelText: 'Intervalo entre dosis (horas)',
-                          hintText: 'Ej: 8',
-                          prefixIcon: const Icon(Icons.schedule),
-                          suffixText: 'horas',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Por favor, introduce el intervalo entre dosis';
-                          }
-
-                          final hours = int.tryParse(value.trim());
-                          if (hours == null || hours <= 0) {
-                            return 'El intervalo debe ser un número mayor a 0';
-                          }
-
-                          if (hours > 24) {
-                            return 'El intervalo no puede ser mayor a 24 horas';
-                          }
-
-                          return null;
                         },
                       ),
                     ],
@@ -227,9 +206,9 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
               ),
               const SizedBox(height: 16),
               FilledButton.icon(
-                onPressed: _saveMedication,
-                icon: const Icon(Icons.save),
-                label: const Text('Guardar Cambios'),
+                onPressed: _continueToNextStep,
+                icon: const Icon(Icons.arrow_forward),
+                label: const Text('Continuar'),
               ),
               const SizedBox(height: 8),
               OutlinedButton.icon(
@@ -237,7 +216,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                 icon: const Icon(Icons.cancel),
                 label: const Text('Cancelar'),
               ),
-            ],
+              ],
             ),
           ),
         ),

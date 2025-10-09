@@ -20,18 +20,23 @@ class EditMedicationScreen extends StatefulWidget {
 class _EditMedicationScreenState extends State<EditMedicationScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
+  late final TextEditingController _dosageIntervalController;
   late MedicationType _selectedType;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.medication.name);
+    _dosageIntervalController = TextEditingController(
+      text: widget.medication.dosageIntervalHours.toString(),
+    );
     _selectedType = widget.medication.type;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _dosageIntervalController.dispose();
     super.dispose();
   }
 

@@ -31,6 +31,7 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
 - Dart
 - Material Design 3
 
+
 ## Instalación
 
 ```bash

@@ -18,11 +18,13 @@ class AddMedicationScreen extends StatefulWidget {
 class _AddMedicationScreenState extends State<AddMedicationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _dosageIntervalController = TextEditingController(text: '8');
   MedicationType _selectedType = MedicationType.pastilla;
 
   @override
   void dispose() {
     _nameController.dispose();
+    _dosageIntervalController.dispose();
     super.dispose();
   }
 

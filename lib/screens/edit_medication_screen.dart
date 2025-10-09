@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
 import '../models/medication_type.dart';
+import 'treatment_duration_screen.dart';
 
 class EditMedicationScreen extends StatefulWidget {
   final Medication medication;
@@ -43,15 +44,31 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
     );
   }
 
-  void _saveMedication() {
+  void _continueToNextStep() async {
     if (_formKey.currentState!.validate()) {
-      final updatedMedication = Medication(
-        id: widget.medication.id, // Keep the same ID
-        name: _nameController.text.trim(),
-        type: _selectedType,
+      // Navigate to treatment duration screen with existing data
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TreatmentDurationScreen(
+            initialDurationType: widget.medication.durationType,
+            initialCustomDays: widget.medication.customDays,
+          ),
+        ),
       );
 
-      Navigator.pop(context, updatedMedication);
+      if (result != null && mounted) {
+        // Create updated medication with all information
+        final updatedMedication = Medication(
+          id: widget.medication.id, // Keep the same ID
+          name: _nameController.text.trim(),
+          type: _selectedType,
+          durationType: result['durationType'],
+          customDays: result['customDays'],
+        );
+
+        Navigator.pop(context, updatedMedication);
+      }
     }
   }
 
@@ -61,13 +78,14 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
       appBar: AppBar(
         title: const Text('Editar Medicamento'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -112,62 +130,69 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                             ),
                       ),
                       const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: MedicationType.values.map((type) {
-                          final isSelected = _selectedType == type;
-                          return InkWell(
-                            onTap: () {
-                              setState(() {
-                                _selectedType = type;
-                              });
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              width: 100,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? type.getColor(context).withOpacity(0.2)
-                                    : Colors.transparent,
-                                border: Border.all(
-                                  color: isSelected
-                                      ? type.getColor(context)
-                                      : Theme.of(context).dividerColor,
-                                  width: isSelected ? 2 : 1,
-                                ),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final spacing = 8.0;
+                          final itemWidth = (constraints.maxWidth - (spacing * 2)) / 3;
+
+                          return Wrap(
+                            spacing: spacing,
+                            runSpacing: spacing,
+                            children: MedicationType.values.map((type) {
+                              final isSelected = _selectedType == type;
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedType = type;
+                                  });
+                                },
                                 borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    type.icon,
-                                    size: 32,
+                                child: Container(
+                                  width: itemWidth,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 8,
+                                  ),
+                                  decoration: BoxDecoration(
                                     color: isSelected
-                                        ? type.getColor(context)
-                                        : Theme.of(context).colorScheme.onSurface,
+                                        ? type.getColor(context).withOpacity(0.2)
+                                        : Colors.transparent,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? type.getColor(context)
+                                          : Theme.of(context).dividerColor,
+                                      width: isSelected ? 2 : 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    type.displayName,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: isSelected
-                                              ? type.getColor(context)
-                                              : Theme.of(context).colorScheme.onSurface,
-                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                        ),
-                                    textAlign: TextAlign.center,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        type.icon,
+                                        size: 32,
+                                        color: isSelected
+                                            ? type.getColor(context)
+                                            : Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        type.displayName,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: isSelected
+                                                  ? type.getColor(context)
+                                                  : Theme.of(context).colorScheme.onSurface,
+                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                            ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
+                                ),
+                              );
+                            }).toList(),
                           );
-                        }).toList(),
+                        },
                       ),
                     ],
                   ),
@@ -175,9 +200,9 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
               ),
               const SizedBox(height: 16),
               FilledButton.icon(
-                onPressed: _saveMedication,
-                icon: const Icon(Icons.save),
-                label: const Text('Guardar Cambios'),
+                onPressed: _continueToNextStep,
+                icon: const Icon(Icons.arrow_forward),
+                label: const Text('Continuar'),
               ),
               const SizedBox(height: 8),
               OutlinedButton.icon(
@@ -185,7 +210,8 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                 icon: const Icon(Icons.cancel),
                 label: const Text('Cancelar'),
               ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

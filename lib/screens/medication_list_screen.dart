@@ -73,11 +73,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         ),
       ),
       builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+        return SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               Container(
                 width: 40,
                 height: 4,
@@ -105,6 +106,31 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                       color: medication.type.getColor(context),
                     ),
                 textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      medication.durationType.icon,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      medication.durationDisplayText,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -154,7 +180,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   ),
                 ),
               ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -216,11 +243,22 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                       medication.name,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    subtitle: Text(
-                      medication.type.displayName,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: medication.type.getColor(context),
-                          ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          medication.type.displayName,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: medication.type.getColor(context),
+                              ),
+                        ),
+                        Text(
+                          medication.durationDisplayText,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
                     ),
                     onTap: () => _showDeleteModal(medication),
                   ),

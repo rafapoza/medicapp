@@ -8,6 +8,7 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
 
 ## Características principales
 
+- **Persistencia de datos**: Tus medicamentos se guardan localmente en SQLite y persisten entre sesiones
 - **Registro de medicamentos**: Añade nuevos medicamentos a tu lista con un flujo guiado de dos pasos
 - **Tipos de medicamento**: Clasifica cada medicamento por su formato (pastilla, jarabe, inyección, cápsula, crema, gotas, spray, inhalador, parche, supositorio) con iconos representativos
 - **Duración del tratamiento**: Define cuánto tiempo tomarás cada medicamento:
@@ -30,6 +31,8 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
 - Flutter 3.9.2+
 - Dart
 - Material Design 3
+- SQLite (sqflite 2.3.0) - Base de datos local para persistencia
+- sqflite_common_ffi 2.3.0 - Para tests en desktop/VM
 
 
 ## Instalación
@@ -57,6 +60,8 @@ flutter test
 
 ```
 lib/
+├── database/
+│   └── database_helper.dart            # Gestión de base de datos SQLite (singleton)
 ├── models/
 │   ├── medication.dart                 # Modelo principal de medicamento
 │   ├── medication_type.dart            # Enum de tipos de medicamento
@@ -68,8 +73,25 @@ lib/
 │   └── treatment_duration_screen.dart  # Pantalla de duración del tratamiento (paso 2)
 ├── main.dart                            # Punto de entrada
 └── test/
-    └── widget_test.dart                 # Suite completa de tests
+    └── widget_test.dart                 # Suite completa de tests con persistencia
 ```
+
+## Base de datos
+
+La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. Los datos persisten entre sesiones de la aplicación.
+
+### Características de la base de datos:
+
+- **Patrón Singleton**: Una única instancia de `DatabaseHelper` gestiona todas las operaciones
+- **CRUD completo**: Create, Read, Update, Delete
+- **Tabla medications**:
+  - `id` (TEXT PRIMARY KEY)
+  - `name` (TEXT NOT NULL)
+  - `type` (TEXT NOT NULL)
+  - `dosageIntervalHours` (INTEGER NOT NULL)
+  - `durationType` (TEXT NOT NULL)
+  - `customDays` (INTEGER NULLABLE)
+- **Testing**: Los tests utilizan una base de datos en memoria para aislamiento completo
 
 ## Flujo de uso
 

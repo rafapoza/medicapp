@@ -228,6 +228,121 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     }
   }
 
+  void _registerDose(Medication medication) async {
+    // Close the modal first
+    Navigator.pop(context);
+
+    // Check if medication has dose times configured
+    if (medication.doseTimes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Este medicamento no tiene horarios configurados'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Check if there's stock available
+    if (medication.stockQuantity <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No hay stock disponible de este medicamento'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    String? selectedDoseTime;
+
+    // If medication has only one dose per day, register it directly
+    if (medication.doseTimes.length == 1) {
+      selectedDoseTime = medication.doseTimes.first;
+    } else {
+      // If medication has multiple doses, show dialog to select which one was taken
+      selectedDoseTime = await showDialog<String>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Registrar toma de ${medication.name}'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '¿Qué toma has tomado?',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 16),
+                ...medication.doseTimes.map((doseTime) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: () => Navigator.pop(context, doseTime),
+                      icon: const Icon(Icons.alarm),
+                      label: Text(doseTime),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    if (selectedDoseTime != null) {
+      // Decrease stock by 1
+      final updatedMedication = Medication(
+        id: medication.id,
+        name: medication.name,
+        type: medication.type,
+        dosageIntervalHours: medication.dosageIntervalHours,
+        durationType: medication.durationType,
+        customDays: medication.customDays,
+        doseTimes: medication.doseTimes,
+        stockQuantity: medication.stockQuantity - 1,
+      );
+
+      // Update in database
+      await DatabaseHelper.instance.updateMedication(updatedMedication);
+
+      // Reschedule notification for this specific dose time
+      // The notification will be scheduled for the next occurrence (tomorrow at the same time)
+      await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
+
+      // Reload medications
+      await _loadMedications();
+
+      if (!mounted) return;
+
+      // Show confirmation
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            medication.doseTimes.length == 1
+                ? 'Toma de ${medication.name} registrada\n'
+                    'Stock restante: ${updatedMedication.stockDisplayText}'
+                : 'Toma de ${medication.name} registrada a las $selectedDoseTime\n'
+                    'Stock restante: ${updatedMedication.stockDisplayText}',
+          ),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   void _showDeleteModal(Medication medication) {
     showModalBottomSheet(
       context: context,
@@ -300,6 +415,18 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
+                  onPressed: () => _registerDose(medication),
+                  icon: const Icon(Icons.medication_liquid),
+                  label: const Text('Registrar toma'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
                   onPressed: () => _navigateToEditMedication(medication),
                   icon: const Icon(Icons.edit),
                   label: const Text('Editar medicamento'),

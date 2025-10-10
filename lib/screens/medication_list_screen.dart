@@ -16,11 +16,46 @@ class MedicationListScreen extends StatefulWidget {
 class _MedicationListScreenState extends State<MedicationListScreen> {
   final List<Medication> _medications = [];
   bool _isLoading = true;
+  bool _debugMenuVisible = false;
+  int _titleTapCount = 0;
+  DateTime? _lastTapTime;
 
   @override
   void initState() {
     super.initState();
     _loadMedications();
+  }
+
+  void _onTitleTap() {
+    final now = DateTime.now();
+
+    // Reset counter if more than 2 seconds have passed since last tap
+    if (_lastTapTime == null || now.difference(_lastTapTime!).inSeconds > 2) {
+      _titleTapCount = 1;
+    } else {
+      _titleTapCount++;
+    }
+
+    _lastTapTime = now;
+
+    // Toggle debug menu visibility after 5 taps
+    if (_titleTapCount >= 5) {
+      setState(() {
+        _debugMenuVisible = !_debugMenuVisible;
+        _titleTapCount = 0;
+        _lastTapTime = null;
+      });
+
+      // Show feedback to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_debugMenuVisible
+              ? 'Menú de depuración activado'
+              : 'Menú de depuración desactivado'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   Future<void> _loadMedications() async {
@@ -541,8 +576,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mis Medicamentos'),
-        actions: [
+        title: GestureDetector(
+          onTap: _onTitleTap,
+          child: const Text('Mis Medicamentos'),
+        ),
+        actions: _debugMenuVisible
+            ? [
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'test') {
@@ -598,7 +637,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               ),
             ],
           ),
-        ],
+        ]
+            : null,
       ),
       body: _isLoading
           ? const Center(

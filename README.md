@@ -21,6 +21,13 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
   - **Todos los días**: Para tratamientos continuos sin fecha de finalización
   - **Hasta acabar la medicación**: Para tratamientos que terminarán cuando se acabe el medicamento
   - **Personalizado**: Especifica el número exacto de días del tratamiento (1-365 días)
+- **Registro de tomas**: Sistema completo para registrar cuando tomas tus medicamentos
+  - Botón "Registrar toma" accesible desde cada medicamento
+  - Selección del horario específico que acabas de tomar
+  - Descuento automático de stock al registrar cada toma
+  - Validación de stock disponible antes de permitir el registro
+  - Confirmación visual con stock restante actualizado
+  - Reprogramación automática de notificaciones tras cada registro
 - **Gestión de stock (Pastillero)**: Control completo del inventario de medicamentos
   - Registra la cantidad disponible de cada medicamento con unidades específicas (pastillas, ml, gramos, óvulos, aplicaciones, gotas)
   - Pantalla dedicada "Pastillero" con vista general del inventario
@@ -216,6 +223,21 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
 4. Actualiza la duración del tratamiento si es necesario
 5. Ajusta los horarios de las tomas en la pantalla de programación
 6. Los cambios se guardan automáticamente
+
+### Registrar una toma
+
+1. Toca el medicamento del que quieres registrar una toma
+2. En el modal, selecciona "Registrar toma"
+3. Comportamiento según el número de tomas diarias:
+   - **Una sola toma al día**: Se registra automáticamente sin preguntar
+   - **Varias tomas al día**: Selecciona cuál de tus horarios programados acabas de tomar
+4. El sistema automáticamente:
+   - Resta una dosis de tu stock disponible
+   - Actualiza el contador de medicamentos
+   - Reprograma las notificaciones
+   - Te muestra el stock restante
+5. Si no tienes stock disponible, recibirás una alerta
+6. Si no tienes horarios configurados, recibirás un aviso
 
 ### Ver el Pastillero
 

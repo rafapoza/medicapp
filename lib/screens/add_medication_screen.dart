@@ -137,7 +137,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                           hintText: 'Ej: 8',
                           prefixIcon: const Icon(Icons.access_time),
                           suffixText: 'horas',
-                          helperText: 'Cada cuántas horas tomarás este medicamento',
+                          helperText: 'Intervalo entre tomas',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

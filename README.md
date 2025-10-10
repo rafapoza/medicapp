@@ -56,6 +56,11 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
   - Scroll optimizado para pantallas pequeñas
   - Pull-to-refresh en pantalla de Pastillero
 - **Visualización detallada**: Cada medicamento muestra su tipo, nombre, duración del tratamiento y próxima toma
+- **Indicadores visuales de stock**: Alertas en pantalla principal para medicamentos con problemas de stock
+  - Icono rojo de error cuando el medicamento se ha agotado (stock = 0)
+  - Icono naranja de advertencia cuando el stock es bajo (menos de 3 días de medicamento)
+  - Sin indicador cuando el stock es suficiente
+  - Toca el indicador para ver detalles: cantidad exacta y duración estimada en días
 
 ## Tecnologías
 

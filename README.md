@@ -21,12 +21,18 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
   - **Todos los días**: Para tratamientos continuos sin fecha de finalización
   - **Hasta acabar la medicación**: Para tratamientos que terminarán cuando se acabe el medicamento
   - **Personalizado**: Especifica el número exacto de días del tratamiento (1-365 días)
-- **Registro de tomas**: Sistema completo para registrar cuando tomas tus medicamentos
+- **Registro de tomas**: Sistema completo e inteligente para registrar cuando tomas tus medicamentos
   - Botón "Registrar toma" accesible desde cada medicamento
   - Selección del horario específico que acabas de tomar
+  - Sistema inteligente de tomas restantes:
+    - Rastrea qué tomas ya se han tomado hoy
+    - Solo muestra las tomas pendientes del día actual
+    - Registro automático si solo queda una toma pendiente
+    - Mensaje de confirmación al completar todas las tomas del día
   - Descuento automático de stock al registrar cada toma
   - Validación de stock disponible antes de permitir el registro
-  - Confirmación visual con stock restante actualizado
+  - Validación de tomas disponibles (no permite registrar más tomas de las programadas)
+  - Confirmación visual con stock restante y tomas pendientes
   - Reprogramación automática de notificaciones tras cada registro
 - **Gestión de stock (Pastillero)**: Control completo del inventario de medicamentos
   - Registra la cantidad disponible de cada medicamento con unidades específicas (pastillas, ml, gramos, óvulos, aplicaciones, gotas)
@@ -126,7 +132,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
 
 - **Patrón Singleton**: Una única instancia de `DatabaseHelper` gestiona todas las operaciones
 - **CRUD completo**: Create, Read, Update, Delete
-- **Tabla medications** (versión 3):
+- **Tabla medications** (versión 4):
   - `id` (TEXT PRIMARY KEY)
   - `name` (TEXT NOT NULL)
   - `type` (TEXT NOT NULL)
@@ -135,9 +141,12 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `customDays` (INTEGER NULLABLE)
   - `doseTimes` (TEXT NOT NULL) - Horarios de tomas en formato "HH:mm" separados por comas
   - `stockQuantity` (REAL NOT NULL DEFAULT 0) - Cantidad de medicamento disponible
+  - `takenDosesToday` (TEXT NOT NULL DEFAULT '') - Horarios de tomas registradas hoy
+  - `takenDosesDate` (TEXT NULLABLE) - Fecha de las tomas registradas en formato "yyyy-MM-dd"
 - **Migraciones**: Sistema de versionado para actualizar el esquema sin perder datos
   - Versión 1 → 2: Añadidos campos de duración de tratamiento y horarios de tomas
   - Versión 2 → 3: Añadido campo de cantidad de stock (stockQuantity)
+  - Versión 3 → 4: Añadidos campos para rastrear tomas diarias (takenDosesToday, takenDosesDate)
 - **Testing**: Los tests utilizan una base de datos en memoria para aislamiento completo
 
 ## Sistema de notificaciones
@@ -233,16 +242,22 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
 
 1. Toca el medicamento del que quieres registrar una toma
 2. En el modal, selecciona "Registrar toma"
-3. Comportamiento según el número de tomas diarias:
+3. Comportamiento inteligente según las tomas disponibles:
+   - **Primera toma del día con múltiples dosis**: Selecciona cuál de tus horarios programados acabas de tomar
+   - **Tomas sucesivas**: Solo se muestran los horarios que aún no has tomado hoy
+   - **Última toma pendiente del día**: Se registra automáticamente sin preguntar
    - **Una sola toma al día**: Se registra automáticamente sin preguntar
-   - **Varias tomas al día**: Selecciona cuál de tus horarios programados acabas de tomar
 4. El sistema automáticamente:
+   - Rastrea qué tomas ya se han tomado hoy
+   - Resetea el conteo de tomas al día siguiente
    - Resta una dosis de tu stock disponible
    - Actualiza el contador de medicamentos
    - Reprograma las notificaciones
-   - Te muestra el stock restante
-5. Si no tienes stock disponible, recibirás una alerta
-6. Si no tienes horarios configurados, recibirás un aviso
+   - Te muestra el stock restante y las tomas pendientes
+5. Validaciones:
+   - Si no tienes stock disponible, recibirás una alerta
+   - Si ya tomaste todas las dosis del día, recibirás un aviso
+   - Si no tienes horarios configurados, recibirás un aviso
 
 ### Ver el Pastillero
 

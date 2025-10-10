@@ -254,13 +254,27 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       return;
     }
 
+    // Get available doses (doses that haven't been taken today)
+    final availableDoses = medication.getAvailableDosesToday();
+
+    // Check if there are available doses
+    if (availableDoses.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ya has tomado todas las dosis de hoy'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     String? selectedDoseTime;
 
-    // If medication has only one dose per day, register it directly
-    if (medication.doseTimes.length == 1) {
-      selectedDoseTime = medication.doseTimes.first;
+    // If only one dose is available, register it directly
+    if (availableDoses.length == 1) {
+      selectedDoseTime = availableDoses.first;
     } else {
-      // If medication has multiple doses, show dialog to select which one was taken
+      // If multiple doses are available, show dialog to select which one was taken
       selectedDoseTime = await showDialog<String>(
         context: context,
         builder: (BuildContext context) {
@@ -275,7 +289,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 16),
-                ...medication.doseTimes.map((doseTime) {
+                ...availableDoses.map((doseTime) {
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8),
                     width: double.infinity,
@@ -303,7 +317,22 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     }
 
     if (selectedDoseTime != null) {
-      // Decrease stock by 1
+      // Get today's date
+      final today = DateTime.now();
+      final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+      // Update taken doses for today
+      List<String> updatedTakenDoses;
+      if (medication.takenDosesDate == todayString) {
+        // Same day, add to existing list
+        updatedTakenDoses = List.from(medication.takenDosesToday);
+        updatedTakenDoses.add(selectedDoseTime);
+      } else {
+        // New day, reset list
+        updatedTakenDoses = [selectedDoseTime];
+      }
+
+      // Decrease stock by 1 and update taken doses
       final updatedMedication = Medication(
         id: medication.id,
         name: medication.name,
@@ -313,13 +342,14 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         customDays: medication.customDays,
         doseTimes: medication.doseTimes,
         stockQuantity: medication.stockQuantity - 1,
+        takenDosesToday: updatedTakenDoses,
+        takenDosesDate: todayString,
       );
 
       // Update in database
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
-      // Reschedule notification for this specific dose time
-      // The notification will be scheduled for the next occurrence (tomorrow at the same time)
+      // Reschedule notifications
       await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
 
       // Reload medications
@@ -328,15 +358,18 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       if (!mounted) return;
 
       // Show confirmation
+      final remainingDoses = updatedMedication.getAvailableDosesToday();
+      final confirmationMessage = remainingDoses.isEmpty
+          ? 'Toma de ${medication.name} registrada a las $selectedDoseTime\n'
+              'Stock restante: ${updatedMedication.stockDisplayText}\n'
+              '✓ Todas las tomas de hoy completadas'
+          : 'Toma de ${medication.name} registrada a las $selectedDoseTime\n'
+              'Stock restante: ${updatedMedication.stockDisplayText}\n'
+              'Tomas restantes hoy: ${remainingDoses.length}';
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            medication.doseTimes.length == 1
-                ? 'Toma de ${medication.name} registrada\n'
-                    'Stock restante: ${updatedMedication.stockDisplayText}'
-                : 'Toma de ${medication.name} registrada a las $selectedDoseTime\n'
-                    'Stock restante: ${updatedMedication.stockDisplayText}',
-          ),
+          content: Text(confirmationMessage),
           duration: const Duration(seconds: 3),
         ),
       );

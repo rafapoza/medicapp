@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'medication_type.dart';
 import 'treatment_duration_type.dart';
 
@@ -8,7 +9,7 @@ class Medication {
   final int dosageIntervalHours;
   final TreatmentDurationType durationType;
   final int? customDays; // Only used when durationType is custom
-  final List<String> doseTimes; // List of dose times in "HH:mm" format
+  final Map<String, double> doseSchedule; // Map of time -> dose quantity in "HH:mm" -> quantity format
   final double stockQuantity; // Quantity of medication in stock
   final List<String> takenDosesToday; // List of doses taken today in "HH:mm" format
   final String? takenDosesDate; // Date when doses were taken in "yyyy-MM-dd" format
@@ -20,11 +21,14 @@ class Medication {
     required this.dosageIntervalHours,
     required this.durationType,
     this.customDays,
-    this.doseTimes = const [],
+    Map<String, double>? doseSchedule,
     this.stockQuantity = 0,
     this.takenDosesToday = const [],
     this.takenDosesDate,
-  });
+  }) : doseSchedule = doseSchedule ?? {};
+
+  /// Legacy compatibility: get list of dose times (keys from doseSchedule)
+  List<String> get doseTimes => doseSchedule.keys.toList()..sort();
 
   Map<String, dynamic> toJson() {
     return {
@@ -34,7 +38,8 @@ class Medication {
       'dosageIntervalHours': dosageIntervalHours,
       'durationType': durationType.name,
       'customDays': customDays,
-      'doseTimes': doseTimes.join(','), // Store as comma-separated string
+      'doseTimes': doseTimes.join(','), // Legacy format (kept for database compatibility)
+      'doseSchedule': jsonEncode(doseSchedule), // Store as JSON string
       'stockQuantity': stockQuantity,
       'takenDosesToday': takenDosesToday.join(','), // Store as comma-separated string
       'takenDosesDate': takenDosesDate,
@@ -42,11 +47,31 @@ class Medication {
   }
 
   factory Medication.fromJson(Map<String, dynamic> json) {
-    // Parse dose times from comma-separated string
-    final doseTimesString = json['doseTimes'] as String?;
-    final doseTimes = doseTimesString != null && doseTimesString.isNotEmpty
-        ? doseTimesString.split(',')
-        : <String>[];
+    // Parse dose schedule
+    Map<String, double> doseSchedule = {};
+
+    // Try to parse from new doseSchedule field (JSON format)
+    final doseScheduleString = json['doseSchedule'] as String?;
+    if (doseScheduleString != null && doseScheduleString.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(doseScheduleString) as Map<String, dynamic>;
+        doseSchedule = decoded.map((key, value) => MapEntry(key, (value as num).toDouble()));
+      } catch (e) {
+        print('Error parsing doseSchedule: $e');
+      }
+    } else {
+      // Legacy: migrate from old doseTimes format (comma-separated string)
+      // Assume 1.0 dose quantity for each time
+      final doseTimesString = json['doseTimes'] as String?;
+      if (doseTimesString != null && doseTimesString.isNotEmpty) {
+        final doseTimes = doseTimesString.split(',');
+        for (final time in doseTimes) {
+          if (time.isNotEmpty) {
+            doseSchedule[time] = 1.0; // Default dose quantity
+          }
+        }
+      }
+    }
 
     // Parse taken doses today from comma-separated string
     final takenDosesTodayString = json['takenDosesToday'] as String?;
@@ -67,7 +92,7 @@ class Medication {
         orElse: () => TreatmentDurationType.everyday,
       ),
       customDays: json['customDays'] as int?,
-      doseTimes: doseTimes,
+      doseSchedule: doseSchedule,
       stockQuantity: (json['stockQuantity'] as num?)?.toDouble() ?? 0,
       takenDosesToday: takenDosesToday,
       takenDosesDate: json['takenDosesDate'] as String?,
@@ -100,15 +125,21 @@ class Medication {
     return '$formattedQuantity $unit';
   }
 
+  /// Get total daily dose quantity
+  double get totalDailyDose {
+    if (doseSchedule.isEmpty) return 0;
+    return doseSchedule.values.fold(0.0, (sum, dose) => sum + dose);
+  }
+
   /// Check if stock is low (less than 3 days worth of medication)
   bool get isStockLow {
-    if (doseTimes.isEmpty) return false;
+    if (doseSchedule.isEmpty) return false;
 
-    // Calculate how many doses per day
-    final dosesPerDay = doseTimes.length;
+    final dailyDose = totalDailyDose;
+    if (dailyDose == 0) return false;
 
     // Consider stock low if less than 3 days worth
-    final threeDaysWorth = dosesPerDay * 3;
+    final threeDaysWorth = dailyDose * 3;
 
     return stockQuantity > 0 && stockQuantity < threeDaysWorth;
   }
@@ -116,6 +147,11 @@ class Medication {
   /// Check if stock is empty
   bool get isStockEmpty {
     return stockQuantity <= 0;
+  }
+
+  /// Get the dose quantity for a specific time
+  double getDoseQuantity(String time) {
+    return doseSchedule[time] ?? 1.0; // Default to 1.0 if not found
   }
 
   /// Get available doses (doses that haven't been taken today)

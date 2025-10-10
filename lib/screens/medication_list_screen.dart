@@ -322,11 +322,203 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     );
   }
 
+  void _showDebugInfo() async {
+    final notificationsEnabled = await NotificationService.instance.areNotificationsEnabled();
+    final pendingNotifications = await NotificationService.instance.getPendingNotifications();
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Debug de Notificaciones'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('✓ Permisos otorgados: ${notificationsEnabled ? "Sí" : "No"}'),
+              const SizedBox(height: 8),
+              Text('📊 Notificaciones pendientes: ${pendingNotifications.length}'),
+              const SizedBox(height: 8),
+              Text('💊 Medicamentos con horarios: ${_medications.where((m) => m.doseTimes.isNotEmpty).length}/${_medications.length}'),
+              const SizedBox(height: 16),
+              const Text('Notificaciones programadas:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              if (pendingNotifications.isEmpty)
+                const Text('⚠️ No hay notificaciones programadas', style: TextStyle(color: Colors.orange))
+              else
+                ...pendingNotifications.map((notification) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ID: ${notification.id}',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            notification.title ?? "Sin título",
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          if (notification.body != null)
+                            Text(
+                              notification.body!,
+                              style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              const SizedBox(height: 16),
+              const Text('Medicamentos y horarios:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              ..._medications.map((medication) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        medication.name,
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                      if (medication.doseTimes.isEmpty)
+                        const Text('  ⚠️ Sin horarios configurados', style: TextStyle(fontSize: 11, color: Colors.orange))
+                      else
+                        ...medication.doseTimes.map((time) => Text('  • $time', style: const TextStyle(fontSize: 11))),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _testNotification() async {
+    await NotificationService.instance.showTestNotification();
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Notificación de prueba enviada'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _testScheduledNotification() async {
+    await NotificationService.instance.scheduleTestNotification();
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Notificación programada para 1 minuto'),
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
+  void _rescheduleAllNotifications() async {
+    print('Reprogramando todas las notificaciones...');
+
+    for (final medication in _medications) {
+      if (medication.doseTimes.isNotEmpty) {
+        await NotificationService.instance.scheduleMedicationNotifications(medication);
+      }
+    }
+
+    if (!mounted) return;
+
+    final pending = await NotificationService.instance.getPendingNotifications();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Notificaciones reprogramadas: ${pending.length}'),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mis Medicamentos'),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'test') {
+                _testNotification();
+              } else if (value == 'test_scheduled') {
+                _testScheduledNotification();
+              } else if (value == 'reschedule') {
+                _rescheduleAllNotifications();
+              } else if (value == 'debug') {
+                _showDebugInfo();
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'test',
+                child: Row(
+                  children: [
+                    Icon(Icons.notifications_active),
+                    SizedBox(width: 8),
+                    Text('Probar notificación'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'test_scheduled',
+                child: Row(
+                  children: [
+                    Icon(Icons.alarm_add),
+                    SizedBox(width: 8),
+                    Text('Probar programada (1 min)'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'reschedule',
+                child: Row(
+                  children: [
+                    Icon(Icons.refresh),
+                    SizedBox(width: 8),
+                    Text('Reprogramar notificaciones'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'debug',
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline),
+                    SizedBox(width: 8),
+                    Text('Info de notificaciones'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: _isLoading
           ? const Center(

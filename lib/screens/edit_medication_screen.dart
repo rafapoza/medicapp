@@ -71,12 +71,13 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
 
       if (durationResult != null && mounted) {
         // Navigate to medication schedule screen with existing data
-        final scheduleResult = await Navigator.push<List<String>>(
+        final scheduleResult = await Navigator.push<Map<String, double>>(
           context,
           MaterialPageRoute(
             builder: (context) => MedicationScheduleScreen(
               dosageIntervalHours: int.parse(_dosageIntervalController.text),
-              initialDoseTimes: widget.medication.doseTimes,
+              medicationType: _selectedType,
+              initialDoseSchedule: widget.medication.doseSchedule,
               autoFillForTesting: kDebugMode, // Auto-fill in debug mode for testing
             ),
           ),
@@ -91,8 +92,11 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
             dosageIntervalHours: int.parse(_dosageIntervalController.text),
             durationType: durationResult['durationType'],
             customDays: durationResult['customDays'],
-            doseTimes: scheduleResult,
+            doseSchedule: scheduleResult,
             stockQuantity: double.tryParse(_stockController.text) ?? 0,
+            // Preserve taken doses information when editing
+            takenDosesToday: widget.medication.takenDosesToday,
+            takenDosesDate: widget.medication.takenDosesDate,
           );
 
           Navigator.pop(context, updatedMedication);

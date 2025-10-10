@@ -243,7 +243,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       return;
     }
 
-    // Check if there's stock available
+    // Check if there's any stock available (quick check before showing dialog)
     if (medication.stockQuantity <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -317,6 +317,24 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     }
 
     if (selectedDoseTime != null) {
+      // Get the dose quantity for this specific time
+      final doseQuantity = medication.getDoseQuantity(selectedDoseTime);
+
+      // Check if there's enough stock for this dose
+      if (medication.stockQuantity < doseQuantity) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Stock insuficiente para esta toma\n'
+              'Necesitas: $doseQuantity ${medication.type.stockUnit}\n'
+              'Disponible: ${medication.stockDisplayText}'
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+
       // Get today's date
       final today = DateTime.now();
       final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
@@ -332,7 +350,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         updatedTakenDoses = [selectedDoseTime];
       }
 
-      // Decrease stock by 1 and update taken doses
+      // Decrease stock by the dose quantity and update taken doses
       final updatedMedication = Medication(
         id: medication.id,
         name: medication.name,
@@ -340,8 +358,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         dosageIntervalHours: medication.dosageIntervalHours,
         durationType: medication.durationType,
         customDays: medication.customDays,
-        doseTimes: medication.doseTimes,
-        stockQuantity: medication.stockQuantity - 1,
+        doseSchedule: medication.doseSchedule,
+        stockQuantity: medication.stockQuantity - doseQuantity,
         takenDosesToday: updatedTakenDoses,
         takenDosesDate: todayString,
       );
@@ -910,8 +928,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                         ? GestureDetector(
                             onTap: () {
                               // Show stock information when tapping the indicator
-                              final daysLeft = medication.doseTimes.isNotEmpty
-                                  ? (medication.stockQuantity / medication.doseTimes.length).floor()
+                              final dailyDose = medication.totalDailyDose;
+                              final daysLeft = dailyDose > 0
+                                  ? (medication.stockQuantity / dailyDose).floor()
                                   : 0;
 
                               final message = medication.isStockEmpty

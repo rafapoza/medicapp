@@ -41,7 +41,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -69,6 +69,7 @@ class DatabaseHelper {
         durationType $textType,
         customDays $integerNullableType,
         doseTimes $textType,
+        doseSchedule $textType,
         stockQuantity $realType,
         takenDosesToday $textType,
         takenDosesDate $textNullableType
@@ -98,6 +99,13 @@ class DatabaseHelper {
       ''');
       await db.execute('''
         ALTER TABLE medications ADD COLUMN takenDosesDate TEXT
+      ''');
+    }
+
+    if (oldVersion < 5) {
+      // Add doseSchedule column for version 5 (dose quantities per time)
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN doseSchedule TEXT NOT NULL DEFAULT ''
       ''');
     }
   }

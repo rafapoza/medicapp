@@ -292,8 +292,8 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            medication.stockQuantity > 0
-                                                ? '${(medication.stockQuantity / medication.doseTimes.length).floor()} días'
+                                            medication.stockQuantity > 0 && medication.totalDailyDose > 0
+                                                ? '${(medication.stockQuantity / medication.totalDailyDose).floor()} días'
                                                 : '0 días',
                                             style: Theme.of(context)
                                                 .textTheme

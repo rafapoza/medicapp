@@ -50,11 +50,12 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
 
       if (durationResult != null && mounted) {
         // Navigate to medication schedule screen
-        final scheduleResult = await Navigator.push<List<String>>(
+        final scheduleResult = await Navigator.push<Map<String, double>>(
           context,
           MaterialPageRoute(
             builder: (context) => MedicationScheduleScreen(
               dosageIntervalHours: int.parse(_dosageIntervalController.text),
+              medicationType: _selectedType,
               autoFillForTesting: kDebugMode, // Auto-fill in debug mode for testing
             ),
           ),
@@ -69,7 +70,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
             dosageIntervalHours: int.parse(_dosageIntervalController.text),
             durationType: durationResult['durationType'],
             customDays: durationResult['customDays'],
-            doseTimes: scheduleResult,
+            doseSchedule: scheduleResult,
             stockQuantity: double.tryParse(_stockController.text) ?? 0,
           );
 

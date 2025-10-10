@@ -42,7 +42,7 @@ void main() {
         type: MedicationType.pastilla,
         dosageIntervalHours: 8,
         durationType: TreatmentDurationType.everyday,
-        doseTimes: ['08:00', '16:00', '00:00'],
+        doseSchedule: {'08:00': 1.0, '16:00': 1.0, '00:00': 1.0},
       );
 
       expect(
@@ -59,7 +59,7 @@ void main() {
         type: MedicationType.pastilla,
         dosageIntervalHours: 24,
         durationType: TreatmentDurationType.everyday,
-        doseTimes: [], // No dose times
+        doseSchedule: {}, // No dose times
       );
 
       expect(
@@ -140,7 +140,7 @@ void main() {
         type: MedicationType.pastilla,
         dosageIntervalHours: 8,
         durationType: TreatmentDurationType.everyday,
-        doseTimes: ['08:00', '16:00', '00:00'],
+        doseSchedule: {'08:00': 1.0, '16:00': 1.0, '00:00': 1.0},
       );
 
       final medication2 = Medication(
@@ -149,7 +149,7 @@ void main() {
         type: MedicationType.jarabe,
         dosageIntervalHours: 12,
         durationType: TreatmentDurationType.everyday,
-        doseTimes: ['09:00', '21:00'],
+        doseSchedule: {'09:00': 5.0, '21:00': 5.0},
       );
 
       // Schedule both medications
@@ -169,7 +169,7 @@ void main() {
         type: MedicationType.pastilla,
         dosageIntervalHours: 8,
         durationType: TreatmentDurationType.everyday,
-        doseTimes: ['08:00', '16:00', '00:00'],
+        doseSchedule: {'08:00': 1.0, '16:00': 1.0, '00:00': 1.0},
       );
 
       final updatedMedication = Medication(
@@ -178,7 +178,7 @@ void main() {
         type: MedicationType.capsula,
         dosageIntervalHours: 12,
         durationType: TreatmentDurationType.everyday,
-        doseTimes: ['09:00', '21:00'], // Different times
+        doseSchedule: {'09:00': 2.0, '21:00': 1.5}, // Different times and doses
       );
 
       // Schedule original

@@ -4,6 +4,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:medicapp/main.dart';
 import 'package:medicapp/database/database_helper.dart';
+import 'package:medicapp/services/notification_service.dart';
 
 // Helper function to wait for database operations to complete
 Future<void> waitForDatabase(WidgetTester tester) async {
@@ -105,12 +106,16 @@ Future<void> addMedicationWithDuration(
   await tester.tap(find.text('Guardar horario'));
   await tester.pumpAndSettle();
 
-  // Wait for database save operation to complete
+  // Wait for database save operation and notification scheduling to complete
   await tester.runAsync(() async {
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future.delayed(const Duration(milliseconds: 200));
   });
+
+  // Pump multiple times to ensure all async operations and UI updates complete
   await tester.pump();
   await tester.pump();
+  await tester.pump(const Duration(milliseconds: 100));
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -130,6 +135,8 @@ void main() {
     await DatabaseHelper.resetDatabase();
     // Enable in-memory mode for this test
     DatabaseHelper.setInMemoryDatabase(true);
+    // Enable test mode for notifications (disables actual notifications)
+    NotificationService.instance.enableTestMode();
   });
 
   testWidgets('MedicApp should load', (WidgetTester tester) async {
@@ -182,6 +189,10 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
     await addMedicationWithDuration(tester, 'Paracetamol');
+
+    // Wait for the main screen to complete its async operations after Navigator.pop
+    await waitForDatabase(tester);
+
     expect(find.text('Paracetamol'), findsOneWidget);
     expect(find.text('Pastilla'), findsAtLeastNWidgets(1));
     expect(find.text('Todos los días'), findsAtLeastNWidgets(1));
@@ -195,6 +206,8 @@ void main() {
       'Antibiótico',
       durationType: 'Hasta acabar la medicación',
     );
+    await waitForDatabase(tester);
+
     expect(find.text('Antibiótico'), findsOneWidget);
     expect(find.text('Hasta acabar'), findsOneWidget);
   });
@@ -208,6 +221,8 @@ void main() {
       durationType: 'Personalizado',
       customDays: '7',
     );
+    await waitForDatabase(tester);
+
     expect(find.text('Tratamiento Corto'), findsOneWidget);
     expect(find.text('7 días'), findsOneWidget);
   });
@@ -295,6 +310,7 @@ void main() {
 
     // Add medication with Jarabe type
     await addMedicationWithDuration(tester, 'Medicina X', type: 'Jarabe');
+    await waitForDatabase(tester);
 
     // Verify medication was added with Jarabe type
     expect(find.text('Medicina X'), findsOneWidget);
@@ -308,6 +324,7 @@ void main() {
 
     // Add first medication
     await addMedicationWithDuration(tester, 'Paracetamol');
+    await waitForDatabase(tester);
 
     // Try to add the same medication again
     await tester.tap(find.byIcon(Icons.add));
@@ -329,6 +346,7 @@ void main() {
 
     // Add first medication
     await addMedicationWithDuration(tester, 'Ibuprofeno');
+    await waitForDatabase(tester);
 
     // Try to add the same medication with different case
     await tester.tap(find.byIcon(Icons.add));
@@ -349,6 +367,7 @@ void main() {
 
     // Add a medication first
     await addMedicationWithDuration(tester, 'Aspirina');
+    await waitForDatabase(tester);
 
     // Tap on the medication card
     await tester.tap(find.text('Aspirina'));
@@ -374,6 +393,7 @@ void main() {
       durationType: 'Personalizado',
       customDays: '30',
     );
+    await waitForDatabase(tester);
 
     // Tap on the medication to open modal
     await tester.tap(find.text('Vitamina C'));
@@ -390,6 +410,7 @@ void main() {
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Omeprazol');
+    await waitForDatabase(tester);
 
     // Verify medication is in the list
     expect(find.text('Omeprazol'), findsOneWidget);
@@ -426,6 +447,7 @@ void main() {
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Loratadina');
+    await waitForDatabase(tester);
 
     // Verify medication is in the list
     expect(find.text('Loratadina'), findsOneWidget);
@@ -453,8 +475,11 @@ void main() {
 
     // Add three medications
     await addMedicationWithDuration(tester, 'Medicamento A');
+    await waitForDatabase(tester);
     await addMedicationWithDuration(tester, 'Medicamento B');
+    await waitForDatabase(tester);
     await addMedicationWithDuration(tester, 'Medicamento C');
+    await waitForDatabase(tester);
 
     // Verify all three medications are in the list
     expect(find.text('Medicamento A'), findsOneWidget);
@@ -490,6 +515,7 @@ void main() {
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Metformina');
+    await waitForDatabase(tester);
 
     // Tap on the medication to open modal
     await tester.tap(find.text('Metformina'));
@@ -507,6 +533,7 @@ void main() {
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Atorvastatina');
+    await waitForDatabase(tester);
 
     // Tap on the medication to open modal
     await tester.tap(find.text('Atorvastatina'));
@@ -532,6 +559,7 @@ void main() {
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Simvastatina');
+    await waitForDatabase(tester);
 
     // Verify medication is in the list
     expect(find.text('Simvastatina'), findsOneWidget);
@@ -569,6 +597,9 @@ void main() {
     // Additional pump to ensure modal is fully closed
     await tester.pumpAndSettle();
 
+    // Wait for main screen to complete its async operations (reload from DB)
+    await waitForDatabase(tester);
+
     // Verify old name is gone and new name is in the list
     expect(find.text('Simvastatina'), findsNothing);
     expect(find.text('Rosuvastatina'), findsOneWidget);
@@ -584,6 +615,7 @@ void main() {
 
     // Add a medication with default type (Pastilla)
     await addMedicationWithDuration(tester, 'Medicina');
+    await waitForDatabase(tester);
 
     // Tap on medication to open modal
     await tester.tap(find.text('Medicina'));
@@ -619,6 +651,9 @@ void main() {
     // Additional pump to ensure modal is fully closed
     await tester.pumpAndSettle();
 
+    // Wait for main screen to complete its async operations (reload from DB)
+    await waitForDatabase(tester);
+
     // Verify type was updated - should now show Cápsula
     expect(find.text('Cápsula'), findsOneWidget);
   });
@@ -630,6 +665,7 @@ void main() {
 
     // Add a medication with "Todos los días" duration
     await addMedicationWithDuration(tester, 'Vitaminas');
+    await waitForDatabase(tester);
 
     // Verify initial duration
     expect(find.text('Todos los días'), findsAtLeastNWidgets(1));
@@ -668,6 +704,9 @@ void main() {
     // Additional pump to ensure modal is fully closed
     await tester.pumpAndSettle();
 
+    // Wait for main screen to complete its async operations (reload from DB)
+    await waitForDatabase(tester);
+
     // Verify duration was updated
     expect(find.text('15 días'), findsOneWidget);
   });
@@ -679,12 +718,13 @@ void main() {
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Levotiroxina');
+    await waitForDatabase(tester);
 
     // Tap on the medication to open modal
     await tester.tap(find.text('Levotiroxina'));
     await tester.pumpAndSettle();
 
-    // Scroll to and tap edit button
+    // Scroll to and tap edit button (this will close the modal and navigate to edit screen)
     await scrollToWidget(tester, find.text('Editar medicamento'));
     await tester.tap(find.text('Editar medicamento'));
     await tester.pumpAndSettle();
@@ -692,19 +732,17 @@ void main() {
     // Change the name
     await tester.enterText(find.byType(TextFormField).first, 'Otro Medicamento');
 
-    // Cancel the edit
+    // Cancel the edit (this returns directly to the main list, modal was already closed)
     await scrollToWidget(tester, find.text('Cancelar').first);
     await tester.tap(find.text('Cancelar').first);
     await tester.pumpAndSettle();
 
-    // Close the modal that's still open
-    await scrollToWidget(tester, find.text('Cancelar'));
-    await tester.tap(find.text('Cancelar'));
-    await tester.pumpAndSettle();
-
-    // Verify original name is still in the list
+    // Verify we're back on the main screen and original name is still in the list
     expect(find.text('Levotiroxina'), findsOneWidget);
     expect(find.text('Otro Medicamento'), findsNothing);
+
+    // Verify we're on the main screen (no edit screen elements visible)
+    expect(find.text('Editar Medicamento'), findsNothing);
   });
 
   testWidgets('Should not allow duplicate names when editing', (WidgetTester tester) async {
@@ -714,7 +752,9 @@ void main() {
 
     // Add two medications
     await addMedicationWithDuration(tester, 'Amoxicilina');
+    await waitForDatabase(tester);
     await addMedicationWithDuration(tester, 'Azitromicina');
+    await waitForDatabase(tester);
 
     // Edit the second medication
     await tester.tap(find.text('Azitromicina'));
@@ -743,6 +783,7 @@ void main() {
 
     // Add a medication
     await addMedicationWithDuration(tester, 'Insulina');
+    await waitForDatabase(tester);
 
     // Edit the medication
     await tester.tap(find.text('Insulina'));
@@ -772,6 +813,9 @@ void main() {
     // Additional pump to ensure modal is fully closed
     await tester.pumpAndSettle();
 
+    // Wait for main screen to complete its async operations (reload from DB)
+    await waitForDatabase(tester);
+
     // Verify the medication is still there with the same name
     expect(find.text('Insulina'), findsOneWidget);
 
@@ -786,7 +830,9 @@ void main() {
 
     // Add two medications
     await addMedicationWithDuration(tester, 'Captopril');
+    await waitForDatabase(tester);
     await addMedicationWithDuration(tester, 'Enalapril');
+    await waitForDatabase(tester);
 
     // Edit the second medication
     await tester.tap(find.text('Enalapril'));
@@ -817,6 +863,7 @@ void main() {
       durationType: 'Personalizado',
       customDays: '21',
     );
+    await waitForDatabase(tester);
 
     // Edit the medication
     await tester.tap(find.text('Probiótico'));

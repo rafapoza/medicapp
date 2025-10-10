@@ -22,6 +22,12 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
   - **Hasta acabar la medicación**: Para tratamientos que terminarán cuando se acabe el medicamento
   - **Personalizado**: Especifica el número exacto de días del tratamiento (1-365 días)
 - **Próxima toma**: Visualiza la hora de la siguiente toma de cada medicamento en la lista principal
+- **Notificaciones push**: Recibe recordatorios automáticos en cada hora de toma programada
+  - Notificaciones locales programadas para cada horario del medicamento
+  - Se repiten diariamente a la misma hora
+  - Incluyen el nombre y tipo del medicamento
+  - Se reprograman automáticamente al editar medicamentos
+  - Se cancelan automáticamente al eliminar medicamentos
 - **Edición completa**: Modifica tanto la información básica como la duración del tratamiento y horarios
 - **Eliminación**: Elimina medicamentos de tu lista
 - **Validación inteligente**:
@@ -42,6 +48,8 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
 - Material Design 3
 - SQLite (sqflite 2.3.0) - Base de datos local para persistencia
 - sqflite_common_ffi 2.3.0 - Para tests en desktop/VM
+- flutter_local_notifications 17.0.0 - Sistema de notificaciones locales
+- timezone 0.9.2 - Gestión de zonas horarias para notificaciones programadas
 
 
 ## Instalación
@@ -81,7 +89,9 @@ lib/
 │   ├── edit_medication_screen.dart     # Pantalla para editar medicamento
 │   ├── treatment_duration_screen.dart  # Pantalla de duración del tratamiento (paso 2)
 │   └── medication_schedule_screen.dart # Pantalla de programación de horarios (paso 3)
-├── main.dart                            # Punto de entrada
+├── services/
+│   └── notification_service.dart       # Servicio de notificaciones locales (singleton)
+├── main.dart                            # Punto de entrada con inicialización de notificaciones
 └── test/
     └── widget_test.dart                 # Suite completa de tests con persistencia
 ```
@@ -104,6 +114,30 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `doseTimes` (TEXT NOT NULL) - Horarios de tomas en formato "HH:mm" separados por comas
 - **Migraciones**: Sistema de versionado para actualizar el esquema sin perder datos
 - **Testing**: Los tests utilizan una base de datos en memoria para aislamiento completo
+
+## Sistema de notificaciones
+
+La aplicación utiliza `flutter_local_notifications` para enviar recordatorios automáticos de cada toma de medicamento.
+
+### Características del sistema de notificaciones:
+
+- **Notificaciones programadas**: Cada horario de toma genera una notificación que se repite diariamente
+- **Gestión automática**:
+  - Al añadir un medicamento, se programan automáticamente todas sus notificaciones
+  - Al editar un medicamento, se reprograman sus notificaciones con los nuevos horarios
+  - Al eliminar un medicamento, se cancelan todas sus notificaciones pendientes
+- **Persistencia**: Las notificaciones sobreviven al reinicio del dispositivo
+- **Patrón Singleton**: Una única instancia de `NotificationService` gestiona todas las operaciones
+- **Zona horaria**: Configurada para España (Europe/Madrid) por defecto
+- **Identificación única**: Cada toma de cada medicamento tiene un ID único para evitar conflictos
+- **Permisos**: Solicita automáticamente permisos al usuario en el primer inicio
+- **Compatibilidad**: Funciona en Android (incluido Android 13+) e iOS
+
+### Contenido de las notificaciones:
+
+- **Título**: "💊 Hora de tomar tu medicamento"
+- **Cuerpo**: Nombre del medicamento y tipo (ej: "Paracetamol - Pastilla")
+- **Hora**: Programada según los horarios configurados para cada medicamento
 
 ## Flujo de uso
 

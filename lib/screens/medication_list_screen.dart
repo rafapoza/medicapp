@@ -405,8 +405,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       ),
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.75,
-          minChildSize: 0.5,
+          initialChildSize: 0.5,
+          minChildSize: 0.4,
           maxChildSize: 0.9,
           expand: false,
           builder: (context, scrollController) {

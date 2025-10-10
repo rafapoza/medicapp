@@ -94,4 +94,60 @@ enum MedicationType {
         return Colors.indigo;
     }
   }
+
+  /// Get the unit of measurement for the medication type
+  String get stockUnit {
+    switch (this) {
+      case MedicationType.pastilla:
+        return 'pastillas';
+      case MedicationType.capsula:
+        return 'cápsulas';
+      case MedicationType.inyeccion:
+        return 'inyecciones';
+      case MedicationType.jarabe:
+        return 'ml';
+      case MedicationType.ovulo:
+        return 'óvulos';
+      case MedicationType.supositorio:
+        return 'supositorios';
+      case MedicationType.inhalador:
+        return 'inhalaciones';
+      case MedicationType.sobre:
+        return 'sobres';
+      case MedicationType.spray:
+        return 'ml';
+      case MedicationType.pomada:
+        return 'gramos';
+      case MedicationType.locion:
+        return 'ml';
+    }
+  }
+
+  /// Get the singular unit of measurement for the medication type
+  String get stockUnitSingular {
+    switch (this) {
+      case MedicationType.pastilla:
+        return 'pastilla';
+      case MedicationType.capsula:
+        return 'cápsula';
+      case MedicationType.inyeccion:
+        return 'inyección';
+      case MedicationType.jarabe:
+        return 'ml';
+      case MedicationType.ovulo:
+        return 'óvulo';
+      case MedicationType.supositorio:
+        return 'supositorio';
+      case MedicationType.inhalador:
+        return 'inhalación';
+      case MedicationType.sobre:
+        return 'sobre';
+      case MedicationType.spray:
+        return 'ml';
+      case MedicationType.pomada:
+        return 'gramo';
+      case MedicationType.locion:
+        return 'ml';
+    }
+  }
 }

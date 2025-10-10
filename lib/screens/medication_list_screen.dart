@@ -4,6 +4,7 @@ import '../database/database_helper.dart';
 import '../services/notification_service.dart';
 import 'add_medication_screen.dart';
 import 'edit_medication_screen.dart';
+import 'medication_stock_screen.dart';
 
 class MedicationListScreen extends StatefulWidget {
   const MedicationListScreen({super.key});
@@ -457,6 +458,15 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     );
   }
 
+  void _navigateToStock() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MedicationStockScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -465,7 +475,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
-              if (value == 'test') {
+              if (value == 'stock') {
+                _navigateToStock();
+              } else if (value == 'test') {
                 _testNotification();
               } else if (value == 'test_scheduled') {
                 _testScheduledNotification();
@@ -476,6 +488,17 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               }
             },
             itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'stock',
+                child: Row(
+                  children: [
+                    Icon(Icons.inventory_2),
+                    SizedBox(width: 8),
+                    Text('Ver Pastillero'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
               const PopupMenuItem(
                 value: 'test',
                 child: Row(

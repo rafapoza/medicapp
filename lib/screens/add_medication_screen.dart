@@ -21,12 +21,14 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _dosageIntervalController = TextEditingController(text: '8');
+  final _stockController = TextEditingController(text: '0');
   MedicationType _selectedType = MedicationType.pastilla;
 
   @override
   void dispose() {
     _nameController.dispose();
     _dosageIntervalController.dispose();
+    _stockController.dispose();
     super.dispose();
   }
 
@@ -68,6 +70,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
             durationType: durationResult['durationType'],
             customDays: durationResult['customDays'],
             doseTimes: scheduleResult,
+            stockQuantity: double.tryParse(_stockController.text) ?? 0,
           );
 
           Navigator.pop(context, newMedication);
@@ -156,6 +159,33 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
 
                           if (24 % hours != 0) {
                             return 'Las horas deben dividir 24 exactamente (1, 2, 3, 4, 6, 8, 12, 24)';
+                          }
+
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      TextFormField(
+                        controller: _stockController,
+                        decoration: InputDecoration(
+                          labelText: 'Cantidad disponible',
+                          hintText: 'Ej: 30',
+                          prefixIcon: const Icon(Icons.inventory_2),
+                          suffixText: _selectedType.stockUnit,
+                          helperText: 'Cantidad de ${_selectedType.stockUnit} que tienes',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Por favor, introduce la cantidad disponible';
+                          }
+
+                          final quantity = double.tryParse(value.trim());
+                          if (quantity == null || quantity < 0) {
+                            return 'La cantidad debe ser mayor o igual a 0';
                           }
 
                           return null;

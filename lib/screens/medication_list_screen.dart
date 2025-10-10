@@ -803,12 +803,25 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               itemCount: _medications.length,
               itemBuilder: (context, index) {
                 final medication = _medications[index];
+
+                // Determine stock status icon and color
+                IconData? stockIcon;
+                Color? stockColor;
+                if (medication.isStockEmpty) {
+                  stockIcon = Icons.error;
+                  stockColor = Colors.red;
+                } else if (medication.isStockLow) {
+                  stockIcon = Icons.warning;
+                  stockColor = Colors.orange;
+                }
+
                 return Card(
                   margin: const EdgeInsets.symmetric(
                     horizontal: 8,
                     vertical: 4,
                   ),
                   child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     leading: CircleAvatar(
                       backgroundColor: medication.type.getColor(context).withOpacity(0.2),
                       child: Icon(
@@ -845,18 +858,55 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                                 color: Theme.of(context).colorScheme.primary,
                               ),
                               const SizedBox(width: 4),
-                              Text(
-                                _formatNextDose(_getNextDoseTime(medication)),
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.primary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                              Flexible(
+                                child: Text(
+                                  _formatNextDose(_getNextDoseTime(medication)),
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.primary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ],
                           ),
                         ],
                       ],
                     ),
+                    trailing: stockIcon != null
+                        ? GestureDetector(
+                            onTap: () {
+                              // Show stock information when tapping the indicator
+                              final daysLeft = medication.doseTimes.isNotEmpty
+                                  ? (medication.stockQuantity / medication.doseTimes.length).floor()
+                                  : 0;
+
+                              final message = medication.isStockEmpty
+                                  ? '${medication.name}\nStock: ${medication.stockDisplayText}'
+                                  : '${medication.name}\nStock: ${medication.stockDisplayText}\nDuración estimada: $daysLeft días';
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(message),
+                                  duration: const Duration(seconds: 2),
+                                  backgroundColor: stockColor,
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: stockColor!.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                stockIcon,
+                                color: stockColor,
+                                size: 18,
+                              ),
+                            ),
+                          )
+                        : null,
                     onTap: () => _showDeleteModal(medication),
                   ),
                 );

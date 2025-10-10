@@ -1303,4 +1303,80 @@ void main() {
     expect(find.text('Registrar toma de Vitamina D'), findsNothing);
     expect(find.textContaining('Toma de Vitamina D registrada'), findsNothing);
   });
+
+  testWidgets('Should show error icon for medication with no stock', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Add a medication with 0 stock
+    await addMedicationWithDuration(tester, 'MedSinStock', stockQuantity: '0');
+    await waitForDatabase(tester);
+
+    // Verify the medication is displayed
+    expect(find.text('MedSinStock'), findsOneWidget);
+
+    // Verify error icon is shown (red icon for no stock)
+    expect(find.byIcon(Icons.error), findsOneWidget);
+  });
+
+  testWidgets('Should show warning icon for medication with low stock', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Add a medication with low stock (2 days worth with 8-hour interval = 6 doses)
+    // Stock low is detected when less than 3 days worth (< 9 doses for 8-hour interval)
+    await addMedicationWithDuration(tester, 'MedStockBajo', stockQuantity: '6', dosageIntervalHours: 8);
+    await waitForDatabase(tester);
+
+    // Verify the medication is displayed
+    expect(find.text('MedStockBajo'), findsOneWidget);
+
+    // Verify warning icon is shown (orange icon for low stock)
+    expect(find.byIcon(Icons.warning), findsOneWidget);
+  });
+
+  testWidgets('Should not show stock icon for medication with sufficient stock', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Add a medication with sufficient stock (10 days worth)
+    await addMedicationWithDuration(tester, 'MedStockOK', stockQuantity: '30', dosageIntervalHours: 8);
+    await waitForDatabase(tester);
+
+    // Verify the medication is displayed
+    expect(find.text('MedStockOK'), findsOneWidget);
+
+    // Verify no stock warning icons are shown
+    // Note: There might be other icons in the UI (like alarm icon for next dose)
+    // but no error or warning icons for stock
+    expect(find.byIcon(Icons.error), findsNothing);
+    expect(find.byIcon(Icons.warning), findsNothing);
+  });
+
+  testWidgets('Should show stock details when tapping stock indicator', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Add a medication with low stock
+    await addMedicationWithDuration(tester, 'Aspirina', stockQuantity: '5', dosageIntervalHours: 12);
+    await waitForDatabase(tester);
+
+    // Verify the medication is displayed
+    expect(find.text('Aspirina'), findsOneWidget);
+
+    // Verify warning icon is shown
+    expect(find.byIcon(Icons.warning), findsOneWidget);
+
+    // Tap on the warning icon
+    await tester.tap(find.byIcon(Icons.warning));
+    await tester.pumpAndSettle();
+
+    // Verify that a SnackBar with stock information is shown
+    expect(find.textContaining('Stock:'), findsOneWidget);
+    expect(find.textContaining('Duración estimada:'), findsOneWidget);
+  });
 }

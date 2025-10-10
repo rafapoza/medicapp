@@ -41,11 +41,11 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
-        // Debug: Check if doseTimes column exists
+        // Debug: Check database schema
         final result = await db.rawQuery('PRAGMA table_info(medications)');
         print('Database columns: ${result.map((e) => e['name']).toList()}');
       },
@@ -57,6 +57,7 @@ class DatabaseHelper {
     const textType = 'TEXT NOT NULL';
     const integerType = 'INTEGER NOT NULL';
     const integerNullableType = 'INTEGER';
+    const realType = 'REAL NOT NULL DEFAULT 0';
 
     await db.execute('''
       CREATE TABLE medications (
@@ -66,7 +67,8 @@ class DatabaseHelper {
         dosageIntervalHours $integerType,
         durationType $textType,
         customDays $integerNullableType,
-        doseTimes $textType
+        doseTimes $textType,
+        stockQuantity $realType
       )
     ''');
   }
@@ -76,6 +78,13 @@ class DatabaseHelper {
       // Add doseTimes column for version 2
       await db.execute('''
         ALTER TABLE medications ADD COLUMN doseTimes TEXT NOT NULL DEFAULT ''
+      ''');
+    }
+
+    if (oldVersion < 3) {
+      // Add stockQuantity column for version 3
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN stockQuantity REAL NOT NULL DEFAULT 0
       ''');
     }
   }

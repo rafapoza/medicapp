@@ -21,6 +21,13 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
   - **Todos los días**: Para tratamientos continuos sin fecha de finalización
   - **Hasta acabar la medicación**: Para tratamientos que terminarán cuando se acabe el medicamento
   - **Personalizado**: Especifica el número exacto de días del tratamiento (1-365 días)
+- **Gestión de stock (Pastillero)**: Control completo del inventario de medicamentos
+  - Registra la cantidad disponible de cada medicamento con unidades específicas (pastillas, ml, gramos, óvulos, aplicaciones, gotas)
+  - Pantalla dedicada "Pastillero" con vista general del inventario
+  - Indicadores visuales de estado: disponible (verde), stock bajo (naranja), sin stock (rojo)
+  - Cálculo automático de duración estimada del stock según las tomas diarias
+  - Stock bajo detectado automáticamente (menos de 3 días de medicamento)
+  - Tarjetas resumen con totales, medicamentos con stock bajo y sin stock
 - **Próxima toma**: Visualiza la hora de la siguiente toma de cada medicamento en la lista principal
 - **Notificaciones push**: Recibe recordatorios automáticos en cada hora de toma programada
   - Notificaciones locales programadas para cada horario del medicamento
@@ -35,10 +42,12 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
   - Valida rangos de días en tratamientos personalizados
   - Valida frecuencias de tomas que dividan 24 horas exactamente
   - Previene horarios duplicados con alertas visuales
+  - Valida que las cantidades de stock sean no negativas
 - **Interfaz responsiva**:
   - Diseño moderno con Material Design 3
   - Layout adaptable que muestra 3 tipos de medicamento por fila en todos los dispositivos
   - Scroll optimizado para pantallas pequeñas
+  - Pull-to-refresh en pantalla de Pastillero
 - **Visualización detallada**: Cada medicamento muestra su tipo, nombre, duración del tratamiento y próxima toma
 
 ## Tecnologías
@@ -81,10 +90,11 @@ lib/
 │   └── database_helper.dart            # Gestión de base de datos SQLite (singleton)
 ├── models/
 │   ├── medication.dart                 # Modelo principal de medicamento
-│   ├── medication_type.dart            # Enum de tipos de medicamento
+│   ├── medication_type.dart            # Enum de tipos de medicamento con unidades de stock
 │   └── treatment_duration_type.dart    # Enum de tipos de duración de tratamiento
 ├── screens/
 │   ├── medication_list_screen.dart     # Pantalla principal con lista de medicamentos
+│   ├── medication_stock_screen.dart    # Pantalla de Pastillero con gestión de inventario
 │   ├── add_medication_screen.dart      # Pantalla para añadir medicamento (paso 1)
 │   ├── edit_medication_screen.dart     # Pantalla para editar medicamento
 │   ├── treatment_duration_screen.dart  # Pantalla de duración del tratamiento (paso 2)
@@ -104,7 +114,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
 
 - **Patrón Singleton**: Una única instancia de `DatabaseHelper` gestiona todas las operaciones
 - **CRUD completo**: Create, Read, Update, Delete
-- **Tabla medications**:
+- **Tabla medications** (versión 3):
   - `id` (TEXT PRIMARY KEY)
   - `name` (TEXT NOT NULL)
   - `type` (TEXT NOT NULL)
@@ -112,7 +122,10 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `durationType` (TEXT NOT NULL)
   - `customDays` (INTEGER NULLABLE)
   - `doseTimes` (TEXT NOT NULL) - Horarios de tomas en formato "HH:mm" separados por comas
+  - `stockQuantity` (REAL NOT NULL DEFAULT 0) - Cantidad de medicamento disponible
 - **Migraciones**: Sistema de versionado para actualizar el esquema sin perder datos
+  - Versión 1 → 2: Añadidos campos de duración de tratamiento y horarios de tomas
+  - Versión 2 → 3: Añadido campo de cantidad de stock (stockQuantity)
 - **Testing**: Los tests utilizan una base de datos en memoria para aislamiento completo
 
 ## Sistema de notificaciones
@@ -174,7 +187,8 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
 
 ### Añadir un medicamento
 
-1. **Paso 1 - Información básica**: Introduce el nombre del medicamento, la frecuencia de tomas (cada cuántas horas) y selecciona su tipo
+1. **Paso 1 - Información básica**: Introduce el nombre del medicamento, la frecuencia de tomas (cada cuántas horas), la cantidad disponible (stock) y selecciona su tipo
+   - Las unidades de stock se ajustan automáticamente según el tipo de medicamento (pastillas, ml, gramos, etc.)
 2. **Paso 2 - Duración del tratamiento**: Selecciona cuánto tiempo tomarás el medicamento
    - Todos los días (sin límite)
    - Hasta acabar la medicación
@@ -189,10 +203,22 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
 
 1. Toca el medicamento que quieres editar
 2. En el modal, selecciona "Editar medicamento"
-3. Modifica la información básica (nombre, frecuencia de tomas y tipo)
+3. Modifica la información básica (nombre, frecuencia de tomas, stock y tipo)
 4. Actualiza la duración del tratamiento si es necesario
 5. Ajusta los horarios de las tomas en la pantalla de programación
 6. Los cambios se guardan automáticamente
+
+### Ver el Pastillero
+
+1. Toca el menú (⋮) en la esquina superior derecha de la pantalla principal
+2. Selecciona "Ver Pastillero"
+3. Visualiza el estado del inventario:
+   - Tarjetas resumen con totales generales
+   - Lista detallada de cada medicamento con:
+     - Stock actual con unidades específicas
+     - Indicador visual de estado (verde/naranja/rojo)
+     - Duración estimada del stock en días
+4. Desliza hacia abajo para actualizar la información (pull-to-refresh)
 
 ### Eliminar un medicamento
 

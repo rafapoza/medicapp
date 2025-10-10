@@ -41,7 +41,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -55,6 +55,7 @@ class DatabaseHelper {
   Future<void> _createDB(Database db, int version) async {
     const idType = 'TEXT PRIMARY KEY';
     const textType = 'TEXT NOT NULL';
+    const textNullableType = 'TEXT';
     const integerType = 'INTEGER NOT NULL';
     const integerNullableType = 'INTEGER';
     const realType = 'REAL NOT NULL DEFAULT 0';
@@ -68,7 +69,9 @@ class DatabaseHelper {
         durationType $textType,
         customDays $integerNullableType,
         doseTimes $textType,
-        stockQuantity $realType
+        stockQuantity $realType,
+        takenDosesToday $textType,
+        takenDosesDate $textNullableType
       )
     ''');
   }
@@ -85,6 +88,16 @@ class DatabaseHelper {
       // Add stockQuantity column for version 3
       await db.execute('''
         ALTER TABLE medications ADD COLUMN stockQuantity REAL NOT NULL DEFAULT 0
+      ''');
+    }
+
+    if (oldVersion < 4) {
+      // Add takenDosesToday and takenDosesDate columns for version 4
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN takenDosesToday TEXT NOT NULL DEFAULT ''
+      ''');
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN takenDosesDate TEXT
       ''');
     }
   }

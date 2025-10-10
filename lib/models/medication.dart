@@ -10,6 +10,8 @@ class Medication {
   final int? customDays; // Only used when durationType is custom
   final List<String> doseTimes; // List of dose times in "HH:mm" format
   final double stockQuantity; // Quantity of medication in stock
+  final List<String> takenDosesToday; // List of doses taken today in "HH:mm" format
+  final String? takenDosesDate; // Date when doses were taken in "yyyy-MM-dd" format
 
   Medication({
     required this.id,
@@ -20,6 +22,8 @@ class Medication {
     this.customDays,
     this.doseTimes = const [],
     this.stockQuantity = 0,
+    this.takenDosesToday = const [],
+    this.takenDosesDate,
   });
 
   Map<String, dynamic> toJson() {
@@ -32,6 +36,8 @@ class Medication {
       'customDays': customDays,
       'doseTimes': doseTimes.join(','), // Store as comma-separated string
       'stockQuantity': stockQuantity,
+      'takenDosesToday': takenDosesToday.join(','), // Store as comma-separated string
+      'takenDosesDate': takenDosesDate,
     };
   }
 
@@ -40,6 +46,12 @@ class Medication {
     final doseTimesString = json['doseTimes'] as String?;
     final doseTimes = doseTimesString != null && doseTimesString.isNotEmpty
         ? doseTimesString.split(',')
+        : <String>[];
+
+    // Parse taken doses today from comma-separated string
+    final takenDosesTodayString = json['takenDosesToday'] as String?;
+    final takenDosesToday = takenDosesTodayString != null && takenDosesTodayString.isNotEmpty
+        ? takenDosesTodayString.split(',').where((s) => s.isNotEmpty).toList()
         : <String>[];
 
     return Medication(
@@ -57,6 +69,8 @@ class Medication {
       customDays: json['customDays'] as int?,
       doseTimes: doseTimes,
       stockQuantity: (json['stockQuantity'] as num?)?.toDouble() ?? 0,
+      takenDosesToday: takenDosesToday,
+      takenDosesDate: json['takenDosesDate'] as String?,
     );
   }
 
@@ -102,5 +116,26 @@ class Medication {
   /// Check if stock is empty
   bool get isStockEmpty {
     return stockQuantity <= 0;
+  }
+
+  /// Get available doses (doses that haven't been taken today)
+  List<String> getAvailableDosesToday() {
+    final today = DateTime.now();
+    final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    // If the taken doses date is not today, all doses are available
+    if (takenDosesDate != todayString) {
+      return List.from(doseTimes);
+    }
+
+    // Filter out the doses that have been taken today
+    return doseTimes.where((doseTime) => !takenDosesToday.contains(doseTime)).toList();
+  }
+
+  /// Check if the taken doses date is today
+  bool get isTakenDosesDateToday {
+    final today = DateTime.now();
+    final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    return takenDosesDate == todayString;
   }
 }

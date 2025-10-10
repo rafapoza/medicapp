@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medicapp/services/notification_service.dart';
 import 'package:medicapp/models/medication.dart';
@@ -189,6 +190,115 @@ void main() {
 
       // Should complete without error
       expect(true, isTrue);
+    });
+
+    test('should schedule postponed dose notification without error in test mode', () async {
+      final service = NotificationService.instance;
+      final medication = Medication(
+        id: 'test_postponed_1',
+        name: 'Paracetamol',
+        type: MedicationType.pastilla,
+        dosageIntervalHours: 8,
+        durationType: TreatmentDurationType.everyday,
+        doseSchedule: {'08:00': 1.0, '16:00': 1.0, '00:00': 1.0},
+      );
+
+      expect(
+        () async => await service.schedulePostponedDoseNotification(
+          medication: medication,
+          originalDoseTime: '08:00',
+          newTime: const TimeOfDay(hour: 10, minute: 30),
+        ),
+        returnsNormally,
+      );
+    });
+
+    test('should handle multiple postponed notifications for same medication', () async {
+      final service = NotificationService.instance;
+      final medication = Medication(
+        id: 'test_postponed_2',
+        name: 'Ibuprofeno',
+        type: MedicationType.pastilla,
+        dosageIntervalHours: 8,
+        durationType: TreatmentDurationType.everyday,
+        doseSchedule: {'08:00': 1.0, '16:00': 1.0, '00:00': 1.0},
+      );
+
+      // Schedule multiple postponed notifications
+      await service.schedulePostponedDoseNotification(
+        medication: medication,
+        originalDoseTime: '08:00',
+        newTime: const TimeOfDay(hour: 10, minute: 0),
+      );
+
+      await service.schedulePostponedDoseNotification(
+        medication: medication,
+        originalDoseTime: '16:00',
+        newTime: const TimeOfDay(hour: 18, minute: 30),
+      );
+
+      // Should complete without error
+      expect(true, isTrue);
+    });
+
+    test('should schedule postponed notification for different medications', () async {
+      final service = NotificationService.instance;
+
+      final medication1 = Medication(
+        id: 'test_postponed_3',
+        name: 'Medication 1',
+        type: MedicationType.pastilla,
+        dosageIntervalHours: 8,
+        durationType: TreatmentDurationType.everyday,
+        doseSchedule: {'08:00': 1.0},
+      );
+
+      final medication2 = Medication(
+        id: 'test_postponed_4',
+        name: 'Medication 2',
+        type: MedicationType.jarabe,
+        dosageIntervalHours: 12,
+        durationType: TreatmentDurationType.everyday,
+        doseSchedule: {'09:00': 5.0},
+      );
+
+      // Schedule postponed for both medications
+      await service.schedulePostponedDoseNotification(
+        medication: medication1,
+        originalDoseTime: '08:00',
+        newTime: const TimeOfDay(hour: 11, minute: 0),
+      );
+
+      await service.schedulePostponedDoseNotification(
+        medication: medication2,
+        originalDoseTime: '09:00',
+        newTime: const TimeOfDay(hour: 12, minute: 0),
+      );
+
+      // Should complete without error
+      expect(true, isTrue);
+    });
+
+    test('should handle postponed notification with time that already passed', () async {
+      final service = NotificationService.instance;
+      final medication = Medication(
+        id: 'test_postponed_5',
+        name: 'Test Med',
+        type: MedicationType.pastilla,
+        dosageIntervalHours: 8,
+        durationType: TreatmentDurationType.everyday,
+        doseSchedule: {'08:00': 1.0},
+      );
+
+      // Schedule for a time that has already passed (should schedule for tomorrow)
+      expect(
+        () async => await service.schedulePostponedDoseNotification(
+          medication: medication,
+          originalDoseTime: '08:00',
+          newTime: const TimeOfDay(hour: 1, minute: 0), // Early morning, likely passed
+        ),
+        returnsNormally,
+      );
     });
   });
 }

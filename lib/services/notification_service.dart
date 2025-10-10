@@ -1,7 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../models/medication.dart';
+import '../screens/dose_action_screen.dart';
+import '../database/database_helper.dart';
+import '../main.dart' show navigatorKey;
 
 class NotificationService {
   // Singleton pattern
@@ -127,10 +131,69 @@ class NotificationService {
   }
 
   /// Handle notification tap
-  void _onNotificationTapped(NotificationResponse response) {
-    // Here you can handle navigation when user taps on notification
-    // For example, navigate to medication details
+  void _onNotificationTapped(NotificationResponse response) async {
     print('Notification tapped: ${response.payload}');
+
+    if (response.payload == null || response.payload!.isEmpty) {
+      print('No payload in notification');
+      return;
+    }
+
+    // Parse payload: "medicationId|doseIndex"
+    final parts = response.payload!.split('|');
+    if (parts.length != 2) {
+      print('Invalid payload format: ${response.payload}');
+      return;
+    }
+
+    final medicationId = parts[0];
+    final doseIndexStr = parts[1];
+
+    // For postponed notifications, the format is "medicationId|doseTime"
+    // where doseTime is the actual time string (HH:mm)
+    String doseTime;
+    if (doseIndexStr.contains(':')) {
+      // This is a postponed notification with the actual time
+      doseTime = doseIndexStr;
+    } else {
+      // This is a regular notification, need to get the dose time from medication
+      final doseIndex = int.tryParse(doseIndexStr);
+      if (doseIndex == null) {
+        print('Invalid dose index: $doseIndexStr');
+        return;
+      }
+
+      // Load medication to get the dose time
+      try {
+        final medication = await DatabaseHelper.instance.getMedication(medicationId);
+
+        if (medication == null || doseIndex >= medication.doseTimes.length) {
+          print('Medication not found or invalid dose index');
+          return;
+        }
+
+        doseTime = medication.doseTimes[doseIndex];
+      } catch (e) {
+        print('Error loading medication: $e');
+        return;
+      }
+    }
+
+    // Navigate to DoseActionScreen
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DoseActionScreen(
+            medicationId: medicationId,
+            doseTime: doseTime,
+          ),
+        ),
+      );
+    } else {
+      print('Navigator context is null');
+    }
   }
 
   /// Schedule notifications for a medication based on its dose times
@@ -389,5 +452,94 @@ class NotificationService {
     } catch (e) {
       print('Error scheduling test notification: $e');
     }
+  }
+
+  /// Schedule a postponed dose notification (one-time, not recurring)
+  Future<void> schedulePostponedDoseNotification({
+    required Medication medication,
+    required String originalDoseTime,
+    required TimeOfDay newTime,
+  }) async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    // Get the current time
+    final now = tz.TZDateTime.now(tz.local);
+
+    // Schedule for today at the specified time
+    var scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      newTime.hour,
+      newTime.minute,
+    );
+
+    // If the scheduled time has already passed today, schedule for tomorrow
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    // Generate a unique notification ID for postponed doses
+    // Using a different range to avoid conflicts with regular notifications
+    final notificationId = _generatePostponedNotificationId(medication.id, originalDoseTime);
+
+    final newTimeString = '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+
+    print('Scheduling postponed notification ID $notificationId for ${medication.name} at $newTimeString on $scheduledDate');
+
+    // Android notification details
+    const androidDetails = AndroidNotificationDetails(
+      'medication_reminders', // same channel as regular notifications
+      'Recordatorios de Medicamentos',
+      channelDescription: 'Notificaciones para recordarte tomar tus medicamentos',
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'Recordatorio de medicamento',
+      icon: '@mipmap/ic_launcher',
+      enableVibration: true,
+      playSound: true,
+    );
+
+    // iOS notification details
+    const iOSDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iOSDetails,
+    );
+
+    try {
+      await _notificationsPlugin.zonedSchedule(
+        notificationId,
+        '💊 Hora de tomar tu medicamento (pospuesto)',
+        '${medication.name} - ${medication.type.displayName}',
+        scheduledDate,
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        // No matchDateTimeComponents - this is a one-time notification
+        payload: '${medication.id}|$originalDoseTime', // Use original dose time for action screen
+      );
+      print('Successfully scheduled postponed notification ID $notificationId');
+    } catch (e) {
+      print('Failed to schedule postponed notification: $e');
+    }
+  }
+
+  /// Generate a unique notification ID for postponed doses
+  /// Uses a different range (2000000+) to avoid conflicts with regular notifications
+  int _generatePostponedNotificationId(String medicationId, String doseTime) {
+    // Create a combined hash of medication ID and dose time
+    final combinedString = '$medicationId-$doseTime';
+    final hash = combinedString.hashCode.abs();
+    // Use range 2000000+ for postponed notifications
+    return 2000000 + (hash % 1000000);
   }
 }

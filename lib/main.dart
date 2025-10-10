@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'screens/medication_list_screen.dart';
 import 'services/notification_service.dart';
 
+// Global navigator key to enable navigation from notification callbacks
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +39,7 @@ class MedicApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MedicApp',
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(

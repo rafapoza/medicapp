@@ -47,20 +47,30 @@ Future<void> addMedicationWithDuration(
   String? durationType,
   String? customDays,
   int dosageIntervalHours = 8, // Default to 8 hours
+  String stockQuantity = '0', // Default stock quantity
 }) async {
   // Tap the add button
   await tester.tap(find.byIcon(Icons.add));
   await tester.pumpAndSettle();
 
-  // Enter medication name
+  // Enter medication name (field 0)
   await tester.enterText(find.byType(TextFormField).first, name);
   await tester.pumpAndSettle();
 
-  // Enter dosage interval if different from default
+  // Enter dosage interval if different from default (field 1)
   if (dosageIntervalHours != 8) {
     final dosageFields = find.byType(TextFormField);
     if (dosageFields.evaluate().length >= 2) {
       await tester.enterText(dosageFields.at(1), dosageIntervalHours.toString());
+      await tester.pumpAndSettle();
+    }
+  }
+
+  // Enter stock quantity if different from default (field 2)
+  if (stockQuantity != '0') {
+    final stockFields = find.byType(TextFormField);
+    if (stockFields.evaluate().length >= 3) {
+      await tester.enterText(stockFields.at(2), stockQuantity);
       await tester.pumpAndSettle();
     }
   }

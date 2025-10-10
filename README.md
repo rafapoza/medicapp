@@ -160,9 +160,16 @@ La aplicación utiliza `flutter_local_notifications` para enviar recordatorios a
 - **Cuerpo**: Nombre del medicamento y tipo (ej: "Paracetamol - Pastilla")
 - **Hora**: Programada según los horarios configurados para cada medicamento
 
-### Herramientas de depuración (menú ⋮):
+### Herramientas de depuración:
 
-La app incluye herramientas de diagnóstico accesibles desde el menú principal:
+La app incluye herramientas de diagnóstico para desarrolladores accesibles desde un menú oculto:
+
+**Activar el menú de depuración:**
+- Toca 5 veces consecutivas el título "Mis Medicamentos" en la pantalla principal (máximo 2 segundos entre toques)
+- El menú aparecerá en la esquina superior derecha (⋮)
+- Para ocultarlo nuevamente, toca otras 5 veces consecutivas el título
+
+**Opciones del menú de depuración:**
 
 - **Probar notificación**: Envía una notificación inmediata para verificar permisos
 - **Probar programada (1 min)**: Programa una notificación de prueba para 1 minuto en el futuro

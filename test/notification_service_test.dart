@@ -103,6 +103,23 @@ void main() {
       );
     });
 
+    test('should handle scheduled test notification without error in test mode', () async {
+      final service = NotificationService.instance;
+
+      expect(
+        () async => await service.scheduleTestNotification(),
+        returnsNormally,
+      );
+    });
+
+    test('should check if notifications are enabled in test mode', () async {
+      final service = NotificationService.instance;
+
+      final result = await service.areNotificationsEnabled();
+
+      expect(result, isTrue);
+    });
+
     test('should enable and disable test mode', () {
       final service = NotificationService.instance;
 

@@ -130,7 +130,15 @@ La aplicación utiliza `flutter_local_notifications` para enviar recordatorios a
 - **Patrón Singleton**: Una única instancia de `NotificationService` gestiona todas las operaciones
 - **Zona horaria**: Configurada para España (Europe/Madrid) por defecto
 - **Identificación única**: Cada toma de cada medicamento tiene un ID único para evitar conflictos
-- **Permisos**: Solicita automáticamente permisos al usuario en el primer inicio
+- **Permisos avanzados**:
+  - Solicita automáticamente permisos de notificaciones al iniciar la app
+  - Verifica el estado de los permisos en tiempo real
+  - Soporta alarmas exactas en Android 12+ con permisos `SCHEDULE_EXACT_ALARM` y `USE_EXACT_ALARM`
+  - Logs detallados para diagnosticar problemas de permisos
+- **Manejo inteligente de horarios**:
+  - Si un horario ya pasó hoy, la notificación se programa para el día siguiente
+  - Soporte para alarmas exactas e inexactas (fallback automático)
+  - Logs de depuración para cada notificación programada
 - **Compatibilidad**: Funciona en Android (incluido Android 13+) e iOS
 
 ### Contenido de las notificaciones:
@@ -138,6 +146,29 @@ La aplicación utiliza `flutter_local_notifications` para enviar recordatorios a
 - **Título**: "💊 Hora de tomar tu medicamento"
 - **Cuerpo**: Nombre del medicamento y tipo (ej: "Paracetamol - Pastilla")
 - **Hora**: Programada según los horarios configurados para cada medicamento
+
+### Herramientas de depuración (menú ⋮):
+
+La app incluye herramientas de diagnóstico accesibles desde el menú principal:
+
+- **Probar notificación**: Envía una notificación inmediata para verificar permisos
+- **Probar programada (1 min)**: Programa una notificación de prueba para 1 minuto en el futuro
+- **Reprogramar notificaciones**: Reprograma manualmente todas las notificaciones de medicamentos
+- **Info de notificaciones**: Muestra información detallada:
+  - Estado de permisos otorgados
+  - Número de notificaciones pendientes
+  - Lista completa de notificaciones programadas
+  - Medicamentos con horarios configurados
+
+### Requisitos de permisos en Android:
+
+Para que las notificaciones funcionen correctamente en Android, es posible que necesites:
+
+1. **Android 13+**: Permitir notificaciones desde la configuración de la app
+2. **Android 12+**: Permitir alarmas exactas en:
+   - Configuración → Apps → MedicApp → Alarmas y recordatorios → Permitir
+3. **Optimización de batería**: Desactivar la optimización de batería para la app:
+   - Configuración → Apps → MedicApp → Batería → Sin restricciones
 
 ## Flujo de uso
 

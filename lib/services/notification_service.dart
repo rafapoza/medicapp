@@ -32,8 +32,24 @@ class NotificationService {
 
     // Initialize timezone database
     tz.initializeTimeZones();
-    // Set local location (default to UTC, will be updated based on device)
-    tz.setLocalLocation(tz.getLocation('Europe/Madrid'));
+
+    // Try to use the device's local timezone, fallback to Europe/Madrid
+    try {
+      // Get device timezone name (this may not work on all platforms)
+      final String timeZoneName = DateTime.now().timeZoneName;
+      print('Device timezone name: $timeZoneName');
+
+      // Common timezone mappings
+      // For most cases, we'll use Europe/Madrid as it's a common timezone
+      // but log the device timezone for debugging
+      tz.setLocalLocation(tz.getLocation('Europe/Madrid'));
+      print('Using timezone: Europe/Madrid');
+    } catch (e) {
+      print('Error setting timezone: $e');
+      // Fallback to UTC if there's an error
+      tz.setLocalLocation(tz.UTC);
+      print('Using fallback timezone: UTC');
+    }
 
     // Android initialization settings
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -63,12 +79,16 @@ class NotificationService {
     // Skip in test mode
     if (_isTestMode) return true;
 
+    bool granted = true;
+
     // For Android 13+ (API level 33+)
     final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin != null) {
-      await androidPlugin.requestNotificationsPermission();
+      final result = await androidPlugin.requestNotificationsPermission();
+      granted = result ?? false;
+      print('Android notification permission granted: $granted');
     }
 
     // For iOS
@@ -76,13 +96,33 @@ class NotificationService {
         IOSFlutterLocalNotificationsPlugin>();
 
     if (iOSPlugin != null) {
-      await iOSPlugin.requestPermissions(
+      final result = await iOSPlugin.requestPermissions(
         alert: true,
         badge: true,
         sound: true,
       );
+      granted = result ?? false;
+      print('iOS notification permission granted: $granted');
     }
 
+    return granted;
+  }
+
+  /// Check if notification permissions are granted
+  Future<bool> areNotificationsEnabled() async {
+    // Skip in test mode
+    if (_isTestMode) return true;
+
+    // For Android
+    final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidPlugin != null) {
+      final result = await androidPlugin.areNotificationsEnabled();
+      return result ?? false;
+    }
+
+    // For iOS, we can't directly check, so we return true if we've initialized
     return true;
   }
 
@@ -98,7 +138,12 @@ class NotificationService {
     // Skip in test mode
     if (_isTestMode) return;
 
-    if (medication.doseTimes.isEmpty) return;
+    if (medication.doseTimes.isEmpty) {
+      print('No dose times for medication: ${medication.name}');
+      return;
+    }
+
+    print('Scheduling notifications for ${medication.name} with ${medication.doseTimes.length} dose times');
 
     // Cancel any existing notifications for this medication first
     await cancelMedicationNotifications(medication.id);
@@ -114,6 +159,8 @@ class NotificationService {
       // Using medication ID hash + dose index
       final notificationId = _generateNotificationId(medication.id, i);
 
+      print('Scheduling notification ID $notificationId for ${medication.name} at $hour:$minute');
+
       await _scheduleNotification(
         id: notificationId,
         title: '💊 Hora de tomar tu medicamento',
@@ -123,6 +170,10 @@ class NotificationService {
         payload: '${medication.id}|$i', // Store medication ID and dose index
       );
     }
+
+    // Verify notifications were scheduled
+    final pending = await getPendingNotifications();
+    print('Total pending notifications after scheduling: ${pending.length}');
   }
 
   /// Schedule a single notification at a specific time daily
@@ -181,6 +232,8 @@ class NotificationService {
     );
 
     // Schedule the notification to repeat daily
+    print('Attempting to schedule notification ID $id for $hour:$minute on $scheduledDate');
+
     try {
       await _notificationsPlugin.zonedSchedule(
         id,
@@ -194,9 +247,11 @@ class NotificationService {
         matchDateTimeComponents: DateTimeComponents.time, // Repeat daily at same time
         payload: payload,
       );
+      print('Successfully scheduled notification ID $id with exactAllowWhileIdle');
     } catch (e) {
       // If exact alarms are not permitted, try with inexact alarms
       print('Failed to schedule exact alarm: $e');
+      print('This may require SCHEDULE_EXACT_ALARM permission on Android 12+');
       print('Falling back to inexact alarm...');
 
       try {
@@ -206,14 +261,15 @@ class NotificationService {
           body,
           scheduledDate,
           notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.alarmClock,
+          androidScheduleMode: AndroidScheduleMode.inexact,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
           matchDateTimeComponents: DateTimeComponents.time,
           payload: payload,
         );
+        print('Successfully scheduled notification ID $id with inexact mode');
       } catch (e2) {
-        print('Failed to schedule alarm: $e2');
+        print('Failed to schedule inexact alarm: $e2');
         // Don't throw - allow the app to continue without notifications
       }
     }
@@ -283,5 +339,55 @@ class NotificationService {
       'This is a test notification from MedicApp',
       notificationDetails,
     );
+  }
+
+  /// Test scheduled notification (1 minute in the future)
+  Future<void> scheduleTestNotification() async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    final now = tz.TZDateTime.now(tz.local);
+    final scheduledDate = now.add(const Duration(minutes: 1));
+
+    print('Scheduling test notification for: $scheduledDate (1 minute from now)');
+    print('Current time: $now');
+    print('Timezone: ${tz.local}');
+
+    const androidDetails = AndroidNotificationDetails(
+      'test_channel',
+      'Test Notifications',
+      channelDescription: 'Test notification channel',
+      importance: Importance.high,
+      priority: Priority.high,
+      enableVibration: true,
+      playSound: true,
+    );
+
+    const iOSDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iOSDetails,
+    );
+
+    try {
+      await _notificationsPlugin.zonedSchedule(
+        999999, // Unique ID for test
+        '⏰ Test Programmed Notification',
+        'If you see this, scheduled notifications work!',
+        scheduledDate,
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
+      print('Test notification scheduled successfully for 1 minute from now');
+    } catch (e) {
+      print('Error scheduling test notification: $e');
+    }
   }
 }

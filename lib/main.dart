@@ -6,13 +6,25 @@ void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize notification service in background to avoid blocking app startup
-  NotificationService.instance.initialize().then((_) {
-    // Request notification permissions after initialization
-    NotificationService.instance.requestPermissions();
-  }).catchError((e) {
+  // Initialize notification service
+  try {
+    await NotificationService.instance.initialize();
+    print('Notification service initialized successfully');
+
+    // Request notification permissions
+    final granted = await NotificationService.instance.requestPermissions();
+    print('Notification permissions granted: $granted');
+
+    if (!granted) {
+      print('WARNING: Notification permissions were not granted!');
+    }
+
+    // Verify notifications are enabled
+    final enabled = await NotificationService.instance.areNotificationsEnabled();
+    print('Notifications enabled: $enabled');
+  } catch (e) {
     print('Error initializing notifications: $e');
-  });
+  }
 
   runApp(const MedicApp());
 }

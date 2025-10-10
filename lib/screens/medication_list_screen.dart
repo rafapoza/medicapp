@@ -399,6 +399,118 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     }
   }
 
+  void _refillMedication(Medication medication) async {
+    // Close the modal first
+    Navigator.pop(context);
+
+    // Controller for the refill amount
+    final refillController = TextEditingController(
+      text: medication.lastRefillAmount?.toString() ?? '',
+    );
+
+    final refillAmount = await showDialog<double>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Recargar ${medication.name}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Stock actual: ${medication.stockDisplayText}',
+                  style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: refillController,
+                  decoration: InputDecoration(
+                    labelText: 'Cantidad a agregar',
+                    hintText: medication.lastRefillAmount != null
+                        ? 'Ej: ${medication.lastRefillAmount}'
+                        : 'Ej: 30',
+                    suffixText: medication.type.stockUnit,
+                    helperText: medication.lastRefillAmount != null
+                        ? 'Última recarga: ${medication.lastRefillAmount} ${medication.type.stockUnit}'
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: const Icon(Icons.add_box),
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  autofocus: true,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, null),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final amount = double.tryParse(refillController.text.trim());
+                if (amount != null && amount > 0) {
+                  Navigator.pop(dialogContext, amount);
+                }
+              },
+              child: const Text('Recargar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Dispose controller after dialog closes completely
+    // Use a small delay to ensure dialog animation finishes
+    Future.delayed(const Duration(milliseconds: 100), () {
+      refillController.dispose();
+    });
+
+    if (refillAmount != null && refillAmount > 0) {
+      // Update medication with new stock and save refill amount
+      final updatedMedication = Medication(
+        id: medication.id,
+        name: medication.name,
+        type: medication.type,
+        dosageIntervalHours: medication.dosageIntervalHours,
+        durationType: medication.durationType,
+        customDays: medication.customDays,
+        doseSchedule: medication.doseSchedule,
+        stockQuantity: medication.stockQuantity + refillAmount,
+        takenDosesToday: medication.takenDosesToday,
+        skippedDosesToday: medication.skippedDosesToday,
+        takenDosesDate: medication.takenDosesDate,
+        lastRefillAmount: refillAmount, // Save for future suggestions
+      );
+
+      // Update in database
+      await DatabaseHelper.instance.updateMedication(updatedMedication);
+
+      // Reload medications
+      await _loadMedications();
+
+      if (!mounted) return;
+
+      // Show confirmation
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Stock de ${medication.name} recargado\n'
+            'Agregado: $refillAmount ${medication.type.stockUnit}\n'
+            'Nuevo stock: ${updatedMedication.stockDisplayText}',
+          ),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   void _showDeleteModal(Medication medication) {
     showModalBottomSheet(
       context: context,
@@ -490,6 +602,18 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                       onPressed: () => _registerDose(medication),
                       icon: const Icon(Icons.medication_liquid, size: 18),
                       label: const Text('Registrar toma'),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.tonalIcon(
+                      onPressed: () => _refillMedication(medication),
+                      icon: const Icon(Icons.add_box, size: 18),
+                      label: const Text('Recargar medicamento'),
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),

@@ -98,6 +98,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
             takenDosesToday: widget.medication.takenDosesToday,
             skippedDosesToday: widget.medication.skippedDosesToday,
             takenDosesDate: widget.medication.takenDosesDate,
+            lastRefillAmount: widget.medication.lastRefillAmount,
           );
 
           Navigator.pop(context, updatedMedication);

@@ -253,4 +253,123 @@ void main() {
       expect(medication.isStockLow, isTrue);
     });
   });
+
+  group('Medication Model - Refill', () {
+    test('should create medication with lastRefillAmount', () {
+      final medication = Medication(
+        id: 'test_14',
+        name: 'Test Medication',
+        type: MedicationType.pastilla,
+        dosageIntervalHours: 8,
+        durationType: TreatmentDurationType.everyday,
+        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
+        stockQuantity: 10.0,
+        lastRefillAmount: 30.0,
+      );
+
+      expect(medication.lastRefillAmount, 30.0);
+    });
+
+    test('should handle null lastRefillAmount', () {
+      final medication = Medication(
+        id: 'test_15',
+        name: 'Test Medication',
+        type: MedicationType.pastilla,
+        dosageIntervalHours: 8,
+        durationType: TreatmentDurationType.everyday,
+        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
+        stockQuantity: 10.0,
+      );
+
+      expect(medication.lastRefillAmount, isNull);
+    });
+
+    test('should serialize and deserialize lastRefillAmount', () {
+      final medication = Medication(
+        id: 'test_16',
+        name: 'Test Medication',
+        type: MedicationType.pastilla,
+        dosageIntervalHours: 8,
+        durationType: TreatmentDurationType.everyday,
+        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
+        stockQuantity: 10.0,
+        lastRefillAmount: 50.0,
+      );
+
+      final json = medication.toJson();
+      final deserialized = Medication.fromJson(json);
+
+      expect(deserialized.lastRefillAmount, 50.0);
+    });
+
+    test('should handle null lastRefillAmount in serialization', () {
+      final medication = Medication(
+        id: 'test_17',
+        name: 'Test Medication',
+        type: MedicationType.pastilla,
+        dosageIntervalHours: 8,
+        durationType: TreatmentDurationType.everyday,
+        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
+        stockQuantity: 10.0,
+        lastRefillAmount: null,
+      );
+
+      final json = medication.toJson();
+      final deserialized = Medication.fromJson(json);
+
+      expect(deserialized.lastRefillAmount, isNull);
+    });
+
+    test('should update lastRefillAmount when refilling', () {
+      final medication = Medication(
+        id: 'test_18',
+        name: 'Test Medication',
+        type: MedicationType.pastilla,
+        dosageIntervalHours: 8,
+        durationType: TreatmentDurationType.everyday,
+        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
+        stockQuantity: 10.0,
+        lastRefillAmount: 30.0,
+      );
+
+      // Simulate refill with new amount
+      final refillAmount = 40.0;
+      final updatedMedication = Medication(
+        id: medication.id,
+        name: medication.name,
+        type: medication.type,
+        dosageIntervalHours: medication.dosageIntervalHours,
+        durationType: medication.durationType,
+        doseSchedule: medication.doseSchedule,
+        stockQuantity: medication.stockQuantity + refillAmount,
+        takenDosesToday: medication.takenDosesToday,
+        skippedDosesToday: medication.skippedDosesToday,
+        takenDosesDate: medication.takenDosesDate,
+        lastRefillAmount: refillAmount,
+      );
+
+      expect(updatedMedication.stockQuantity, 50.0);
+      expect(updatedMedication.lastRefillAmount, 40.0);
+    });
+
+    test('fromJson should handle missing lastRefillAmount field (legacy data)', () {
+      final json = {
+        'id': 'test_19',
+        'name': 'Test Medication',
+        'type': 'pastilla',
+        'dosageIntervalHours': 8,
+        'durationType': 'everyday',
+        'doseTimes': '08:00,16:00',
+        'doseSchedule': '{"08:00": 1.0, "16:00": 1.0}',
+        'stockQuantity': 10,
+        'takenDosesToday': '',
+        'skippedDosesToday': '',
+        // lastRefillAmount not present (legacy data)
+      };
+
+      final medication = Medication.fromJson(json);
+
+      expect(medication.lastRefillAmount, isNull);
+    });
+  });
 }

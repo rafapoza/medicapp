@@ -14,6 +14,7 @@ class Medication {
   final List<String> takenDosesToday; // List of doses taken today in "HH:mm" format (reduces stock)
   final List<String> skippedDosesToday; // List of doses skipped today in "HH:mm" format (doesn't reduce stock)
   final String? takenDosesDate; // Date when doses were taken/skipped in "yyyy-MM-dd" format
+  final double? lastRefillAmount; // Last refill amount (used as suggestion for future refills)
 
   Medication({
     required this.id,
@@ -27,6 +28,7 @@ class Medication {
     this.takenDosesToday = const [],
     this.skippedDosesToday = const [],
     this.takenDosesDate,
+    this.lastRefillAmount,
   }) : doseSchedule = doseSchedule ?? {};
 
   /// Legacy compatibility: get list of dose times (keys from doseSchedule)
@@ -46,6 +48,7 @@ class Medication {
       'takenDosesToday': takenDosesToday.join(','), // Store as comma-separated string
       'skippedDosesToday': skippedDosesToday.join(','), // Store as comma-separated string
       'takenDosesDate': takenDosesDate,
+      'lastRefillAmount': lastRefillAmount,
     };
   }
 
@@ -106,6 +109,7 @@ class Medication {
       takenDosesToday: takenDosesToday,
       skippedDosesToday: skippedDosesToday,
       takenDosesDate: json['takenDosesDate'] as String?,
+      lastRefillAmount: (json['lastRefillAmount'] as num?)?.toDouble(),
     );
   }
 

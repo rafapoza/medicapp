@@ -50,6 +50,10 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
   - Incluyen el nombre y tipo del medicamento
   - Se reprograman automáticamente al editar medicamentos
   - Se cancelan automáticamente al eliminar medicamentos
+  - **Acciones desde notificaciones**: Al tocar una notificación, accedes a una pantalla con tres opciones:
+    - **Registrar toma**: Marca la toma como tomada y descuenta del stock
+    - **Marcar como no tomada**: Registra que no tomaste la dosis sin descontar stock
+    - **Posponer toma**: Programa una notificación única para más tarde sin alterar el horario habitual
 - **Edición completa**: Modifica tanto la información básica como la duración del tratamiento y horarios
 - **Eliminación**: Elimina medicamentos de tu lista
 - **Validación inteligente**:
@@ -115,6 +119,7 @@ lib/
 ├── screens/
 │   ├── medication_list_screen.dart     # Pantalla principal con lista de medicamentos
 │   ├── medication_stock_screen.dart    # Pantalla de Pastillero con gestión de inventario
+│   ├── dose_action_screen.dart         # Pantalla de acciones desde notificación
 │   ├── add_medication_screen.dart      # Pantalla para añadir medicamento (paso 1)
 │   ├── edit_medication_screen.dart     # Pantalla para editar medicamento
 │   ├── treatment_duration_screen.dart  # Pantalla de duración del tratamiento (paso 2)
@@ -134,7 +139,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
 
 - **Patrón Singleton**: Una única instancia de `DatabaseHelper` gestiona todas las operaciones
 - **CRUD completo**: Create, Read, Update, Delete
-- **Tabla medications** (versión 5):
+- **Tabla medications** (versión 6):
   - `id` (TEXT PRIMARY KEY)
   - `name` (TEXT NOT NULL)
   - `type` (TEXT NOT NULL)
@@ -144,13 +149,15 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `doseTimes` (TEXT NOT NULL) - Horarios de tomas en formato "HH:mm" separados por comas (generado automáticamente desde doseSchedule para compatibilidad)
   - `doseSchedule` (TEXT NOT NULL) - Horarios y cantidades en formato JSON: {"HH:mm": cantidad, ...}
   - `stockQuantity` (REAL NOT NULL DEFAULT 0) - Cantidad de medicamento disponible
-  - `takenDosesToday` (TEXT NOT NULL DEFAULT '') - Horarios de tomas registradas hoy
+  - `takenDosesToday` (TEXT NOT NULL DEFAULT '') - Horarios de tomas tomadas hoy (descuentan stock)
+  - `skippedDosesToday` (TEXT NOT NULL DEFAULT '') - Horarios de tomas no tomadas hoy (no descuentan stock)
   - `takenDosesDate` (TEXT NULLABLE) - Fecha de las tomas registradas en formato "yyyy-MM-dd"
 - **Migraciones**: Sistema de versionado para actualizar el esquema sin perder datos
   - Versión 1 → 2: Añadidos campos de duración de tratamiento y horarios de tomas
   - Versión 2 → 3: Añadido campo de cantidad de stock (stockQuantity)
   - Versión 3 → 4: Añadidos campos para rastrear tomas diarias (takenDosesToday, takenDosesDate)
   - Versión 4 → 5: Añadido campo doseSchedule para soportar dosis variables por toma
+  - Versión 5 → 6: Añadido campo skippedDosesToday para distinguir tomas no tomadas de tomas tomadas
 - **Compatibilidad**: Migración automática de datos legacy (doseTimes) a nuevo formato (doseSchedule)
 - **Testing**: Los tests utilizan una base de datos en memoria para aislamiento completo
 
@@ -178,13 +185,23 @@ La aplicación utiliza `flutter_local_notifications` para enviar recordatorios a
   - Si un horario ya pasó hoy, la notificación se programa para el día siguiente
   - Soporte para alarmas exactas e inexactas (fallback automático)
   - Logs de depuración para cada notificación programada
+- **Interacción con notificaciones**:
+  - Al tocar una notificación, se abre automáticamente la pantalla de acciones de toma
+  - Navega directamente al medicamento y hora específica de la notificación
+  - Mantiene el contexto de la app al volver desde la pantalla de acciones
+- **Notificaciones pospuestas**:
+  - Programación de notificaciones únicas para tomas pospuestas
+  - No alteran el horario habitual del medicamento
+  - Se identifican con un título especial: "💊 Hora de tomar tu medicamento (pospuesto)"
+  - IDs únicos para evitar conflictos con notificaciones regulares
 - **Compatibilidad**: Funciona en Android (incluido Android 13+) e iOS
 
 ### Contenido de las notificaciones:
 
-- **Título**: "💊 Hora de tomar tu medicamento"
+- **Título**: "💊 Hora de tomar tu medicamento" (o "pospuesto" para notificaciones pospuestas)
 - **Cuerpo**: Nombre del medicamento y tipo (ej: "Paracetamol - Pastilla")
 - **Hora**: Programada según los horarios configurados para cada medicamento
+- **Payload**: Contiene el ID del medicamento y el horario de la toma para navegación directa
 
 ### Herramientas de depuración:
 
@@ -278,6 +295,40 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
      - Indicador visual de estado (verde/naranja/rojo)
      - Duración estimada del stock en días
 4. Desliza hacia abajo para actualizar la información (pull-to-refresh)
+
+### Acciones desde notificaciones
+
+Cuando recibes una notificación de medicamento y la tocas, la app se abre directamente en una pantalla con tres opciones:
+
+1. **Registrar toma**:
+   - Marca la toma como tomada
+   - Descuenta automáticamente la cantidad específica de esa dosis del stock
+   - Registra la hora en tu historial de tomas del día
+   - Muestra el stock restante después del registro
+   - Valida que haya stock suficiente antes de permitir el registro
+
+2. **Marcar como no tomada**:
+   - Registra que decidiste no tomar esa dosis
+   - NO descuenta del stock (el medicamento sigue disponible)
+   - Marca la toma como "saltada" para el día actual
+   - Útil para llevar un registro completo sin afectar el inventario
+
+3. **Posponer toma**:
+   - Muestra un selector de hora para elegir cuándo quieres tomarla
+   - Programa una notificación única para la nueva hora
+   - NO altera tu horario habitual de tomas
+   - La notificación pospuesta se distingue con el texto "(pospuesto)" en el título
+   - Si la hora seleccionada ya pasó hoy, se programa para mañana
+
+4. **Cancelar**:
+   - Cierra la pantalla sin realizar ninguna acción
+   - La toma sigue marcada como pendiente
+
+**Validaciones automáticas**:
+- Si ya no hay stock disponible, no podrás registrar la toma
+- Si el stock es insuficiente para la dosis específica, recibirás un aviso
+- Todas las acciones actualizan automáticamente la lista de medicamentos
+- Las notificaciones se reprograman tras cada acción
 
 ### Eliminar un medicamento
 

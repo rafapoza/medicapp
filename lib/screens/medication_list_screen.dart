@@ -341,13 +341,17 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
 
       // Update taken doses for today
       List<String> updatedTakenDoses;
+      List<String> updatedSkippedDoses;
+
       if (medication.takenDosesDate == todayString) {
         // Same day, add to existing list
         updatedTakenDoses = List.from(medication.takenDosesToday);
         updatedTakenDoses.add(selectedDoseTime);
+        updatedSkippedDoses = List.from(medication.skippedDosesToday);
       } else {
-        // New day, reset list
+        // New day, reset lists
         updatedTakenDoses = [selectedDoseTime];
+        updatedSkippedDoses = [];
       }
 
       // Decrease stock by the dose quantity and update taken doses
@@ -361,6 +365,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         doseSchedule: medication.doseSchedule,
         stockQuantity: medication.stockQuantity - doseQuantity,
         takenDosesToday: updatedTakenDoses,
+        skippedDosesToday: updatedSkippedDoses,
         takenDosesDate: todayString,
       );
 

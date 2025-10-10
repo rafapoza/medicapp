@@ -11,8 +11,9 @@ class Medication {
   final int? customDays; // Only used when durationType is custom
   final Map<String, double> doseSchedule; // Map of time -> dose quantity in "HH:mm" -> quantity format
   final double stockQuantity; // Quantity of medication in stock
-  final List<String> takenDosesToday; // List of doses taken today in "HH:mm" format
-  final String? takenDosesDate; // Date when doses were taken in "yyyy-MM-dd" format
+  final List<String> takenDosesToday; // List of doses taken today in "HH:mm" format (reduces stock)
+  final List<String> skippedDosesToday; // List of doses skipped today in "HH:mm" format (doesn't reduce stock)
+  final String? takenDosesDate; // Date when doses were taken/skipped in "yyyy-MM-dd" format
 
   Medication({
     required this.id,
@@ -24,6 +25,7 @@ class Medication {
     Map<String, double>? doseSchedule,
     this.stockQuantity = 0,
     this.takenDosesToday = const [],
+    this.skippedDosesToday = const [],
     this.takenDosesDate,
   }) : doseSchedule = doseSchedule ?? {};
 
@@ -42,6 +44,7 @@ class Medication {
       'doseSchedule': jsonEncode(doseSchedule), // Store as JSON string
       'stockQuantity': stockQuantity,
       'takenDosesToday': takenDosesToday.join(','), // Store as comma-separated string
+      'skippedDosesToday': skippedDosesToday.join(','), // Store as comma-separated string
       'takenDosesDate': takenDosesDate,
     };
   }
@@ -79,6 +82,12 @@ class Medication {
         ? takenDosesTodayString.split(',').where((s) => s.isNotEmpty).toList()
         : <String>[];
 
+    // Parse skipped doses today from comma-separated string
+    final skippedDosesTodayString = json['skippedDosesToday'] as String?;
+    final skippedDosesToday = skippedDosesTodayString != null && skippedDosesTodayString.isNotEmpty
+        ? skippedDosesTodayString.split(',').where((s) => s.isNotEmpty).toList()
+        : <String>[];
+
     return Medication(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -95,6 +104,7 @@ class Medication {
       doseSchedule: doseSchedule,
       stockQuantity: (json['stockQuantity'] as num?)?.toDouble() ?? 0,
       takenDosesToday: takenDosesToday,
+      skippedDosesToday: skippedDosesToday,
       takenDosesDate: json['takenDosesDate'] as String?,
     );
   }
@@ -154,7 +164,7 @@ class Medication {
     return doseSchedule[time] ?? 1.0; // Default to 1.0 if not found
   }
 
-  /// Get available doses (doses that haven't been taken today)
+  /// Get available doses (doses that haven't been taken or skipped today)
   List<String> getAvailableDosesToday() {
     final today = DateTime.now();
     final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
@@ -164,8 +174,10 @@ class Medication {
       return List.from(doseTimes);
     }
 
-    // Filter out the doses that have been taken today
-    return doseTimes.where((doseTime) => !takenDosesToday.contains(doseTime)).toList();
+    // Filter out the doses that have been taken or skipped today
+    return doseTimes.where((doseTime) =>
+      !takenDosesToday.contains(doseTime) && !skippedDosesToday.contains(doseTime)
+    ).toList();
   }
 
   /// Check if the taken doses date is today

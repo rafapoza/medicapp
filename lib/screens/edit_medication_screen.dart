@@ -96,6 +96,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
             stockQuantity: double.tryParse(_stockController.text) ?? 0,
             // Preserve taken doses information when editing
             takenDosesToday: widget.medication.takenDosesToday,
+            skippedDosesToday: widget.medication.skippedDosesToday,
             takenDosesDate: widget.medication.takenDosesDate,
           );
 

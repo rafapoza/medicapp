@@ -41,7 +41,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -72,6 +72,7 @@ class DatabaseHelper {
         doseSchedule $textType,
         stockQuantity $realType,
         takenDosesToday $textType,
+        skippedDosesToday $textType,
         takenDosesDate $textNullableType
       )
     ''');
@@ -106,6 +107,13 @@ class DatabaseHelper {
       // Add doseSchedule column for version 5 (dose quantities per time)
       await db.execute('''
         ALTER TABLE medications ADD COLUMN doseSchedule TEXT NOT NULL DEFAULT ''
+      ''');
+    }
+
+    if (oldVersion < 6) {
+      // Add skippedDosesToday column for version 6 (track skipped doses separately)
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN skippedDosesToday TEXT NOT NULL DEFAULT ''
       ''');
     }
   }

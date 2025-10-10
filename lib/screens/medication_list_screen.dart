@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
 import '../database/database_helper.dart';
+import '../services/notification_service.dart';
 import 'add_medication_screen.dart';
 import 'edit_medication_screen.dart';
 
@@ -22,12 +23,40 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
   }
 
   Future<void> _loadMedications() async {
+    print('Loading medications from database...');
     final medications = await DatabaseHelper.instance.getAllMedications();
+    print('Loaded ${medications.length} medications');
+
+    for (var med in medications) {
+      print('- ${med.name}: ${med.doseTimes.length} dose times');
+    }
+
     if (!mounted) return; // Check if widget is still mounted
+
+    // Update UI immediately
     setState(() {
       _medications.clear();
       _medications.addAll(medications);
       _isLoading = false;
+    });
+
+    print('UI updated with ${_medications.length} medications');
+
+    // Schedule notifications in background without blocking UI
+    _scheduleNotificationsInBackground(medications);
+  }
+
+  void _scheduleNotificationsInBackground(List<Medication> medications) {
+    // Run notification scheduling in background without awaiting
+    Future.microtask(() async {
+      for (final medication in medications) {
+        try {
+          await NotificationService.instance.scheduleMedicationNotifications(medication);
+        } catch (e) {
+          // Log error but don't block the UI
+          print('Error scheduling notifications for ${medication.name}: $e');
+        }
+      }
     });
   }
 
@@ -41,17 +70,42 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       ),
     );
 
-    if (newMedication != null) {
-      // Save to database
-      await DatabaseHelper.instance.insertMedication(newMedication);
+    print('Returned from add screen: $newMedication');
 
-      setState(() {
-        _medications.add(newMedication);
-      });
+    if (newMedication != null) {
+      print('Adding new medication: ${newMedication.name}');
+      print('Dose times: ${newMedication.doseTimes}');
+
+      // Save to database
+      final insertResult = await DatabaseHelper.instance.insertMedication(newMedication);
+      print('Insert result: $insertResult');
+
+      // Schedule notifications for the new medication
+      await NotificationService.instance.scheduleMedicationNotifications(newMedication);
+
+      // Reload medications from database
+      final reloadedMeds = await DatabaseHelper.instance.getAllMedications();
+      print('Reloaded ${reloadedMeds.length} medications from DB after insert');
+
+      if (mounted) {
+        setState(() {
+          _medications.clear();
+          _medications.addAll(reloadedMeds);
+        });
+
+        // Schedule notifications in background
+        _scheduleNotificationsInBackground(reloadedMeds);
+      }
+    } else {
+      print('newMedication is null - user cancelled or error occurred');
     }
   }
 
   void _navigateToEditMedication(Medication medication) async {
+    // Close the modal first
+    Navigator.pop(context);
+
+    // Then navigate to edit screen
     final updatedMedication = await Navigator.push<Medication>(
       context,
       MaterialPageRoute(
@@ -63,28 +117,36 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     );
 
     if (updatedMedication != null) {
+      print('Updating medication: ${updatedMedication.name}');
+      print('Dose times: ${updatedMedication.doseTimes}');
+
       // Update in database
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
-      setState(() {
-        final index = _medications.indexWhere((m) => m.id == medication.id);
-        if (index != -1) {
-          _medications[index] = updatedMedication;
-        }
-      });
+      // Reschedule notifications for the updated medication
+      await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
 
-      // Close the modal if it's still open
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
+      // Reload medications from database to ensure we have fresh data
+      final reloadedMeds = await DatabaseHelper.instance.getAllMedications();
+      print('Reloaded ${reloadedMeds.length} medications from DB');
+
+      if (mounted) {
+        setState(() {
+          _medications.clear();
+          _medications.addAll(reloadedMeds);
+        });
+
+        // Schedule notifications in background
+        _scheduleNotificationsInBackground(reloadedMeds);
+
+        // Show confirmation message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${updatedMedication.name} actualizado'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
       }
-
-      // Show confirmation message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${updatedMedication.name} actualizado'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
     }
   }
 
@@ -217,6 +279,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   onPressed: () async {
                     // Delete from database
                     await DatabaseHelper.instance.deleteMedication(medication.id);
+
+                    // Cancel notifications for the deleted medication
+                    await NotificationService.instance.cancelMedicationNotifications(medication.id);
 
                     setState(() {
                       _medications.remove(medication);

@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
 import 'screens/medication_list_screen.dart';
+import 'services/notification_service.dart';
 
-void main() {
+void main() async {
+  // Ensure Flutter binding is initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize notification service in background to avoid blocking app startup
+  NotificationService.instance.initialize().then((_) {
+    // Request notification permissions after initialization
+    NotificationService.instance.requestPermissions();
+  }).catchError((e) {
+    print('Error initializing notifications: $e');
+  });
+
   runApp(const MedicApp());
 }
 

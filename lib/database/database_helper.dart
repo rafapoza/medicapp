@@ -44,6 +44,11 @@ class DatabaseHelper {
       version: 2,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
+      onOpen: (db) async {
+        // Debug: Check if doseTimes column exists
+        final result = await db.rawQuery('PRAGMA table_info(medications)');
+        print('Database columns: ${result.map((e) => e['name']).toList()}');
+      },
     );
   }
 

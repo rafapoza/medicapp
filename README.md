@@ -187,17 +187,19 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
 
 ### Añadir un medicamento
 
-1. **Paso 1 - Información básica**: Introduce el nombre del medicamento, la frecuencia de tomas (cada cuántas horas), la cantidad disponible (stock) y selecciona su tipo
+1. Toca el botón flotante (+) en la esquina inferior derecha de la pantalla principal
+2. Selecciona "Añadir medicamento" en el menú que aparece
+3. **Paso 1 - Información básica**: Introduce el nombre del medicamento, la frecuencia de tomas (cada cuántas horas), la cantidad disponible (stock) y selecciona su tipo
    - Las unidades de stock se ajustan automáticamente según el tipo de medicamento (pastillas, ml, gramos, etc.)
-2. **Paso 2 - Duración del tratamiento**: Selecciona cuánto tiempo tomarás el medicamento
+4. **Paso 2 - Duración del tratamiento**: Selecciona cuánto tiempo tomarás el medicamento
    - Todos los días (sin límite)
    - Hasta acabar la medicación
    - Personalizado (introduce el número de días)
-3. **Paso 3 - Programación de horarios**: Define las horas exactas de cada toma
+5. **Paso 3 - Programación de horarios**: Define las horas exactas de cada toma
    - El sistema calcula automáticamente el número de tomas según la frecuencia
    - Selecciona la hora de cada toma usando el selector de tiempo
    - Validación automática de horarios duplicados
-4. El medicamento se añade a tu lista con toda la información
+6. El medicamento se añade a tu lista con toda la información
 
 ### Editar un medicamento
 
@@ -210,8 +212,8 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
 
 ### Ver el Pastillero
 
-1. Toca el menú (⋮) en la esquina superior derecha de la pantalla principal
-2. Selecciona "Ver Pastillero"
+1. Toca el botón flotante (+) en la esquina inferior derecha de la pantalla principal
+2. Selecciona "Ver Pastillero" en el menú que aparece
 3. Visualiza el estado del inventario:
    - Tarjetas resumen con totales generales
    - Lista detallada de cada medicamento con:

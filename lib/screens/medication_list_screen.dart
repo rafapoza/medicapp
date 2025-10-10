@@ -467,6 +467,76 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     );
   }
 
+  void _showMainActionMenu() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _navigateToAddMedication();
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Añadir medicamento'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _navigateToStock();
+                  },
+                  icon: const Icon(Icons.inventory_2),
+                  label: const Text('Ver Pastillero'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -475,9 +545,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
-              if (value == 'stock') {
-                _navigateToStock();
-              } else if (value == 'test') {
+              if (value == 'test') {
                 _testNotification();
               } else if (value == 'test_scheduled') {
                 _testScheduledNotification();
@@ -488,17 +556,6 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'stock',
-                child: Row(
-                  children: [
-                    Icon(Icons.inventory_2),
-                    SizedBox(width: 8),
-                    Text('Ver Pastillero'),
-                  ],
-                ),
-              ),
-              const PopupMenuDivider(),
               const PopupMenuItem(
                 value: 'test',
                 child: Row(
@@ -639,7 +696,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToAddMedication,
+        onPressed: _showMainActionMenu,
         child: const Icon(Icons.add),
       ),
     );

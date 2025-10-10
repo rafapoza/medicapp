@@ -43,6 +43,13 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
   - Cálculo automático de duración estimada considerando dosis variables por toma
   - Stock bajo detectado automáticamente cuando quedan menos de 3 días de medicamento (basado en dosis diaria total)
   - Tarjetas resumen con totales, medicamentos con stock bajo y sin stock
+- **Recarga de medicamentos**: Sistema inteligente para reponer el stock
+  - Botón "Recargar medicamento" accesible desde cada medicamento
+  - Diálogo intuitivo que muestra el stock actual
+  - Sugerencia automática basada en la última recarga
+  - El sistema recuerda la cantidad de la última recarga y la muestra como sugerencia en futuras recargas
+  - Unidades específicas según el tipo de medicamento (pastillas, ml, gramos, etc.)
+  - Actualización automática del stock y confirmación visual
 - **Próxima toma**: Visualiza la hora de la siguiente toma de cada medicamento en la lista principal
 - **Notificaciones push**: Recibe recordatorios automáticos en cada hora de toma programada
   - Notificaciones locales programadas para cada horario del medicamento
@@ -100,11 +107,29 @@ flutter run
 
 ## Tests
 
-El proyecto incluye una suite completa de tests de widgets:
+El proyecto incluye una suite completa de tests:
 
 ```bash
 flutter test
 ```
+
+### Suite de tests incluida:
+
+- **test/medication_model_test.dart**: Tests del modelo de medicamento
+  - Grupo "Skipped Doses": 11 tests para gestión de dosis no tomadas
+  - Grupo "Stock and Doses": 2 tests para cálculo de stock y dosis diarias
+  - Grupo "Refill": 6 tests para funcionalidad de recarga
+- **test/notification_service_test.dart**: Tests del servicio de notificaciones
+  - Tests de singleton, inicialización, permisos
+  - Programación de notificaciones de medicamentos
+  - Notificaciones pospuestas (5 tests)
+  - Modo de test
+- **test/database_refill_test.dart**: Tests de persistencia de recargas
+  - 7 tests de integración con base de datos SQLite
+  - Verificación de persistencia de `lastRefillAmount`
+  - Tests de actualización y compatibilidad
+
+**Total**: 29+ tests cubriendo modelo, servicios y persistencia
 
 ## Estructura del proyecto
 
@@ -128,7 +153,9 @@ lib/
 │   └── notification_service.dart       # Servicio de notificaciones locales (singleton)
 ├── main.dart                            # Punto de entrada con inicialización de notificaciones
 └── test/
-    └── widget_test.dart                 # Suite completa de tests con persistencia
+    ├── medication_model_test.dart       # Tests del modelo de medicamento (19 tests)
+    ├── notification_service_test.dart   # Tests del servicio de notificaciones
+    └── database_refill_test.dart        # Tests de persistencia de recargas (7 tests)
 ```
 
 ## Base de datos
@@ -139,7 +166,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
 
 - **Patrón Singleton**: Una única instancia de `DatabaseHelper` gestiona todas las operaciones
 - **CRUD completo**: Create, Read, Update, Delete
-- **Tabla medications** (versión 6):
+- **Tabla medications** (versión 7):
   - `id` (TEXT PRIMARY KEY)
   - `name` (TEXT NOT NULL)
   - `type` (TEXT NOT NULL)
@@ -152,12 +179,14 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `takenDosesToday` (TEXT NOT NULL DEFAULT '') - Horarios de tomas tomadas hoy (descuentan stock)
   - `skippedDosesToday` (TEXT NOT NULL DEFAULT '') - Horarios de tomas no tomadas hoy (no descuentan stock)
   - `takenDosesDate` (TEXT NULLABLE) - Fecha de las tomas registradas en formato "yyyy-MM-dd"
+  - `lastRefillAmount` (REAL NULLABLE) - Última cantidad de recarga (usada como sugerencia en futuras recargas)
 - **Migraciones**: Sistema de versionado para actualizar el esquema sin perder datos
   - Versión 1 → 2: Añadidos campos de duración de tratamiento y horarios de tomas
   - Versión 2 → 3: Añadido campo de cantidad de stock (stockQuantity)
   - Versión 3 → 4: Añadidos campos para rastrear tomas diarias (takenDosesToday, takenDosesDate)
   - Versión 4 → 5: Añadido campo doseSchedule para soportar dosis variables por toma
   - Versión 5 → 6: Añadido campo skippedDosesToday para distinguir tomas no tomadas de tomas tomadas
+  - Versión 6 → 7: Añadido campo lastRefillAmount para recordar la última cantidad de recarga
 - **Compatibilidad**: Migración automática de datos legacy (doseTimes) a nuevo formato (doseSchedule)
 - **Testing**: Los tests utilizan una base de datos en memoria para aislamiento completo
 
@@ -295,6 +324,40 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
      - Indicador visual de estado (verde/naranja/rojo)
      - Duración estimada del stock en días
 4. Desliza hacia abajo para actualizar la información (pull-to-refresh)
+
+### Recargar un medicamento
+
+Cuando necesites reponer el stock de un medicamento:
+
+1. Toca el medicamento que quieres recargar
+2. En el modal, selecciona "Recargar medicamento"
+3. El diálogo de recarga te mostrará:
+   - **Stock actual**: La cantidad disponible actualmente con sus unidades específicas
+   - **Campo de cantidad**: Introduce cuánto medicamento vas a agregar
+   - **Sugerencia automática**: Si ya has recargado antes, verás la cantidad de tu última recarga como sugerencia
+   - **Última recarga**: Se muestra debajo del campo como referencia (si existe)
+4. Introduce la cantidad que vas a agregar (usa el número decimal si es necesario)
+5. Toca "Recargar" para confirmar
+6. El sistema automáticamente:
+   - Suma la cantidad ingresada a tu stock actual
+   - Guarda esta cantidad como sugerencia para futuras recargas
+   - Actualiza la visualización del medicamento
+   - Muestra una confirmación con:
+     - Cantidad agregada
+     - Nuevo stock total
+7. Puedes cancelar en cualquier momento sin realizar cambios
+
+**Características inteligentes**:
+- El sistema recuerda tu última recarga y la sugiere automáticamente
+- Las unidades se ajustan según el tipo de medicamento (pastillas, ml, gramos, etc.)
+- Validación de cantidades para evitar valores negativos o inválidos
+- El historial de tomas tomadas se mantiene intacto
+
+**Ejemplo práctico**:
+- Stock actual: 5 pastillas
+- Agregas: 30 pastillas (última recarga)
+- Nuevo stock: 35 pastillas
+- La próxima vez que recargues este medicamento, "30" aparecerá como sugerencia
 
 ### Acciones desde notificaciones
 

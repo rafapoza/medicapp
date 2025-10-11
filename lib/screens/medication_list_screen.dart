@@ -701,7 +701,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                               children: [
                                 Icon(
                                   medication.durationType.icon,
-                                  size: 12,
+                                  size: 16,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 const SizedBox(width: 4),
@@ -1060,7 +1060,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                               Text(
                                 'ID: ${notification.id}',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: isPastDue ? Colors.red : null,
                                 ),
@@ -1070,7 +1070,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                                 const Text(
                                   '⚠️ PASADA',
                                   style: TextStyle(
-                                    fontSize: 10,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.red,
                                   ),
@@ -1090,7 +1090,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                             Text(
                               '📋 Tipo: $notificationType',
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 13,
                                 color: Colors.grey.shade700,
                                 fontStyle: FontStyle.italic,
                               ),
@@ -1101,7 +1101,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                             Text(
                               '📅 Fecha: $scheduledDate',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 14,
                                 color: isPastDue ? Colors.red.shade700 : Colors.green.shade700,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1112,7 +1112,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                             Text(
                               '⏰ Hora: $scheduledTime',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 14,
                                 color: isPastDue ? Colors.red.shade700 : Colors.blue.shade700,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1121,8 +1121,13 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                           const SizedBox(height: 4),
                           Text(
                             notification.title ?? "Sin título",
-                            style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic),
+                            style: const TextStyle(fontSize: 15),
                           ),
+                          if (notification.body != null)
+                            Text(
+                              notification.body!,
+                              style: const TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                            ),
                         ],
                       ),
                     ),
@@ -1139,12 +1144,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                     children: [
                       Text(
                         medication.name,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                       if (medication.doseTimes.isEmpty)
-                        const Text('  ⚠️ Sin horarios configurados', style: TextStyle(fontSize: 11, color: Colors.orange))
+                        const Text('  ⚠️ Sin horarios configurados', style: TextStyle(fontSize: 14, color: Colors.orange))
                       else
-                        ...medication.doseTimes.map((time) => Text('  • $time', style: const TextStyle(fontSize: 11))),
+                        ...medication.doseTimes.map((time) => Text('  • $time', style: const TextStyle(fontSize: 14))),
                     ],
                   ),
                 );
@@ -1828,7 +1833,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                                   children: [
                                     Icon(
                                       Icons.alarm,
-                                      size: 14,
+                                      size: 18,
                                       color: Theme.of(context).colorScheme.primary,
                                     ),
                                     const SizedBox(width: 4),

@@ -232,7 +232,7 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                                             statusText,
                                             style: TextStyle(
                                               color: statusColor,
-                                              fontSize: 12,
+                                              fontSize: 14,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),

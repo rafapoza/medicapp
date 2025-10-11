@@ -41,7 +41,7 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
   - Pantalla dedicada "Pastillero" con vista general del inventario
   - Indicadores visuales de estado: disponible (verde), stock bajo (naranja), sin stock (rojo)
   - Cálculo automático de duración estimada considerando dosis variables por toma
-  - Stock bajo detectado automáticamente cuando quedan menos de 3 días de medicamento (basado en dosis diaria total)
+  - Umbral de stock bajo configurable por medicamento: decide con cuántos días de anticipación quieres ser avisado (1-30 días, por defecto 3)
   - Tarjetas resumen con totales, medicamentos con stock bajo y sin stock
 - **Recarga de medicamentos**: Sistema inteligente para reponer el stock
   - Botón "Recargar medicamento" accesible desde cada medicamento
@@ -61,6 +61,21 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
     - **Registrar toma**: Marca la toma como tomada y descuenta del stock
     - **Marcar como no tomada**: Registra que no tomaste la dosis sin descontar stock
     - **Posponer toma**: Programa una notificación única para más tarde sin alterar el horario habitual
+- **Historial completo de dosis**: Sistema avanzado de seguimiento de adherencia
+  - Registro automático de cada toma con hora programada y hora real
+  - Historial persistente de todas las dosis tomadas y omitidas
+  - Estadísticas de adherencia al tratamiento:
+    - Total de dosis programadas
+    - Dosis tomadas y omitidas
+    - Porcentaje de adherencia calculado automáticamente
+  - Vista cronológica con información detallada:
+    - Diferencia entre hora programada y hora real (delay)
+    - Indicador de puntualidad (tomada a tiempo o tarde)
+    - Cantidad específica tomada con unidades
+    - Estado visual con colores (verde: tomada, rojo: omitida)
+  - Filtros avanzados por rango de fechas y medicamento específico
+  - Acceso desde pantalla principal y pantalla de acciones
+  - Datos almacenados en tabla dedicada `dose_history` con índices optimizados
 - **Edición completa**: Modifica tanto la información básica como la duración del tratamiento y horarios
 - **Eliminación**: Elimina medicamentos de tu lista
 - **Validación inteligente**:
@@ -77,7 +92,7 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
 - **Visualización detallada**: Cada medicamento muestra su tipo, nombre, duración del tratamiento y próxima toma
 - **Indicadores visuales de stock**: Alertas en pantalla principal para medicamentos con problemas de stock
   - Icono rojo de error cuando el medicamento se ha agotado (stock = 0)
-  - Icono naranja de advertencia cuando el stock es bajo (menos de 3 días de medicamento)
+  - Icono naranja de advertencia cuando el stock es bajo (según el umbral configurado para cada medicamento)
   - Sin indicador cuando el stock es suficiente
   - Toca el indicador para ver detalles: cantidad exacta y duración estimada en días
 
@@ -128,8 +143,22 @@ flutter test
   - 7 tests de integración con base de datos SQLite
   - Verificación de persistencia de `lastRefillAmount`
   - Tests de actualización y compatibilidad
+- **test/widget_test.dart**: Suite completa de tests de widgets e integración
+  - Tests de navegación y UI
+  - Tests de validación de formularios
+  - Tests de CRUD de medicamentos
+  - Tests de gestión de stock
+  - Tests de registro de tomas con sistema inteligente
+  - Tests de patrones de horario avanzado (semanal, fechas específicas)
+  - 80+ tests cubriendo todos los flujos de la aplicación
+- **test/dose_management_test.dart**: Tests del sistema de historial de dosis
+  - Tests de creación de entradas de historial
+  - Tests de consulta de historial por medicamento y rango de fechas
+  - Tests de cálculo de estadísticas de adherencia
+  - Tests de persistencia y recuperación de datos
+  - Tests de integración con base de datos SQLite
 
-**Total**: 29+ tests cubriendo modelo, servicios y persistencia
+**Total**: 120+ tests cubriendo modelo, servicios, persistencia, UI e historial
 
 ## Estructura del proyecto
 
@@ -140,14 +169,17 @@ lib/
 ├── models/
 │   ├── medication.dart                 # Modelo principal de medicamento
 │   ├── medication_type.dart            # Enum de tipos de medicamento con unidades de stock
-│   └── treatment_duration_type.dart    # Enum de tipos de duración de tratamiento
+│   ├── treatment_duration_type.dart    # Enum de tipos de duración de tratamiento
+│   └── dose_history_entry.dart         # Modelo para historial de dosis
 ├── screens/
 │   ├── medication_list_screen.dart     # Pantalla principal con lista de medicamentos
 │   ├── medication_stock_screen.dart    # Pantalla de Pastillero con gestión de inventario
 │   ├── dose_action_screen.dart         # Pantalla de acciones desde notificación
+│   ├── dose_history_screen.dart        # Pantalla de historial de dosis
 │   ├── add_medication_screen.dart      # Pantalla para añadir medicamento (paso 1)
 │   ├── edit_medication_screen.dart     # Pantalla para editar medicamento
 │   ├── treatment_duration_screen.dart  # Pantalla de duración del tratamiento (paso 2)
+│   ├── treatment_dates_screen.dart     # Pantalla de fechas de tratamiento
 │   └── medication_schedule_screen.dart # Pantalla de programación de horarios (paso 3)
 ├── services/
 │   └── notification_service.dart       # Servicio de notificaciones locales (singleton)
@@ -155,7 +187,9 @@ lib/
 └── test/
     ├── medication_model_test.dart       # Tests del modelo de medicamento (19 tests)
     ├── notification_service_test.dart   # Tests del servicio de notificaciones
-    └── database_refill_test.dart        # Tests de persistencia de recargas (7 tests)
+    ├── database_refill_test.dart        # Tests de persistencia de recargas (7 tests)
+    ├── dose_management_test.dart        # Tests de historial de dosis
+    └── widget_test.dart                 # Tests de widgets e integración (80+ tests)
 ```
 
 ## Base de datos
@@ -166,13 +200,15 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
 
 - **Patrón Singleton**: Una única instancia de `DatabaseHelper` gestiona todas las operaciones
 - **CRUD completo**: Create, Read, Update, Delete
-- **Tabla medications** (versión 7):
+- **Tabla medications** (versión 11):
   - `id` (TEXT PRIMARY KEY)
   - `name` (TEXT NOT NULL)
   - `type` (TEXT NOT NULL)
   - `dosageIntervalHours` (INTEGER NOT NULL)
   - `durationType` (TEXT NOT NULL)
   - `customDays` (INTEGER NULLABLE)
+  - `selectedDates` (TEXT NULLABLE) - Fechas específicas para el tratamiento
+  - `weeklyDays` (TEXT NULLABLE) - Días de la semana para tratamiento semanal
   - `doseTimes` (TEXT NOT NULL) - Horarios de tomas en formato "HH:mm" separados por comas (generado automáticamente desde doseSchedule para compatibilidad)
   - `doseSchedule` (TEXT NOT NULL) - Horarios y cantidades en formato JSON: {"HH:mm": cantidad, ...}
   - `stockQuantity` (REAL NOT NULL DEFAULT 0) - Cantidad de medicamento disponible
@@ -180,6 +216,20 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `skippedDosesToday` (TEXT NOT NULL DEFAULT '') - Horarios de tomas no tomadas hoy (no descuentan stock)
   - `takenDosesDate` (TEXT NULLABLE) - Fecha de las tomas registradas en formato "yyyy-MM-dd"
   - `lastRefillAmount` (REAL NULLABLE) - Última cantidad de recarga (usada como sugerencia en futuras recargas)
+  - `lowStockThresholdDays` (INTEGER NOT NULL DEFAULT 3) - Días de anticipación para aviso de stock bajo configurables por medicamento
+  - `startDate` (TEXT NULLABLE) - Fecha de inicio del tratamiento
+  - `endDate` (TEXT NULLABLE) - Fecha de fin del tratamiento
+- **Tabla dose_history** (versión 11): Historial completo de todas las dosis
+  - `id` (TEXT PRIMARY KEY)
+  - `medicationId` (TEXT NOT NULL)
+  - `medicationName` (TEXT NOT NULL)
+  - `medicationType` (TEXT NOT NULL)
+  - `scheduledDateTime` (TEXT NOT NULL) - Hora programada de la toma
+  - `registeredDateTime` (TEXT NOT NULL) - Hora real de registro
+  - `status` (TEXT NOT NULL) - Estado: 'taken' o 'skipped'
+  - `quantity` (REAL NOT NULL) - Cantidad tomada
+  - `notes` (TEXT NULLABLE) - Notas opcionales
+  - Índices en `medicationId` y `scheduledDateTime` para consultas rápidas
 - **Migraciones**: Sistema de versionado para actualizar el esquema sin perder datos
   - Versión 1 → 2: Añadidos campos de duración de tratamiento y horarios de tomas
   - Versión 2 → 3: Añadido campo de cantidad de stock (stockQuantity)
@@ -187,6 +237,10 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - Versión 4 → 5: Añadido campo doseSchedule para soportar dosis variables por toma
   - Versión 5 → 6: Añadido campo skippedDosesToday para distinguir tomas no tomadas de tomas tomadas
   - Versión 6 → 7: Añadido campo lastRefillAmount para recordar la última cantidad de recarga
+  - Versión 7 → 8: Añadido campo lowStockThresholdDays para umbral personalizado de stock bajo por medicamento
+  - Versión 8 → 9: Añadidos campos selectedDates y weeklyDays para patrones de horario avanzado
+  - Versión 9 → 10: Añadidos campos startDate y endDate para rango de fechas de tratamiento
+  - Versión 10 → 11: Creada tabla dose_history para historial completo de dosis
 - **Compatibilidad**: Migración automática de datos legacy (doseTimes) a nuevo formato (doseSchedule)
 - **Testing**: Los tests utilizan una base de datos en memoria para aislamiento completo
 
@@ -268,8 +322,9 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
 
 1. Toca el botón flotante (+) en la esquina inferior derecha de la pantalla principal
 2. Selecciona "Añadir medicamento" en el menú que aparece
-3. **Paso 1 - Información básica**: Introduce el nombre del medicamento, la frecuencia de tomas (cada cuántas horas), la cantidad disponible (stock) y selecciona su tipo
+3. **Paso 1 - Información básica**: Introduce el nombre del medicamento, la frecuencia de tomas (cada cuántas horas), la cantidad disponible (stock), los días de anticipación para avisar cuando se acabe el stock y selecciona su tipo
    - Las unidades de stock se ajustan automáticamente según el tipo de medicamento (pastillas, ml, gramos, etc.)
+   - Configura con cuántos días de anticipación quieres recibir avisos de stock bajo (1-30 días, por defecto 3)
 4. **Paso 2 - Duración del tratamiento**: Selecciona cuánto tiempo tomarás el medicamento
    - Todos los días (sin límite)
    - Hasta acabar la medicación
@@ -286,7 +341,7 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
 
 1. Toca el medicamento que quieres editar
 2. En el modal, selecciona "Editar medicamento"
-3. Modifica la información básica (nombre, frecuencia de tomas, stock y tipo)
+3. Modifica la información básica (nombre, frecuencia de tomas, stock, umbral de aviso de stock bajo y tipo)
 4. Actualiza la duración del tratamiento si es necesario
 5. Ajusta los horarios y cantidades de las tomas en la pantalla de programación
 6. Los cambios se guardan automáticamente
@@ -392,6 +447,48 @@ Cuando recibes una notificación de medicamento y la tocas, la app se abre direc
 - Si el stock es insuficiente para la dosis específica, recibirás un aviso
 - Todas las acciones actualizan automáticamente la lista de medicamentos
 - Las notificaciones se reprograman tras cada acción
+- Cada acción (registrar/omitir) crea automáticamente una entrada en el historial de dosis
+
+### Ver historial de dosis
+
+Accede a un registro completo de todas tus tomas para monitorizar tu adherencia al tratamiento:
+
+**Desde el menú principal**:
+1. Toca el botón flotante (+) en la esquina inferior derecha
+2. Selecciona "Ver Historial" en el menú que aparece
+
+**Desde la pantalla de acciones**:
+1. Después de registrar u omitir una toma desde una notificación
+2. Toca el botón "Ver Historial Completo" en la parte inferior
+
+**Información mostrada**:
+- **Tarjetas de estadísticas** en la parte superior:
+  - Total de dosis en el período
+  - Dosis tomadas (con porcentaje)
+  - Dosis omitidas (con porcentaje)
+  - Porcentaje de adherencia global
+- **Lista cronológica** de todas las entradas (más recientes primero):
+  - Nombre del medicamento y tipo
+  - Fecha y hora programada
+  - Fecha y hora real de registro
+  - Diferencia de tiempo (delay):
+    - Verde: Tomada a tiempo (±30 minutos)
+    - Naranja: Tomada con retraso (>30 minutos)
+    - Rojo: Omitida
+  - Cantidad tomada con unidades específicas
+  - Estado visual con icono (✓ tomada / ✗ omitida)
+
+**Filtros disponibles**:
+- Por rango de fechas: Últimos 7 días, 30 días, 90 días, o personalizado
+- Por medicamento específico: Ver historial de un solo medicamento
+- Combinación de ambos filtros
+
+**Características**:
+- Datos persistentes en base de datos local
+- Actualización automática con cada nueva toma
+- Vista ordenada cronológicamente (más recientes primero)
+- Estadísticas calculadas en tiempo real
+- Permite evaluar patrones de adherencia y puntualidad
 
 ### Eliminar un medicamento
 

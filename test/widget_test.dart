@@ -104,7 +104,16 @@ Future<void> addMedicationWithDuration(
     }
   }
 
-  // Scroll to and tap continue button to go to schedule screen
+  // Scroll to and tap continue button to go to treatment dates screen
+  await scrollToWidget(tester, find.text('Continuar'));
+  await tester.tap(find.text('Continuar'));
+  await tester.pumpAndSettle();
+
+  // Now we're on the treatment dates screen (Phase 2 feature)
+  // Verify we're there
+  expect(find.text('Fechas del tratamiento'), findsOneWidget);
+
+  // Continue from treatment dates screen to schedule screen
   await scrollToWidget(tester, find.text('Continuar'));
   await tester.tap(find.text('Continuar'));
   await tester.pumpAndSettle();
@@ -626,10 +635,21 @@ void main() {
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
+    // Continue to treatment dates screen
+    await scrollToWidget(tester, find.text('Continuar').first);
+    await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Verify we're on treatment dates screen
+    expect(find.text('Fechas del tratamiento'), findsOneWidget);
+
     // Continue to schedule screen
     await scrollToWidget(tester, find.text('Continuar').first);
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
+
+    // Verify we're on schedule screen
+    expect(find.text('Horario de tomas'), findsOneWidget);
 
     // Save schedule (times should already be filled from original medication)
     await scrollToWidget(tester, find.text('Guardar horario'));
@@ -677,6 +697,11 @@ void main() {
     await tester.pumpAndSettle();
 
     // Continue to duration screen
+    await scrollToWidget(tester, find.text('Continuar').first);
+    await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Continue to treatment dates screen
     await scrollToWidget(tester, find.text('Continuar').first);
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
@@ -732,6 +757,11 @@ void main() {
     await tester.tap(find.text('Personalizado'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, '15');
+    await tester.pumpAndSettle();
+
+    // Continue to treatment dates screen
+    await scrollToWidget(tester, find.text('Continuar').first);
+    await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
     // Continue to schedule screen
@@ -839,6 +869,11 @@ void main() {
     await tester.pumpAndSettle();
 
     // Keep the same name and continue to duration screen
+    await scrollToWidget(tester, find.text('Continuar').first);
+    await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Continue to treatment dates screen
     await scrollToWidget(tester, find.text('Continuar').first);
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
@@ -1413,16 +1448,35 @@ void main() {
     // Wait for database to complete the update and reload
     await waitForDatabase(tester);
 
+    // Extra wait to ensure the medication list has fully reloaded after dose registration
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 300));
+    });
+    await tester.pumpAndSettle();
+
     // Try to register another dose immediately
     await tester.tap(find.text('Medicamento'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Registrar toma'));
     await tester.pumpAndSettle();
 
-    // Verify only remaining doses are shown (08:00 and 16:00)
-    expect(find.text('00:00'), findsNothing);
+    // Verify the dialog is shown
+    expect(find.text('Registrar toma de Medicamento'), findsOneWidget);
+
+    // Verify only remaining doses are shown in the dialog (08:00 and 16:00)
+    // Note: 00:00 may still appear elsewhere on screen (in "Tomas de hoy" section),
+    // but it should not appear as a button in the dialog
     expect(find.text('08:00'), findsOneWidget);
     expect(find.text('16:00'), findsOneWidget);
+
+    // Verify there are only 2 dose buttons in the dialog by counting alarm icons within the dialog
+    // (We can't count all alarm icons on screen because the medication card also has one)
+    final dialogFinder = find.byType(AlertDialog);
+    final alarmIconsInDialog = find.descendant(
+      of: dialogFinder,
+      matching: find.byIcon(Icons.alarm),
+    );
+    expect(alarmIconsInDialog, findsNWidgets(2));
   });
 
   testWidgets('Should register last dose automatically when only one remains', (WidgetTester tester) async {
@@ -1445,6 +1499,12 @@ void main() {
     });
     await tester.pumpAndSettle();
     await waitForDatabase(tester);
+
+    // Extra wait to ensure the medication list has fully reloaded after dose registration
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 300));
+    });
+    await tester.pumpAndSettle();
 
     // Register second dose - should be automatic since only one remains
     await tester.tap(find.text('MedDual'));
@@ -1610,7 +1670,12 @@ void main() {
     // Verify selection indicator shows 2 days
     expect(find.text('2 días seleccionados'), findsOneWidget);
 
-    // Continue to schedule screen
+    // Continue to treatment dates screen
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Continue from treatment dates to schedule screen
     await scrollToWidget(tester, find.text('Continuar'));
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
@@ -1833,10 +1898,17 @@ void main() {
     // Verify 5 days selected
     expect(find.text('5 días seleccionados'), findsOneWidget);
 
-    // Continue and save
+    // Continue to treatment dates screen
     await scrollToWidget(tester, find.text('Continuar'));
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
+
+    // Continue from treatment dates to schedule screen
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Save schedule
     await scrollToWidget(tester, find.text('Guardar horario'));
     await tester.tap(find.text('Guardar horario'));
     await tester.pumpAndSettle();
@@ -1878,6 +1950,13 @@ void main() {
     await scrollToWidget(tester, find.text('Continuar'));
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
+
+    // Continue from treatment dates to schedule screen
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Save schedule
     await scrollToWidget(tester, find.text('Guardar horario'));
     await tester.tap(find.text('Guardar horario'));
     await tester.pumpAndSettle();

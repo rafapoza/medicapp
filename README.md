@@ -128,8 +128,16 @@ flutter test
   - 7 tests de integración con base de datos SQLite
   - Verificación de persistencia de `lastRefillAmount`
   - Tests de actualización y compatibilidad
+- **test/widget_test.dart**: Suite completa de tests de widgets e integración
+  - Tests de navegación y UI
+  - Tests de validación de formularios
+  - Tests de CRUD de medicamentos
+  - Tests de gestión de stock
+  - Tests de registro de tomas con sistema inteligente
+  - Tests de patrones de horario avanzado (semanal, fechas específicas)
+  - 80+ tests cubriendo todos los flujos de la aplicación
 
-**Total**: 29+ tests cubriendo modelo, servicios y persistencia
+**Total**: 110+ tests cubriendo modelo, servicios, persistencia y UI
 
 ## Estructura del proyecto
 
@@ -140,7 +148,8 @@ lib/
 ├── models/
 │   ├── medication.dart                 # Modelo principal de medicamento
 │   ├── medication_type.dart            # Enum de tipos de medicamento con unidades de stock
-│   └── treatment_duration_type.dart    # Enum de tipos de duración de tratamiento
+│   ├── treatment_duration_type.dart    # Enum de tipos de duración de tratamiento
+│   └── dose_history_entry.dart         # Modelo para historial de dosis (Phase 2)
 ├── screens/
 │   ├── medication_list_screen.dart     # Pantalla principal con lista de medicamentos
 │   ├── medication_stock_screen.dart    # Pantalla de Pastillero con gestión de inventario
@@ -148,6 +157,7 @@ lib/
 │   ├── add_medication_screen.dart      # Pantalla para añadir medicamento (paso 1)
 │   ├── edit_medication_screen.dart     # Pantalla para editar medicamento
 │   ├── treatment_duration_screen.dart  # Pantalla de duración del tratamiento (paso 2)
+│   ├── treatment_dates_screen.dart     # Pantalla de fechas de tratamiento (Phase 2)
 │   └── medication_schedule_screen.dart # Pantalla de programación de horarios (paso 3)
 ├── services/
 │   └── notification_service.dart       # Servicio de notificaciones locales (singleton)
@@ -155,7 +165,8 @@ lib/
 └── test/
     ├── medication_model_test.dart       # Tests del modelo de medicamento (19 tests)
     ├── notification_service_test.dart   # Tests del servicio de notificaciones
-    └── database_refill_test.dart        # Tests de persistencia de recargas (7 tests)
+    ├── database_refill_test.dart        # Tests de persistencia de recargas (7 tests)
+    └── widget_test.dart                 # Tests de widgets e integración (80+ tests)
 ```
 
 ## Base de datos
@@ -166,13 +177,15 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
 
 - **Patrón Singleton**: Una única instancia de `DatabaseHelper` gestiona todas las operaciones
 - **CRUD completo**: Create, Read, Update, Delete
-- **Tabla medications** (versión 8):
+- **Tabla medications** (versión 11):
   - `id` (TEXT PRIMARY KEY)
   - `name` (TEXT NOT NULL)
   - `type` (TEXT NOT NULL)
   - `dosageIntervalHours` (INTEGER NOT NULL)
   - `durationType` (TEXT NOT NULL)
   - `customDays` (INTEGER NULLABLE)
+  - `selectedDates` (TEXT NULLABLE) - Fechas específicas para el tratamiento (Phase 2)
+  - `weeklyDays` (TEXT NULLABLE) - Días de la semana para tratamiento semanal (Phase 2)
   - `doseTimes` (TEXT NOT NULL) - Horarios de tomas en formato "HH:mm" separados por comas (generado automáticamente desde doseSchedule para compatibilidad)
   - `doseSchedule` (TEXT NOT NULL) - Horarios y cantidades en formato JSON: {"HH:mm": cantidad, ...}
   - `stockQuantity` (REAL NOT NULL DEFAULT 0) - Cantidad de medicamento disponible
@@ -181,6 +194,19 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `takenDosesDate` (TEXT NULLABLE) - Fecha de las tomas registradas en formato "yyyy-MM-dd"
   - `lastRefillAmount` (REAL NULLABLE) - Última cantidad de recarga (usada como sugerencia en futuras recargas)
   - `lowStockThresholdDays` (INTEGER NOT NULL DEFAULT 3) - Días de anticipación para aviso de stock bajo configurables por medicamento
+  - `startDate` (TEXT NULLABLE) - Fecha de inicio del tratamiento (Phase 2)
+  - `endDate` (TEXT NULLABLE) - Fecha de fin del tratamiento (Phase 2)
+- **Tabla dose_history** (versión 11 - Phase 2): Historial completo de todas las dosis
+  - `id` (TEXT PRIMARY KEY)
+  - `medicationId` (TEXT NOT NULL)
+  - `medicationName` (TEXT NOT NULL)
+  - `medicationType` (TEXT NOT NULL)
+  - `scheduledDateTime` (TEXT NOT NULL) - Hora programada de la toma
+  - `registeredDateTime` (TEXT NOT NULL) - Hora real de registro
+  - `status` (TEXT NOT NULL) - Estado: 'taken' o 'skipped'
+  - `quantity` (REAL NOT NULL) - Cantidad tomada
+  - `notes` (TEXT NULLABLE) - Notas opcionales
+  - Índices en `medicationId` y `scheduledDateTime` para consultas rápidas
 - **Migraciones**: Sistema de versionado para actualizar el esquema sin perder datos
   - Versión 1 → 2: Añadidos campos de duración de tratamiento y horarios de tomas
   - Versión 2 → 3: Añadido campo de cantidad de stock (stockQuantity)
@@ -189,6 +215,9 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - Versión 5 → 6: Añadido campo skippedDosesToday para distinguir tomas no tomadas de tomas tomadas
   - Versión 6 → 7: Añadido campo lastRefillAmount para recordar la última cantidad de recarga
   - Versión 7 → 8: Añadido campo lowStockThresholdDays para umbral personalizado de stock bajo por medicamento
+  - Versión 8 → 9: Añadidos campos selectedDates y weeklyDays para patrones de horario avanzado
+  - Versión 9 → 10: Añadidos campos startDate y endDate para rango de fechas de tratamiento (Phase 2)
+  - Versión 10 → 11: Creada tabla dose_history para historial completo de dosis (Phase 2)
 - **Compatibilidad**: Migración automática de datos legacy (doseTimes) a nuevo formato (doseSchedule)
 - **Testing**: Los tests utilizan una base de datos en memoria para aislamiento completo
 

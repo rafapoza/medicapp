@@ -70,6 +70,8 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
           builder: (context) => TreatmentDurationScreen(
             initialDurationType: widget.medication.durationType,
             initialCustomDays: widget.medication.customDays,
+            initialSelectedDates: widget.medication.selectedDates,
+            initialWeeklyDays: widget.medication.weeklyDays,
           ),
         ),
       );
@@ -97,6 +99,8 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
             dosageIntervalHours: int.parse(_dosageIntervalController.text),
             durationType: durationResult['durationType'],
             customDays: durationResult['customDays'],
+            selectedDates: durationResult['selectedDates'] as List<String>?,
+            weeklyDays: durationResult['weeklyDays'] as List<int>?,
             doseSchedule: scheduleResult,
             stockQuantity: double.tryParse(_stockController.text) ?? 0,
             // Preserve taken doses information when editing

@@ -16,6 +16,8 @@ class Medication {
   final String? takenDosesDate; // Date when doses were taken/skipped in "yyyy-MM-dd" format
   final double? lastRefillAmount; // Last refill amount (used as suggestion for future refills)
   final int lowStockThresholdDays; // Days before running out to show low stock warning
+  final List<String>? selectedDates; // Specific dates for specificDates type in "yyyy-MM-dd" format
+  final List<int>? weeklyDays; // Days of week (1=Mon, 7=Sun) for weeklyPattern type
 
   Medication({
     required this.id,
@@ -31,6 +33,8 @@ class Medication {
     this.takenDosesDate,
     this.lastRefillAmount,
     this.lowStockThresholdDays = 3, // Default to 3 days
+    this.selectedDates, // Specific dates for specificDates type
+    this.weeklyDays, // Days of week for weeklyPattern type
   }) : doseSchedule = doseSchedule ?? {};
 
   /// Legacy compatibility: get list of dose times (keys from doseSchedule)
@@ -52,6 +56,8 @@ class Medication {
       'takenDosesDate': takenDosesDate,
       'lastRefillAmount': lastRefillAmount,
       'lowStockThresholdDays': lowStockThresholdDays,
+      'selectedDates': selectedDates?.join(','), // Store as comma-separated string
+      'weeklyDays': weeklyDays?.join(','), // Store as comma-separated string
     };
   }
 
@@ -94,6 +100,18 @@ class Medication {
         ? skippedDosesTodayString.split(',').where((s) => s.isNotEmpty).toList()
         : <String>[];
 
+    // Parse selected dates from comma-separated string
+    final selectedDatesString = json['selectedDates'] as String?;
+    final selectedDates = selectedDatesString != null && selectedDatesString.isNotEmpty
+        ? selectedDatesString.split(',').where((s) => s.isNotEmpty).toList()
+        : null;
+
+    // Parse weekly days from comma-separated string
+    final weeklyDaysString = json['weeklyDays'] as String?;
+    final weeklyDays = weeklyDaysString != null && weeklyDaysString.isNotEmpty
+        ? weeklyDaysString.split(',').where((s) => s.isNotEmpty).map((s) => int.parse(s)).toList()
+        : null;
+
     return Medication(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -114,6 +132,8 @@ class Medication {
       takenDosesDate: json['takenDosesDate'] as String?,
       lastRefillAmount: (json['lastRefillAmount'] as num?)?.toDouble(),
       lowStockThresholdDays: json['lowStockThresholdDays'] as int? ?? 3, // Default to 3 days for backward compatibility
+      selectedDates: selectedDates,
+      weeklyDays: weeklyDays,
     );
   }
 
@@ -125,6 +145,34 @@ class Medication {
         return 'Hasta acabar';
       case TreatmentDurationType.custom:
         return '$customDays días';
+      case TreatmentDurationType.specificDates:
+        final count = selectedDates?.length ?? 0;
+        return '$count fecha${count != 1 ? 's' : ''} específica${count != 1 ? 's' : ''}';
+      case TreatmentDurationType.weeklyPattern:
+        final count = weeklyDays?.length ?? 0;
+        return '$count día${count != 1 ? 's' : ''} por semana';
+    }
+  }
+
+  /// Check if medication should be taken today based on duration type
+  bool shouldTakeToday() {
+    final today = DateTime.now();
+    final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    switch (durationType) {
+      case TreatmentDurationType.everyday:
+        return true;
+      case TreatmentDurationType.untilFinished:
+        return stockQuantity > 0;
+      case TreatmentDurationType.custom:
+        // This would need to track start date - for now assume it should be taken
+        return true;
+      case TreatmentDurationType.specificDates:
+        return selectedDates?.contains(todayString) ?? false;
+      case TreatmentDurationType.weeklyPattern:
+        // Monday = 1, Sunday = 7
+        final weekday = today.weekday;
+        return weeklyDays?.contains(weekday) ?? false;
     }
   }
 
@@ -174,6 +222,11 @@ class Medication {
 
   /// Get available doses (doses that haven't been taken or skipped today)
   List<String> getAvailableDosesToday() {
+    // First check if medication should be taken today
+    if (!shouldTakeToday()) {
+      return []; // No doses available if medication shouldn't be taken today
+    }
+
     final today = DateTime.now();
     final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 

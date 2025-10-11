@@ -189,6 +189,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
   String? _getNextDoseTime(Medication medication) {
     if (medication.doseTimes.isEmpty) return null;
 
+    // Check if medication should be taken today
+    if (!medication.shouldTakeToday()) {
+      return null; // Don't show next dose if medication shouldn't be taken today
+    }
+
     final now = TimeOfDay.now();
     final currentMinutes = now.hour * 60 + now.minute;
 

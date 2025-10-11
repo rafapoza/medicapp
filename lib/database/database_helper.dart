@@ -41,7 +41,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 7,
+      version: 8,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -74,7 +74,8 @@ class DatabaseHelper {
         takenDosesToday $textType,
         skippedDosesToday $textType,
         takenDosesDate $textNullableType,
-        lastRefillAmount REAL
+        lastRefillAmount REAL,
+        lowStockThresholdDays $integerType DEFAULT 3
       )
     ''');
   }
@@ -122,6 +123,13 @@ class DatabaseHelper {
       // Add lastRefillAmount column for version 7 (store last refill amount for suggestions)
       await db.execute('''
         ALTER TABLE medications ADD COLUMN lastRefillAmount REAL
+      ''');
+    }
+
+    if (oldVersion < 8) {
+      // Add lowStockThresholdDays column for version 8 (configurable low stock threshold)
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN lowStockThresholdDays INTEGER NOT NULL DEFAULT 3
       ''');
     }
   }

@@ -24,6 +24,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _dosageIntervalController;
   late final TextEditingController _stockController;
+  late final TextEditingController _lowStockThresholdController;
   late MedicationType _selectedType;
 
   @override
@@ -36,6 +37,9 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
     _stockController = TextEditingController(
       text: widget.medication.stockQuantity.toString(),
     );
+    _lowStockThresholdController = TextEditingController(
+      text: widget.medication.lowStockThresholdDays.toString(),
+    );
     _selectedType = widget.medication.type;
   }
 
@@ -44,6 +48,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
     _nameController.dispose();
     _dosageIntervalController.dispose();
     _stockController.dispose();
+    _lowStockThresholdController.dispose();
     super.dispose();
   }
 
@@ -99,6 +104,7 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
             skippedDosesToday: widget.medication.skippedDosesToday,
             takenDosesDate: widget.medication.takenDosesDate,
             lastRefillAmount: widget.medication.lastRefillAmount,
+            lowStockThresholdDays: int.tryParse(_lowStockThresholdController.text) ?? 3,
           );
 
           Navigator.pop(context, updatedMedication);
@@ -214,6 +220,37 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
                           final quantity = double.tryParse(value.trim());
                           if (quantity == null || quantity < 0) {
                             return 'La cantidad debe ser mayor o igual a 0';
+                          }
+
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      TextFormField(
+                        controller: _lowStockThresholdController,
+                        decoration: InputDecoration(
+                          labelText: 'Avisar cuando queden',
+                          hintText: 'Ej: 3',
+                          prefixIcon: const Icon(Icons.notifications_active),
+                          suffixText: 'días',
+                          helperText: 'Días de antelación para el aviso',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Por favor, introduce los días';
+                          }
+
+                          final days = int.tryParse(value.trim());
+                          if (days == null || days < 1) {
+                            return 'Debe ser al menos 1 día';
+                          }
+
+                          if (days > 30) {
+                            return 'No puede ser mayor a 30 días';
                           }
 
                           return null;

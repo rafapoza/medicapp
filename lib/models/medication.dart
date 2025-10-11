@@ -15,6 +15,7 @@ class Medication {
   final List<String> skippedDosesToday; // List of doses skipped today in "HH:mm" format (doesn't reduce stock)
   final String? takenDosesDate; // Date when doses were taken/skipped in "yyyy-MM-dd" format
   final double? lastRefillAmount; // Last refill amount (used as suggestion for future refills)
+  final int lowStockThresholdDays; // Days before running out to show low stock warning
 
   Medication({
     required this.id,
@@ -29,6 +30,7 @@ class Medication {
     this.skippedDosesToday = const [],
     this.takenDosesDate,
     this.lastRefillAmount,
+    this.lowStockThresholdDays = 3, // Default to 3 days
   }) : doseSchedule = doseSchedule ?? {};
 
   /// Legacy compatibility: get list of dose times (keys from doseSchedule)
@@ -49,6 +51,7 @@ class Medication {
       'skippedDosesToday': skippedDosesToday.join(','), // Store as comma-separated string
       'takenDosesDate': takenDosesDate,
       'lastRefillAmount': lastRefillAmount,
+      'lowStockThresholdDays': lowStockThresholdDays,
     };
   }
 
@@ -110,6 +113,7 @@ class Medication {
       skippedDosesToday: skippedDosesToday,
       takenDosesDate: json['takenDosesDate'] as String?,
       lastRefillAmount: (json['lastRefillAmount'] as num?)?.toDouble(),
+      lowStockThresholdDays: json['lowStockThresholdDays'] as int? ?? 3, // Default to 3 days for backward compatibility
     );
   }
 
@@ -145,17 +149,17 @@ class Medication {
     return doseSchedule.values.fold(0.0, (sum, dose) => sum + dose);
   }
 
-  /// Check if stock is low (less than 3 days worth of medication)
+  /// Check if stock is low (less than the configured threshold days worth of medication)
   bool get isStockLow {
     if (doseSchedule.isEmpty) return false;
 
     final dailyDose = totalDailyDose;
     if (dailyDose == 0) return false;
 
-    // Consider stock low if less than 3 days worth
-    final threeDaysWorth = dailyDose * 3;
+    // Consider stock low if less than threshold days worth
+    final thresholdDaysWorth = dailyDose * lowStockThresholdDays;
 
-    return stockQuantity > 0 && stockQuantity < threeDaysWorth;
+    return stockQuantity > 0 && stockQuantity < thresholdDaysWorth;
   }
 
   /// Check if stock is empty

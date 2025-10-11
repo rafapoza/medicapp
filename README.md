@@ -41,7 +41,7 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
   - Pantalla dedicada "Pastillero" con vista general del inventario
   - Indicadores visuales de estado: disponible (verde), stock bajo (naranja), sin stock (rojo)
   - Cálculo automático de duración estimada considerando dosis variables por toma
-  - Stock bajo detectado automáticamente cuando quedan menos de 3 días de medicamento (basado en dosis diaria total)
+  - Umbral de stock bajo configurable por medicamento: decide con cuántos días de anticipación quieres ser avisado (1-30 días, por defecto 3)
   - Tarjetas resumen con totales, medicamentos con stock bajo y sin stock
 - **Recarga de medicamentos**: Sistema inteligente para reponer el stock
   - Botón "Recargar medicamento" accesible desde cada medicamento
@@ -77,7 +77,7 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
 - **Visualización detallada**: Cada medicamento muestra su tipo, nombre, duración del tratamiento y próxima toma
 - **Indicadores visuales de stock**: Alertas en pantalla principal para medicamentos con problemas de stock
   - Icono rojo de error cuando el medicamento se ha agotado (stock = 0)
-  - Icono naranja de advertencia cuando el stock es bajo (menos de 3 días de medicamento)
+  - Icono naranja de advertencia cuando el stock es bajo (según el umbral configurado para cada medicamento)
   - Sin indicador cuando el stock es suficiente
   - Toca el indicador para ver detalles: cantidad exacta y duración estimada en días
 
@@ -166,7 +166,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
 
 - **Patrón Singleton**: Una única instancia de `DatabaseHelper` gestiona todas las operaciones
 - **CRUD completo**: Create, Read, Update, Delete
-- **Tabla medications** (versión 7):
+- **Tabla medications** (versión 8):
   - `id` (TEXT PRIMARY KEY)
   - `name` (TEXT NOT NULL)
   - `type` (TEXT NOT NULL)
@@ -180,6 +180,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `skippedDosesToday` (TEXT NOT NULL DEFAULT '') - Horarios de tomas no tomadas hoy (no descuentan stock)
   - `takenDosesDate` (TEXT NULLABLE) - Fecha de las tomas registradas en formato "yyyy-MM-dd"
   - `lastRefillAmount` (REAL NULLABLE) - Última cantidad de recarga (usada como sugerencia en futuras recargas)
+  - `lowStockThresholdDays` (INTEGER NOT NULL DEFAULT 3) - Días de anticipación para aviso de stock bajo configurables por medicamento
 - **Migraciones**: Sistema de versionado para actualizar el esquema sin perder datos
   - Versión 1 → 2: Añadidos campos de duración de tratamiento y horarios de tomas
   - Versión 2 → 3: Añadido campo de cantidad de stock (stockQuantity)
@@ -187,6 +188,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - Versión 4 → 5: Añadido campo doseSchedule para soportar dosis variables por toma
   - Versión 5 → 6: Añadido campo skippedDosesToday para distinguir tomas no tomadas de tomas tomadas
   - Versión 6 → 7: Añadido campo lastRefillAmount para recordar la última cantidad de recarga
+  - Versión 7 → 8: Añadido campo lowStockThresholdDays para umbral personalizado de stock bajo por medicamento
 - **Compatibilidad**: Migración automática de datos legacy (doseTimes) a nuevo formato (doseSchedule)
 - **Testing**: Los tests utilizan una base de datos en memoria para aislamiento completo
 
@@ -268,8 +270,9 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
 
 1. Toca el botón flotante (+) en la esquina inferior derecha de la pantalla principal
 2. Selecciona "Añadir medicamento" en el menú que aparece
-3. **Paso 1 - Información básica**: Introduce el nombre del medicamento, la frecuencia de tomas (cada cuántas horas), la cantidad disponible (stock) y selecciona su tipo
+3. **Paso 1 - Información básica**: Introduce el nombre del medicamento, la frecuencia de tomas (cada cuántas horas), la cantidad disponible (stock), los días de anticipación para avisar cuando se acabe el stock y selecciona su tipo
    - Las unidades de stock se ajustan automáticamente según el tipo de medicamento (pastillas, ml, gramos, etc.)
+   - Configura con cuántos días de anticipación quieres recibir avisos de stock bajo (1-30 días, por defecto 3)
 4. **Paso 2 - Duración del tratamiento**: Selecciona cuánto tiempo tomarás el medicamento
    - Todos los días (sin límite)
    - Hasta acabar la medicación
@@ -286,7 +289,7 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
 
 1. Toca el medicamento que quieres editar
 2. En el modal, selecciona "Editar medicamento"
-3. Modifica la información básica (nombre, frecuencia de tomas, stock y tipo)
+3. Modifica la información básica (nombre, frecuencia de tomas, stock, umbral de aviso de stock bajo y tipo)
 4. Actualiza la duración del tratamiento si es necesario
 5. Ajusta los horarios y cantidades de las tomas en la pantalla de programación
 6. Los cambios se guardan automáticamente

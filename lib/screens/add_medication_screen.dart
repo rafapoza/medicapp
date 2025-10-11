@@ -77,6 +77,8 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
             doseSchedule: scheduleResult,
             stockQuantity: double.tryParse(_stockController.text) ?? 0,
             lowStockThresholdDays: int.tryParse(_lowStockThresholdController.text) ?? 3,
+            startDate: durationResult['startDate'] as DateTime?, // Phase 2
+            endDate: durationResult['endDate'] as DateTime?, // Phase 2
           );
 
           Navigator.pop(context, newMedication);

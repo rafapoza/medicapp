@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import '../models/treatment_duration_type.dart';
 import 'weekly_days_selector_screen.dart';
 import 'specific_dates_selector_screen.dart';
+import 'treatment_dates_screen.dart';
 
 class TreatmentDurationScreen extends StatefulWidget {
   final TreatmentDurationType? initialDurationType;
   final int? initialCustomDays;
   final List<String>? initialSelectedDates;
   final List<int>? initialWeeklyDays;
+  final DateTime? initialStartDate;
+  final DateTime? initialEndDate;
 
   const TreatmentDurationScreen({
     super.key,
@@ -15,6 +18,8 @@ class TreatmentDurationScreen extends StatefulWidget {
     this.initialCustomDays,
     this.initialSelectedDates,
     this.initialWeeklyDays,
+    this.initialStartDate,
+    this.initialEndDate,
   });
 
   @override
@@ -28,6 +33,8 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
   final _formKey = GlobalKey<FormState>();
   List<String>? _selectedDates;
   List<int>? _weeklyDays;
+  DateTime? _startDate;
+  DateTime? _endDate;
 
   @override
   void initState() {
@@ -39,6 +46,8 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
     }
     _selectedDates = widget.initialSelectedDates;
     _weeklyDays = widget.initialWeeklyDays;
+    _startDate = widget.initialStartDate;
+    _endDate = widget.initialEndDate;
   }
 
   @override
@@ -94,6 +103,27 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
         ? int.parse(_customDaysController.text)
         : null;
 
+    // Phase 2: Navigate to treatment dates screen (optional)
+    final datesResult = await Navigator.push<Map<String, DateTime?>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TreatmentDatesScreen(
+          durationType: _selectedDurationType,
+          customDays: customDays,
+          initialStartDate: _startDate,
+          initialEndDate: _endDate,
+        ),
+      ),
+    );
+
+    if (datesResult != null) {
+      _startDate = datesResult['startDate'];
+      _endDate = datesResult['endDate'];
+    } else {
+      // User cancelled - stay on this screen
+      return;
+    }
+
     if (!mounted) return;
 
     Navigator.pop(context, {
@@ -101,6 +131,8 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
       'customDays': customDays,
       'selectedDates': _selectedDates,
       'weeklyDays': _weeklyDays,
+      'startDate': _startDate,
+      'endDate': _endDate,
     });
   }
 

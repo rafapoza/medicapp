@@ -156,12 +156,25 @@ void main() {
 
   // Clean up database before each test to ensure test isolation
   setUp(() async {
+    // Set larger window size for accessibility tests (larger fonts and buttons)
+    final binding = TestWidgetsFlutterBinding.instance;
+    binding.platformDispatcher.implicitView!.physicalSize = const Size(1200, 1800);
+    binding.platformDispatcher.implicitView!.devicePixelRatio = 1.0;
+
     // Close and reset the database to get a fresh in-memory instance
     await DatabaseHelper.resetDatabase();
     // Enable in-memory mode for this test
     DatabaseHelper.setInMemoryDatabase(true);
     // Enable test mode for notifications (disables actual notifications)
     NotificationService.instance.enableTestMode();
+  });
+
+  // Clean up after each test
+  tearDown(() {
+    // Reset window size to default
+    final binding = TestWidgetsFlutterBinding.instance;
+    binding.platformDispatcher.implicitView!.resetPhysicalSize();
+    binding.platformDispatcher.implicitView!.resetDevicePixelRatio();
   });
 
   testWidgets('MedicApp should load', (WidgetTester tester) async {

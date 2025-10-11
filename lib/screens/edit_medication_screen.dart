@@ -72,6 +72,8 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
             initialCustomDays: widget.medication.customDays,
             initialSelectedDates: widget.medication.selectedDates,
             initialWeeklyDays: widget.medication.weeklyDays,
+            initialStartDate: widget.medication.startDate, // Phase 2
+            initialEndDate: widget.medication.endDate, // Phase 2
           ),
         ),
       );
@@ -109,6 +111,8 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
             takenDosesDate: widget.medication.takenDosesDate,
             lastRefillAmount: widget.medication.lastRefillAmount,
             lowStockThresholdDays: int.tryParse(_lowStockThresholdController.text) ?? 3,
+            startDate: durationResult['startDate'] as DateTime?, // Phase 2
+            endDate: durationResult['endDate'] as DateTime?, // Phase 2
           );
 
           Navigator.pop(context, updatedMedication);

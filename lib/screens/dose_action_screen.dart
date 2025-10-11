@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
+import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
 
@@ -40,6 +41,15 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
   Future<void> _registerTaken() async {
     if (_medication == null) return;
+
+    // Cancel follow-up reminders for this dose
+    final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
+    if (doseIndex != -1) {
+      await NotificationService.instance.cancelFollowUpReminders(
+        _medication!.id,
+        doseIndex,
+      );
+    }
 
     // Get the dose quantity for this specific time
     final doseQuantity = _medication!.getDoseQuantity(widget.doseTime);
@@ -97,6 +107,29 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     // Update in database
     await DatabaseHelper.instance.updateMedication(updatedMedication);
 
+    // Save to history
+    final now = DateTime.now();
+    final scheduledDateTime = DateTime(
+      today.year,
+      today.month,
+      today.day,
+      int.parse(widget.doseTime.split(':')[0]),
+      int.parse(widget.doseTime.split(':')[1]),
+    );
+
+    final historyEntry = DoseHistoryEntry(
+      id: '${_medication!.id}_${now.millisecondsSinceEpoch}',
+      medicationId: _medication!.id,
+      medicationName: _medication!.name,
+      medicationType: _medication!.type,
+      scheduledDateTime: scheduledDateTime,
+      registeredDateTime: now,
+      status: DoseStatus.taken,
+      quantity: doseQuantity,
+    );
+
+    await DatabaseHelper.instance.insertDoseHistory(historyEntry);
+
     // Reschedule notifications
     await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
 
@@ -117,6 +150,15 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
   Future<void> _registerSkipped() async {
     if (_medication == null) return;
+
+    // Cancel follow-up reminders for this dose
+    final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
+    if (doseIndex != -1) {
+      await NotificationService.instance.cancelFollowUpReminders(
+        _medication!.id,
+        doseIndex,
+      );
+    }
 
     // Get today's date
     final today = DateTime.now();
@@ -154,6 +196,29 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     // Update in database
     await DatabaseHelper.instance.updateMedication(updatedMedication);
 
+    // Save to history
+    final now = DateTime.now();
+    final scheduledDateTime = DateTime(
+      today.year,
+      today.month,
+      today.day,
+      int.parse(widget.doseTime.split(':')[0]),
+      int.parse(widget.doseTime.split(':')[1]),
+    );
+
+    final historyEntry = DoseHistoryEntry(
+      id: '${_medication!.id}_${now.millisecondsSinceEpoch}',
+      medicationId: _medication!.id,
+      medicationName: _medication!.name,
+      medicationType: _medication!.type,
+      scheduledDateTime: scheduledDateTime,
+      registeredDateTime: now,
+      status: DoseStatus.skipped,
+      quantity: 0, // No quantity for skipped doses
+    );
+
+    await DatabaseHelper.instance.insertDoseHistory(historyEntry);
+
     if (!mounted) return;
 
     // Show confirmation and go back
@@ -171,6 +236,15 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
   Future<void> _postponeDose() async {
     if (_medication == null) return;
+
+    // Cancel follow-up reminders for this dose
+    final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
+    if (doseIndex != -1) {
+      await NotificationService.instance.cancelFollowUpReminders(
+        _medication!.id,
+        doseIndex,
+      );
+    }
 
     // Show time picker to select new time
     final TimeOfDay? newTime = await showTimePicker(
@@ -204,6 +278,48 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
       SnackBar(
         content: Text(
           'Toma de ${_medication!.name} pospuesta\n'
+          'Nueva hora: $newTimeString'
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _postpone15Minutes() async {
+    if (_medication == null) return;
+
+    // Cancel follow-up reminders for this dose
+    final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
+    if (doseIndex != -1) {
+      await NotificationService.instance.cancelFollowUpReminders(
+        _medication!.id,
+        doseIndex,
+      );
+    }
+
+    // Calculate time 15 minutes from now
+    final now = DateTime.now();
+    final newDateTime = now.add(const Duration(minutes: 15));
+    final newTime = TimeOfDay(hour: newDateTime.hour, minute: newDateTime.minute);
+
+    // Format the new time
+    final newTimeString = '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+
+    // Schedule a one-time notification for this dose
+    await NotificationService.instance.schedulePostponedDoseNotification(
+      medication: _medication!,
+      originalDoseTime: widget.doseTime,
+      newTime: newTime,
+    );
+
+    if (!mounted) return;
+
+    // Show confirmation and go back
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Toma de ${_medication!.name} pospuesta 15 minutos\n'
           'Nueva hora: $newTimeString'
         ),
         duration: const Duration(seconds: 2),
@@ -395,32 +511,66 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Option 3: Postpone
+            // Option 3: Postpone 15 minutes (quick action)
             SizedBox(
-              height: 100,
+              height: 80,
+              child: FilledButton.tonal(
+                onPressed: _postpone15Minutes,
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.blue.shade100,
+                  foregroundColor: Colors.blue.shade900,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.snooze, size: 28),
+                    const SizedBox(width: 12),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Posponer 15 minutos',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Recordatorio rápido',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Option 4: Postpone custom time
+            SizedBox(
+              height: 60,
               child: OutlinedButton(
                 onPressed: _postponeDose,
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Column(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.schedule, size: 32),
-                    const SizedBox(height: 8),
+                    const Icon(Icons.schedule, size: 24),
+                    const SizedBox(width: 8),
                     Text(
-                      'Posponer toma',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      'Posponer (elegir hora)',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Programar para más tarde',
-                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
                 ),

@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/medication.dart';
+import '../models/dose_history_entry.dart';
 
 class DatabaseHelper {
   // Singleton pattern
@@ -41,7 +42,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 10,
+      version: 11,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -81,6 +82,32 @@ class DatabaseHelper {
         startDate $textNullableType,
         endDate $textNullableType
       )
+    ''');
+
+    // Create dose_history table for tracking all doses
+    await db.execute('''
+      CREATE TABLE dose_history (
+        id $idType,
+        medicationId $textType,
+        medicationName $textType,
+        medicationType $textType,
+        scheduledDateTime $textType,
+        registeredDateTime $textType,
+        status $textType,
+        quantity REAL NOT NULL,
+        notes $textNullableType
+      )
+    ''');
+
+    // Create index for faster queries by medicationId and date
+    await db.execute('''
+      CREATE INDEX idx_dose_history_medication
+      ON dose_history(medicationId)
+    ''');
+
+    await db.execute('''
+      CREATE INDEX idx_dose_history_date
+      ON dose_history(scheduledDateTime)
     ''');
   }
 
@@ -156,6 +183,38 @@ class DatabaseHelper {
         ALTER TABLE medications ADD COLUMN endDate TEXT
       ''');
     }
+
+    if (oldVersion < 11) {
+      // Create dose_history table for version 11 (Phase 2: dose history tracking)
+      const idType = 'TEXT PRIMARY KEY';
+      const textType = 'TEXT NOT NULL';
+      const textNullableType = 'TEXT';
+
+      await db.execute('''
+        CREATE TABLE dose_history (
+          id $idType,
+          medicationId $textType,
+          medicationName $textType,
+          medicationType $textType,
+          scheduledDateTime $textType,
+          registeredDateTime $textType,
+          status $textType,
+          quantity REAL NOT NULL,
+          notes $textNullableType
+        )
+      ''');
+
+      // Create indexes
+      await db.execute('''
+        CREATE INDEX idx_dose_history_medication
+        ON dose_history(medicationId)
+      ''');
+
+      await db.execute('''
+        CREATE INDEX idx_dose_history_date
+        ON dose_history(scheduledDateTime)
+      ''');
+    }
   }
 
   // Create - Insert a medication
@@ -216,6 +275,155 @@ class DatabaseHelper {
   Future<int> deleteAllMedications() async {
     final db = await database;
     return await db.delete('medications');
+  }
+
+  // === DOSE HISTORY METHODS ===
+
+  // Create - Insert a dose history entry
+  Future<int> insertDoseHistory(DoseHistoryEntry entry) async {
+    final db = await database;
+    return await db.insert(
+      'dose_history',
+      entry.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // Read - Get all dose history entries
+  Future<List<DoseHistoryEntry>> getAllDoseHistory() async {
+    final db = await database;
+    final result = await db.query(
+      'dose_history',
+      orderBy: 'scheduledDateTime DESC', // Most recent first
+    );
+
+    return result.map((map) => DoseHistoryEntry.fromMap(map)).toList();
+  }
+
+  // Read - Get dose history for a specific medication
+  Future<List<DoseHistoryEntry>> getDoseHistoryForMedication(String medicationId) async {
+    final db = await database;
+    final result = await db.query(
+      'dose_history',
+      where: 'medicationId = ?',
+      whereArgs: [medicationId],
+      orderBy: 'scheduledDateTime DESC',
+    );
+
+    return result.map((map) => DoseHistoryEntry.fromMap(map)).toList();
+  }
+
+  // Read - Get dose history for a date range
+  Future<List<DoseHistoryEntry>> getDoseHistoryForDateRange({
+    required DateTime startDate,
+    required DateTime endDate,
+    String? medicationId,
+  }) async {
+    final db = await database;
+
+    final startString = startDate.toIso8601String();
+    final endString = endDate.toIso8601String();
+
+    String where = 'scheduledDateTime >= ? AND scheduledDateTime <= ?';
+    List<dynamic> whereArgs = [startString, endString];
+
+    if (medicationId != null) {
+      where += ' AND medicationId = ?';
+      whereArgs.add(medicationId);
+    }
+
+    final result = await db.query(
+      'dose_history',
+      where: where,
+      whereArgs: whereArgs,
+      orderBy: 'scheduledDateTime DESC',
+    );
+
+    return result.map((map) => DoseHistoryEntry.fromMap(map)).toList();
+  }
+
+  // Read - Get statistics for a medication
+  Future<Map<String, dynamic>> getDoseStatistics({
+    String? medicationId,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    final db = await database;
+
+    String where = '1 = 1'; // Always true
+    List<dynamic> whereArgs = [];
+
+    if (medicationId != null) {
+      where += ' AND medicationId = ?';
+      whereArgs.add(medicationId);
+    }
+
+    if (startDate != null) {
+      where += ' AND scheduledDateTime >= ?';
+      whereArgs.add(startDate.toIso8601String());
+    }
+
+    if (endDate != null) {
+      where += ' AND scheduledDateTime <= ?';
+      whereArgs.add(endDate.toIso8601String());
+    }
+
+    // Get total count
+    final totalResult = await db.rawQuery(
+      'SELECT COUNT(*) as total FROM dose_history WHERE $where',
+      whereArgs,
+    );
+    final total = totalResult.first['total'] as int;
+
+    // Get taken count
+    final takenResult = await db.rawQuery(
+      'SELECT COUNT(*) as taken FROM dose_history WHERE $where AND status = ?',
+      [...whereArgs, 'taken'],
+    );
+    final taken = takenResult.first['taken'] as int;
+
+    // Get skipped count
+    final skippedResult = await db.rawQuery(
+      'SELECT COUNT(*) as skipped FROM dose_history WHERE $where AND status = ?',
+      [...whereArgs, 'skipped'],
+    );
+    final skipped = skippedResult.first['skipped'] as int;
+
+    // Calculate adherence percentage
+    final adherence = total > 0 ? (taken / total * 100).toDouble() : 0.0;
+
+    return {
+      'total': total,
+      'taken': taken,
+      'skipped': skipped,
+      'adherence': adherence,
+    };
+  }
+
+  // Delete - Delete a dose history entry
+  Future<int> deleteDoseHistory(String id) async {
+    final db = await database;
+    return await db.delete(
+      'dose_history',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // Delete - Delete all dose history for a medication
+  Future<int> deleteDoseHistoryForMedication(String medicationId) async {
+    final db = await database;
+    return await db.delete(
+      'dose_history',
+      where: 'medicationId = ?',
+      whereArgs: [medicationId],
+    );
+  }
+
+  // Delete all dose history (useful for testing)
+  Future<int> deleteAllDoseHistory() async {
+    final db = await database;
+    return await db.delete('dose_history');
   }
 
   // Close the database

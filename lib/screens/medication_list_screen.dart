@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
 import '../models/treatment_duration_type.dart';
+import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
 import 'add_medication_screen.dart';
 import 'edit_medication_screen.dart';
 import 'medication_stock_screen.dart';
+import 'dose_history_screen.dart';
 
 class MedicationListScreen extends StatefulWidget {
   const MedicationListScreen({super.key});
@@ -117,22 +119,27 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       final insertResult = await DatabaseHelper.instance.insertMedication(newMedication);
       print('Insert result: $insertResult');
 
-      // Schedule notifications for the new medication
-      await NotificationService.instance.scheduleMedicationNotifications(newMedication);
-
       // Reload medications from database
       final reloadedMeds = await DatabaseHelper.instance.getAllMedications();
       print('Reloaded ${reloadedMeds.length} medications from DB after insert');
 
+      // Update UI immediately
       if (mounted) {
         setState(() {
           _medications.clear();
           _medications.addAll(reloadedMeds);
         });
-
-        // Schedule notifications in background
-        _scheduleNotificationsInBackground(reloadedMeds);
       }
+
+      // Schedule notifications in background (non-blocking)
+      Future.microtask(() async {
+        try {
+          await NotificationService.instance.scheduleMedicationNotifications(newMedication);
+          print('Notifications scheduled for ${newMedication.name}');
+        } catch (e) {
+          print('Error scheduling notifications for ${newMedication.name}: $e');
+        }
+      });
     } else {
       print('newMedication is null - user cancelled or error occurred');
     }
@@ -160,21 +167,16 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       // Update in database
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
-      // Reschedule notifications for the updated medication
-      await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
-
       // Reload medications from database to ensure we have fresh data
       final reloadedMeds = await DatabaseHelper.instance.getAllMedications();
       print('Reloaded ${reloadedMeds.length} medications from DB');
 
+      // Update UI immediately
       if (mounted) {
         setState(() {
           _medications.clear();
           _medications.addAll(reloadedMeds);
         });
-
-        // Schedule notifications in background
-        _scheduleNotificationsInBackground(reloadedMeds);
 
         // Show confirmation message
         ScaffoldMessenger.of(context).showSnackBar(
@@ -184,6 +186,16 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
           ),
         );
       }
+
+      // Reschedule notifications in background (non-blocking)
+      Future.microtask(() async {
+        try {
+          await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
+          print('Notifications rescheduled for ${updatedMedication.name}');
+        } catch (e) {
+          print('Error rescheduling notifications for ${updatedMedication.name}: $e');
+        }
+      });
     }
   }
 
@@ -195,23 +207,31 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
 
     // If medication should be taken today, find next dose today
     if (medication.shouldTakeToday()) {
-      // Convert all dose times to minutes and sort them
-      final doseTimesInMinutes = medication.doseTimes.map((timeString) {
-        final parts = timeString.split(':');
-        final hours = int.parse(parts[0]);
-        final minutes = int.parse(parts[1]);
-        return hours * 60 + minutes;
-      }).toList()..sort();
+      // Get available doses that haven't been taken yet
+      final availableDoses = medication.getAvailableDosesToday();
 
-      // Find the next dose time today
-      for (final doseMinutes in doseTimesInMinutes) {
-        if (doseMinutes > currentMinutes) {
-          final doseTime = medication.doseTimes[doseTimesInMinutes.indexOf(doseMinutes)];
-          return {'date': now, 'time': doseTime, 'isToday': true};
+      if (availableDoses.isNotEmpty) {
+        // Convert available doses to minutes and sort them
+        final availableDosesInMinutes = availableDoses.map((timeString) {
+          final parts = timeString.split(':');
+          final hours = int.parse(parts[0]);
+          final minutes = int.parse(parts[1]);
+          return {'time': timeString, 'minutes': hours * 60 + minutes};
+        }).toList()..sort((a, b) => (a['minutes'] as int).compareTo(b['minutes'] as int));
+
+        // Find the next available dose time (either in the future or already passed)
+        // First, look for doses in the future
+        for (final dose in availableDosesInMinutes) {
+          if ((dose['minutes'] as int) > currentMinutes) {
+            return {'date': now, 'time': dose['time'], 'isToday': true};
+          }
         }
+
+        // If all available doses are in the past, return the first one (it's pending)
+        return {'date': now, 'time': availableDosesInMinutes.first['time'], 'isToday': true};
       }
 
-      // If no dose is left today, find next valid day
+      // If no available doses today, find next valid day
       final nextDate = _findNextValidDate(medication, now);
       if (nextDate != null) {
         return {'date': nextDate, 'time': medication.doseTimes.first, 'isToday': false};
@@ -446,11 +466,41 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       // Update in database
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
-      // Reschedule notifications
-      await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
+      // Create history entry
+      final now = DateTime.now();
+      final scheduledDateTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(selectedDoseTime.split(':')[0]),
+        int.parse(selectedDoseTime.split(':')[1]),
+      );
+
+      final historyEntry = DoseHistoryEntry(
+        id: '${medication.id}_${now.millisecondsSinceEpoch}',
+        medicationId: medication.id,
+        medicationName: medication.name,
+        medicationType: medication.type,
+        scheduledDateTime: scheduledDateTime,
+        registeredDateTime: now,
+        status: DoseStatus.taken,
+        quantity: doseQuantity,
+      );
+
+      await DatabaseHelper.instance.insertDoseHistory(historyEntry);
 
       // Reload medications
       await _loadMedications();
+
+      // Reschedule notifications in background (non-blocking)
+      Future.microtask(() async {
+        try {
+          await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
+          print('Notifications rescheduled after registering dose for ${updatedMedication.name}');
+        } catch (e) {
+          print('Error rescheduling notifications: $e');
+        }
+      });
 
       if (!mounted) return;
 
@@ -714,7 +764,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                         await DatabaseHelper.instance.deleteMedication(medication.id);
 
                         // Cancel notifications for the deleted medication
-                        await NotificationService.instance.cancelMedicationNotifications(medication.id);
+                        await NotificationService.instance.cancelMedicationNotifications(medication.id, medication: medication);
 
                         setState(() {
                           _medications.remove(medication);
@@ -759,9 +809,162 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
 
   void _showDebugInfo() async {
     final notificationsEnabled = await NotificationService.instance.areNotificationsEnabled();
+    final canScheduleExact = await NotificationService.instance.canScheduleExactAlarms();
     final pendingNotifications = await NotificationService.instance.getPendingNotifications();
 
     if (!mounted) return;
+
+    // Build notification info with medication data
+    final notificationInfoList = <Map<String, dynamic>>[];
+    final now = DateTime.now();
+
+    for (final notification in pendingNotifications) {
+      String? medicationName;
+      String? scheduledTime;
+      String? scheduledDate;
+      String? notificationType;
+      bool isPastDue = false;
+
+      // Determine notification type based on ID range
+      final id = notification.id;
+      if (id >= 6000000) {
+        notificationType = 'Recordatorio +30 min';
+      } else if (id >= 5000000) {
+        notificationType = 'Recordatorio +10 min';
+      } else if (id >= 4000000) {
+        notificationType = 'Patrón semanal';
+      } else if (id >= 3000000) {
+        notificationType = 'Fecha específica';
+      } else if (id >= 2000000) {
+        notificationType = 'Pospuesta';
+      } else {
+        notificationType = 'Diaria recurrente';
+      }
+
+      // Try to parse payload to get medication info
+      if (notification.payload != null && notification.payload!.isNotEmpty) {
+        final parts = notification.payload!.split('|');
+        if (parts.isNotEmpty) {
+          final medicationId = parts[0];
+          final medication = _medications.firstWhere(
+            (m) => m.id == medicationId,
+            orElse: () => _medications.first, // fallback
+          );
+
+          if (medication.id == medicationId) {
+            medicationName = medication.name;
+
+            // Try to get dose time
+            if (parts.length > 1) {
+              final doseIndexOrTime = parts[1];
+
+              // Check if it's a time string (HH:mm)
+              if (doseIndexOrTime.contains(':')) {
+                scheduledTime = doseIndexOrTime;
+              } else {
+                // It's a dose index
+                final doseIndex = int.tryParse(doseIndexOrTime);
+                if (doseIndex != null && doseIndex < medication.doseTimes.length) {
+                  scheduledTime = medication.doseTimes[doseIndex];
+                }
+              }
+
+              // Infer date based on notification type and medication
+              if (scheduledTime != null) {
+                final timeParts = scheduledTime.split(':');
+                final schedHour = int.parse(timeParts[0]);
+                final schedMin = int.parse(timeParts[1]);
+
+                if (notificationType == 'Diaria recurrente') {
+                  // Check if it's for today or tomorrow
+                  final currentMinutes = now.hour * 60 + now.minute;
+                  final scheduledMinutes = schedHour * 60 + schedMin;
+
+                  if (scheduledMinutes > currentMinutes) {
+                    scheduledDate = 'Hoy ${now.day}/${now.month}/${now.year}';
+                    isPastDue = false;
+                  } else {
+                    final tomorrow = now.add(const Duration(days: 1));
+                    scheduledDate = 'Mañana ${tomorrow.day}/${tomorrow.month}/${tomorrow.year}';
+                    isPastDue = false; // Not past due if it's scheduled for tomorrow
+                  }
+                } else if (notificationType == 'Fecha específica' || notificationType == 'Patrón semanal') {
+                  // Try to find the next date from medication schedule
+                  if (medication.selectedDates != null && medication.selectedDates!.isNotEmpty) {
+                    // For specific dates
+                    final today = DateTime(now.year, now.month, now.day);
+                    for (final dateString in medication.selectedDates!) {
+                      final dateParts = dateString.split('-');
+                      final date = DateTime(
+                        int.parse(dateParts[0]),
+                        int.parse(dateParts[1]),
+                        int.parse(dateParts[2]),
+                      );
+
+                      if (date.isAfter(today) || date.isAtSameMomentAs(today)) {
+                        scheduledDate = '${date.day}/${date.month}/${date.year}';
+
+                        // Check if past due
+                        if (date.isAtSameMomentAs(today)) {
+                          final currentMinutes = now.hour * 60 + now.minute;
+                          final scheduledMinutes = schedHour * 60 + schedMin;
+                          isPastDue = scheduledMinutes < currentMinutes;
+                        }
+                        break;
+                      }
+                    }
+                  } else if (medication.weeklyDays != null && medication.weeklyDays!.isNotEmpty) {
+                    // For weekly patterns - find next matching day
+                    for (int i = 0; i <= 7; i++) {
+                      final checkDate = now.add(Duration(days: i));
+                      if (medication.weeklyDays!.contains(checkDate.weekday)) {
+                        scheduledDate = '${checkDate.day}/${checkDate.month}/${checkDate.year}';
+
+                        // Check if past due (only if it's today)
+                        if (i == 0) {
+                          final currentMinutes = now.hour * 60 + now.minute;
+                          final scheduledMinutes = schedHour * 60 + schedMin;
+                          isPastDue = scheduledMinutes < currentMinutes;
+                        }
+                        break;
+                      }
+                    }
+                  } else {
+                    scheduledDate = 'Hoy o posterior';
+                  }
+                } else if (notificationType == 'Pospuesta') {
+                  // Postponed notifications are usually for today or tomorrow
+                  final currentMinutes = now.hour * 60 + now.minute;
+                  final scheduledMinutes = schedHour * 60 + schedMin;
+
+                  if (scheduledMinutes > currentMinutes) {
+                    scheduledDate = 'Hoy ${now.day}/${now.month}/${now.year}';
+                  } else {
+                    final tomorrow = now.add(const Duration(days: 1));
+                    scheduledDate = 'Mañana ${tomorrow.day}/${tomorrow.month}/${tomorrow.year}';
+                  }
+                } else if (notificationType == 'Recordatorio +10 min' || notificationType == 'Recordatorio +30 min') {
+                  // Follow-up reminders are for today
+                  scheduledDate = 'Hoy ${now.day}/${now.month}/${now.year}';
+                  final currentMinutes = now.hour * 60 + now.minute;
+                  final scheduledMinutes = schedHour * 60 + schedMin;
+                  isPastDue = scheduledMinutes < currentMinutes;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      notificationInfoList.add({
+        'notification': notification,
+        'medicationName': medicationName,
+        'scheduledTime': scheduledTime,
+        'scheduledDate': scheduledDate,
+        'notificationType': notificationType,
+        'isPastDue': isPastDue,
+      });
+    }
 
     showDialog(
       context: context,
@@ -772,7 +975,52 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('✓ Permisos otorgados: ${notificationsEnabled ? "Sí" : "No"}'),
+              Text('✓ Permisos de notificaciones: ${notificationsEnabled ? "Sí" : "No"}'),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Text(
+                    '⏰ Alarmas exactas (Android 12+): ${canScheduleExact ? "Sí" : "NO"}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: canScheduleExact ? Colors.green : Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+              if (!canScheduleExact) ...[
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '⚠️ IMPORTANTE: Activa este permiso',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Sin este permiso las notificaciones NO saltarán.',
+                        style: TextStyle(fontSize: 11),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Ve a: Ajustes → Aplicaciones → MedicApp → Alarmas y recordatorios',
+                        style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 8),
               Text('📊 Notificaciones pendientes: ${pendingNotifications.length}'),
               const SizedBox(height: 8),
@@ -783,31 +1031,98 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               if (pendingNotifications.isEmpty)
                 const Text('⚠️ No hay notificaciones programadas', style: TextStyle(color: Colors.orange))
               else
-                ...pendingNotifications.map((notification) {
+                ...notificationInfoList.map((info) {
+                  final notification = info['notification'];
+                  final medicationName = info['medicationName'] as String?;
+                  final scheduledTime = info['scheduledTime'] as String?;
+                  final scheduledDate = info['scheduledDate'] as String?;
+                  final notificationType = info['notificationType'] as String?;
+                  final isPastDue = info['isPastDue'] as bool;
+
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: isPastDue
+                            ? Colors.red.withOpacity(0.1)
+                            : Colors.grey.withOpacity(0.1),
+                        border: isPastDue
+                            ? Border.all(color: Colors.red, width: 1)
+                            : null,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'ID: ${notification.id}',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                          Row(
+                            children: [
+                              Text(
+                                'ID: ${notification.id}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: isPastDue ? Colors.red : null,
+                                ),
+                              ),
+                              if (isPastDue) ...[
+                                const SizedBox(width: 8),
+                                const Text(
+                                  '⚠️ PASADA',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
+                          if (medicationName != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              '💊 $medicationName',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                          if (notificationType != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              '📋 Tipo: $notificationType',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.shade700,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                          if (scheduledDate != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              '📅 Fecha: $scheduledDate',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isPastDue ? Colors.red.shade700 : Colors.green.shade700,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                          if (scheduledTime != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              '⏰ Hora: $scheduledTime',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isPastDue ? Colors.red.shade700 : Colors.blue.shade700,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 4),
                           Text(
                             notification.title ?? "Sin título",
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic),
                           ),
-                          if (notification.body != null)
-                            Text(
-                              notification.body!,
-                              style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic),
-                            ),
                         ],
                       ),
                     ),
@@ -901,6 +1216,20 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     );
   }
 
+  void _navigateToHistory() async {
+    final hasChanges = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const DoseHistoryScreen(),
+      ),
+    );
+
+    // Reload medications if changes were made in history
+    if (hasChanges == true) {
+      await _loadMedications();
+    }
+  }
+
   void _showMainActionMenu() {
     showModalBottomSheet(
       context: context,
@@ -953,6 +1282,21 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _navigateToHistory();
+                  },
+                  icon: const Icon(Icons.history),
+                  label: const Text('Ver Historial'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
@@ -969,6 +1313,327 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         );
       },
     );
+  }
+
+  Widget _buildTodayDosesSection(Medication medication) {
+    final allDoses = [
+      ...medication.takenDosesToday.map((time) => {'time': time, 'status': 'taken'}),
+      ...medication.skippedDosesToday.map((time) => {'time': time, 'status': 'skipped'}),
+    ]..sort((a, b) => (a['time'] as String).compareTo(b['time'] as String));
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(height: 16),
+          Text(
+            'Tomas de hoy:',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: allDoses.map((dose) {
+              final time = dose['time'] as String;
+              final status = dose['status'] as String;
+              final isTaken = status == 'taken';
+
+              return InkWell(
+                onTap: () => _showEditTodayDoseDialog(medication, time, isTaken),
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: (isTaken ? Colors.green : Colors.orange).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: (isTaken ? Colors.green : Colors.orange).withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isTaken ? Icons.check_circle : Icons.cancel,
+                        size: 14,
+                        color: isTaken ? Colors.green : Colors.orange,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        time,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isTaken ? Colors.green.shade700 : Colors.orange.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showEditTodayDoseDialog(Medication medication, String doseTime, bool isTaken) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Toma de ${medication.name} a las $doseTime'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Estado actual: ${isTaken ? "Tomada" : "Omitida"}',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '¿Qué deseas hacer?',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.pop(context, 'delete'),
+            icon: const Icon(Icons.delete_outline),
+            label: const Text('Eliminar'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+          ),
+          const SizedBox(width: 8),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(context, 'toggle'),
+            icon: Icon(isTaken ? Icons.cancel : Icons.check_circle),
+            label: Text(isTaken ? 'Marcar Omitida' : 'Marcar Tomada'),
+            style: FilledButton.styleFrom(
+              backgroundColor: isTaken ? Colors.orange : Colors.green,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (result == 'delete') {
+      await _deleteTodayDose(medication, doseTime, isTaken);
+    } else if (result == 'toggle') {
+      await _toggleTodayDoseStatus(medication, doseTime, isTaken);
+    }
+  }
+
+  Future<void> _deleteTodayDose(Medication medication, String doseTime, bool wasTaken) async {
+    try {
+      // Remove from taken or skipped doses
+      List<String> takenDoses = List.from(medication.takenDosesToday);
+      List<String> skippedDoses = List.from(medication.skippedDosesToday);
+
+      if (wasTaken) {
+        takenDoses.remove(doseTime);
+      } else {
+        skippedDoses.remove(doseTime);
+      }
+
+      // Restore stock if it was taken
+      double newStock = medication.stockQuantity;
+      if (wasTaken) {
+        final doseQuantity = medication.getDoseQuantity(doseTime);
+        newStock += doseQuantity;
+      }
+
+      // Update medication
+      final updatedMedication = Medication(
+        id: medication.id,
+        name: medication.name,
+        type: medication.type,
+        dosageIntervalHours: medication.dosageIntervalHours,
+        durationType: medication.durationType,
+        customDays: medication.customDays,
+        doseSchedule: medication.doseSchedule,
+        stockQuantity: newStock,
+        takenDosesToday: takenDoses,
+        skippedDosesToday: skippedDoses,
+        takenDosesDate: medication.takenDosesDate,
+        lastRefillAmount: medication.lastRefillAmount,
+        lowStockThresholdDays: medication.lowStockThresholdDays,
+        selectedDates: medication.selectedDates,
+        weeklyDays: medication.weeklyDays,
+        startDate: medication.startDate,
+        endDate: medication.endDate,
+      );
+
+      await DatabaseHelper.instance.updateMedication(updatedMedication);
+
+      // Delete from history
+      final now = DateTime.now();
+      final scheduledDateTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(doseTime.split(':')[0]),
+        int.parse(doseTime.split(':')[1]),
+      );
+
+      // Find and delete the history entry
+      final historyEntries = await DatabaseHelper.instance.getDoseHistoryForMedication(medication.id);
+      for (final entry in historyEntries) {
+        if (entry.scheduledDateTime.year == scheduledDateTime.year &&
+            entry.scheduledDateTime.month == scheduledDateTime.month &&
+            entry.scheduledDateTime.day == scheduledDateTime.day &&
+            entry.scheduledDateTime.hour == scheduledDateTime.hour &&
+            entry.scheduledDateTime.minute == scheduledDateTime.minute) {
+          await DatabaseHelper.instance.deleteDoseHistory(entry.id);
+          break;
+        }
+      }
+
+      // Reload medications
+      await _loadMedications();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Toma de las $doseTime eliminada'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al eliminar: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  Future<void> _toggleTodayDoseStatus(Medication medication, String doseTime, bool wasTaken) async {
+    try {
+      // Move between taken and skipped
+      List<String> takenDoses = List.from(medication.takenDosesToday);
+      List<String> skippedDoses = List.from(medication.skippedDosesToday);
+
+      double newStock = medication.stockQuantity;
+      final doseQuantity = medication.getDoseQuantity(doseTime);
+
+      if (wasTaken) {
+        // Change from taken to skipped
+        takenDoses.remove(doseTime);
+        skippedDoses.add(doseTime);
+        // Restore stock
+        newStock += doseQuantity;
+      } else {
+        // Change from skipped to taken
+        skippedDoses.remove(doseTime);
+        takenDoses.add(doseTime);
+        // Remove stock
+        if (newStock < doseQuantity) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No hay suficiente stock para marcar como tomada'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
+        newStock -= doseQuantity;
+      }
+
+      // Update medication
+      final updatedMedication = Medication(
+        id: medication.id,
+        name: medication.name,
+        type: medication.type,
+        dosageIntervalHours: medication.dosageIntervalHours,
+        durationType: medication.durationType,
+        customDays: medication.customDays,
+        doseSchedule: medication.doseSchedule,
+        stockQuantity: newStock,
+        takenDosesToday: takenDoses,
+        skippedDosesToday: skippedDoses,
+        takenDosesDate: medication.takenDosesDate,
+        lastRefillAmount: medication.lastRefillAmount,
+        lowStockThresholdDays: medication.lowStockThresholdDays,
+        selectedDates: medication.selectedDates,
+        weeklyDays: medication.weeklyDays,
+        startDate: medication.startDate,
+        endDate: medication.endDate,
+      );
+
+      await DatabaseHelper.instance.updateMedication(updatedMedication);
+
+      // Update history entry
+      final now = DateTime.now();
+      final scheduledDateTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(doseTime.split(':')[0]),
+        int.parse(doseTime.split(':')[1]),
+      );
+
+      // Find and update the history entry
+      final historyEntries = await DatabaseHelper.instance.getDoseHistoryForMedication(medication.id);
+      for (final entry in historyEntries) {
+        if (entry.scheduledDateTime.year == scheduledDateTime.year &&
+            entry.scheduledDateTime.month == scheduledDateTime.month &&
+            entry.scheduledDateTime.day == scheduledDateTime.day &&
+            entry.scheduledDateTime.hour == scheduledDateTime.hour &&
+            entry.scheduledDateTime.minute == scheduledDateTime.minute) {
+          final updatedEntry = entry.copyWith(
+            status: wasTaken ? DoseStatus.skipped : DoseStatus.taken,
+            registeredDateTime: DateTime.now(),
+          );
+          await DatabaseHelper.instance.insertDoseHistory(updatedEntry);
+          break;
+        }
+      }
+
+      // Reload medications
+      await _loadMedications();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Toma de las $doseTime marcada como ${wasTaken ? "Omitida" : "Tomada"}'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al cambiar estado: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   @override
@@ -1087,64 +1752,101 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   stockColor = Colors.orange;
                 }
 
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    leading: CircleAvatar(
-                      backgroundColor: medication.type.getColor(context).withOpacity(0.2),
-                      child: Icon(
-                        medication.type.icon,
-                        color: medication.type.getColor(context),
-                      ),
+                return Opacity(
+                  opacity: medication.isFinished ? 0.5 : 1.0, // Phase 2: Dim finished medications
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
                     ),
-                    title: Text(
-                      medication.name,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Column(
                       children: [
-                        Text(
-                          medication.type.displayName,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: medication.type.getColor(context),
-                              ),
-                        ),
-                        Text(
-                          medication.durationDisplayText,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                        if (_getNextDoseInfo(medication) != null) ...[
-                          const SizedBox(height: 4),
-                          Row(
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          leading: CircleAvatar(
+                            backgroundColor: medication.type.getColor(context).withOpacity(0.2),
+                            child: Icon(
+                              medication.type.icon,
+                              color: medication.type.getColor(context),
+                            ),
+                          ),
+                          title: Text(
+                            medication.name,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                Icons.alarm,
-                                size: 14,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  _formatNextDose(_getNextDoseInfo(medication)),
+                              // Phase 2: Show progress bar if treatment has dates
+                              if (medication.progress != null) ...[
+                                const SizedBox(height: 6),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: medication.progress,
+                                    minHeight: 6,
+                                    backgroundColor: Colors.grey.withOpacity(0.2),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      medication.isFinished
+                                        ? Colors.grey
+                                        : Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                              ],
+                              // Phase 2: Show status description (e.g., "Día 3 de 7", "Empieza el...", "Finalizado")
+                              if (medication.statusDescription.isNotEmpty) ...[
+                                Text(
+                                  medication.statusDescription,
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: Theme.of(context).colorScheme.primary,
+                                        color: medication.isPending
+                                          ? Colors.orange
+                                          : medication.isFinished
+                                            ? Colors.grey
+                                            : Theme.of(context).colorScheme.primary,
                                         fontWeight: FontWeight.w600,
                                       ),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
+                                const SizedBox(height: 2),
+                              ],
+                              Text(
+                                medication.type.displayName,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: medication.type.getColor(context),
+                                    ),
                               ),
+                              Text(
+                                medication.durationDisplayText,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                              ),
+                              if (_getNextDoseInfo(medication) != null) ...[
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.alarm,
+                                      size: 14,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Flexible(
+                                      child: Text(
+                                        _formatNextDose(_getNextDoseInfo(medication)),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: Theme.of(context).colorScheme.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ],
                           ),
-                        ],
-                      ],
-                    ),
                     trailing: stockIcon != null
                         ? GestureDetector(
                             onTap: () {
@@ -1182,9 +1884,17 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                         : null,
                     onTap: () => _showDeleteModal(medication),
                   ),
-                );
-              },
+                  // Tomas del día ya registradas
+                  if (medication.isTakenDosesDateToday &&
+                      (medication.takenDosesToday.isNotEmpty ||
+                       medication.skippedDosesToday.isNotEmpty))
+                    _buildTodayDosesSection(medication),
+                ],
+              ),
             ),
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showMainActionMenu,
         child: const Icon(Icons.add),

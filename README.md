@@ -61,6 +61,21 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
     - **Registrar toma**: Marca la toma como tomada y descuenta del stock
     - **Marcar como no tomada**: Registra que no tomaste la dosis sin descontar stock
     - **Posponer toma**: Programa una notificación única para más tarde sin alterar el horario habitual
+- **Historial completo de dosis**: Sistema avanzado de seguimiento de adherencia
+  - Registro automático de cada toma con hora programada y hora real
+  - Historial persistente de todas las dosis tomadas y omitidas
+  - Estadísticas de adherencia al tratamiento:
+    - Total de dosis programadas
+    - Dosis tomadas y omitidas
+    - Porcentaje de adherencia calculado automáticamente
+  - Vista cronológica con información detallada:
+    - Diferencia entre hora programada y hora real (delay)
+    - Indicador de puntualidad (tomada a tiempo o tarde)
+    - Cantidad específica tomada con unidades
+    - Estado visual con colores (verde: tomada, rojo: omitida)
+  - Filtros avanzados por rango de fechas y medicamento específico
+  - Acceso desde pantalla principal y pantalla de acciones
+  - Datos almacenados en tabla dedicada `dose_history` con índices optimizados
 - **Edición completa**: Modifica tanto la información básica como la duración del tratamiento y horarios
 - **Eliminación**: Elimina medicamentos de tu lista
 - **Validación inteligente**:
@@ -136,8 +151,14 @@ flutter test
   - Tests de registro de tomas con sistema inteligente
   - Tests de patrones de horario avanzado (semanal, fechas específicas)
   - 80+ tests cubriendo todos los flujos de la aplicación
+- **test/dose_management_test.dart**: Tests del sistema de historial de dosis
+  - Tests de creación de entradas de historial
+  - Tests de consulta de historial por medicamento y rango de fechas
+  - Tests de cálculo de estadísticas de adherencia
+  - Tests de persistencia y recuperación de datos
+  - Tests de integración con base de datos SQLite
 
-**Total**: 110+ tests cubriendo modelo, servicios, persistencia y UI
+**Total**: 120+ tests cubriendo modelo, servicios, persistencia, UI e historial
 
 ## Estructura del proyecto
 
@@ -149,15 +170,16 @@ lib/
 │   ├── medication.dart                 # Modelo principal de medicamento
 │   ├── medication_type.dart            # Enum de tipos de medicamento con unidades de stock
 │   ├── treatment_duration_type.dart    # Enum de tipos de duración de tratamiento
-│   └── dose_history_entry.dart         # Modelo para historial de dosis (Phase 2)
+│   └── dose_history_entry.dart         # Modelo para historial de dosis
 ├── screens/
 │   ├── medication_list_screen.dart     # Pantalla principal con lista de medicamentos
 │   ├── medication_stock_screen.dart    # Pantalla de Pastillero con gestión de inventario
 │   ├── dose_action_screen.dart         # Pantalla de acciones desde notificación
+│   ├── dose_history_screen.dart        # Pantalla de historial de dosis
 │   ├── add_medication_screen.dart      # Pantalla para añadir medicamento (paso 1)
 │   ├── edit_medication_screen.dart     # Pantalla para editar medicamento
 │   ├── treatment_duration_screen.dart  # Pantalla de duración del tratamiento (paso 2)
-│   ├── treatment_dates_screen.dart     # Pantalla de fechas de tratamiento (Phase 2)
+│   ├── treatment_dates_screen.dart     # Pantalla de fechas de tratamiento
 │   └── medication_schedule_screen.dart # Pantalla de programación de horarios (paso 3)
 ├── services/
 │   └── notification_service.dart       # Servicio de notificaciones locales (singleton)
@@ -166,6 +188,7 @@ lib/
     ├── medication_model_test.dart       # Tests del modelo de medicamento (19 tests)
     ├── notification_service_test.dart   # Tests del servicio de notificaciones
     ├── database_refill_test.dart        # Tests de persistencia de recargas (7 tests)
+    ├── dose_management_test.dart        # Tests de historial de dosis
     └── widget_test.dart                 # Tests de widgets e integración (80+ tests)
 ```
 
@@ -184,8 +207,8 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `dosageIntervalHours` (INTEGER NOT NULL)
   - `durationType` (TEXT NOT NULL)
   - `customDays` (INTEGER NULLABLE)
-  - `selectedDates` (TEXT NULLABLE) - Fechas específicas para el tratamiento (Phase 2)
-  - `weeklyDays` (TEXT NULLABLE) - Días de la semana para tratamiento semanal (Phase 2)
+  - `selectedDates` (TEXT NULLABLE) - Fechas específicas para el tratamiento
+  - `weeklyDays` (TEXT NULLABLE) - Días de la semana para tratamiento semanal
   - `doseTimes` (TEXT NOT NULL) - Horarios de tomas en formato "HH:mm" separados por comas (generado automáticamente desde doseSchedule para compatibilidad)
   - `doseSchedule` (TEXT NOT NULL) - Horarios y cantidades en formato JSON: {"HH:mm": cantidad, ...}
   - `stockQuantity` (REAL NOT NULL DEFAULT 0) - Cantidad de medicamento disponible
@@ -194,9 +217,9 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `takenDosesDate` (TEXT NULLABLE) - Fecha de las tomas registradas en formato "yyyy-MM-dd"
   - `lastRefillAmount` (REAL NULLABLE) - Última cantidad de recarga (usada como sugerencia en futuras recargas)
   - `lowStockThresholdDays` (INTEGER NOT NULL DEFAULT 3) - Días de anticipación para aviso de stock bajo configurables por medicamento
-  - `startDate` (TEXT NULLABLE) - Fecha de inicio del tratamiento (Phase 2)
-  - `endDate` (TEXT NULLABLE) - Fecha de fin del tratamiento (Phase 2)
-- **Tabla dose_history** (versión 11 - Phase 2): Historial completo de todas las dosis
+  - `startDate` (TEXT NULLABLE) - Fecha de inicio del tratamiento
+  - `endDate` (TEXT NULLABLE) - Fecha de fin del tratamiento
+- **Tabla dose_history** (versión 11): Historial completo de todas las dosis
   - `id` (TEXT PRIMARY KEY)
   - `medicationId` (TEXT NOT NULL)
   - `medicationName` (TEXT NOT NULL)
@@ -216,8 +239,8 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - Versión 6 → 7: Añadido campo lastRefillAmount para recordar la última cantidad de recarga
   - Versión 7 → 8: Añadido campo lowStockThresholdDays para umbral personalizado de stock bajo por medicamento
   - Versión 8 → 9: Añadidos campos selectedDates y weeklyDays para patrones de horario avanzado
-  - Versión 9 → 10: Añadidos campos startDate y endDate para rango de fechas de tratamiento (Phase 2)
-  - Versión 10 → 11: Creada tabla dose_history para historial completo de dosis (Phase 2)
+  - Versión 9 → 10: Añadidos campos startDate y endDate para rango de fechas de tratamiento
+  - Versión 10 → 11: Creada tabla dose_history para historial completo de dosis
 - **Compatibilidad**: Migración automática de datos legacy (doseTimes) a nuevo formato (doseSchedule)
 - **Testing**: Los tests utilizan una base de datos en memoria para aislamiento completo
 
@@ -424,6 +447,48 @@ Cuando recibes una notificación de medicamento y la tocas, la app se abre direc
 - Si el stock es insuficiente para la dosis específica, recibirás un aviso
 - Todas las acciones actualizan automáticamente la lista de medicamentos
 - Las notificaciones se reprograman tras cada acción
+- Cada acción (registrar/omitir) crea automáticamente una entrada en el historial de dosis
+
+### Ver historial de dosis
+
+Accede a un registro completo de todas tus tomas para monitorizar tu adherencia al tratamiento:
+
+**Desde el menú principal**:
+1. Toca el botón flotante (+) en la esquina inferior derecha
+2. Selecciona "Ver Historial" en el menú que aparece
+
+**Desde la pantalla de acciones**:
+1. Después de registrar u omitir una toma desde una notificación
+2. Toca el botón "Ver Historial Completo" en la parte inferior
+
+**Información mostrada**:
+- **Tarjetas de estadísticas** en la parte superior:
+  - Total de dosis en el período
+  - Dosis tomadas (con porcentaje)
+  - Dosis omitidas (con porcentaje)
+  - Porcentaje de adherencia global
+- **Lista cronológica** de todas las entradas (más recientes primero):
+  - Nombre del medicamento y tipo
+  - Fecha y hora programada
+  - Fecha y hora real de registro
+  - Diferencia de tiempo (delay):
+    - Verde: Tomada a tiempo (±30 minutos)
+    - Naranja: Tomada con retraso (>30 minutos)
+    - Rojo: Omitida
+  - Cantidad tomada con unidades específicas
+  - Estado visual con icono (✓ tomada / ✗ omitida)
+
+**Filtros disponibles**:
+- Por rango de fechas: Últimos 7 días, 30 días, 90 días, o personalizado
+- Por medicamento específico: Ver historial de un solo medicamento
+- Combinación de ambos filtros
+
+**Características**:
+- Datos persistentes en base de datos local
+- Actualización automática con cada nueva toma
+- Vista ordenada cronológicamente (más recientes primero)
+- Estadísticas calculadas en tiempo real
+- Permite evaluar patrones de adherencia y puntualidad
 
 ### Eliminar un medicamento
 

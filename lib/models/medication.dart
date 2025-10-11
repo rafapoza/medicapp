@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import 'medication_type.dart';
 import 'treatment_duration_type.dart';
 
@@ -16,6 +17,10 @@ class Medication {
   final String? takenDosesDate; // Date when doses were taken/skipped in "yyyy-MM-dd" format
   final double? lastRefillAmount; // Last refill amount (used as suggestion for future refills)
   final int lowStockThresholdDays; // Days before running out to show low stock warning
+  final List<String>? selectedDates; // Specific dates for specificDates type in "yyyy-MM-dd" format
+  final List<int>? weeklyDays; // Days of week (1=Mon, 7=Sun) for weeklyPattern type
+  final DateTime? startDate; // When the treatment starts (Phase 2)
+  final DateTime? endDate; // When the treatment ends (Phase 2)
 
   Medication({
     required this.id,
@@ -31,6 +36,10 @@ class Medication {
     this.takenDosesDate,
     this.lastRefillAmount,
     this.lowStockThresholdDays = 3, // Default to 3 days
+    this.selectedDates, // Specific dates for specificDates type
+    this.weeklyDays, // Days of week for weeklyPattern type
+    this.startDate, // Phase 2: Treatment start date
+    this.endDate, // Phase 2: Treatment end date
   }) : doseSchedule = doseSchedule ?? {};
 
   /// Legacy compatibility: get list of dose times (keys from doseSchedule)
@@ -52,6 +61,10 @@ class Medication {
       'takenDosesDate': takenDosesDate,
       'lastRefillAmount': lastRefillAmount,
       'lowStockThresholdDays': lowStockThresholdDays,
+      'selectedDates': selectedDates?.join(','), // Store as comma-separated string
+      'weeklyDays': weeklyDays?.join(','), // Store as comma-separated string
+      'startDate': startDate?.toIso8601String(), // Phase 2: Store as ISO8601 string
+      'endDate': endDate?.toIso8601String(), // Phase 2: Store as ISO8601 string
     };
   }
 
@@ -94,6 +107,29 @@ class Medication {
         ? skippedDosesTodayString.split(',').where((s) => s.isNotEmpty).toList()
         : <String>[];
 
+    // Parse selected dates from comma-separated string
+    final selectedDatesString = json['selectedDates'] as String?;
+    final selectedDates = selectedDatesString != null && selectedDatesString.isNotEmpty
+        ? selectedDatesString.split(',').where((s) => s.isNotEmpty).toList()
+        : null;
+
+    // Parse weekly days from comma-separated string
+    final weeklyDaysString = json['weeklyDays'] as String?;
+    final weeklyDays = weeklyDaysString != null && weeklyDaysString.isNotEmpty
+        ? weeklyDaysString.split(',').where((s) => s.isNotEmpty).map((s) => int.parse(s)).toList()
+        : null;
+
+    // Parse start and end dates (Phase 2)
+    final startDateString = json['startDate'] as String?;
+    final startDate = startDateString != null && startDateString.isNotEmpty
+        ? DateTime.parse(startDateString)
+        : null;
+
+    final endDateString = json['endDate'] as String?;
+    final endDate = endDateString != null && endDateString.isNotEmpty
+        ? DateTime.parse(endDateString)
+        : null;
+
     return Medication(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -114,6 +150,10 @@ class Medication {
       takenDosesDate: json['takenDosesDate'] as String?,
       lastRefillAmount: (json['lastRefillAmount'] as num?)?.toDouble(),
       lowStockThresholdDays: json['lowStockThresholdDays'] as int? ?? 3, // Default to 3 days for backward compatibility
+      selectedDates: selectedDates,
+      weeklyDays: weeklyDays,
+      startDate: startDate, // Phase 2
+      endDate: endDate, // Phase 2
     );
   }
 
@@ -125,6 +165,37 @@ class Medication {
         return 'Hasta acabar';
       case TreatmentDurationType.custom:
         return '$customDays días';
+      case TreatmentDurationType.specificDates:
+        final count = selectedDates?.length ?? 0;
+        return '$count fecha${count != 1 ? 's' : ''} específica${count != 1 ? 's' : ''}';
+      case TreatmentDurationType.weeklyPattern:
+        final count = weeklyDays?.length ?? 0;
+        return '$count día${count != 1 ? 's' : ''} por semana';
+    }
+  }
+
+  /// Check if medication should be taken today based on duration type
+  bool shouldTakeToday() {
+    // Phase 2: Check if treatment is active (not pending or finished)
+    if (!isActive) return false;
+
+    final today = DateTime.now();
+    final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    switch (durationType) {
+      case TreatmentDurationType.everyday:
+        return true;
+      case TreatmentDurationType.untilFinished:
+        return stockQuantity > 0;
+      case TreatmentDurationType.custom:
+        // Phase 2: With start/end dates, this is handled by isActive check above
+        return true;
+      case TreatmentDurationType.specificDates:
+        return selectedDates?.contains(todayString) ?? false;
+      case TreatmentDurationType.weeklyPattern:
+        // Monday = 1, Sunday = 7
+        final weekday = today.weekday;
+        return weeklyDays?.contains(weekday) ?? false;
     }
   }
 
@@ -174,6 +245,11 @@ class Medication {
 
   /// Get available doses (doses that haven't been taken or skipped today)
   List<String> getAvailableDosesToday() {
+    // First check if medication should be taken today
+    if (!shouldTakeToday()) {
+      return []; // No doses available if medication shouldn't be taken today
+    }
+
     final today = DateTime.now();
     final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
@@ -193,5 +269,78 @@ class Medication {
     final today = DateTime.now();
     final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     return takenDosesDate == todayString;
+  }
+
+  // ==================== Phase 2: Treatment Status and Progress ====================
+
+  /// Check if treatment hasn't started yet (startDate is in the future)
+  bool get isPending {
+    if (startDate == null) return false;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final start = DateTime(startDate!.year, startDate!.month, startDate!.day);
+    return today.isBefore(start);
+  }
+
+  /// Check if treatment has finished (endDate is in the past)
+  bool get isFinished {
+    if (endDate == null) return false;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final end = DateTime(endDate!.year, endDate!.month, endDate!.day);
+    return today.isAfter(end);
+  }
+
+  /// Check if treatment is currently active (between startDate and endDate, or no dates set)
+  bool get isActive => !isPending && !isFinished;
+
+  /// Get total days of treatment (if both startDate and endDate are set)
+  int? get totalDays {
+    if (startDate == null || endDate == null) return null;
+    final start = DateTime(startDate!.year, startDate!.month, startDate!.day);
+    final end = DateTime(endDate!.year, endDate!.month, endDate!.day);
+    return end.difference(start).inDays + 1; // +1 to include both start and end days
+  }
+
+  /// Get current day of treatment (1-indexed)
+  int? get currentDay {
+    if (startDate == null || !isActive) return null;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final start = DateTime(startDate!.year, startDate!.month, startDate!.day);
+    return today.difference(start).inDays + 1; // +1 to start from day 1
+  }
+
+  /// Get remaining days of treatment
+  int? get remainingDays {
+    if (endDate == null || !isActive) return null;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final end = DateTime(endDate!.year, endDate!.month, endDate!.day);
+    final remaining = end.difference(today).inDays + 1; // +1 to include end day
+    return remaining > 0 ? remaining : 0;
+  }
+
+  /// Get treatment progress as a percentage (0.0 to 1.0)
+  double? get progress {
+    if (totalDays == null || currentDay == null) return null;
+    if (totalDays == 0) return 1.0;
+    return (currentDay! / totalDays!).clamp(0.0, 1.0);
+  }
+
+  /// Get status description for UI
+  String get statusDescription {
+    if (isPending) {
+      final formatter = DateFormat('d MMM yyyy', 'es_ES');
+      return 'Empieza el ${formatter.format(startDate!)}';
+    }
+    if (isFinished) {
+      final formatter = DateFormat('d MMM yyyy', 'es_ES');
+      return 'Finalizado el ${formatter.format(endDate!)}';
+    }
+    if (isActive && currentDay != null && totalDays != null) {
+      return 'Día $currentDay de $totalDays';
+    }
+    return ''; // No special status
   }
 }

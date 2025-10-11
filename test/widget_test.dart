@@ -81,6 +81,8 @@ Future<void> addMedicationWithDuration(
 
   // Select type if specified
   if (type != null) {
+    // Scroll to the type before tapping (it may be off-screen)
+    await scrollToWidget(tester, find.text(type));
     await tester.tap(find.text(type));
     await tester.pumpAndSettle();
   }
@@ -102,7 +104,16 @@ Future<void> addMedicationWithDuration(
     }
   }
 
-  // Scroll to and tap continue button to go to schedule screen
+  // Scroll to and tap continue button to go to treatment dates screen
+  await scrollToWidget(tester, find.text('Continuar'));
+  await tester.tap(find.text('Continuar'));
+  await tester.pumpAndSettle();
+
+  // Now we're on the treatment dates screen (Phase 2 feature)
+  // Verify we're there
+  expect(find.text('Fechas del tratamiento'), findsOneWidget);
+
+  // Continue from treatment dates screen to schedule screen
   await scrollToWidget(tester, find.text('Continuar'));
   await tester.tap(find.text('Continuar'));
   await tester.pumpAndSettle();
@@ -624,10 +635,21 @@ void main() {
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
+    // Continue to treatment dates screen
+    await scrollToWidget(tester, find.text('Continuar').first);
+    await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Verify we're on treatment dates screen
+    expect(find.text('Fechas del tratamiento'), findsOneWidget);
+
     // Continue to schedule screen
     await scrollToWidget(tester, find.text('Continuar').first);
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
+
+    // Verify we're on schedule screen
+    expect(find.text('Horario de tomas'), findsOneWidget);
 
     // Save schedule (times should already be filled from original medication)
     await scrollToWidget(tester, find.text('Guardar horario'));
@@ -670,10 +692,16 @@ void main() {
     await tester.pumpAndSettle();
 
     // Change type to Cápsula
+    await scrollToWidget(tester, find.text('Cápsula'));
     await tester.tap(find.text('Cápsula'));
     await tester.pumpAndSettle();
 
     // Continue to duration screen
+    await scrollToWidget(tester, find.text('Continuar').first);
+    await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Continue to treatment dates screen
     await scrollToWidget(tester, find.text('Continuar').first);
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
@@ -729,6 +757,11 @@ void main() {
     await tester.tap(find.text('Personalizado'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, '15');
+    await tester.pumpAndSettle();
+
+    // Continue to treatment dates screen
+    await scrollToWidget(tester, find.text('Continuar').first);
+    await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
     // Continue to schedule screen
@@ -836,6 +869,11 @@ void main() {
     await tester.pumpAndSettle();
 
     // Keep the same name and continue to duration screen
+    await scrollToWidget(tester, find.text('Continuar').first);
+    await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Continue to treatment dates screen
     await scrollToWidget(tester, find.text('Continuar').first);
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
@@ -1410,16 +1448,35 @@ void main() {
     // Wait for database to complete the update and reload
     await waitForDatabase(tester);
 
+    // Extra wait to ensure the medication list has fully reloaded after dose registration
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 300));
+    });
+    await tester.pumpAndSettle();
+
     // Try to register another dose immediately
     await tester.tap(find.text('Medicamento'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Registrar toma'));
     await tester.pumpAndSettle();
 
-    // Verify only remaining doses are shown (08:00 and 16:00)
-    expect(find.text('00:00'), findsNothing);
+    // Verify the dialog is shown
+    expect(find.text('Registrar toma de Medicamento'), findsOneWidget);
+
+    // Verify only remaining doses are shown in the dialog (08:00 and 16:00)
+    // Note: 00:00 may still appear elsewhere on screen (in "Tomas de hoy" section),
+    // but it should not appear as a button in the dialog
     expect(find.text('08:00'), findsOneWidget);
     expect(find.text('16:00'), findsOneWidget);
+
+    // Verify there are only 2 dose buttons in the dialog by counting alarm icons within the dialog
+    // (We can't count all alarm icons on screen because the medication card also has one)
+    final dialogFinder = find.byType(AlertDialog);
+    final alarmIconsInDialog = find.descendant(
+      of: dialogFinder,
+      matching: find.byIcon(Icons.alarm),
+    );
+    expect(alarmIconsInDialog, findsNWidgets(2));
   });
 
   testWidgets('Should register last dose automatically when only one remains', (WidgetTester tester) async {
@@ -1442,6 +1499,12 @@ void main() {
     });
     await tester.pumpAndSettle();
     await waitForDatabase(tester);
+
+    // Extra wait to ensure the medication list has fully reloaded after dose registration
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 300));
+    });
+    await tester.pumpAndSettle();
 
     // Register second dose - should be automatic since only one remains
     await tester.tap(find.text('MedDual'));
@@ -1506,5 +1569,428 @@ void main() {
     // Note: Testing the exact error message in SnackBar is not reliable in automated tests
     // due to timing issues, but the functionality is verified through the successful
     // completion of the two dose registrations above
+  });
+
+  // ==================== Phase 1: Advanced Scheduling Tests ====================
+
+  testWidgets('Should navigate to weekly pattern selector when selected', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Start adding medication
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Añadir medicamento'));
+    await tester.pumpAndSettle();
+
+    // Enter name
+    await tester.enterText(find.byType(TextFormField).first, 'Vitamina D3');
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Select weekly pattern
+    await tester.tap(find.text('Días de la semana'));
+    await tester.pumpAndSettle();
+
+    // Tap continue to go to weekly days selector
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Verify we're on the weekly days selector screen
+    expect(find.text('Selecciona los días'), findsOneWidget);
+    expect(find.text('Lunes'), findsOneWidget);
+    expect(find.text('Martes'), findsOneWidget);
+  });
+
+  testWidgets('Should require at least one day for weekly pattern', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Start adding medication
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Añadir medicamento'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).first, 'TestMed');
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Select weekly pattern
+    await tester.tap(find.text('Días de la semana'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Try to continue without selecting any days
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Verify error message is shown
+    expect(find.text('Selecciona al menos un día de la semana'), findsOneWidget);
+  });
+
+  testWidgets('Should add medication with weekly pattern (Monday and Friday)', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Start adding medication
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Añadir medicamento'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).first, 'Omega 3');
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Select weekly pattern
+    await tester.tap(find.text('Días de la semana'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Select Monday (Lunes) and Friday (Viernes)
+    await tester.tap(find.text('Lunes'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Viernes'));
+    await tester.tap(find.text('Viernes'));
+    await tester.pumpAndSettle();
+
+    // Verify selection indicator shows 2 days
+    expect(find.text('2 días seleccionados'), findsOneWidget);
+
+    // Continue to treatment dates screen
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Continue from treatment dates to schedule screen
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Save schedule
+    await scrollToWidget(tester, find.text('Guardar horario'));
+    await tester.tap(find.text('Guardar horario'));
+    await tester.pumpAndSettle();
+
+    // Wait for database operations and UI reload
+    await waitForDatabase(tester);
+    await tester.pumpAndSettle();
+
+    // Extra wait for main screen to reload medications
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 200));
+    });
+    await tester.pumpAndSettle();
+
+    // Verify medication was added
+    expect(find.text('Omega 3'), findsOneWidget);
+    // Should show weekly pattern indicator (2 días por semana)
+    expect(find.text('2 días por semana'), findsOneWidget);
+  });
+
+  testWidgets('Should navigate to specific dates selector when selected', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Start adding medication
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Añadir medicamento'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).first, 'Antibiótico');
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Select specific dates
+    await tester.tap(find.text('Fechas específicas'));
+    await tester.pumpAndSettle();
+
+    // Tap continue to go to dates selector
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Verify we're on the specific dates selector screen
+    expect(find.text('Fechas específicas'), findsOneWidget);
+    expect(find.text('Selecciona fechas'), findsOneWidget);
+    expect(find.text('Añadir fecha'), findsOneWidget);
+  });
+
+  testWidgets('Should require at least one date for specific dates pattern', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Start adding medication
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Añadir medicamento'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).first, 'TestMed');
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Select specific dates
+    await tester.tap(find.text('Fechas específicas'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Try to continue without selecting any dates
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Verify error message is shown
+    expect(find.text('Selecciona al menos una fecha'), findsOneWidget);
+  });
+
+  testWidgets('Should allow canceling from weekly days selector', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Navigate to weekly days selector
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Añadir medicamento'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).first, 'TestMed');
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Días de la semana'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Cancel from weekly days selector
+    await scrollToWidget(tester, find.text('Cancelar'));
+    await tester.tap(find.text('Cancelar'));
+    await tester.pumpAndSettle();
+
+    // Verify we're back on the duration screen
+    expect(find.text('Duración del tratamiento'), findsOneWidget);
+  });
+
+  testWidgets('Should allow canceling from specific dates selector', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Navigate to specific dates selector
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Añadir medicamento'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).first, 'TestMed');
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Fechas específicas'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Cancel from specific dates selector
+    await scrollToWidget(tester, find.text('Cancelar'));
+    await tester.tap(find.text('Cancelar'));
+    await tester.pumpAndSettle();
+
+    // Verify we're back on the duration screen
+    expect(find.text('Duración del tratamiento'), findsOneWidget);
+  });
+
+  testWidgets('Should toggle day selection in weekly pattern', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Navigate to weekly days selector
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Añadir medicamento'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).first, 'TestMed');
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Días de la semana'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Select Monday
+    await tester.tap(find.text('Lunes'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 día seleccionado'), findsOneWidget);
+
+    // Deselect Monday (tap again)
+    await tester.tap(find.text('Lunes'));
+    await tester.pumpAndSettle();
+
+    // Should not show selection indicator anymore
+    expect(find.text('1 día seleccionado'), findsNothing);
+
+    // Select Monday again
+    await tester.tap(find.text('Lunes'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 día seleccionado'), findsOneWidget);
+  });
+
+  testWidgets('Should show correct day count for weekly pattern', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Add medication with all weekdays (Monday-Friday)
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Añadir medicamento'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).first, 'Medicamento Diario');
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Días de la semana'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Select Monday through Friday
+    await tester.tap(find.text('Lunes'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Martes'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Miércoles'));
+    await tester.tap(find.text('Miércoles'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Jueves'));
+    await tester.tap(find.text('Jueves'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Viernes'));
+    await tester.tap(find.text('Viernes'));
+    await tester.pumpAndSettle();
+
+    // Verify 5 days selected
+    expect(find.text('5 días seleccionados'), findsOneWidget);
+
+    // Continue to treatment dates screen
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Continue from treatment dates to schedule screen
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Save schedule
+    await scrollToWidget(tester, find.text('Guardar horario'));
+    await tester.tap(find.text('Guardar horario'));
+    await tester.pumpAndSettle();
+
+    // Wait for database operations and UI reload
+    await waitForDatabase(tester);
+    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 200));
+    });
+    await tester.pumpAndSettle();
+
+    // Verify medication shows weekday count
+    expect(find.text('Medicamento Diario'), findsOneWidget);
+    expect(find.text('5 días por semana'), findsOneWidget);
+  });
+
+  testWidgets('Should preserve weekly pattern when editing medication', (WidgetTester tester) async {
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Add medication with weekly pattern
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Añadir medicamento'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).first, 'Med Semanal');
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Días de la semana'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Lunes'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Continue from treatment dates to schedule screen
+    await scrollToWidget(tester, find.text('Continuar'));
+    await tester.tap(find.text('Continuar'));
+    await tester.pumpAndSettle();
+
+    // Save schedule
+    await scrollToWidget(tester, find.text('Guardar horario'));
+    await tester.tap(find.text('Guardar horario'));
+    await tester.pumpAndSettle();
+
+    // Wait for database operations and UI reload
+    await waitForDatabase(tester);
+    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 200));
+    });
+    await tester.pumpAndSettle();
+
+    // Edit the medication
+    await tester.tap(find.text('Med Semanal'));
+    await tester.pumpAndSettle();
+    await scrollToWidget(tester, find.text('Editar medicamento'));
+    await tester.tap(find.text('Editar medicamento'));
+    await tester.pumpAndSettle();
+
+    // Continue through screens without changing
+    await scrollToWidget(tester, find.text('Continuar').first);
+    await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Should show the weekly pattern option selected
+    expect(find.text('Duración del tratamiento'), findsOneWidget);
+
+    // Continue to verify it goes to weekly days selector
+    await scrollToWidget(tester, find.text('Continuar').first);
+    await tester.tap(find.text('Continuar').first);
+    await tester.pumpAndSettle();
+
+    // Should be on weekly days selector with Monday pre-selected
+    expect(find.text('Selecciona los días'), findsOneWidget);
+    expect(find.text('1 día seleccionado'), findsOneWidget);
   });
 }

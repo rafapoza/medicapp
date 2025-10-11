@@ -41,7 +41,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 8,
+      version: 10,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -68,6 +68,8 @@ class DatabaseHelper {
         dosageIntervalHours $integerType,
         durationType $textType,
         customDays $integerNullableType,
+        selectedDates $textNullableType,
+        weeklyDays $textNullableType,
         doseTimes $textType,
         doseSchedule $textType,
         stockQuantity $realType,
@@ -75,7 +77,9 @@ class DatabaseHelper {
         skippedDosesToday $textType,
         takenDosesDate $textNullableType,
         lastRefillAmount REAL,
-        lowStockThresholdDays $integerType DEFAULT 3
+        lowStockThresholdDays $integerType DEFAULT 3,
+        startDate $textNullableType,
+        endDate $textNullableType
       )
     ''');
   }
@@ -130,6 +134,26 @@ class DatabaseHelper {
       // Add lowStockThresholdDays column for version 8 (configurable low stock threshold)
       await db.execute('''
         ALTER TABLE medications ADD COLUMN lowStockThresholdDays INTEGER NOT NULL DEFAULT 3
+      ''');
+    }
+
+    if (oldVersion < 9) {
+      // Add selectedDates and weeklyDays columns for version 9 (specific days and weekly patterns)
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN selectedDates TEXT
+      ''');
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN weeklyDays TEXT
+      ''');
+    }
+
+    if (oldVersion < 10) {
+      // Add startDate and endDate columns for version 10 (Phase 2: treatment date range)
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN startDate TEXT
+      ''');
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN endDate TEXT
       ''');
     }
   }

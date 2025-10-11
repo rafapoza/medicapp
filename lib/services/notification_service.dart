@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart' as fln;
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../models/medication.dart';
+import '../models/treatment_duration_type.dart';
 import '../screens/dose_action_screen.dart';
 import '../database/database_helper.dart';
 import '../main.dart' show navigatorKey;
@@ -11,8 +12,8 @@ class NotificationService {
   // Singleton pattern
   static final NotificationService instance = NotificationService._init();
 
-  final FlutterLocalNotificationsPlugin _notificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final fln.FlutterLocalNotificationsPlugin _notificationsPlugin =
+      fln.FlutterLocalNotificationsPlugin();
 
   // Flag to disable notifications during testing
   bool _isTestMode = false;
@@ -56,17 +57,17 @@ class NotificationService {
     }
 
     // Android initialization settings
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = fln.AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS initialization settings
-    const iOSSettings = DarwinInitializationSettings(
+    const iOSSettings = fln.DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
 
     // Combined initialization settings
-    const initSettings = InitializationSettings(
+    const initSettings = fln.InitializationSettings(
       android: androidSettings,
       iOS: iOSSettings,
     );
@@ -87,7 +88,7 @@ class NotificationService {
 
     // For Android 13+ (API level 33+)
     final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+        fln.AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin != null) {
       final result = await androidPlugin.requestNotificationsPermission();
@@ -97,7 +98,7 @@ class NotificationService {
 
     // For iOS
     final iOSPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
+        fln.IOSFlutterLocalNotificationsPlugin>();
 
     if (iOSPlugin != null) {
       final result = await iOSPlugin.requestPermissions(
@@ -119,7 +120,7 @@ class NotificationService {
 
     // For Android
     final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+        fln.AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin != null) {
       final result = await androidPlugin.areNotificationsEnabled();
@@ -131,7 +132,7 @@ class NotificationService {
   }
 
   /// Handle notification tap
-  void _onNotificationTapped(NotificationResponse response) async {
+  void _onNotificationTapped(fln.NotificationResponse response) async {
     print('Notification tapped: ${response.payload}');
 
     if (response.payload == null || response.payload!.isEmpty) {
@@ -211,7 +212,27 @@ class NotificationService {
     // Cancel any existing notifications for this medication first
     await cancelMedicationNotifications(medication.id);
 
-    // Schedule a notification for each dose time
+    // Different scheduling logic based on duration type
+    switch (medication.durationType) {
+      case TreatmentDurationType.specificDates:
+        await _scheduleSpecificDatesNotifications(medication);
+        break;
+      case TreatmentDurationType.weeklyPattern:
+        await _scheduleWeeklyPatternNotifications(medication);
+        break;
+      default:
+        // For everyday, untilFinished, and custom: use daily recurring notifications
+        await _scheduleDailyNotifications(medication);
+        break;
+    }
+
+    // Verify notifications were scheduled
+    final pending = await getPendingNotifications();
+    print('Total pending notifications after scheduling: ${pending.length}');
+  }
+
+  /// Schedule daily recurring notifications (for everyday, untilFinished, custom)
+  Future<void> _scheduleDailyNotifications(Medication medication) async {
     for (int i = 0; i < medication.doseTimes.length; i++) {
       final doseTime = medication.doseTimes[i];
       final parts = doseTime.split(':');
@@ -219,10 +240,9 @@ class NotificationService {
       final minute = int.parse(parts[1]);
 
       // Create unique notification ID for each dose
-      // Using medication ID hash + dose index
       final notificationId = _generateNotificationId(medication.id, i);
 
-      print('Scheduling notification ID $notificationId for ${medication.name} at $hour:$minute');
+      print('Scheduling daily notification ID $notificationId for ${medication.name} at $hour:$minute');
 
       await _scheduleNotification(
         id: notificationId,
@@ -233,10 +253,124 @@ class NotificationService {
         payload: '${medication.id}|$i', // Store medication ID and dose index
       );
     }
+  }
 
-    // Verify notifications were scheduled
-    final pending = await getPendingNotifications();
-    print('Total pending notifications after scheduling: ${pending.length}');
+  /// Schedule notifications for specific dates
+  Future<void> _scheduleSpecificDatesNotifications(Medication medication) async {
+    if (medication.selectedDates == null || medication.selectedDates!.isEmpty) {
+      print('No specific dates selected for ${medication.name}');
+      return;
+    }
+
+    final now = tz.TZDateTime.now(tz.local);
+
+    for (final dateString in medication.selectedDates!) {
+      // Parse date (format: yyyy-MM-dd)
+      final dateParts = dateString.split('-');
+      final year = int.parse(dateParts[0]);
+      final month = int.parse(dateParts[1]);
+      final day = int.parse(dateParts[2]);
+
+      // Only schedule if date is in the future or today
+      final targetDate = DateTime(year, month, day);
+      final today = DateTime(now.year, now.month, now.day);
+
+      if (targetDate.isBefore(today)) {
+        print('Skipping past date: $dateString');
+        continue;
+      }
+
+      // Schedule notification for each dose time on this specific date
+      for (int i = 0; i < medication.doseTimes.length; i++) {
+        final doseTime = medication.doseTimes[i];
+        final timeParts = doseTime.split(':');
+        final hour = int.parse(timeParts[0]);
+        final minute = int.parse(timeParts[1]);
+
+        var scheduledDate = tz.TZDateTime(
+          tz.local,
+          year,
+          month,
+          day,
+          hour,
+          minute,
+        );
+
+        // Skip if the time has already passed
+        if (scheduledDate.isBefore(now)) {
+          print('Skipping past time: $dateString $doseTime');
+          continue;
+        }
+
+        // Generate unique ID for this specific date and dose
+        final notificationId = _generateSpecificDateNotificationId(medication.id, dateString, i);
+
+        print('Scheduling specific date notification ID $notificationId for ${medication.name} on $dateString at $hour:$minute');
+
+        await _scheduleOneTimeNotification(
+          id: notificationId,
+          title: '💊 Hora de tomar tu medicamento',
+          body: '${medication.name} - ${medication.type.displayName}',
+          scheduledDate: scheduledDate,
+          payload: '${medication.id}|$i',
+        );
+      }
+    }
+  }
+
+  /// Schedule notifications for weekly pattern
+  Future<void> _scheduleWeeklyPatternNotifications(Medication medication) async {
+    if (medication.weeklyDays == null || medication.weeklyDays!.isEmpty) {
+      print('No weekly days selected for ${medication.name}');
+      return;
+    }
+
+    // For weekly patterns, we'll schedule for the next occurrence of each selected day
+    // and use daily matching to make them recur weekly
+    final now = tz.TZDateTime.now(tz.local);
+
+    for (final weekday in medication.weeklyDays!) {
+      for (int i = 0; i < medication.doseTimes.length; i++) {
+        final doseTime = medication.doseTimes[i];
+        final parts = doseTime.split(':');
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+
+        // Find the next occurrence of this weekday
+        var scheduledDate = tz.TZDateTime(
+          tz.local,
+          now.year,
+          now.month,
+          now.day,
+          hour,
+          minute,
+        );
+
+        // Adjust to the target weekday
+        final currentWeekday = scheduledDate.weekday;
+        final daysUntilTarget = (weekday - currentWeekday) % 7;
+
+        if (daysUntilTarget > 0) {
+          scheduledDate = scheduledDate.add(Duration(days: daysUntilTarget));
+        } else if (daysUntilTarget == 0 && scheduledDate.isBefore(now)) {
+          // If it's the same day but time has passed, schedule for next week
+          scheduledDate = scheduledDate.add(const Duration(days: 7));
+        }
+
+        // Generate unique ID for this weekday and dose
+        final notificationId = _generateWeeklyNotificationId(medication.id, weekday, i);
+
+        print('Scheduling weekly notification ID $notificationId for ${medication.name} on weekday $weekday at $hour:$minute');
+
+        await _scheduleWeeklyNotification(
+          id: notificationId,
+          title: '💊 Hora de tomar tu medicamento',
+          body: '${medication.name} - ${medication.type.displayName}',
+          scheduledDate: scheduledDate,
+          payload: '${medication.id}|$i',
+        );
+      }
+    }
   }
 
   /// Schedule a single notification at a specific time daily
@@ -270,12 +404,12 @@ class NotificationService {
     }
 
     // Android notification details
-    const androidDetails = AndroidNotificationDetails(
+    const androidDetails = fln.AndroidNotificationDetails(
       'medication_reminders', // channel ID
       'Recordatorios de Medicamentos', // channel name
       channelDescription: 'Notificaciones para recordarte tomar tus medicamentos',
-      importance: Importance.high,
-      priority: Priority.high,
+      importance: fln.Importance.high,
+      priority: fln.Priority.high,
       ticker: 'Recordatorio de medicamento',
       icon: '@mipmap/ic_launcher',
       enableVibration: true,
@@ -283,13 +417,13 @@ class NotificationService {
     );
 
     // iOS notification details
-    const iOSDetails = DarwinNotificationDetails(
+    const iOSDetails = fln.DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
     );
 
-    const notificationDetails = NotificationDetails(
+    const notificationDetails = fln.NotificationDetails(
       android: androidDetails,
       iOS: iOSDetails,
     );
@@ -304,10 +438,8 @@ class NotificationService {
         body,
         scheduledDate,
         notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time, // Repeat daily at same time
+        androidScheduleMode: fln.AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: fln.DateTimeComponents.time, // Repeat daily at same time
         payload: payload,
       );
       print('Successfully scheduled notification ID $id with exactAllowWhileIdle');
@@ -324,10 +456,8 @@ class NotificationService {
           body,
           scheduledDate,
           notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.inexact,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          matchDateTimeComponents: DateTimeComponents.time,
+          androidScheduleMode: fln.AndroidScheduleMode.inexact,
+          matchDateTimeComponents: fln.DateTimeComponents.time,
           payload: payload,
         );
         print('Successfully scheduled notification ID $id with inexact mode');
@@ -360,11 +490,121 @@ class NotificationService {
   }
 
   /// Get list of pending notifications (for debugging)
-  Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+  Future<List<fln.PendingNotificationRequest>> getPendingNotifications() async {
     // Return empty list in test mode
     if (_isTestMode) return [];
 
     return await _notificationsPlugin.pendingNotificationRequests();
+  }
+
+  /// Schedule a one-time notification (for specific dates)
+  Future<void> _scheduleOneTimeNotification({
+    required int id,
+    required String title,
+    required String body,
+    required tz.TZDateTime scheduledDate,
+    String? payload,
+  }) async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    // Android notification details
+    const androidDetails = fln.AndroidNotificationDetails(
+      'medication_reminders', // channel ID
+      'Recordatorios de Medicamentos', // channel name
+      channelDescription: 'Notificaciones para recordarte tomar tus medicamentos',
+      importance: fln.Importance.high,
+      priority: fln.Priority.high,
+      ticker: 'Recordatorio de medicamento',
+      icon: '@mipmap/ic_launcher',
+      enableVibration: true,
+      playSound: true,
+    );
+
+    // iOS notification details
+    const iOSDetails = fln.DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const notificationDetails = fln.NotificationDetails(
+      android: androidDetails,
+      iOS: iOSDetails,
+    );
+
+    print('Scheduling one-time notification ID $id for $scheduledDate');
+
+    try {
+      await _notificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledDate,
+        notificationDetails,
+        androidScheduleMode: fln.AndroidScheduleMode.exactAllowWhileIdle,
+        // No matchDateTimeComponents - this is a one-time notification
+        payload: payload,
+      );
+      print('Successfully scheduled one-time notification ID $id');
+    } catch (e) {
+      print('Failed to schedule one-time notification: $e');
+    }
+  }
+
+  /// Schedule a weekly recurring notification (for weekly patterns)
+  Future<void> _scheduleWeeklyNotification({
+    required int id,
+    required String title,
+    required String body,
+    required tz.TZDateTime scheduledDate,
+    String? payload,
+  }) async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    // Android notification details
+    const androidDetails = fln.AndroidNotificationDetails(
+      'medication_reminders', // channel ID
+      'Recordatorios de Medicamentos', // channel name
+      channelDescription: 'Notificaciones para recordarte tomar tus medicamentos',
+      importance: fln.Importance.high,
+      priority: fln.Priority.high,
+      ticker: 'Recordatorio de medicamento',
+      icon: '@mipmap/ic_launcher',
+      enableVibration: true,
+      playSound: true,
+    );
+
+    // iOS notification details
+    const iOSDetails = fln.DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const notificationDetails = fln.NotificationDetails(
+      android: androidDetails,
+      iOS: iOSDetails,
+    );
+
+    print('Scheduling weekly notification ID $id for $scheduledDate (recurring weekly)');
+
+    try {
+      await _notificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledDate,
+        notificationDetails,
+        androidScheduleMode: fln.AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: fln.DateTimeComponents.dayOfWeekAndTime, // Repeat weekly on the same day and time
+        payload: payload,
+      );
+      print('Successfully scheduled weekly notification ID $id');
+    } catch (e) {
+      print('Failed to schedule weekly notification: $e');
+    }
   }
 
   /// Generate a unique notification ID based on medication ID and dose index
@@ -376,22 +616,40 @@ class NotificationService {
     return (medicationHash % 1000000) * 100 + doseIndex;
   }
 
+  /// Generate a unique notification ID for specific dates
+  int _generateSpecificDateNotificationId(String medicationId, String dateString, int doseIndex) {
+    // Create a combined hash of medication ID, date, and dose index
+    final combinedString = '$medicationId-$dateString-$doseIndex';
+    final hash = combinedString.hashCode.abs();
+    // Use range 3000000+ for specific date notifications
+    return 3000000 + (hash % 1000000);
+  }
+
+  /// Generate a unique notification ID for weekly patterns
+  int _generateWeeklyNotificationId(String medicationId, int weekday, int doseIndex) {
+    // Create a combined hash of medication ID, weekday, and dose index
+    final combinedString = '$medicationId-weekday$weekday-$doseIndex';
+    final hash = combinedString.hashCode.abs();
+    // Use range 4000000+ for weekly pattern notifications
+    return 4000000 + (hash % 1000000);
+  }
+
   /// Test notification (for debugging)
   Future<void> showTestNotification() async {
     // Skip in test mode
     if (_isTestMode) return;
 
-    const androidDetails = AndroidNotificationDetails(
+    const androidDetails = fln.AndroidNotificationDetails(
       'test_channel',
       'Test Notifications',
       channelDescription: 'Test notification channel',
-      importance: Importance.high,
-      priority: Priority.high,
+      importance: fln.Importance.high,
+      priority: fln.Priority.high,
     );
 
-    const iOSDetails = DarwinNotificationDetails();
+    const iOSDetails = fln.DarwinNotificationDetails();
 
-    const notificationDetails = NotificationDetails(
+    const notificationDetails = fln.NotificationDetails(
       android: androidDetails,
       iOS: iOSDetails,
     );
@@ -416,23 +674,23 @@ class NotificationService {
     print('Current time: $now');
     print('Timezone: ${tz.local}');
 
-    const androidDetails = AndroidNotificationDetails(
+    const androidDetails = fln.AndroidNotificationDetails(
       'test_channel',
       'Test Notifications',
       channelDescription: 'Test notification channel',
-      importance: Importance.high,
-      priority: Priority.high,
+      importance: fln.Importance.high,
+      priority: fln.Priority.high,
       enableVibration: true,
       playSound: true,
     );
 
-    const iOSDetails = DarwinNotificationDetails(
+    const iOSDetails = fln.DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
     );
 
-    const notificationDetails = NotificationDetails(
+    const notificationDetails = fln.NotificationDetails(
       android: androidDetails,
       iOS: iOSDetails,
     );
@@ -444,9 +702,7 @@ class NotificationService {
         'If you see this, scheduled notifications work!',
         scheduledDate,
         notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
+        androidScheduleMode: fln.AndroidScheduleMode.exactAllowWhileIdle,
       );
       print('Test notification scheduled successfully for 1 minute from now');
     } catch (e) {
@@ -490,12 +746,12 @@ class NotificationService {
     print('Scheduling postponed notification ID $notificationId for ${medication.name} at $newTimeString on $scheduledDate');
 
     // Android notification details
-    const androidDetails = AndroidNotificationDetails(
+    const androidDetails = fln.AndroidNotificationDetails(
       'medication_reminders', // same channel as regular notifications
       'Recordatorios de Medicamentos',
       channelDescription: 'Notificaciones para recordarte tomar tus medicamentos',
-      importance: Importance.high,
-      priority: Priority.high,
+      importance: fln.Importance.high,
+      priority: fln.Priority.high,
       ticker: 'Recordatorio de medicamento',
       icon: '@mipmap/ic_launcher',
       enableVibration: true,
@@ -503,13 +759,13 @@ class NotificationService {
     );
 
     // iOS notification details
-    const iOSDetails = DarwinNotificationDetails(
+    const iOSDetails = fln.DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
     );
 
-    const notificationDetails = NotificationDetails(
+    const notificationDetails = fln.NotificationDetails(
       android: androidDetails,
       iOS: iOSDetails,
     );
@@ -521,9 +777,7 @@ class NotificationService {
         '${medication.name} - ${medication.type.displayName}',
         scheduledDate,
         notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
+        androidScheduleMode: fln.AndroidScheduleMode.exactAllowWhileIdle,
         // No matchDateTimeComponents - this is a one-time notification
         payload: '${medication.id}|$originalDoseTime', // Use original dose time for action screen
       );

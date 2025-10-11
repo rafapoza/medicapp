@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 enum TreatmentDurationType {
   everyday('Todos los días'),
   untilFinished('Hasta acabar la medicación'),
-  custom('Personalizado');
+  custom('Personalizado'),
+  specificDates('Fechas específicas'),
+  weeklyPattern('Días de la semana');
 
   final String displayName;
 
@@ -17,6 +19,10 @@ enum TreatmentDurationType {
         return Icons.medical_services;
       case TreatmentDurationType.custom:
         return Icons.edit_calendar;
+      case TreatmentDurationType.specificDates:
+        return Icons.calendar_today;
+      case TreatmentDurationType.weeklyPattern:
+        return Icons.date_range;
     }
   }
 
@@ -28,6 +34,10 @@ enum TreatmentDurationType {
         return Theme.of(context).colorScheme.tertiary;
       case TreatmentDurationType.custom:
         return Theme.of(context).colorScheme.secondary;
+      case TreatmentDurationType.specificDates:
+        return Colors.deepPurple;
+      case TreatmentDurationType.weeklyPattern:
+        return Colors.teal;
     }
   }
 }

@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
 import '../models/treatment_duration_type.dart';
+import 'weekly_days_selector_screen.dart';
+import 'specific_dates_selector_screen.dart';
+import 'treatment_dates_screen.dart';
 
 class TreatmentDurationScreen extends StatefulWidget {
   final TreatmentDurationType? initialDurationType;
   final int? initialCustomDays;
+  final List<String>? initialSelectedDates;
+  final List<int>? initialWeeklyDays;
+  final DateTime? initialStartDate;
+  final DateTime? initialEndDate;
 
   const TreatmentDurationScreen({
     super.key,
     this.initialDurationType,
     this.initialCustomDays,
+    this.initialSelectedDates,
+    this.initialWeeklyDays,
+    this.initialStartDate,
+    this.initialEndDate,
   });
 
   @override
@@ -20,6 +31,10 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
   late TreatmentDurationType _selectedDurationType;
   final _customDaysController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  List<String>? _selectedDates;
+  List<int>? _weeklyDays;
+  DateTime? _startDate;
+  DateTime? _endDate;
 
   @override
   void initState() {
@@ -29,6 +44,10 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
     if (widget.initialCustomDays != null) {
       _customDaysController.text = widget.initialCustomDays.toString();
     }
+    _selectedDates = widget.initialSelectedDates;
+    _weeklyDays = widget.initialWeeklyDays;
+    _startDate = widget.initialStartDate;
+    _endDate = widget.initialEndDate;
   }
 
   @override
@@ -37,20 +56,83 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
     super.dispose();
   }
 
-  void _continue() {
+  Future<void> _continue() async {
+    // Validate custom days if selected
     if (_selectedDurationType == TreatmentDurationType.custom) {
       if (!_formKey.currentState!.validate()) {
         return;
       }
     }
 
+    // Navigate to date/day selector if needed
+    if (_selectedDurationType == TreatmentDurationType.specificDates) {
+      final result = await Navigator.push<List<String>>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SpecificDatesSelectorScreen(
+            initialSelectedDates: _selectedDates,
+          ),
+        ),
+      );
+
+      if (result == null) {
+        // User cancelled the date selection
+        return;
+      }
+
+      _selectedDates = result;
+    } else if (_selectedDurationType == TreatmentDurationType.weeklyPattern) {
+      final result = await Navigator.push<List<int>>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WeeklyDaysSelectorScreen(
+            initialSelectedDays: _weeklyDays,
+          ),
+        ),
+      );
+
+      if (result == null) {
+        // User cancelled the day selection
+        return;
+      }
+
+      _weeklyDays = result;
+    }
+
     final customDays = _selectedDurationType == TreatmentDurationType.custom
         ? int.parse(_customDaysController.text)
         : null;
 
+    // Phase 2: Navigate to treatment dates screen (optional)
+    final datesResult = await Navigator.push<Map<String, DateTime?>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TreatmentDatesScreen(
+          durationType: _selectedDurationType,
+          customDays: customDays,
+          initialStartDate: _startDate,
+          initialEndDate: _endDate,
+        ),
+      ),
+    );
+
+    if (datesResult != null) {
+      _startDate = datesResult['startDate'];
+      _endDate = datesResult['endDate'];
+    } else {
+      // User cancelled - stay on this screen
+      return;
+    }
+
+    if (!mounted) return;
+
     Navigator.pop(context, {
       'durationType': _selectedDurationType,
       'customDays': customDays,
+      'selectedDates': _selectedDates,
+      'weeklyDays': _weeklyDays,
+      'startDate': _startDate,
+      'endDate': _endDate,
     });
   }
 
@@ -180,6 +262,70 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
 
                               return null;
                             },
+                          ),
+                        ],
+                        if (_selectedDurationType ==
+                            TreatmentDurationType.specificDates &&
+                            _selectedDates != null &&
+                            _selectedDates!.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.deepPurple.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.calendar_month,
+                                  color: Colors.deepPurple,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    '${_selectedDates!.length} fecha${_selectedDates!.length != 1 ? 's' : ''} seleccionada${_selectedDates!.length != 1 ? 's' : ''}',
+                                    style: const TextStyle(
+                                      color: Colors.deepPurple,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        if (_selectedDurationType ==
+                            TreatmentDurationType.weeklyPattern &&
+                            _weeklyDays != null &&
+                            _weeklyDays!.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.teal.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.date_range,
+                                  color: Colors.teal,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    '${_weeklyDays!.length} día${_weeklyDays!.length != 1 ? 's' : ''} seleccionado${_weeklyDays!.length != 1 ? 's' : ''}',
+                                    style: const TextStyle(
+                                      color: Colors.teal,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ],

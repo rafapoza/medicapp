@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/medication.dart';
+import '../models/treatment_duration_type.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
 import 'add_medication_screen.dart';
@@ -186,46 +187,119 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     }
   }
 
-  String? _getNextDoseTime(Medication medication) {
+  Map<String, dynamic>? _getNextDoseInfo(Medication medication) {
     if (medication.doseTimes.isEmpty) return null;
 
-    final now = TimeOfDay.now();
+    final now = DateTime.now();
     final currentMinutes = now.hour * 60 + now.minute;
 
-    // Convert all dose times to minutes and sort them
-    final doseTimesInMinutes = medication.doseTimes.map((timeString) {
-      final parts = timeString.split(':');
-      final hours = int.parse(parts[0]);
-      final minutes = int.parse(parts[1]);
-      return hours * 60 + minutes;
-    }).toList()..sort();
+    // If medication should be taken today, find next dose today
+    if (medication.shouldTakeToday()) {
+      // Convert all dose times to minutes and sort them
+      final doseTimesInMinutes = medication.doseTimes.map((timeString) {
+        final parts = timeString.split(':');
+        final hours = int.parse(parts[0]);
+        final minutes = int.parse(parts[1]);
+        return hours * 60 + minutes;
+      }).toList()..sort();
 
-    // Find the next dose time
-    for (final doseMinutes in doseTimesInMinutes) {
-      if (doseMinutes > currentMinutes) {
-        return medication.doseTimes[doseTimesInMinutes.indexOf(doseMinutes)];
+      // Find the next dose time today
+      for (final doseMinutes in doseTimesInMinutes) {
+        if (doseMinutes > currentMinutes) {
+          final doseTime = medication.doseTimes[doseTimesInMinutes.indexOf(doseMinutes)];
+          return {'date': now, 'time': doseTime, 'isToday': true};
+        }
+      }
+
+      // If no dose is left today, find next valid day
+      final nextDate = _findNextValidDate(medication, now);
+      if (nextDate != null) {
+        return {'date': nextDate, 'time': medication.doseTimes.first, 'isToday': false};
+      }
+    } else {
+      // Medication shouldn't be taken today, find next valid day
+      final nextDate = _findNextValidDate(medication, now);
+      if (nextDate != null) {
+        return {'date': nextDate, 'time': medication.doseTimes.first, 'isToday': false};
       }
     }
 
-    // If no dose is left today, return the first dose of tomorrow
-    return medication.doseTimes[doseTimesInMinutes.indexOf(doseTimesInMinutes.first)];
+    return null;
   }
 
-  String _formatNextDose(String? nextDoseTime) {
-    if (nextDoseTime == null) return '';
+  DateTime? _findNextValidDate(Medication medication, DateTime from) {
+    switch (medication.durationType) {
+      case TreatmentDurationType.specificDates:
+        if (medication.selectedDates == null || medication.selectedDates!.isEmpty) {
+          return null;
+        }
 
-    final now = TimeOfDay.now();
-    final parts = nextDoseTime.split(':');
-    final doseHour = int.parse(parts[0]);
-    final doseMinute = int.parse(parts[1]);
-    final doseMinutes = doseHour * 60 + doseMinute;
-    final currentMinutes = now.hour * 60 + now.minute;
+        // Find the next date in the list
+        final sortedDates = medication.selectedDates!.toList()..sort();
+        for (final dateString in sortedDates) {
+          final parts = dateString.split('-');
+          final date = DateTime(
+            int.parse(parts[0]),
+            int.parse(parts[1]),
+            int.parse(parts[2]),
+          );
 
-    if (doseMinutes <= currentMinutes) {
-      return 'Próxima toma: $nextDoseTime (mañana)';
-    } else {
-      return 'Próxima toma: $nextDoseTime';
+          // If date is after today (or today but we have time left)
+          if (date.isAfter(DateTime(from.year, from.month, from.day))) {
+            return date;
+          }
+        }
+        return null;
+
+      case TreatmentDurationType.weeklyPattern:
+        if (medication.weeklyDays == null || medication.weeklyDays!.isEmpty) {
+          return null;
+        }
+
+        // Find the next occurrence of one of the selected weekdays
+        for (int i = 1; i <= 7; i++) {
+          final nextDate = from.add(Duration(days: i));
+          if (medication.weeklyDays!.contains(nextDate.weekday)) {
+            return nextDate;
+          }
+        }
+        return null;
+
+      default:
+        // For everyday, untilFinished, custom - always tomorrow if not today
+        return from.add(const Duration(days: 1));
     }
+  }
+
+  String _formatNextDose(Map<String, dynamic>? nextDoseInfo) {
+    if (nextDoseInfo == null) return '';
+
+    final date = nextDoseInfo['date'] as DateTime;
+    final time = nextDoseInfo['time'] as String;
+    final isToday = nextDoseInfo['isToday'] as bool;
+
+    if (isToday) {
+      return 'Próxima toma: $time';
+    } else {
+      // Format date
+      final now = DateTime.now();
+      final tomorrow = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
+      final dateOnly = DateTime(date.year, date.month, date.day);
+
+      if (dateOnly == DateTime(tomorrow.year, tomorrow.month, tomorrow.day)) {
+        return 'Próxima toma: mañana a las $time';
+      } else {
+        // Show day name
+        const dayNames = ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+        final dayName = dayNames[date.weekday];
+        return 'Próxima toma: $dayName ${date.day}/${date.month} a las $time';
+      }
+    }
+  }
+
+  String? _getNextDoseTime(Medication medication) {
+    final info = _getNextDoseInfo(medication);
+    return info?['time'] as String?;
   }
 
   void _registerDose(Medication medication) async {
@@ -1046,7 +1120,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                         ),
-                        if (_getNextDoseTime(medication) != null) ...[
+                        if (_getNextDoseInfo(medication) != null) ...[
                           const SizedBox(height: 4),
                           Row(
                             children: [
@@ -1058,7 +1132,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                               const SizedBox(width: 4),
                               Flexible(
                                 child: Text(
-                                  _formatNextDose(_getNextDoseTime(medication)),
+                                  _formatNextDose(_getNextDoseInfo(medication)),
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                         color: Theme.of(context).colorScheme.primary,
                                         fontWeight: FontWeight.w600,

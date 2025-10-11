@@ -81,6 +81,8 @@ Future<void> addMedicationWithDuration(
 
   // Select type if specified
   if (type != null) {
+    // Scroll to the type before tapping (it may be off-screen)
+    await scrollToWidget(tester, find.text(type));
     await tester.tap(find.text(type));
     await tester.pumpAndSettle();
   }
@@ -670,6 +672,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Change type to Cápsula
+    await scrollToWidget(tester, find.text('Cápsula'));
     await tester.tap(find.text('Cápsula'));
     await tester.pumpAndSettle();
 

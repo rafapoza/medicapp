@@ -131,6 +131,31 @@ class NotificationService {
     return true;
   }
 
+  /// Check if exact alarm permission is granted (Android 12+)
+  Future<bool> canScheduleExactAlarms() async {
+    // Skip in test mode
+    if (_isTestMode) return true;
+
+    // For Android
+    final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<
+        fln.AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidPlugin != null) {
+      // Try to check if we can schedule exact alarms
+      // Note: This API is available in flutter_local_notifications 15.0.0+
+      try {
+        final result = await androidPlugin.canScheduleExactNotifications();
+        return result ?? true; // Return true if method not available (older Android)
+      } catch (e) {
+        print('Error checking exact alarm permission: $e');
+        return true; // Assume true if check fails
+      }
+    }
+
+    // For iOS, exact timing is always available
+    return true;
+  }
+
   /// Handle notification tap
   void _onNotificationTapped(fln.NotificationResponse response) async {
     print('Notification tapped: ${response.payload}');
@@ -207,10 +232,31 @@ class NotificationService {
       return;
     }
 
+    // Check if exact alarms are allowed (Android 12+)
+    final canScheduleExact = await canScheduleExactAlarms();
+    if (!canScheduleExact) {
+      print('⚠️ WARNING: Cannot schedule exact alarms. Notifications may not fire on time.');
+      print('   User needs to enable "Alarms & reminders" permission in app settings.');
+    }
+
+    // Phase 2: Only schedule notifications for active treatments
+    // Skip if treatment hasn't started (isPending) or has already finished (isFinished)
+    if (!medication.isActive) {
+      if (medication.isPending) {
+        print('Skipping notifications for ${medication.name}: treatment starts on ${medication.startDate}');
+      } else if (medication.isFinished) {
+        print('Skipping notifications for ${medication.name}: treatment ended on ${medication.endDate}');
+      }
+      // Cancel any existing notifications for this medication
+      await cancelMedicationNotifications(medication.id, medication: medication);
+      return;
+    }
+
     print('Scheduling notifications for ${medication.name} with ${medication.doseTimes.length} dose times');
 
     // Cancel any existing notifications for this medication first
-    await cancelMedicationNotifications(medication.id);
+    // Pass the medication object for smart cancellation
+    await cancelMedicationNotifications(medication.id, medication: medication);
 
     // Different scheduling logic based on duration type
     switch (medication.durationType) {
@@ -233,25 +279,92 @@ class NotificationService {
 
   /// Schedule daily recurring notifications (for everyday, untilFinished, custom)
   Future<void> _scheduleDailyNotifications(Medication medication) async {
-    for (int i = 0; i < medication.doseTimes.length; i++) {
-      final doseTime = medication.doseTimes[i];
-      final parts = doseTime.split(':');
-      final hour = int.parse(parts[0]);
-      final minute = int.parse(parts[1]);
+    final now = tz.TZDateTime.now(tz.local);
 
-      // Create unique notification ID for each dose
-      final notificationId = _generateNotificationId(medication.id, i);
+    // Phase 2: If treatment has an end date, schedule individual notifications for each day
+    // Otherwise, use recurring daily notifications
+    if (medication.endDate != null) {
+      final endDate = medication.endDate!;
+      final today = DateTime(now.year, now.month, now.day);
+      final end = DateTime(endDate.year, endDate.month, endDate.day);
 
-      print('Scheduling daily notification ID $notificationId for ${medication.name} at $hour:$minute');
+      // Calculate how many days to schedule (from today to end date)
+      final daysToSchedule = end.difference(today).inDays + 1;
 
-      await _scheduleNotification(
-        id: notificationId,
-        title: '💊 Hora de tomar tu medicamento',
-        body: '${medication.name} - ${medication.type.displayName}',
-        hour: hour,
-        minute: minute,
-        payload: '${medication.id}|$i', // Store medication ID and dose index
-      );
+      print('Scheduling ${medication.name} for $daysToSchedule days (until ${endDate.toString().split(' ')[0]})');
+
+      // Schedule notifications for each day until end date
+      for (int day = 0; day < daysToSchedule; day++) {
+        final targetDate = today.add(Duration(days: day));
+
+        for (int i = 0; i < medication.doseTimes.length; i++) {
+          final doseTime = medication.doseTimes[i];
+          final parts = doseTime.split(':');
+          final hour = int.parse(parts[0]);
+          final minute = int.parse(parts[1]);
+
+          var scheduledDate = tz.TZDateTime(
+            tz.local,
+            targetDate.year,
+            targetDate.month,
+            targetDate.day,
+            hour,
+            minute,
+          );
+
+          // Skip if the time has already passed
+          if (scheduledDate.isBefore(now)) {
+            continue;
+          }
+
+          // Generate unique ID for this specific date and dose
+          final dateString = '${targetDate.year}-${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}';
+          final notificationId = _generateSpecificDateNotificationId(medication.id, dateString, i);
+
+          await _scheduleOneTimeNotification(
+            id: notificationId,
+            title: '💊 Hora de tomar tu medicamento',
+            body: '${medication.name} - ${medication.type.displayName}',
+            scheduledDate: scheduledDate,
+            payload: '${medication.id}|$i',
+          );
+
+          // Schedule cascade reminders (+10 min and +30 min)
+          await _scheduleFollowUpReminders(
+            medication: medication,
+            originalScheduledDate: scheduledDate,
+            doseIndex: i,
+          );
+        }
+      }
+    } else {
+      // No end date: use recurring daily notifications
+      print('Scheduling ${medication.name} with recurring daily notifications (no end date)');
+
+      for (int i = 0; i < medication.doseTimes.length; i++) {
+        final doseTime = medication.doseTimes[i];
+        final parts = doseTime.split(':');
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+
+        // Generate unique ID for this dose
+        final notificationId = _generateNotificationId(medication.id, i);
+
+        print('Scheduling recurring notification ID $notificationId for ${medication.name} at $hour:$minute daily');
+
+        await _scheduleNotification(
+          id: notificationId,
+          title: '💊 Hora de tomar tu medicamento',
+          body: '${medication.name} - ${medication.type.displayName}',
+          hour: hour,
+          minute: minute,
+          payload: '${medication.id}|$i',
+        );
+
+        // Note: We don't schedule cascade reminders (+10/+30 min) for recurring notifications
+        // because they would also recur daily and can't be cancelled individually when a dose is taken.
+        // Cascade reminders are only used for notifications with specific end dates.
+      }
     }
   }
 
@@ -314,6 +427,13 @@ class NotificationService {
           scheduledDate: scheduledDate,
           payload: '${medication.id}|$i',
         );
+
+        // Schedule cascade reminders (+10 min and +30 min)
+        await _scheduleFollowUpReminders(
+          medication: medication,
+          originalScheduledDate: scheduledDate,
+          doseIndex: i,
+        );
       }
     }
   }
@@ -325,50 +445,109 @@ class NotificationService {
       return;
     }
 
-    // For weekly patterns, we'll schedule for the next occurrence of each selected day
-    // and use daily matching to make them recur weekly
     final now = tz.TZDateTime.now(tz.local);
 
-    for (final weekday in medication.weeklyDays!) {
-      for (int i = 0; i < medication.doseTimes.length; i++) {
-        final doseTime = medication.doseTimes[i];
-        final parts = doseTime.split(':');
-        final hour = int.parse(parts[0]);
-        final minute = int.parse(parts[1]);
+    // Phase 2: If treatment has an end date, schedule individual occurrences until end date
+    // Otherwise, use recurring weekly notifications
+    if (medication.endDate != null) {
+      final endDate = medication.endDate!;
+      final today = DateTime(now.year, now.month, now.day);
+      final end = DateTime(endDate.year, endDate.month, endDate.day);
 
-        // Find the next occurrence of this weekday
-        var scheduledDate = tz.TZDateTime(
-          tz.local,
-          now.year,
-          now.month,
-          now.day,
-          hour,
-          minute,
-        );
+      print('Scheduling ${medication.name} weekly pattern until ${endDate.toString().split(' ')[0]}');
 
-        // Adjust to the target weekday
-        final currentWeekday = scheduledDate.weekday;
-        final daysUntilTarget = (weekday - currentWeekday) % 7;
+      // Schedule individual occurrences for each week until end date
+      final daysToSchedule = end.difference(today).inDays + 1;
 
-        if (daysUntilTarget > 0) {
-          scheduledDate = scheduledDate.add(Duration(days: daysUntilTarget));
-        } else if (daysUntilTarget == 0 && scheduledDate.isBefore(now)) {
-          // If it's the same day but time has passed, schedule for next week
-          scheduledDate = scheduledDate.add(const Duration(days: 7));
+      for (int day = 0; day < daysToSchedule; day++) {
+        final targetDate = today.add(Duration(days: day));
+
+        // Check if this day matches one of the selected weekdays
+        if (medication.weeklyDays!.contains(targetDate.weekday)) {
+          for (int i = 0; i < medication.doseTimes.length; i++) {
+            final doseTime = medication.doseTimes[i];
+            final parts = doseTime.split(':');
+            final hour = int.parse(parts[0]);
+            final minute = int.parse(parts[1]);
+
+            var scheduledDate = tz.TZDateTime(
+              tz.local,
+              targetDate.year,
+              targetDate.month,
+              targetDate.day,
+              hour,
+              minute,
+            );
+
+            // Skip if the time has already passed
+            if (scheduledDate.isBefore(now)) {
+              continue;
+            }
+
+            // Generate unique ID for this specific date and dose
+            final dateString = '${targetDate.year}-${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}';
+            final notificationId = _generateSpecificDateNotificationId(medication.id, dateString, i);
+
+            await _scheduleOneTimeNotification(
+              id: notificationId,
+              title: '💊 Hora de tomar tu medicamento',
+              body: '${medication.name} - ${medication.type.displayName}',
+              scheduledDate: scheduledDate,
+              payload: '${medication.id}|$i',
+            );
+
+            // Schedule cascade reminders (+10 min and +30 min)
+            await _scheduleFollowUpReminders(
+              medication: medication,
+              originalScheduledDate: scheduledDate,
+              doseIndex: i,
+            );
+          }
         }
+      }
+    } else {
+      // No end date: use recurring weekly notifications (original behavior)
+      for (final weekday in medication.weeklyDays!) {
+        for (int i = 0; i < medication.doseTimes.length; i++) {
+          final doseTime = medication.doseTimes[i];
+          final parts = doseTime.split(':');
+          final hour = int.parse(parts[0]);
+          final minute = int.parse(parts[1]);
 
-        // Generate unique ID for this weekday and dose
-        final notificationId = _generateWeeklyNotificationId(medication.id, weekday, i);
+          // Find the next occurrence of this weekday
+          var scheduledDate = tz.TZDateTime(
+            tz.local,
+            now.year,
+            now.month,
+            now.day,
+            hour,
+            minute,
+          );
 
-        print('Scheduling weekly notification ID $notificationId for ${medication.name} on weekday $weekday at $hour:$minute');
+          // Adjust to the target weekday
+          final currentWeekday = scheduledDate.weekday;
+          final daysUntilTarget = (weekday - currentWeekday) % 7;
 
-        await _scheduleWeeklyNotification(
-          id: notificationId,
-          title: '💊 Hora de tomar tu medicamento',
-          body: '${medication.name} - ${medication.type.displayName}',
-          scheduledDate: scheduledDate,
-          payload: '${medication.id}|$i',
-        );
+          if (daysUntilTarget > 0) {
+            scheduledDate = scheduledDate.add(Duration(days: daysUntilTarget));
+          } else if (daysUntilTarget == 0 && scheduledDate.isBefore(now)) {
+            // If it's the same day but time has passed, schedule for next week
+            scheduledDate = scheduledDate.add(const Duration(days: 7));
+          }
+
+          // Generate unique ID for this weekday and dose
+          final notificationId = _generateWeeklyNotificationId(medication.id, weekday, i);
+
+          print('Scheduling weekly recurring notification ID $notificationId for ${medication.name} on weekday $weekday at $hour:$minute');
+
+          await _scheduleWeeklyNotification(
+            id: notificationId,
+            title: '💊 Hora de tomar tu medicamento',
+            body: '${medication.name} - ${medication.type.displayName}',
+            scheduledDate: scheduledDate,
+            payload: '${medication.id}|$i',
+          );
+        }
       }
     }
   }
@@ -469,16 +648,73 @@ class NotificationService {
   }
 
   /// Cancel all notifications for a specific medication
-  Future<void> cancelMedicationNotifications(String medicationId) async {
+  /// If [medication] is provided, uses smart cancellation based on actual dose count and type
+  /// Otherwise, uses brute-force cancellation for safety
+  Future<void> cancelMedicationNotifications(String medicationId, {Medication? medication}) async {
     // Skip in test mode
     if (_isTestMode) return;
 
-    // We need to cancel all possible dose notifications for this medication
-    // Assuming maximum 24 doses per day (hourly)
-    for (int i = 0; i < 24; i++) {
+    print('Cancelling all notifications for medication $medicationId');
+
+    // Determine the number of doses to cancel
+    final maxDoses = medication?.doseTimes.length ?? 24;
+
+    // Determine if we need to cancel follow-up reminders
+    // (only used for medications with endDate or specific dates/weekly patterns with endDate)
+    final hasFollowUpReminders = medication?.endDate != null ||
+                                   medication?.durationType == TreatmentDurationType.specificDates ||
+                                   medication?.durationType == TreatmentDurationType.weeklyPattern;
+
+    // Cancel recurring daily notifications
+    for (int i = 0; i < maxDoses; i++) {
       final notificationId = _generateNotificationId(medicationId, i);
       await _notificationsPlugin.cancel(notificationId);
+
+      // Only cancel follow-up reminders if they could have been scheduled
+      if (hasFollowUpReminders) {
+        await cancelFollowUpReminders(medicationId, i);
+      }
     }
+
+    // Cancel any specific date notifications (for medications with end dates or specific dates)
+    if (medication == null || medication.endDate != null || medication.durationType == TreatmentDurationType.specificDates) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final daysToCheck = medication?.endDate != null
+          ? medication!.endDate!.difference(today).inDays + 7 // Check a week after end date
+          : 365; // If we don't know, check a year ahead
+
+      for (int day = 0; day < daysToCheck; day++) {
+        final targetDate = today.add(Duration(days: day));
+        final dateString = '${targetDate.year}-${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}';
+
+        for (int i = 0; i < maxDoses; i++) {
+          final notificationId = _generateSpecificDateNotificationId(medicationId, dateString, i);
+          await _notificationsPlugin.cancel(notificationId);
+        }
+      }
+    }
+
+    // Cancel any weekly pattern notifications
+    if (medication == null || medication.durationType == TreatmentDurationType.weeklyPattern) {
+      for (int weekday = 1; weekday <= 7; weekday++) {
+        for (int i = 0; i < maxDoses; i++) {
+          final notificationId = _generateWeeklyNotificationId(medicationId, weekday, i);
+          await _notificationsPlugin.cancel(notificationId);
+        }
+      }
+    }
+
+    // Cancel any postponed notifications (always check these, they're rare)
+    for (int i = 0; i < maxDoses; i++) {
+      for (int hour = 0; hour < 24; hour++) {
+        final timeString = '${hour.toString().padLeft(2, '0')}:00';
+        final notificationId = _generatePostponedNotificationId(medicationId, timeString);
+        await _notificationsPlugin.cancel(notificationId);
+      }
+    }
+
+    print('Finished cancelling notifications for medication $medicationId');
   }
 
   /// Cancel all pending notifications
@@ -785,6 +1021,138 @@ class NotificationService {
     } catch (e) {
       print('Failed to schedule postponed notification: $e');
     }
+  }
+
+  /// Schedule follow-up reminder notifications (cascade reminders)
+  /// This schedules additional reminders at +10 min (gentle) and +30 min (insistent)
+  Future<void> _scheduleFollowUpReminders({
+    required Medication medication,
+    required tz.TZDateTime originalScheduledDate,
+    required int doseIndex,
+  }) async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    final now = tz.TZDateTime.now(tz.local);
+
+    // Only schedule follow-up reminders if the original time hasn't passed yet
+    if (originalScheduledDate.isBefore(now)) {
+      return;
+    }
+
+    // Schedule +10 minute reminder (gentle)
+    final reminder10Min = originalScheduledDate.add(const Duration(minutes: 10));
+    if (reminder10Min.isAfter(now)) {
+      final reminder10Id = _generateFollowUpReminderId(medication.id, doseIndex, 10);
+
+      const androidDetails10 = fln.AndroidNotificationDetails(
+        'medication_reminders',
+        'Recordatorios de Medicamentos',
+        channelDescription: 'Notificaciones para recordarte tomar tus medicamentos',
+        importance: fln.Importance.defaultImportance, // Less intrusive
+        priority: fln.Priority.defaultPriority,
+        ticker: 'Recordatorio suave',
+        icon: '@mipmap/ic_launcher',
+        enableVibration: false, // No vibration for gentle reminder
+        playSound: true,
+      );
+
+      const iOSDetails10 = fln.DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+
+      const notificationDetails10 = fln.NotificationDetails(
+        android: androidDetails10,
+        iOS: iOSDetails10,
+      );
+
+      try {
+        await _notificationsPlugin.zonedSchedule(
+          reminder10Id,
+          '🔔 Recordatorio suave',
+          '${medication.name} - ¿Ya tomaste tu medicamento?',
+          reminder10Min,
+          notificationDetails10,
+          androidScheduleMode: fln.AndroidScheduleMode.exactAllowWhileIdle,
+          payload: '${medication.id}|$doseIndex',
+        );
+        print('Scheduled +10min reminder ID $reminder10Id for ${medication.name}');
+      } catch (e) {
+        print('Failed to schedule +10min reminder: $e');
+      }
+    }
+
+    // Schedule +30 minute reminder (insistent)
+    final reminder30Min = originalScheduledDate.add(const Duration(minutes: 30));
+    if (reminder30Min.isAfter(now)) {
+      final reminder30Id = _generateFollowUpReminderId(medication.id, doseIndex, 30);
+
+      const androidDetails30 = fln.AndroidNotificationDetails(
+        'medication_reminders',
+        'Recordatorios de Medicamentos',
+        channelDescription: 'Notificaciones para recordarte tomar tus medicamentos',
+        importance: fln.Importance.max, // More intrusive
+        priority: fln.Priority.max,
+        ticker: 'Recordatorio insistente',
+        icon: '@mipmap/ic_launcher',
+        enableVibration: true,
+        playSound: true,
+      );
+
+      const iOSDetails30 = fln.DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        interruptionLevel: fln.InterruptionLevel.timeSensitive,
+      );
+
+      const notificationDetails30 = fln.NotificationDetails(
+        android: androidDetails30,
+        iOS: iOSDetails30,
+      );
+
+      try {
+        await _notificationsPlugin.zonedSchedule(
+          reminder30Id,
+          '⚠️ Recordatorio importante',
+          '${medication.name} - ¡No olvides tomar tu medicamento!',
+          reminder30Min,
+          notificationDetails30,
+          androidScheduleMode: fln.AndroidScheduleMode.exactAllowWhileIdle,
+          payload: '${medication.id}|$doseIndex',
+        );
+        print('Scheduled +30min reminder ID $reminder30Id for ${medication.name}');
+      } catch (e) {
+        print('Failed to schedule +30min reminder: $e');
+      }
+    }
+  }
+
+  /// Generate a unique notification ID for follow-up reminders
+  /// Uses range 5000000+ for 10-min reminders and 6000000+ for 30-min reminders
+  int _generateFollowUpReminderId(String medicationId, int doseIndex, int minutesDelay) {
+    final combinedString = '$medicationId-dose$doseIndex-reminder$minutesDelay';
+    final hash = combinedString.hashCode.abs();
+    // Use different ranges for different delays
+    final baseRange = minutesDelay == 10 ? 5000000 : 6000000;
+    return baseRange + (hash % 1000000);
+  }
+
+  /// Cancel all follow-up reminders for a specific medication and dose
+  Future<void> cancelFollowUpReminders(String medicationId, int doseIndex) async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    // Cancel both +10min and +30min reminders
+    final reminder10Id = _generateFollowUpReminderId(medicationId, doseIndex, 10);
+    final reminder30Id = _generateFollowUpReminderId(medicationId, doseIndex, 30);
+
+    await _notificationsPlugin.cancel(reminder10Id);
+    await _notificationsPlugin.cancel(reminder30Id);
+
+    print('Cancelled follow-up reminders for medication $medicationId dose $doseIndex');
   }
 
   /// Generate a unique notification ID for postponed doses

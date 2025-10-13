@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart' as fln;
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:android_intent_plus/android_intent.dart';
+import 'dart:io' show Platform;
 import '../models/medication.dart';
 import '../models/treatment_duration_type.dart';
 import '../screens/dose_action_screen.dart';
@@ -19,6 +21,9 @@ class NotificationService {
   bool _isTestMode = false;
 
   NotificationService._init();
+
+  /// Check if test mode is enabled
+  bool get isTestMode => _isTestMode;
 
   /// Enable test mode (disables actual notifications)
   void enableTestMode() {
@@ -156,6 +161,83 @@ class NotificationService {
     return true;
   }
 
+  /// Open exact alarm settings (Android 12+)
+  /// This opens the system settings where users can enable the "Alarms & reminders" permission
+  Future<void> openExactAlarmSettings() async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    // Only for Android
+    if (!Platform.isAndroid) {
+      print('Exact alarm settings are only available on Android');
+      return;
+    }
+
+    try {
+      // Android 12+ (API 31+): Open the app's alarm settings
+      // This will take the user to Settings > Apps > MedicApp > Alarms & reminders
+      const intent = AndroidIntent(
+        action: 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM',
+        data: 'package:com.medicapp.medicapp',
+      );
+
+      await intent.launch();
+      print('Opened exact alarm settings');
+    } catch (e) {
+      print('Error opening exact alarm settings: $e');
+
+      // Fallback: open general app settings
+      try {
+        const fallbackIntent = AndroidIntent(
+          action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
+          data: 'package:com.medicapp.medicapp',
+        );
+        await fallbackIntent.launch();
+        print('Opened app settings as fallback');
+      } catch (e2) {
+        print('Error opening app settings: $e2');
+      }
+    }
+  }
+
+  /// Open battery optimization settings
+  /// This allows users to disable battery restrictions for the app
+  Future<void> openBatteryOptimizationSettings() async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    // Only for Android
+    if (!Platform.isAndroid) {
+      print('Battery optimization settings are only available on Android');
+      return;
+    }
+
+    try {
+      // For Samsung/One UI and most Android devices, open app info directly
+      // User can then navigate to Battery settings from there
+      const intent = AndroidIntent(
+        action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
+        data: 'package:com.medicapp.medicapp',
+      );
+
+      await intent.launch();
+      print('Opened app settings for battery configuration');
+    } catch (e) {
+      print('Error opening app settings: $e');
+
+      // Fallback: open general settings
+      try {
+        const fallbackIntent = AndroidIntent(
+          action: 'android.settings.SETTINGS',
+        );
+        await fallbackIntent.launch();
+        print('Opened general settings as fallback');
+      } catch (e2) {
+        print('Error opening settings: $e2');
+      }
+    }
+  }
+
   /// Handle notification tap
   void _onNotificationTapped(fln.NotificationResponse response) async {
     print('Notification tapped: ${response.payload}');
@@ -252,7 +334,16 @@ class NotificationService {
       return;
     }
 
-    print('Scheduling notifications for ${medication.name} with ${medication.doseTimes.length} dose times');
+    print('========================================');
+    print('Scheduling notifications for ${medication.name}');
+    print('Current time: ${tz.TZDateTime.now(tz.local)}');
+    print('Timezone: ${tz.local}');
+    print('Dose times: ${medication.doseTimes}');
+    print('Duration type: ${medication.durationType.name}');
+    print('Is active: ${medication.isActive}');
+    print('Start date: ${medication.startDate}');
+    print('End date: ${medication.endDate}');
+    print('========================================');
 
     // Cancel any existing notifications for this medication first
     // Pass the medication object for smart cancellation
@@ -314,8 +405,11 @@ class NotificationService {
 
           // Skip if the time has already passed
           if (scheduledDate.isBefore(now)) {
+            print('⏭️  Skipping past time: ${scheduledDate} (now: $now)');
             continue;
           }
+
+          print('✅ Scheduling notification for: ${scheduledDate} (${doseTime})');
 
           // Generate unique ID for this specific date and dose
           final dateString = '${targetDate.year}-${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}';
@@ -579,8 +673,11 @@ class NotificationService {
 
     // If the scheduled time has already passed today, schedule for tomorrow
     if (scheduledDate.isBefore(now)) {
+      print('⏰ Time has passed for today, scheduling for tomorrow');
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
+
+    print('📅 Final scheduled date/time: $scheduledDate');
 
     // Android notification details
     const androidDetails = fln.AndroidNotificationDetails(

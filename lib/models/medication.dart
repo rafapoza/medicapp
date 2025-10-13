@@ -19,8 +19,8 @@ class Medication {
   final int lowStockThresholdDays; // Days before running out to show low stock warning
   final List<String>? selectedDates; // Specific dates for specificDates type in "yyyy-MM-dd" format
   final List<int>? weeklyDays; // Days of week (1=Mon, 7=Sun) for weeklyPattern type
-  final DateTime? startDate; // When the treatment starts (Phase 2)
-  final DateTime? endDate; // When the treatment ends (Phase 2)
+  final DateTime? startDate; // When the treatment starts
+  final DateTime? endDate; // When the treatment ends
 
   Medication({
     required this.id,
@@ -38,8 +38,8 @@ class Medication {
     this.lowStockThresholdDays = 3, // Default to 3 days
     this.selectedDates, // Specific dates for specificDates type
     this.weeklyDays, // Days of week for weeklyPattern type
-    this.startDate, // Phase 2: Treatment start date
-    this.endDate, // Phase 2: Treatment end date
+    this.startDate, // Treatment start date
+    this.endDate, // Treatment end date
   }) : doseSchedule = doseSchedule ?? {};
 
   /// Legacy compatibility: get list of dose times (keys from doseSchedule)

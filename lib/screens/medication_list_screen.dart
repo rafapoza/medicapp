@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/medication.dart';
 import '../models/treatment_duration_type.dart';
 import '../models/dose_history_entry.dart';
@@ -22,12 +23,51 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
   bool _debugMenuVisible = false;
   int _titleTapCount = 0;
   DateTime? _lastTapTime;
+  bool _batteryBannerDismissed = false;
 
   @override
   void initState() {
     super.initState();
+    _loadBatteryBannerPreference();
     _loadMedications();
     _checkNotificationPermissions();
+  }
+
+  /// Load battery banner dismissal preference
+  Future<void> _loadBatteryBannerPreference() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (mounted) {
+        setState(() {
+          _batteryBannerDismissed = prefs.getBool('battery_banner_dismissed') ?? false;
+        });
+      }
+    } catch (e) {
+      // SharedPreferences not available (e.g., in tests)
+      print('Could not load battery banner preference: $e');
+    }
+  }
+
+  /// Dismiss battery banner and save preference
+  Future<void> _dismissBatteryBanner() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('battery_banner_dismissed', true);
+      if (mounted) {
+        setState(() {
+          _batteryBannerDismissed = true;
+        });
+      }
+    } catch (e) {
+      // SharedPreferences not available (e.g., in tests)
+      print('Could not save battery banner preference: $e');
+      // Still hide the banner in the current session
+      if (mounted) {
+        setState(() {
+          _batteryBannerDismissed = true;
+        });
+      }
+    }
   }
 
   /// Check notification permissions and show warning if needed
@@ -1921,89 +1961,128 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
             )
           : Column(
               children: [
-                // Battery optimization info
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  color: Colors.amber.shade50,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.info_outline, size: 18, color: Colors.amber.shade800),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Para que las notificaciones funcionen, desactiva las restricciones de batería:',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade800,
+                // Battery optimization info (only show if not dismissed)
+                if (!_batteryBannerDismissed)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    color: Colors.amber.shade50,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.info_outline, size: 18, color: Colors.amber.shade800),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Para que las notificaciones funcionen, desactiva las restricciones de batería:',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade800,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 26),
-                        child: Text(
-                          'Ajustes → Aplicaciones → MedicApp → Batería → "Sin restricciones"',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade700,
-                            fontStyle: FontStyle.italic,
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 26),
+                          child: Text(
+                            'Ajustes → Aplicaciones → MedicApp → Batería → "Sin restricciones"',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade700,
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 26),
-                        child: GestureDetector(
-                          onTap: () async {
-                            await NotificationService.instance.openBatteryOptimizationSettings();
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.amber.shade100,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Colors.amber.shade800,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.settings,
-                                  size: 16,
-                                  color: Colors.amber.shade800,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Abrir ajustes',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.amber.shade800,
-                                    fontWeight: FontWeight.w600,
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 26),
+                          child: Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () async {
+                                  await NotificationService.instance.openBatteryOptimizationSettings();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.amber.shade800,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.settings,
+                                        size: 16,
+                                        color: Colors.amber.shade800,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Abrir ajustes',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.amber.shade800,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Icon(
+                                        Icons.arrow_forward,
+                                        size: 16,
+                                        color: Colors.amber.shade800,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  Icons.arrow_forward,
-                                  size: 16,
-                                  color: Colors.amber.shade800,
+                              ),
+                              const SizedBox(width: 12),
+                              GestureDetector(
+                                onTap: _dismissBatteryBanner,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.green.shade700,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.check,
+                                        size: 16,
+                                        color: Colors.green.shade700,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Hecho',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.green.shade700,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
                 // Medications list
                 Expanded(
                   child: ListView.builder(

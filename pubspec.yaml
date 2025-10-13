@@ -48,6 +48,12 @@ dependencies:
   # Internationalization and date formatting
   intl: ^0.20.2
 
+  # Android intents for opening settings
+  android_intent_plus: ^5.1.0
+
+  # Local key-value storage
+  shared_preferences: ^2.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

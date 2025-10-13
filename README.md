@@ -105,6 +105,7 @@ MedicApp permite a los usuarios llevar un registro organizado de sus medicamento
 - sqflite_common_ffi 2.3.0 - Para tests en desktop/VM
 - flutter_local_notifications 17.0.0 - Sistema de notificaciones locales
 - timezone 0.9.2 - Gestión de zonas horarias para notificaciones programadas
+- shared_preferences 2.2.2 - Almacenamiento de preferencias de usuario
 
 
 ## Instalación
@@ -315,6 +316,16 @@ Para que las notificaciones funcionen correctamente en Android, es posible que n
    - Configuración → Apps → MedicApp → Alarmas y recordatorios → Permitir
 3. **Optimización de batería**: Desactivar la optimización de batería para la app:
    - Configuración → Apps → MedicApp → Batería → Sin restricciones
+
+### Banner de configuración de batería:
+
+La app muestra un banner informativo en la pantalla principal para guiar a los usuarios en la configuración de permisos de batería:
+
+- **Banner con instrucciones**: Muestra pasos claros para desactivar las restricciones de batería
+- **Botón "Abrir ajustes"**: Acceso directo a la configuración de optimización de batería del sistema
+- **Botón "Hecho"**: Permite ocultar el banner una vez configurado
+- **Persistencia de preferencia**: El banner permanece oculto entre sesiones después de descartarlo
+- **Manejo inteligente**: Se adapta automáticamente al modo de test sin causar errores
 
 ## Flujo de uso
 

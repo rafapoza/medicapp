@@ -27,6 +27,110 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
   void initState() {
     super.initState();
     _loadMedications();
+    _checkNotificationPermissions();
+  }
+
+  /// Check notification permissions and show warning if needed
+  Future<void> _checkNotificationPermissions() async {
+    // Skip permission checks in test mode to avoid timer issues
+    if (NotificationService.instance.isTestMode) {
+      return;
+    }
+
+    // Wait a bit for the screen to load
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (!mounted) return;
+
+    // First, request basic notification permissions (this shows Android's system dialog)
+    await NotificationService.instance.requestPermissions();
+
+    // Wait for the system dialog to close
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (!mounted) return;
+
+    // Now check if exact alarms are allowed (critical for Android 12+)
+    final canScheduleExact = await NotificationService.instance.canScheduleExactAlarms();
+
+    print('🔔 Checking permissions - canScheduleExact: $canScheduleExact');
+
+    if (!canScheduleExact && _medications.isNotEmpty) {
+      // Show warning dialog for exact alarms only
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.warning, color: Colors.orange),
+              SizedBox(width: 8),
+              Flexible(child: Text('Permiso necesario')),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Las notificaciones NO funcionarán sin este permiso.',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              SizedBox(height: 12),
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.alarm, size: 20, color: Colors.blue),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Activar "Alarmas y recordatorios"',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      'Este permiso permite que las notificaciones salten exactamente a la hora configurada.',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Ahora no'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await NotificationService.instance.openExactAlarmSettings();
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.settings, size: 16),
+                  SizedBox(width: 6),
+                  Text('Abrir ajustes'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void _onTitleTap() {
@@ -219,28 +323,66 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
           return {'time': timeString, 'minutes': hours * 60 + minutes};
         }).toList()..sort((a, b) => (a['minutes'] as int).compareTo(b['minutes'] as int));
 
-        // Find the next available dose time (either in the future or already passed)
-        // First, look for doses in the future
+        // Check if there are pending doses (past time but not taken)
+        final pendingDoses = availableDosesInMinutes.where((dose) =>
+          (dose['minutes'] as int) <= currentMinutes
+        ).toList();
+
+        if (pendingDoses.isNotEmpty) {
+          // There's a pending dose - show it in red/orange
+          return {
+            'date': now,
+            'time': pendingDoses.first['time'],
+            'isToday': true,
+            'isPending': true, // Mark as pending (past due)
+          };
+        }
+
+        // Find the next available dose time in the future
         for (final dose in availableDosesInMinutes) {
           if ((dose['minutes'] as int) > currentMinutes) {
-            return {'date': now, 'time': dose['time'], 'isToday': true};
+            return {
+              'date': now,
+              'time': dose['time'],
+              'isToday': true,
+              'isPending': false,
+            };
           }
         }
 
-        // If all available doses are in the past, return the first one (it's pending)
-        return {'date': now, 'time': availableDosesInMinutes.first['time'], 'isToday': true};
+        // If all available doses are in the past, find next valid day
+        final nextDate = _findNextValidDate(medication, now);
+        if (nextDate != null) {
+          return {
+            'date': nextDate,
+            'time': medication.doseTimes.first,
+            'isToday': false,
+            'isPending': false,
+          };
+        }
+        return null;
       }
 
       // If no available doses today, find next valid day
       final nextDate = _findNextValidDate(medication, now);
       if (nextDate != null) {
-        return {'date': nextDate, 'time': medication.doseTimes.first, 'isToday': false};
+        return {
+          'date': nextDate,
+          'time': medication.doseTimes.first,
+          'isToday': false,
+          'isPending': false,
+        };
       }
     } else {
       // Medication shouldn't be taken today, find next valid day
       final nextDate = _findNextValidDate(medication, now);
       if (nextDate != null) {
-        return {'date': nextDate, 'time': medication.doseTimes.first, 'isToday': false};
+        return {
+          'date': nextDate,
+          'time': medication.doseTimes.first,
+          'isToday': false,
+          'isPending': false,
+        };
       }
     }
 
@@ -297,9 +439,14 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     final date = nextDoseInfo['date'] as DateTime;
     final time = nextDoseInfo['time'] as String;
     final isToday = nextDoseInfo['isToday'] as bool;
+    final isPending = nextDoseInfo['isPending'] as bool? ?? false;
 
     if (isToday) {
-      return 'Próxima toma: $time';
+      if (isPending) {
+        return '⚠️ Dosis pendiente: $time';
+      } else {
+        return 'Próxima toma: $time';
+      }
     } else {
       // Format date
       final now = DateTime.now();
@@ -975,15 +1122,20 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('✓ Permisos de notificaciones: ${notificationsEnabled ? "Sí" : "No"}'),
+              Text('✓ Permisos de notificaciones: ${notificationsEnabled ? "Sí" : "No"}',
+                style: TextStyle(fontSize: 13),
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Text(
-                    '⏰ Alarmas exactas (Android 12+): ${canScheduleExact ? "Sí" : "NO"}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: canScheduleExact ? Colors.green : Colors.red,
+                  Flexible(
+                    child: Text(
+                      '⏰ Alarmas exactas (Android 12+): ${canScheduleExact ? "Sí" : "NO"}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: canScheduleExact ? Colors.green : Colors.red,
+                      ),
                     ),
                   ),
                 ],
@@ -1001,21 +1153,24 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        '⚠️ IMPORTANTE: Activa este permiso',
+                        '⚠️ IMPORTANTE',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.orange,
+                          fontSize: 12,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       const Text(
                         'Sin este permiso las notificaciones NO saltarán.',
-                        style: TextStyle(fontSize: 11),
+                        style: TextStyle(fontSize: 10),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       const Text(
-                        'Ve a: Ajustes → Aplicaciones → MedicApp → Alarmas y recordatorios',
-                        style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
+                        'Ajustes → Aplicaciones → MedicApp → Alarmas y recordatorios',
+                        style: TextStyle(fontSize: 9, fontStyle: FontStyle.italic),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -1661,6 +1816,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                 _rescheduleAllNotifications();
               } else if (value == 'debug') {
                 _showDebugInfo();
+              } else if (value == 'open_alarms') {
+                NotificationService.instance.openExactAlarmSettings();
+              } else if (value == 'open_battery') {
+                NotificationService.instance.openBatteryOptimizationSettings();
               }
             },
             itemBuilder: (context) => [
@@ -1704,6 +1863,26 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   ],
                 ),
               ),
+              const PopupMenuItem(
+                value: 'open_alarms',
+                child: Row(
+                  children: [
+                    Icon(Icons.alarm),
+                    SizedBox(width: 8),
+                    Text('⚙️ Alarmas y recordatorios'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'open_battery',
+                child: Row(
+                  children: [
+                    Icon(Icons.battery_full),
+                    SizedBox(width: 8),
+                    Text('⚙️ Optimización de batería'),
+                  ],
+                ),
+              ),
             ],
           ),
         ]
@@ -1740,24 +1919,111 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                 ],
               ),
             )
-          : ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: _medications.length,
-              itemBuilder: (context, index) {
-                final medication = _medications[index];
+          : Column(
+              children: [
+                // Battery optimization info
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  color: Colors.amber.shade50,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.info_outline, size: 18, color: Colors.amber.shade800),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Para que las notificaciones funcionen, desactiva las restricciones de batería:',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 26),
+                        child: Text(
+                          'Ajustes → Aplicaciones → MedicApp → Batería → "Sin restricciones"',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade700,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 26),
+                        child: GestureDetector(
+                          onTap: () async {
+                            await NotificationService.instance.openBatteryOptimizationSettings();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.amber.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.amber.shade800,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.settings,
+                                  size: 16,
+                                  color: Colors.amber.shade800,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Abrir ajustes',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.amber.shade800,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.arrow_forward,
+                                  size: 16,
+                                  color: Colors.amber.shade800,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Medications list
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                    itemCount: _medications.length,
+                    itemBuilder: (context, index) {
+                      final medication = _medications[index];
 
-                // Determine stock status icon and color
-                IconData? stockIcon;
-                Color? stockColor;
-                if (medication.isStockEmpty) {
-                  stockIcon = Icons.error;
-                  stockColor = Colors.red;
-                } else if (medication.isStockLow) {
-                  stockIcon = Icons.warning;
-                  stockColor = Colors.orange;
-                }
+                      // Determine stock status icon and color
+                      IconData? stockIcon;
+                      Color? stockColor;
+                      if (medication.isStockEmpty) {
+                        stockIcon = Icons.error;
+                        stockColor = Colors.red;
+                      } else if (medication.isStockLow) {
+                        stockIcon = Icons.warning;
+                        stockColor = Colors.orange;
+                      }
 
-                return Opacity(
+                      return Opacity(
                   opacity: medication.isFinished ? 0.5 : 1.0, // Phase 2: Dim finished medications
                   child: Card(
                     margin: const EdgeInsets.symmetric(
@@ -1829,30 +2095,43 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                               ),
                               if (_getNextDoseInfo(medication) != null) ...[
                                 const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.alarm,
-                                      size: 18,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Flexible(
-                                      child: Text(
-                                        _formatNextDose(_getNextDoseInfo(medication)),
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: Theme.of(context).colorScheme.primary,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
+                                Builder(
+                                  builder: (context) {
+                                    final doseInfo = _getNextDoseInfo(medication);
+                                    final isPending = doseInfo?['isPending'] as bool? ?? false;
+                                    final iconColor = isPending
+                                        ? Colors.orange
+                                        : Theme.of(context).colorScheme.primary;
+                                    final textColor = isPending
+                                        ? Colors.orange.shade700
+                                        : Theme.of(context).colorScheme.primary;
+
+                                    return Row(
+                                      children: [
+                                        Icon(
+                                          isPending ? Icons.warning_amber : Icons.alarm,
+                                          size: 18,
+                                          color: iconColor,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            _formatNextDose(doseInfo),
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                  color: textColor,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ],
                             ],
                           ),
-                    trailing: stockIcon != null
+                          trailing: stockIcon != null
                         ? GestureDetector(
                             onTap: () {
                               // Show stock information when tapping the indicator
@@ -1886,20 +2165,23 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                               ),
                             ),
                           )
-                        : null,
-                    onTap: () => _showDeleteModal(medication),
+                              : null,
+                          onTap: () => _showDeleteModal(medication),
+                        ),
+                        // Tomas del día ya registradas
+                        if (medication.isTakenDosesDateToday &&
+                            (medication.takenDosesToday.isNotEmpty ||
+                             medication.skippedDosesToday.isNotEmpty))
+                          _buildTodayDosesSection(medication),
+                      ],
+                    ),
                   ),
-                  // Tomas del día ya registradas
-                  if (medication.isTakenDosesDateToday &&
-                      (medication.takenDosesToday.isNotEmpty ||
-                       medication.skippedDosesToday.isNotEmpty))
-                    _buildTodayDosesSection(medication),
-                ],
-              ),
+                );
+                    },
+                  ),
+                ),
+              ],
             ),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showMainActionMenu,
         child: const Icon(Icons.add),

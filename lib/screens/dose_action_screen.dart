@@ -114,7 +114,6 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
       type: _medication!.type,
       dosageIntervalHours: _medication!.dosageIntervalHours,
       durationType: _medication!.durationType,
-      customDays: _medication!.customDays,
       doseSchedule: _medication!.doseSchedule,
       stockQuantity: _medication!.stockQuantity - doseQuantity,
       takenDosesToday: updatedTakenDoses,
@@ -219,7 +218,6 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
       type: _medication!.type,
       dosageIntervalHours: _medication!.dosageIntervalHours,
       durationType: _medication!.durationType,
-      customDays: _medication!.customDays,
       doseSchedule: _medication!.doseSchedule,
       stockQuantity: _medication!.stockQuantity, // No change
       takenDosesToday: updatedTakenDoses,

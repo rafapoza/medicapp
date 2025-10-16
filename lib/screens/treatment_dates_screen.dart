@@ -4,14 +4,12 @@ import '../models/treatment_duration_type.dart';
 
 class TreatmentDatesScreen extends StatefulWidget {
   final TreatmentDurationType durationType;
-  final int? customDays;
   final DateTime? initialStartDate;
   final DateTime? initialEndDate;
 
   const TreatmentDatesScreen({
     super.key,
     required this.durationType,
-    this.customDays,
     this.initialStartDate,
     this.initialEndDate,
   });
@@ -51,10 +49,7 @@ class _TreatmentDatesScreenState extends State<TreatmentDatesScreen> {
     if (picked != null) {
       setState(() {
         _startDate = picked;
-        // Auto-calculate end date if we have customDays
-        if (widget.customDays != null && widget.customDays! > 0) {
-          _endDate = picked.add(Duration(days: widget.customDays! - 1));
-        } else if (_endDate != null && _endDate!.isBefore(picked)) {
+        if (_endDate != null && _endDate!.isBefore(picked)) {
           // If end date is before new start date, clear it
           _endDate = null;
         }
@@ -75,7 +70,7 @@ class _TreatmentDatesScreenState extends State<TreatmentDatesScreen> {
 
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _endDate ?? _startDate!.add(Duration(days: widget.customDays ?? 7)),
+      initialDate: _endDate ?? _startDate!.add(const Duration(days: 7)),
       firstDate: _startDate!,
       lastDate: DateTime(_startDate!.year + 2, _startDate!.month, _startDate!.day),
       locale: const Locale('es', 'ES'),
@@ -122,10 +117,6 @@ class _TreatmentDatesScreenState extends State<TreatmentDatesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final canAutoCalculate = widget.durationType == TreatmentDurationType.custom &&
-        widget.customDays != null &&
-        widget.customDays! > 0;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Fechas del tratamiento'),
@@ -197,35 +188,7 @@ class _TreatmentDatesScreenState extends State<TreatmentDatesScreen> {
                         ),
                       ),
 
-                      if (canAutoCalculate && _startDate != null) ...[
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.blue.withOpacity(0.3)),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.info_outline, color: Colors.blue, size: 20),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Fecha de fin calculada automáticamente: ${_dateFormatter.format(_startDate!.add(Duration(days: widget.customDays! - 1)))}',
-                                  style: const TextStyle(
-                                    color: Colors.blue,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-
-                      if (!canAutoCalculate) ...[
-                        const SizedBox(height: 16),
+                      const SizedBox(height: 16),
                         // End date selection
                         Container(
                           decoration: BoxDecoration(
@@ -263,7 +226,6 @@ class _TreatmentDatesScreenState extends State<TreatmentDatesScreen> {
                             onTap: _selectEndDate,
                           ),
                         ),
-                      ],
 
                       // Show range summary if both dates are selected
                       if (_startDate != null && _endDate != null) ...[

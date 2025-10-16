@@ -6,7 +6,6 @@ import 'treatment_dates_screen.dart';
 
 class TreatmentDurationScreen extends StatefulWidget {
   final TreatmentDurationType? initialDurationType;
-  final int? initialCustomDays;
   final List<String>? initialSelectedDates;
   final List<int>? initialWeeklyDays;
   final DateTime? initialStartDate;
@@ -15,7 +14,6 @@ class TreatmentDurationScreen extends StatefulWidget {
   const TreatmentDurationScreen({
     super.key,
     this.initialDurationType,
-    this.initialCustomDays,
     this.initialSelectedDates,
     this.initialWeeklyDays,
     this.initialStartDate,
@@ -29,8 +27,6 @@ class TreatmentDurationScreen extends StatefulWidget {
 
 class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
   late TreatmentDurationType _selectedDurationType;
-  final _customDaysController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
   List<String>? _selectedDates;
   List<int>? _weeklyDays;
   DateTime? _startDate;
@@ -41,29 +37,13 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
     super.initState();
     _selectedDurationType =
         widget.initialDurationType ?? TreatmentDurationType.everyday;
-    if (widget.initialCustomDays != null) {
-      _customDaysController.text = widget.initialCustomDays.toString();
-    }
     _selectedDates = widget.initialSelectedDates;
     _weeklyDays = widget.initialWeeklyDays;
     _startDate = widget.initialStartDate;
     _endDate = widget.initialEndDate;
   }
 
-  @override
-  void dispose() {
-    _customDaysController.dispose();
-    super.dispose();
-  }
-
   Future<void> _continue() async {
-    // Validate custom days if selected
-    if (_selectedDurationType == TreatmentDurationType.custom) {
-      if (!_formKey.currentState!.validate()) {
-        return;
-      }
-    }
-
     // Navigate to date/day selector if needed
     if (_selectedDurationType == TreatmentDurationType.specificDates) {
       final result = await Navigator.push<List<String>>(
@@ -99,17 +79,12 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
       _weeklyDays = result;
     }
 
-    final customDays = _selectedDurationType == TreatmentDurationType.custom
-        ? int.parse(_customDaysController.text)
-        : null;
-
     // Phase 2: Navigate to treatment dates screen (optional)
     final datesResult = await Navigator.push<Map<String, DateTime?>>(
       context,
       MaterialPageRoute(
         builder: (context) => TreatmentDatesScreen(
           durationType: _selectedDurationType,
-          customDays: customDays,
           initialStartDate: _startDate,
           initialEndDate: _endDate,
         ),
@@ -128,7 +103,6 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
 
     Navigator.pop(context, {
       'durationType': _selectedDurationType,
-      'customDays': customDays,
       'selectedDates': _selectedDates,
       'weeklyDays': _weeklyDays,
       'startDate': _startDate,
@@ -145,11 +119,9 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -232,39 +204,6 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
                           );
                         }),
                         if (_selectedDurationType ==
-                            TreatmentDurationType.custom) ...[
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _customDaysController,
-                            decoration: InputDecoration(
-                              labelText: 'Número de días',
-                              hintText: 'Ej: 7',
-                              prefixIcon: const Icon(Icons.calendar_today),
-                              suffixText: 'días',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            keyboardType: TextInputType.number,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Por favor, introduce el número de días';
-                              }
-
-                              final days = int.tryParse(value.trim());
-                              if (days == null || days <= 0) {
-                                return 'El número de días debe ser mayor a 0';
-                              }
-
-                              if (days > 365) {
-                                return 'El número de días no puede ser mayor a 365';
-                              }
-
-                              return null;
-                            },
-                          ),
-                        ],
-                        if (_selectedDurationType ==
                             TreatmentDurationType.specificDates &&
                             _selectedDates != null &&
                             _selectedDates!.isNotEmpty) ...[
@@ -346,7 +285,6 @@ class _TreatmentDurationScreenState extends State<TreatmentDurationScreen> {
                 ),
               ],
             ),
-          ),
         ),
       ),
     );

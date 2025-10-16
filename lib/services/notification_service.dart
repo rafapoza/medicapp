@@ -358,7 +358,7 @@ class NotificationService {
         await _scheduleWeeklyPatternNotifications(medication);
         break;
       default:
-        // For everyday, untilFinished, and custom: use daily recurring notifications
+        // For everyday and untilFinished: use daily recurring notifications
         await _scheduleDailyNotifications(medication);
         break;
     }
@@ -368,7 +368,7 @@ class NotificationService {
     print('Total pending notifications after scheduling: ${pending.length}');
   }
 
-  /// Schedule daily recurring notifications (for everyday, untilFinished, custom)
+  /// Schedule daily recurring notifications (for everyday and untilFinished)
   Future<void> _scheduleDailyNotifications(Medication medication) async {
     final now = tz.TZDateTime.now(tz.local);
 

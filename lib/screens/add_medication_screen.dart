@@ -71,7 +71,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
             type: _selectedType,
             dosageIntervalHours: int.parse(_dosageIntervalController.text),
             durationType: durationResult['durationType'],
-            customDays: durationResult['customDays'],
             selectedDates: durationResult['selectedDates'] as List<String>?,
             weeklyDays: durationResult['weeklyDays'] as List<int>?,
             doseSchedule: scheduleResult,

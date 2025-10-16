@@ -574,7 +574,6 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
           type: medication.type,
           dosageIntervalHours: medication.dosageIntervalHours,
           durationType: medication.durationType,
-          customDays: medication.customDays,
           doseSchedule: medication.doseSchedule,
           stockQuantity: newStock,
           takenDosesToday: takenDoses,

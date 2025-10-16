@@ -1,9 +1,10 @@
 # Funcionalidades
 
-- **Añadir medicamentos**: Con un flujo guiado en 3 pasos:
+- **Añadir medicamentos**: Con un flujo guiado en 4 pasos:
   - **Paso 1**: Información básica (nombre, tipo de medicamento)
-  - **Paso 2**: Duración del tratamiento (continuo, personalizado, etc.)
-  - **Paso 3**: Programación de horarios y dosis
+  - **Paso 2**: Duración del tratamiento (todos los días, hasta acabar, fechas específicas, días de la semana)
+  - **Paso 3**: Fechas de inicio y fin del tratamiento (opcional)
+  - **Paso 4**: Programación de horarios y dosis
 - **Tipos de medicamento**: Elige entre diferentes tipos de medicamento, cada uno con su unidad de medida específica:
   - Pastilla, Inyección, Óvulo, Aplicación, Gota, Gramo, Mililitro
 - **Programación de horarios y dosis**: Sistema de horarios flexible y potente:
@@ -15,7 +16,13 @@
 - **Duración del tratamiento**: Define cuánto tiempo tomarás cada medicamento:
   - **Todos los días**: Para tratamientos continuos sin fecha de finalización
   - **Hasta acabar la medicación**: Para tratamientos que terminarán cuando se acabe el medicamento
-  - **Personalizado**: Especifica el número exacto de días del tratamiento (1-365 días)
+  - **Fechas específicas**: Selecciona días concretos del calendario en los que tomar el medicamento
+  - **Días de la semana**: Define un patrón semanal (ej: lunes, miércoles y viernes)
+- **Control de fechas del tratamiento**: Sistema flexible para definir inicio y fin
+  - **Fecha de inicio**: Define cuándo comenzar el tratamiento (el medicamento aparece como "pendiente" hasta esa fecha)
+  - **Fecha de fin**: Define cuándo termina el tratamiento (el medicamento se marca como "finalizado" después de esa fecha)
+  - **Progreso del tratamiento**: Visualización del día actual y días restantes
+  - **Totalmente opcional**: Si no defines fechas, el tratamiento continúa indefinidamente según el tipo de duración elegido
 - **Registro de tomas**: Sistema completo e inteligente para registrar cuando tomas tus medicamentos
   - Botón "Registrar toma" accesible desde cada medicamento
   - Selección del horario específico que acabas de tomar
@@ -73,7 +80,7 @@
 - **Eliminación**: Elimina medicamentos de tu lista
 - **Validación inteligente**:
   - Previene la creación de medicamentos duplicados (case-insensitive)
-  - Valida rangos de días en tratamientos personalizados
+  - Valida que se seleccione al menos una fecha o día en patrones específicos
   - Valida frecuencias de tomas que dividan 24 horas exactamente
   - Previene horarios duplicados con alertas visuales
   - Valida que las cantidades de stock sean no negativas

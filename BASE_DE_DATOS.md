@@ -12,7 +12,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `type` (TEXT NOT NULL)
   - `dosageIntervalHours` (INTEGER NOT NULL)
   - `durationType` (TEXT NOT NULL)
-  - `customDays` (INTEGER NULLABLE)
+  - `customDays` (INTEGER NULLABLE) - OBSOLETO: Mantenido solo para compatibilidad con versiones anteriores
   - `selectedDates` (TEXT NULLABLE) - Fechas específicas para el tratamiento
   - `weeklyDays` (TEXT NULLABLE) - Días de la semana para tratamiento semanal
   - `doseTimes` (TEXT NOT NULL) - Horarios de tomas en formato "HH:mm" separados por comas (generado automáticamente desde doseSchedule para compatibilidad)

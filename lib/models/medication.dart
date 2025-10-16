@@ -9,7 +9,6 @@ class Medication {
   final MedicationType type;
   final int dosageIntervalHours;
   final TreatmentDurationType durationType;
-  final int? customDays; // Only used when durationType is custom
   final Map<String, double> doseSchedule; // Map of time -> dose quantity in "HH:mm" -> quantity format
   final double stockQuantity; // Quantity of medication in stock
   final List<String> takenDosesToday; // List of doses taken today in "HH:mm" format (reduces stock)
@@ -28,7 +27,6 @@ class Medication {
     required this.type,
     required this.dosageIntervalHours,
     required this.durationType,
-    this.customDays,
     Map<String, double>? doseSchedule,
     this.stockQuantity = 0,
     this.takenDosesToday = const [],
@@ -52,7 +50,6 @@ class Medication {
       'type': type.name,
       'dosageIntervalHours': dosageIntervalHours,
       'durationType': durationType.name,
-      'customDays': customDays,
       'doseTimes': doseTimes.join(','), // Legacy format (kept for database compatibility)
       'doseSchedule': jsonEncode(doseSchedule), // Store as JSON string
       'stockQuantity': stockQuantity,
@@ -142,7 +139,6 @@ class Medication {
         (e) => e.name == json['durationType'],
         orElse: () => TreatmentDurationType.everyday,
       ),
-      customDays: json['customDays'] as int?,
       doseSchedule: doseSchedule,
       stockQuantity: (json['stockQuantity'] as num?)?.toDouble() ?? 0,
       takenDosesToday: takenDosesToday,
@@ -163,8 +159,6 @@ class Medication {
         return 'Todos los días';
       case TreatmentDurationType.untilFinished:
         return 'Hasta acabar';
-      case TreatmentDurationType.custom:
-        return '$customDays días';
       case TreatmentDurationType.specificDates:
         final count = selectedDates?.length ?? 0;
         return '$count fecha${count != 1 ? 's' : ''} específica${count != 1 ? 's' : ''}';
@@ -187,9 +181,6 @@ class Medication {
         return true;
       case TreatmentDurationType.untilFinished:
         return stockQuantity > 0;
-      case TreatmentDurationType.custom:
-        // Phase 2: With start/end dates, this is handled by isActive check above
-        return true;
       case TreatmentDurationType.specificDates:
         return selectedDates?.contains(todayString) ?? false;
       case TreatmentDurationType.weeklyPattern:

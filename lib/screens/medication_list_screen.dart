@@ -1012,11 +1012,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
 
       // Determine notification type based on ID range
       final id = notification.id;
-      if (id >= 6000000) {
-        notificationType = 'Recordatorio +30 min';
-      } else if (id >= 5000000) {
-        notificationType = 'Recordatorio +10 min';
-      } else if (id >= 4000000) {
+      if (id >= 4000000) {
         notificationType = 'Patrón semanal';
       } else if (id >= 3000000) {
         notificationType = 'Fecha específica';
@@ -1128,12 +1124,6 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                     final tomorrow = now.add(const Duration(days: 1));
                     scheduledDate = 'Mañana ${tomorrow.day}/${tomorrow.month}/${tomorrow.year}';
                   }
-                } else if (notificationType == 'Recordatorio +10 min' || notificationType == 'Recordatorio +30 min') {
-                  // Follow-up reminders are for today
-                  scheduledDate = 'Hoy ${now.day}/${now.month}/${now.year}';
-                  final currentMinutes = now.hour * 60 + now.minute;
-                  final scheduledMinutes = schedHour * 60 + schedMin;
-                  isPastDue = scheduledMinutes < currentMinutes;
                 }
               }
             }

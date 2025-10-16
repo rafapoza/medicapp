@@ -687,7 +687,7 @@ class NotificationService {
       importance: fln.Importance.high,
       priority: fln.Priority.high,
       ticker: 'Recordatorio de medicamento',
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_notification',
       enableVibration: true,
       playSound: true,
     );
@@ -849,7 +849,7 @@ class NotificationService {
       importance: fln.Importance.high,
       priority: fln.Priority.high,
       ticker: 'Recordatorio de medicamento',
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_notification',
       enableVibration: true,
       playSound: true,
     );
@@ -904,7 +904,7 @@ class NotificationService {
       importance: fln.Importance.high,
       priority: fln.Priority.high,
       ticker: 'Recordatorio de medicamento',
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_notification',
       enableVibration: true,
       playSound: true,
     );
@@ -1086,7 +1086,7 @@ class NotificationService {
       importance: fln.Importance.high,
       priority: fln.Priority.high,
       ticker: 'Recordatorio de medicamento',
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_notification',
       enableVibration: true,
       playSound: true,
     );
@@ -1149,7 +1149,7 @@ class NotificationService {
         importance: fln.Importance.defaultImportance, // Less intrusive
         priority: fln.Priority.defaultPriority,
         ticker: 'Recordatorio suave',
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_notification',
         enableVibration: false, // No vibration for gentle reminder
         playSound: true,
       );
@@ -1193,7 +1193,7 @@ class NotificationService {
         importance: fln.Importance.max, // More intrusive
         priority: fln.Priority.max,
         ticker: 'Recordatorio insistente',
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_notification',
         enableVibration: true,
         playSound: true,
       );

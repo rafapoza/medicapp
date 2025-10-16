@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Medication bottle/jar icon for notifications -->
+    <!-- Bottle body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M8,8 L16,8 L16,20 C16,21.1 15.1,22 14,22 L10,22 C8.9,22 8,21.1 8,20 L8,8 Z"/>
+    <!-- Bottle cap -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M9,5 L15,5 L15,8 L9,8 L9,5 Z"/>
+    <!-- Cap top detail (ridges) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M10,3 L14,3 L14,5 L10,5 L10,3 Z"/>
+    <!-- Pill/capsule inside bottle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M10.5,12 C10.5,11.17 11.17,10.5 12,10.5 C12.83,10.5 13.5,11.17 13.5,12 L13.5,14 C13.5,14.83 12.83,15.5 12,15.5 C11.17,15.5 10.5,14.83 10.5,14 L10.5,12 Z"/>
+</vector>

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:timezone/timezone.dart' as tz;
 import '../models/medication.dart';
 import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
@@ -42,32 +41,6 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
   Future<void> _registerTaken() async {
     if (_medication == null) return;
-
-    // Cancel follow-up reminders for this dose
-    final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
-    if (doseIndex != -1) {
-      // Build the scheduled date/time from the dose time
-      final now = DateTime.now();
-      final timeParts = widget.doseTime.split(':');
-      final hour = int.parse(timeParts[0]);
-      final minute = int.parse(timeParts[1]);
-
-      // Import timezone to create TZDateTime
-      final scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        hour,
-        minute,
-      );
-
-      await NotificationService.instance.cancelFollowUpReminders(
-        _medication!.id,
-        doseIndex,
-        scheduledDate: scheduledDate,
-      );
-    }
 
     // Cancel any postponed notification for this dose
     await NotificationService.instance.cancelPostponedNotification(
@@ -174,31 +147,6 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
   Future<void> _registerSkipped() async {
     if (_medication == null) return;
 
-    // Cancel follow-up reminders for this dose
-    final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
-    if (doseIndex != -1) {
-      // Build the scheduled date/time from the dose time
-      final now = DateTime.now();
-      final timeParts = widget.doseTime.split(':');
-      final hour = int.parse(timeParts[0]);
-      final minute = int.parse(timeParts[1]);
-
-      final scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        hour,
-        minute,
-      );
-
-      await NotificationService.instance.cancelFollowUpReminders(
-        _medication!.id,
-        doseIndex,
-        scheduledDate: scheduledDate,
-      );
-    }
-
     // Cancel any postponed notification for this dose
     await NotificationService.instance.cancelPostponedNotification(
       _medication!.id,
@@ -281,31 +229,6 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
   Future<void> _postponeDose() async {
     if (_medication == null) return;
 
-    // Cancel follow-up reminders for this dose
-    final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
-    if (doseIndex != -1) {
-      // Build the scheduled date/time from the dose time
-      final now = DateTime.now();
-      final timeParts = widget.doseTime.split(':');
-      final hour = int.parse(timeParts[0]);
-      final minute = int.parse(timeParts[1]);
-
-      final scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        hour,
-        minute,
-      );
-
-      await NotificationService.instance.cancelFollowUpReminders(
-        _medication!.id,
-        doseIndex,
-        scheduledDate: scheduledDate,
-      );
-    }
-
     // Show time picker to select new time
     final TimeOfDay? newTime = await showTimePicker(
       context: context,
@@ -347,31 +270,6 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
   Future<void> _postpone15Minutes() async {
     if (_medication == null) return;
-
-    // Cancel follow-up reminders for this dose
-    final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
-    if (doseIndex != -1) {
-      // Build the scheduled date/time from the dose time
-      final now = DateTime.now();
-      final timeParts = widget.doseTime.split(':');
-      final hour = int.parse(timeParts[0]);
-      final minute = int.parse(timeParts[1]);
-
-      final scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        hour,
-        minute,
-      );
-
-      await NotificationService.instance.cancelFollowUpReminders(
-        _medication!.id,
-        doseIndex,
-        scheduledDate: scheduledDate,
-      );
-    }
 
     // Calculate time 15 minutes from now
     final now = DateTime.now();

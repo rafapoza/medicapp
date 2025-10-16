@@ -38,8 +38,28 @@ flutter test
   - Tests de cálculo de estadísticas de adherencia
   - Tests de persistencia y recuperación de datos
   - Tests de integración con base de datos SQLite
+- **test/fasting_test.dart**: Tests de configuración de ayuno
+  - 15 tests cubriendo la funcionalidad completa de ayuno:
+    - Configuración por defecto (sin ayuno)
+    - Ayuno antes y después de la toma
+    - Duración de ayuno en minutos
+    - Serialización y deserialización JSON
+    - Compatibilidad con datos legacy (sin campos de ayuno)
+    - Round-trip de encoding/decoding
+    - Preservación de campos al actualizar
+    - Validación de todos los tipos de medicamento
+- **test/dynamic_fasting_notification_test.dart**: Tests de notificaciones dinámicas de ayuno
+  - 12 tests cubriendo notificaciones basadas en hora real de toma:
+    - Programación correcta para ayuno tipo "after"
+    - No programación para ayuno tipo "before"
+    - Validaciones de configuración (requiresFasting, notifyFasting, fastingDurationMinutes)
+    - Diferentes duraciones de ayuno (30, 60, 90, 120, 180, 240 minutos)
+    - Compatibilidad con todos los tipos de medicamento
+    - Manejo de horas de toma pasadas y futuras
+    - Medicamentos con múltiples horarios de toma
+    - Compatibilidad con todos los tipos de duración de tratamiento
 
-**Total**: 90+ tests cubriendo modelo, servicios, persistencia, UI e historial
+**Total**: 117+ tests cubriendo modelo, servicios, persistencia, UI, historial y funcionalidad de ayuno
 
 ### Mejoras recientes en la suite de tests
 

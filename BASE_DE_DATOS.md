@@ -6,7 +6,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
 
 - **Patrón Singleton**: Una única instancia de `DatabaseHelper` gestiona todas las operaciones
 - **CRUD completo**: Create, Read, Update, Delete
-- **Tabla medications** (versión 12):
+- **Tabla medications** (versión 13):
   - `id` (TEXT PRIMARY KEY)
   - `name` (TEXT NOT NULL)
   - `type` (TEXT NOT NULL)
@@ -26,6 +26,10 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `lowStockThresholdDays` (INTEGER NOT NULL DEFAULT 3) - Días de anticipación para aviso de stock bajo configurables por medicamento
   - `startDate` (TEXT NULLABLE) - Fecha de inicio del tratamiento
   - `endDate` (TEXT NULLABLE) - Fecha de fin del tratamiento
+  - `requiresFasting` (INTEGER NOT NULL DEFAULT 0) - Si el medicamento requiere ayuno (0=no, 1=sí)
+  - `fastingType` (TEXT NULLABLE) - Tipo de ayuno: 'before' (antes de tomar) o 'after' (después de tomar)
+  - `fastingDurationMinutes` (INTEGER NULLABLE) - Duración del período de ayuno en minutos
+  - `notifyFasting` (INTEGER NOT NULL DEFAULT 0) - Si se deben enviar notificaciones de ayuno (0=no, 1=sí)
 - **Tabla dose_history** (desde versión 11): Historial completo de todas las dosis
   - `id` (TEXT PRIMARY KEY)
   - `medicationId` (TEXT NOT NULL)

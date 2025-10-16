@@ -1134,24 +1134,30 @@ class NotificationService {
 
     // Only schedule follow-up reminders if the original time hasn't passed yet
     if (originalScheduledDate.isBefore(now)) {
+      print('⏭️  Skipping follow-up reminders: original time has passed (${originalScheduledDate} < $now)');
       return;
     }
+
+    print('🔔 Scheduling follow-up reminders for ${medication.name} (dose $doseIndex at ${originalScheduledDate})');
 
     // Schedule +10 minute reminder (gentle)
     final reminder10Min = originalScheduledDate.add(const Duration(minutes: 10));
     if (reminder10Min.isAfter(now)) {
       final reminder10Id = _generateFollowUpReminderId(medication.id, doseIndex, 10, originalScheduledDate);
 
+      // Use HIGH priority channel for follow-up reminders
       const androidDetails10 = fln.AndroidNotificationDetails(
-        'medication_reminders',
-        'Recordatorios de Medicamentos',
-        channelDescription: 'Notificaciones para recordarte tomar tus medicamentos',
-        importance: fln.Importance.defaultImportance, // Less intrusive
-        priority: fln.Priority.defaultPriority,
+        'medication_followup_reminders', // Different channel for follow-up reminders
+        'Recordatorios de Seguimiento',
+        channelDescription: 'Recordatorios adicionales para dosis no tomadas',
+        importance: fln.Importance.high, // Increased from default to high
+        priority: fln.Priority.high, // Increased from default to high
         ticker: 'Recordatorio suave',
         icon: '@drawable/ic_notification',
-        enableVibration: false, // No vibration for gentle reminder
+        enableVibration: true, // Changed to true to ensure it's noticeable
         playSound: true,
+        channelShowBadge: true,
+        autoCancel: true,
       );
 
       const iOSDetails10 = fln.DarwinNotificationDetails(
@@ -1165,6 +1171,8 @@ class NotificationService {
         iOS: iOSDetails10,
       );
 
+      print('📅 Scheduling +10min reminder ID $reminder10Id for ${medication.name} at $reminder10Min');
+
       try {
         await _notificationsPlugin.zonedSchedule(
           reminder10Id,
@@ -1175,10 +1183,13 @@ class NotificationService {
           androidScheduleMode: fln.AndroidScheduleMode.exactAllowWhileIdle,
           payload: '${medication.id}|$doseIndex',
         );
-        print('Scheduled +10min reminder ID $reminder10Id for ${medication.name}');
+        print('✅ Successfully scheduled +10min reminder ID $reminder10Id');
       } catch (e) {
-        print('Failed to schedule +10min reminder: $e');
+        print('❌ Failed to schedule +10min reminder: $e');
+        print('   This may indicate permission issues or system restrictions');
       }
+    } else {
+      print('⏭️  Skipping +10min reminder: time has passed ($reminder10Min <= $now)');
     }
 
     // Schedule +30 minute reminder (insistent)
@@ -1186,16 +1197,19 @@ class NotificationService {
     if (reminder30Min.isAfter(now)) {
       final reminder30Id = _generateFollowUpReminderId(medication.id, doseIndex, 30, originalScheduledDate);
 
+      // Use MAXIMUM priority channel for +30 min reminder
       const androidDetails30 = fln.AndroidNotificationDetails(
-        'medication_reminders',
-        'Recordatorios de Medicamentos',
-        channelDescription: 'Notificaciones para recordarte tomar tus medicamentos',
-        importance: fln.Importance.max, // More intrusive
+        'medication_followup_reminders', // Same channel as +10 min
+        'Recordatorios de Seguimiento',
+        channelDescription: 'Recordatorios adicionales para dosis no tomadas',
+        importance: fln.Importance.max,
         priority: fln.Priority.max,
         ticker: 'Recordatorio insistente',
         icon: '@drawable/ic_notification',
         enableVibration: true,
         playSound: true,
+        channelShowBadge: true,
+        autoCancel: true,
       );
 
       const iOSDetails30 = fln.DarwinNotificationDetails(
@@ -1210,6 +1224,8 @@ class NotificationService {
         iOS: iOSDetails30,
       );
 
+      print('📅 Scheduling +30min reminder ID $reminder30Id for ${medication.name} at $reminder30Min');
+
       try {
         await _notificationsPlugin.zonedSchedule(
           reminder30Id,
@@ -1220,11 +1236,27 @@ class NotificationService {
           androidScheduleMode: fln.AndroidScheduleMode.exactAllowWhileIdle,
           payload: '${medication.id}|$doseIndex',
         );
-        print('Scheduled +30min reminder ID $reminder30Id for ${medication.name}');
+        print('✅ Successfully scheduled +30min reminder ID $reminder30Id');
+
+        // Verify the notification was scheduled
+        final pending = await getPendingNotifications();
+        final scheduled = pending.where((n) => n.id == reminder30Id).toList();
+        if (scheduled.isEmpty) {
+          print('⚠️  WARNING: +30min reminder was scheduled but not found in pending notifications!');
+          print('   This may indicate the notification was rejected by the system');
+        } else {
+          print('✅ Verified: +30min reminder is in pending notifications');
+        }
       } catch (e) {
-        print('Failed to schedule +30min reminder: $e');
+        print('❌ Failed to schedule +30min reminder: $e');
+        print('   This may indicate permission issues or system restrictions');
+        print('   User should check "Alarms & reminders" permission in app settings');
       }
+    } else {
+      print('⏭️  Skipping +30min reminder: time has passed ($reminder30Min <= $now)');
     }
+
+    print('🏁 Finished scheduling follow-up reminders for ${medication.name}');
   }
 
   /// Generate a unique notification ID for follow-up reminders

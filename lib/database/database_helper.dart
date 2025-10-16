@@ -42,7 +42,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 11,
+      version: 12,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -71,6 +71,7 @@ class DatabaseHelper {
         customDays $integerNullableType,
         selectedDates $textNullableType,
         weeklyDays $textNullableType,
+        dayInterval $integerNullableType,
         doseTimes $textType,
         doseSchedule $textType,
         stockQuantity $realType,
@@ -213,6 +214,13 @@ class DatabaseHelper {
       await db.execute('''
         CREATE INDEX idx_dose_history_date
         ON dose_history(scheduledDateTime)
+      ''');
+    }
+
+    if (oldVersion < 12) {
+      // Add dayInterval column for version 12 (interval-based medication schedules)
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN dayInterval INTEGER
       ''');
     }
   }

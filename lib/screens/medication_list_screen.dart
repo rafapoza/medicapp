@@ -5,8 +5,8 @@ import '../models/treatment_duration_type.dart';
 import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
-import 'add_medication_screen.dart';
-import 'edit_medication_screen.dart';
+import 'medication_info_screen.dart';
+import 'edit_medication_menu_screen.dart';
 import 'medication_stock_screen.dart';
 import 'dose_history_screen.dart';
 
@@ -247,7 +247,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     final newMedication = await Navigator.push<Medication>(
       context,
       MaterialPageRoute(
-        builder: (context) => AddMedicationScreen(
+        builder: (context) => MedicationInfoScreen(
           existingMedications: _medications,
         ),
       ),
@@ -258,10 +258,6 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     if (newMedication != null) {
       print('Adding new medication: ${newMedication.name}');
       print('Dose times: ${newMedication.doseTimes}');
-
-      // Save to database
-      final insertResult = await DatabaseHelper.instance.insertMedication(newMedication);
-      print('Insert result: $insertResult');
 
       // Reload medications from database
       final reloadedMeds = await DatabaseHelper.instance.getAllMedications();
@@ -274,16 +270,6 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
           _medications.addAll(reloadedMeds);
         });
       }
-
-      // Schedule notifications in background (non-blocking)
-      Future.microtask(() async {
-        try {
-          await NotificationService.instance.scheduleMedicationNotifications(newMedication);
-          print('Notifications scheduled for ${newMedication.name}');
-        } catch (e) {
-          print('Error scheduling notifications for ${newMedication.name}: $e');
-        }
-      });
     } else {
       print('newMedication is null - user cancelled or error occurred');
     }
@@ -297,7 +283,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     final updatedMedication = await Navigator.push<Medication>(
       context,
       MaterialPageRoute(
-        builder: (context) => EditMedicationScreen(
+        builder: (context) => EditMedicationMenuScreen(
           medication: medication,
           existingMedications: _medications,
         ),
@@ -510,12 +496,15 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
   }
 
   void _registerDose(Medication medication) async {
-    // Close the modal first
-    Navigator.pop(context);
+    print('_registerDose called');
+    print('stockQuantity: ${medication.stockQuantity}');
 
-    // Check if medication has dose times configured
+    // Check if medication has dose times configured (BEFORE closing modal)
     if (medication.doseTimes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      print('Dose times empty');
+      final messenger = ScaffoldMessenger.of(context);
+      Navigator.pop(context);
+      messenger.showSnackBar(
         const SnackBar(
           content: Text('Este medicamento no tiene horarios configurados'),
           duration: Duration(seconds: 2),
@@ -524,16 +513,27 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       return;
     }
 
-    // Check if there's any stock available (quick check before showing dialog)
+    // Check if there's any stock available (BEFORE closing modal)
     if (medication.stockQuantity <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      print('No stock, showing SnackBar');
+      final messenger = ScaffoldMessenger.of(context);
+      print('Got messenger, popping navigator');
+      Navigator.pop(context);
+      print('Showing SnackBar');
+      messenger.showSnackBar(
         const SnackBar(
           content: Text('No hay stock disponible de este medicamento'),
           duration: Duration(seconds: 2),
         ),
       );
+      print('SnackBar shown');
       return;
     }
+
+    print('Continuing with dose registration');
+
+    // Close the modal after validation passes
+    Navigator.pop(context);
 
     // Get available doses (doses that haven't been taken today)
     final availableDoses = medication.getAvailableDosesToday();

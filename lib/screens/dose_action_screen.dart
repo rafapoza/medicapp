@@ -350,52 +350,86 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Row(
+                child: Column(
                   children: [
-                    Icon(
-                      _medication!.type.icon,
-                      size: 48,
-                      color: _medication!.type.getColor(context),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _medication!.name,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _medication!.type.displayName,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: _medication!.type.getColor(context),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
+                    Row(
+                      children: [
+                        Icon(
+                          _medication!.type.icon,
+                          size: 48,
+                          color: _medication!.type.getColor(context),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.access_time, size: 16),
-                              const SizedBox(width: 4),
                               Text(
-                                'Hora programada: ${widget.doseTime}',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
+                                _medication!.name,
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
                                 ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _medication!.type.displayName,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: _medication!.type.getColor(context),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const Icon(Icons.access_time, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Hora programada: ${widget.doseTime}',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
-                          Row(
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Dose quantity prominently displayed
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.medication,
+                            size: 28,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.medication, size: 16),
-                              const SizedBox(width: 4),
                               Text(
-                                'Dosis: ${_medication!.getDoseQuantity(widget.doseTime)} ${_medication!.type.stockUnitSingular}',
-                                style: Theme.of(context).textTheme.bodySmall,
+                                'Cantidad de esta toma',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${_medication!.getDoseQuantity(widget.doseTime)} ${_medication!.type.stockUnitSingular}',
+                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ],
                           ),

@@ -334,70 +334,103 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // Time and quantity inputs
-                        Row(
-                          children: [
-                            // Time selection
-                            Expanded(
-                              flex: 2,
-                              child: OutlinedButton.icon(
-                                onPressed: () => _selectTime(index),
-                                icon: Icon(
-                                  Icons.access_time,
-                                  size: 20,
-                                  color: isDuplicated ? Colors.orange : null,
-                                ),
-                                label: Text(
-                                  time != null ? _formatTime(time) : 'Seleccionar hora',
-                                  style: TextStyle(
-                                    color: isDuplicated
-                                        ? Colors.orange
-                                        : time != null
-                                            ? Theme.of(context).colorScheme.primary
-                                            : Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                    color: isDuplicated
-                                        ? Colors.orange
-                                        : Theme.of(context).colorScheme.outline,
-                                  ),
-                                ),
+                        // Time selection button (full width)
+                        OutlinedButton.icon(
+                          onPressed: () => _selectTime(index),
+                          icon: Icon(
+                            Icons.access_time,
+                            size: 20,
+                            color: isDuplicated ? Colors.orange : null,
+                          ),
+                          label: Text(
+                            time != null ? _formatTime(time) : 'Seleccionar hora',
+                            style: TextStyle(
+                              color: isDuplicated
+                                  ? Colors.orange
+                                  : time != null
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: isDuplicated
+                                  ? Colors.orange
+                                  : Theme.of(context).colorScheme.outline,
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            minimumSize: const Size(double.infinity, 48),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Quantity input (full width with prominent styling)
+                        TextField(
+                          controller: _quantityControllers[index],
+                          decoration: InputDecoration(
+                            labelText: 'Cantidad por toma',
+                            labelStyle: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            suffixText: widget.medicationType.stockUnitSingular,
+                            suffixStyle: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.outline,
+                                width: 2,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            // Quantity input
-                            Expanded(
-                              flex: 1,
-                              child: TextField(
-                                controller: _quantityControllers[index],
-                                decoration: InputDecoration(
-                                  labelText: 'Cantidad',
-                                  suffixText: widget.medicationType.stockUnitSingular,
-                                  border: const OutlineInputBorder(),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                ),
-                                keyboardType: const TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                    RegExp(r'^\d*\.?\d*'),
-                                  ),
-                                ],
-                                onChanged: (value) {
-                                  final quantity = double.tryParse(value);
-                                  if (quantity != null && quantity > 0) {
-                                    entry.quantity = quantity;
-                                  }
-                                },
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.outline,
+                                width: 2,
                               ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.primary,
+                                width: 2,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 18,
+                            ),
+                            helperText: 'Ej: 1, 0.5, 2, etc.',
+                            helperStyle: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
+                            ),
+                          ),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d*'),
                             ),
                           ],
+                          onChanged: (value) {
+                            final quantity = double.tryParse(value);
+                            if (quantity != null && quantity > 0) {
+                              entry.quantity = quantity;
+                            }
+                          },
                         ),
                         if (isDuplicated)
                           Padding(

@@ -69,6 +69,12 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
       );
     }
 
+    // Cancel any postponed notification for this dose
+    await NotificationService.instance.cancelPostponedNotification(
+      _medication!.id,
+      widget.doseTime,
+    );
+
     // Get the dose quantity for this specific time
     final doseQuantity = _medication!.getDoseQuantity(widget.doseTime);
 
@@ -192,6 +198,12 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
         scheduledDate: scheduledDate,
       );
     }
+
+    // Cancel any postponed notification for this dose
+    await NotificationService.instance.cancelPostponedNotification(
+      _medication!.id,
+      widget.doseTime,
+    );
 
     // Get today's date
     final today = DateTime.now();

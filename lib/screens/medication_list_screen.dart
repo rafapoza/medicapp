@@ -1129,11 +1129,21 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                     scheduledDate = 'Mañana ${tomorrow.day}/${tomorrow.month}/${tomorrow.year}';
                   }
                 } else if (notificationType == 'Recordatorio +10 min' || notificationType == 'Recordatorio +30 min') {
-                  // Follow-up reminders are for today
+                  // Follow-up reminders: add delay to base time
+                  final delayMinutes = notificationType == 'Recordatorio +10 min' ? 10 : 30;
+                  final baseMinutes = schedHour * 60 + schedMin;
+                  final adjustedMinutes = baseMinutes + delayMinutes;
+
+                  // Calculate adjusted hour and minute
+                  final adjustedHour = (adjustedMinutes ~/ 60) % 24;
+                  final adjustedMin = adjustedMinutes % 60;
+
+                  // Update scheduledTime to show the real notification time
+                  scheduledTime = '${adjustedHour.toString().padLeft(2, '0')}:${adjustedMin.toString().padLeft(2, '0')}';
+
                   scheduledDate = 'Hoy ${now.day}/${now.month}/${now.year}';
                   final currentMinutes = now.hour * 60 + now.minute;
-                  final scheduledMinutes = schedHour * 60 + schedMin;
-                  isPastDue = scheduledMinutes < currentMinutes;
+                  isPastDue = adjustedMinutes < currentMinutes;
                 }
               }
             }

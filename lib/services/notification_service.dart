@@ -1089,6 +1089,7 @@ class NotificationService {
       icon: '@drawable/ic_notification',
       enableVibration: true,
       playSound: true,
+      autoCancel: true, // Auto-cancel after user taps
     );
 
     // iOS notification details
@@ -1145,16 +1146,16 @@ class NotificationService {
     if (reminder10Min.isAfter(now)) {
       final reminder10Id = _generateFollowUpReminderId(medication.id, doseIndex, 10, originalScheduledDate);
 
-      // Use HIGH priority channel for follow-up reminders
+      // Use HIGH priority channel for +10 min reminder
       const androidDetails10 = fln.AndroidNotificationDetails(
-        'medication_followup_reminders', // Different channel for follow-up reminders
-        'Recordatorios de Seguimiento',
-        channelDescription: 'Recordatorios adicionales para dosis no tomadas',
-        importance: fln.Importance.high, // Increased from default to high
-        priority: fln.Priority.high, // Increased from default to high
+        'medication_followup_10min', // Separate channel for +10 min reminders
+        'Recordatorios +10 min',
+        channelDescription: 'Recordatorios suaves a los 10 minutos de la hora programada',
+        importance: fln.Importance.high,
+        priority: fln.Priority.high,
         ticker: 'Recordatorio suave',
         icon: '@drawable/ic_notification',
-        enableVibration: true, // Changed to true to ensure it's noticeable
+        enableVibration: true,
         playSound: true,
         channelShowBadge: true,
         autoCancel: true,
@@ -1184,6 +1185,16 @@ class NotificationService {
           payload: '${medication.id}|$doseIndex',
         );
         print('✅ Successfully scheduled +10min reminder ID $reminder10Id');
+
+        // Verify the notification was scheduled
+        final pending = await getPendingNotifications();
+        final scheduled = pending.where((n) => n.id == reminder10Id).toList();
+        if (scheduled.isEmpty) {
+          print('⚠️  WARNING: +10min reminder was scheduled but not found in pending notifications!');
+          print('   This may indicate the notification was rejected by the system');
+        } else {
+          print('✅ Verified: +10min reminder is in pending notifications');
+        }
       } catch (e) {
         print('❌ Failed to schedule +10min reminder: $e');
         print('   This may indicate permission issues or system restrictions');
@@ -1199,9 +1210,9 @@ class NotificationService {
 
       // Use MAXIMUM priority channel for +30 min reminder
       const androidDetails30 = fln.AndroidNotificationDetails(
-        'medication_followup_reminders', // Same channel as +10 min
-        'Recordatorios de Seguimiento',
-        channelDescription: 'Recordatorios adicionales para dosis no tomadas',
+        'medication_followup_30min', // Separate channel for +30 min reminders
+        'Recordatorios +30 min',
+        channelDescription: 'Recordatorios importantes a los 30 minutos de la hora programada',
         importance: fln.Importance.max,
         priority: fln.Priority.max,
         ticker: 'Recordatorio insistente',
@@ -1328,5 +1339,17 @@ class NotificationService {
     final hash = combinedString.hashCode.abs();
     // Use range 2000000+ for postponed notifications
     return 2000000 + (hash % 1000000);
+  }
+
+  /// Cancel a specific postponed notification
+  /// Call this when the user registers the dose or explicitly cancels the postponed reminder
+  Future<void> cancelPostponedNotification(String medicationId, String doseTime) async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    final notificationId = _generatePostponedNotificationId(medicationId, doseTime);
+    await _notificationsPlugin.cancel(notificationId);
+
+    print('Cancelled postponed notification ID $notificationId for medication $medicationId at $doseTime');
   }
 }

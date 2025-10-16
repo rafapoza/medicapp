@@ -740,22 +740,52 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                       ),
                 ),
                 const SizedBox(height: 16),
+                // Quantity label
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.add_box, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Cantidad a agregar',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(dialogContext).colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '(${medication.type.stockUnit})',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Quantity field
                 TextField(
                   controller: refillController,
                   decoration: InputDecoration(
-                    labelText: 'Cantidad a agregar',
                     hintText: medication.lastRefillAmount != null
                         ? 'Ej: ${medication.lastRefillAmount}'
                         : 'Ej: 30',
-                    suffixText: medication.type.stockUnit,
                     helperText: medication.lastRefillAmount != null
                         ? 'Última recarga: ${medication.lastRefillAmount} ${medication.type.stockUnit}'
                         : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    prefixIcon: const Icon(Icons.add_box),
                   ),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   autofocus: true,
                 ),

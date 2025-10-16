@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:timezone/timezone.dart' as tz;
 import '../models/medication.dart';
 import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
@@ -45,9 +46,26 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     // Cancel follow-up reminders for this dose
     final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
     if (doseIndex != -1) {
+      // Build the scheduled date/time from the dose time
+      final now = DateTime.now();
+      final timeParts = widget.doseTime.split(':');
+      final hour = int.parse(timeParts[0]);
+      final minute = int.parse(timeParts[1]);
+
+      // Import timezone to create TZDateTime
+      final scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+      );
+
       await NotificationService.instance.cancelFollowUpReminders(
         _medication!.id,
         doseIndex,
+        scheduledDate: scheduledDate,
       );
     }
 
@@ -96,7 +114,6 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
       type: _medication!.type,
       dosageIntervalHours: _medication!.dosageIntervalHours,
       durationType: _medication!.durationType,
-      customDays: _medication!.customDays,
       doseSchedule: _medication!.doseSchedule,
       stockQuantity: _medication!.stockQuantity - doseQuantity,
       takenDosesToday: updatedTakenDoses,
@@ -154,9 +171,25 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     // Cancel follow-up reminders for this dose
     final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
     if (doseIndex != -1) {
+      // Build the scheduled date/time from the dose time
+      final now = DateTime.now();
+      final timeParts = widget.doseTime.split(':');
+      final hour = int.parse(timeParts[0]);
+      final minute = int.parse(timeParts[1]);
+
+      final scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+      );
+
       await NotificationService.instance.cancelFollowUpReminders(
         _medication!.id,
         doseIndex,
+        scheduledDate: scheduledDate,
       );
     }
 
@@ -185,7 +218,6 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
       type: _medication!.type,
       dosageIntervalHours: _medication!.dosageIntervalHours,
       durationType: _medication!.durationType,
-      customDays: _medication!.customDays,
       doseSchedule: _medication!.doseSchedule,
       stockQuantity: _medication!.stockQuantity, // No change
       takenDosesToday: updatedTakenDoses,
@@ -240,9 +272,25 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     // Cancel follow-up reminders for this dose
     final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
     if (doseIndex != -1) {
+      // Build the scheduled date/time from the dose time
+      final now = DateTime.now();
+      final timeParts = widget.doseTime.split(':');
+      final hour = int.parse(timeParts[0]);
+      final minute = int.parse(timeParts[1]);
+
+      final scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+      );
+
       await NotificationService.instance.cancelFollowUpReminders(
         _medication!.id,
         doseIndex,
+        scheduledDate: scheduledDate,
       );
     }
 
@@ -291,9 +339,25 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     // Cancel follow-up reminders for this dose
     final doseIndex = _medication!.doseTimes.indexOf(widget.doseTime);
     if (doseIndex != -1) {
+      // Build the scheduled date/time from the dose time
+      final now = DateTime.now();
+      final timeParts = widget.doseTime.split(':');
+      final hour = int.parse(timeParts[0]);
+      final minute = int.parse(timeParts[1]);
+
+      final scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+      );
+
       await NotificationService.instance.cancelFollowUpReminders(
         _medication!.id,
         doseIndex,
+        scheduledDate: scheduledDate,
       );
     }
 

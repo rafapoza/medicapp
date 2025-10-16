@@ -45,7 +45,6 @@ Future<void> addMedicationWithDuration(
   String name, {
   String? type,
   String? durationType,
-  String? customDays,
   int dosageIntervalHours = 8, // Default to 8 hours
   String stockQuantity = '0', // Default stock quantity
 }) async {
@@ -96,12 +95,6 @@ Future<void> addMedicationWithDuration(
   if (durationType != null) {
     await tester.tap(find.text(durationType));
     await tester.pumpAndSettle();
-
-    // If custom, enter the number of days
-    if (durationType == 'Personalizado' && customDays != null) {
-      await tester.enterText(find.byType(TextFormField).first, customDays);
-      await tester.pumpAndSettle();
-    }
   }
 
   // Scroll to and tap continue button to go to treatment dates screen
@@ -224,7 +217,8 @@ void main() {
     expect(find.text('¿Cuántos días vas a tomar este medicamento?'), findsOneWidget);
     expect(find.text('Todos los días'), findsOneWidget);
     expect(find.text('Hasta acabar la medicación'), findsOneWidget);
-    expect(find.text('Personalizado'), findsOneWidget);
+    expect(find.text('Fechas específicas'), findsOneWidget);
+    expect(find.text('Días de la semana'), findsOneWidget);
   });
 
   testWidgets('Should add medication with default type and everyday duration', (WidgetTester tester) async {
@@ -254,111 +248,6 @@ void main() {
     expect(find.text('Hasta acabar'), findsOneWidget);
   });
 
-  testWidgets('Should add medication with custom duration', (WidgetTester tester) async {
-    await tester.pumpWidget(const MedicApp());
-    await waitForDatabase(tester);
-    await addMedicationWithDuration(
-      tester,
-      'Tratamiento Corto',
-      durationType: 'Personalizado',
-      customDays: '7',
-    );
-    await waitForDatabase(tester);
-
-    expect(find.text('Tratamiento Corto'), findsOneWidget);
-    expect(find.text('7 días'), findsOneWidget);
-  });
-
-  testWidgets('Should validate custom days input', (WidgetTester tester) async {
-    // Build our app
-    await tester.pumpWidget(const MedicApp());
-    await waitForDatabase(tester);
-
-    // Start adding medication - open menu first
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    // Tap "Añadir medicamento" in the modal
-    await tester.tap(find.text('Añadir medicamento'));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(TextFormField).first, 'Test Med');
-    await scrollToWidget(tester, find.text('Continuar'));
-    await tester.tap(find.text('Continuar'));
-    await tester.pumpAndSettle();
-
-    // Select custom duration
-    await tester.tap(find.text('Personalizado'));
-    await tester.pumpAndSettle();
-
-    // Try to continue without entering days
-    await scrollToWidget(tester, find.text('Continuar'));
-    await tester.tap(find.text('Continuar'));
-    await tester.pumpAndSettle();
-
-    // Verify error message is shown
-    expect(find.text('Por favor, introduce el número de días'), findsOneWidget);
-  });
-
-  testWidgets('Should not allow custom days greater than 365', (WidgetTester tester) async {
-    // Build our app
-    await tester.pumpWidget(const MedicApp());
-    await waitForDatabase(tester);
-
-    // Start adding medication - open menu first
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    // Tap "Añadir medicamento" in the modal
-    await tester.tap(find.text('Añadir medicamento'));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(TextFormField).first, 'Test Med');
-    await scrollToWidget(tester, find.text('Continuar'));
-    await tester.tap(find.text('Continuar'));
-    await tester.pumpAndSettle();
-
-    // Select custom duration and enter invalid number
-    await tester.tap(find.text('Personalizado'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField).first, '400');
-    await scrollToWidget(tester, find.text('Continuar'));
-    await tester.tap(find.text('Continuar'));
-    await tester.pumpAndSettle();
-
-    // Verify error message is shown
-    expect(find.text('El número de días no puede ser mayor a 365'), findsOneWidget);
-  });
-
-  testWidgets('Should not allow custom days less than or equal to 0', (WidgetTester tester) async {
-    // Build our app
-    await tester.pumpWidget(const MedicApp());
-    await waitForDatabase(tester);
-
-    // Start adding medication - open menu first
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    // Tap "Añadir medicamento" in the modal
-    await tester.tap(find.text('Añadir medicamento'));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(TextFormField).first, 'Test Med');
-    await scrollToWidget(tester, find.text('Continuar'));
-    await tester.tap(find.text('Continuar'));
-    await tester.pumpAndSettle();
-
-    // Select custom duration and enter invalid number
-    await tester.tap(find.text('Personalizado'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField).first, '0');
-    await scrollToWidget(tester, find.text('Continuar'));
-    await tester.tap(find.text('Continuar'));
-    await tester.pumpAndSettle();
-
-    // Verify error message is shown
-    expect(find.text('El número de días debe ser mayor a 0'), findsOneWidget);
-  });
 
   testWidgets('Should select different medication type', (WidgetTester tester) async {
     // Build our app
@@ -453,12 +342,11 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Add a medication with custom duration
+    // Add a medication with "Hasta acabar" duration
     await addMedicationWithDuration(
       tester,
       'Vitamina C',
-      durationType: 'Personalizado',
-      customDays: '30',
+      durationType: 'Hasta acabar la medicación',
     );
     await waitForDatabase(tester);
 
@@ -467,7 +355,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify duration is displayed in modal
-    expect(find.text('30 días'), findsNWidgets(2)); // Once in list, once in modal
+    expect(find.text('Hasta acabar'), findsNWidgets(2)); // Once in list, once in modal
   });
 
   testWidgets('Should delete medication when delete button is pressed', (WidgetTester tester) async {
@@ -766,10 +654,8 @@ void main() {
     await tester.tap(find.text('Continuar').first);
     await tester.pumpAndSettle();
 
-    // Change duration to custom
-    await tester.tap(find.text('Personalizado'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField).first, '15');
+    // Change duration to "Hasta acabar la medicación"
+    await tester.tap(find.text('Hasta acabar la medicación'));
     await tester.pumpAndSettle();
 
     // Continue to treatment dates screen
@@ -797,7 +683,7 @@ void main() {
     await waitForDatabase(tester);
 
     // Verify duration was updated
-    expect(find.text('15 días'), findsOneWidget);
+    expect(find.text('Hasta acabar'), findsOneWidget);
   });
 
   testWidgets('Should not save when edit is cancelled', (WidgetTester tester) async {
@@ -950,12 +836,11 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Add a medication with custom duration
+    // Add a medication with "Hasta acabar" duration
     await addMedicationWithDuration(
       tester,
       'Probiótico',
-      durationType: 'Personalizado',
-      customDays: '21',
+      durationType: 'Hasta acabar la medicación',
     );
     await waitForDatabase(tester);
 
@@ -972,10 +857,9 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify the duration screen shows the existing values
-    // The Personalizado option should be selected
-    expect(find.text('Personalizado'), findsOneWidget);
-    // The text field should show '21'
-    expect(find.text('21'), findsOneWidget);
+    // The "Hasta acabar la medicación" option should be visible and selected (can verify by UI state)
+    expect(find.text('Duración del tratamiento'), findsOneWidget);
+    expect(find.text('Hasta acabar la medicación'), findsOneWidget);
   });
 
   testWidgets('Should cancel adding medication from duration screen', (WidgetTester tester) async {

@@ -358,7 +358,7 @@ class NotificationService {
         await _scheduleWeeklyPatternNotifications(medication);
         break;
       default:
-        // For everyday, untilFinished, and custom: use daily recurring notifications
+        // For everyday and untilFinished: use daily recurring notifications
         await _scheduleDailyNotifications(medication);
         break;
     }
@@ -368,7 +368,7 @@ class NotificationService {
     print('Total pending notifications after scheduling: ${pending.length}');
   }
 
-  /// Schedule daily recurring notifications (for everyday, untilFinished, custom)
+  /// Schedule daily recurring notifications (for everyday and untilFinished)
   Future<void> _scheduleDailyNotifications(Medication medication) async {
     final now = tz.TZDateTime.now(tz.local);
 
@@ -687,7 +687,7 @@ class NotificationService {
       importance: fln.Importance.high,
       priority: fln.Priority.high,
       ticker: 'Recordatorio de medicamento',
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_notification',
       enableVibration: true,
       playSound: true,
     );
@@ -849,7 +849,7 @@ class NotificationService {
       importance: fln.Importance.high,
       priority: fln.Priority.high,
       ticker: 'Recordatorio de medicamento',
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_notification',
       enableVibration: true,
       playSound: true,
     );
@@ -904,7 +904,7 @@ class NotificationService {
       importance: fln.Importance.high,
       priority: fln.Priority.high,
       ticker: 'Recordatorio de medicamento',
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_notification',
       enableVibration: true,
       playSound: true,
     );
@@ -1086,7 +1086,7 @@ class NotificationService {
       importance: fln.Importance.high,
       priority: fln.Priority.high,
       ticker: 'Recordatorio de medicamento',
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_notification',
       enableVibration: true,
       playSound: true,
     );
@@ -1140,7 +1140,7 @@ class NotificationService {
     // Schedule +10 minute reminder (gentle)
     final reminder10Min = originalScheduledDate.add(const Duration(minutes: 10));
     if (reminder10Min.isAfter(now)) {
-      final reminder10Id = _generateFollowUpReminderId(medication.id, doseIndex, 10);
+      final reminder10Id = _generateFollowUpReminderId(medication.id, doseIndex, 10, originalScheduledDate);
 
       const androidDetails10 = fln.AndroidNotificationDetails(
         'medication_reminders',
@@ -1149,7 +1149,7 @@ class NotificationService {
         importance: fln.Importance.defaultImportance, // Less intrusive
         priority: fln.Priority.defaultPriority,
         ticker: 'Recordatorio suave',
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_notification',
         enableVibration: false, // No vibration for gentle reminder
         playSound: true,
       );
@@ -1184,7 +1184,7 @@ class NotificationService {
     // Schedule +30 minute reminder (insistent)
     final reminder30Min = originalScheduledDate.add(const Duration(minutes: 30));
     if (reminder30Min.isAfter(now)) {
-      final reminder30Id = _generateFollowUpReminderId(medication.id, doseIndex, 30);
+      final reminder30Id = _generateFollowUpReminderId(medication.id, doseIndex, 30, originalScheduledDate);
 
       const androidDetails30 = fln.AndroidNotificationDetails(
         'medication_reminders',
@@ -1193,7 +1193,7 @@ class NotificationService {
         importance: fln.Importance.max, // More intrusive
         priority: fln.Priority.max,
         ticker: 'Recordatorio insistente',
-        icon: '@mipmap/ic_launcher',
+        icon: '@drawable/ic_notification',
         enableVibration: true,
         playSound: true,
       );
@@ -1229,8 +1229,11 @@ class NotificationService {
 
   /// Generate a unique notification ID for follow-up reminders
   /// Uses range 5000000+ for 10-min reminders and 6000000+ for 30-min reminders
-  int _generateFollowUpReminderId(String medicationId, int doseIndex, int minutesDelay) {
-    final combinedString = '$medicationId-dose$doseIndex-reminder$minutesDelay';
+  /// Includes the scheduled date/time to ensure uniqueness across different days
+  int _generateFollowUpReminderId(String medicationId, int doseIndex, int minutesDelay, tz.TZDateTime scheduledDate) {
+    // Include the full date/time in the ID to ensure uniqueness
+    final dateTimeString = '${scheduledDate.year}-${scheduledDate.month.toString().padLeft(2, '0')}-${scheduledDate.day.toString().padLeft(2, '0')}-${scheduledDate.hour.toString().padLeft(2, '0')}-${scheduledDate.minute.toString().padLeft(2, '0')}';
+    final combinedString = '$medicationId-$dateTimeString-dose$doseIndex-reminder$minutesDelay';
     final hash = combinedString.hashCode.abs();
     // Use different ranges for different delays
     final baseRange = minutesDelay == 10 ? 5000000 : 6000000;
@@ -1238,18 +1241,51 @@ class NotificationService {
   }
 
   /// Cancel all follow-up reminders for a specific medication and dose
-  Future<void> cancelFollowUpReminders(String medicationId, int doseIndex) async {
+  /// If [scheduledDate] is provided, cancels reminders for that specific date/time
+  /// Otherwise, cancels reminders for the next 7 days (fallback for bulk cancellation)
+  Future<void> cancelFollowUpReminders(String medicationId, int doseIndex, {tz.TZDateTime? scheduledDate}) async {
     // Skip in test mode
     if (_isTestMode) return;
 
-    // Cancel both +10min and +30min reminders
-    final reminder10Id = _generateFollowUpReminderId(medicationId, doseIndex, 10);
-    final reminder30Id = _generateFollowUpReminderId(medicationId, doseIndex, 30);
+    if (scheduledDate != null) {
+      // Cancel reminders for the specific date/time
+      final reminder10Id = _generateFollowUpReminderId(medicationId, doseIndex, 10, scheduledDate);
+      final reminder30Id = _generateFollowUpReminderId(medicationId, doseIndex, 30, scheduledDate);
 
-    await _notificationsPlugin.cancel(reminder10Id);
-    await _notificationsPlugin.cancel(reminder30Id);
+      await _notificationsPlugin.cancel(reminder10Id);
+      await _notificationsPlugin.cancel(reminder30Id);
 
-    print('Cancelled follow-up reminders for medication $medicationId dose $doseIndex');
+      print('Cancelled follow-up reminders for medication $medicationId dose $doseIndex at $scheduledDate');
+    } else {
+      // Fallback: cancel reminders for the next 7 days
+      // This is used when we don't have the exact scheduled time (e.g., during bulk cancellation)
+      final now = tz.TZDateTime.now(tz.local);
+      for (int day = 0; day < 7; day++) {
+        final targetDate = now.add(Duration(days: day));
+
+        // Try cancelling for this date at common hour intervals
+        for (int hour = 0; hour < 24; hour++) {
+          for (int minute in [0, 15, 30, 45]) {
+            final testDate = tz.TZDateTime(
+              tz.local,
+              targetDate.year,
+              targetDate.month,
+              targetDate.day,
+              hour,
+              minute,
+            );
+
+            final reminder10Id = _generateFollowUpReminderId(medicationId, doseIndex, 10, testDate);
+            final reminder30Id = _generateFollowUpReminderId(medicationId, doseIndex, 30, testDate);
+
+            await _notificationsPlugin.cancel(reminder10Id);
+            await _notificationsPlugin.cancel(reminder30Id);
+          }
+        }
+      }
+
+      print('Cancelled follow-up reminders for medication $medicationId dose $doseIndex (bulk cancellation)');
+    }
   }
 
   /// Generate a unique notification ID for postponed doses

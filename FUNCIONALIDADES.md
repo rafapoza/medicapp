@@ -1,0 +1,97 @@
+# Funcionalidades
+
+- **Añadir medicamentos**: Con un flujo guiado en 4 pasos:
+  - **Paso 1**: Información básica (nombre, tipo de medicamento)
+  - **Paso 2**: Duración del tratamiento (todos los días, hasta acabar, fechas específicas, días de la semana)
+  - **Paso 3**: Fechas de inicio y fin del tratamiento (opcional)
+  - **Paso 4**: Programación de horarios y dosis
+- **Tipos de medicamento**: Elige entre diferentes tipos de medicamento, cada uno con su unidad de medida específica:
+  - Pastilla, Inyección, Óvulo, Aplicación, Gota, Gramo, Mililitro
+- **Programación de horarios y dosis**: Sistema de horarios flexible y potente:
+  - **Añade múltiples horarios** para un mismo medicamento
+  - **Dosis personalizadas**: Especifica una cantidad diferente para cada horario (ej: 1 pastilla por la mañana, 2 por la noche)
+  - **Recordatorios automáticos** en cada horario configurado
+  - **Intervalo de dosis fijo**: Define un intervalo de horas y la aplicación calculará los horarios automáticamente
+  - **Frecuencia de 24 horas**: El sistema valida que el intervalo sea divisor de 24 horas para mayor precisión
+- **Duración del tratamiento**: Define cuánto tiempo tomarás cada medicamento:
+  - **Todos los días**: Para tratamientos continuos sin fecha de finalización
+  - **Hasta acabar la medicación**: Para tratamientos que terminarán cuando se acabe el medicamento
+  - **Fechas específicas**: Selecciona días concretos del calendario en los que tomar el medicamento
+  - **Días de la semana**: Define un patrón semanal (ej: lunes, miércoles y viernes)
+- **Control de fechas del tratamiento**: Sistema flexible para definir inicio y fin
+  - **Fecha de inicio**: Define cuándo comenzar el tratamiento (el medicamento aparece como "pendiente" hasta esa fecha)
+  - **Fecha de fin**: Define cuándo termina el tratamiento (el medicamento se marca como "finalizado" después de esa fecha)
+  - **Progreso del tratamiento**: Visualización del día actual y días restantes
+  - **Totalmente opcional**: Si no defines fechas, el tratamiento continúa indefinidamente según el tipo de duración elegido
+- **Registro de tomas**: Sistema completo e inteligente para registrar cuando tomas tus medicamentos
+  - Botón "Registrar toma" accesible desde cada medicamento
+  - Selección del horario específico que acabas de tomar
+  - Sistema inteligente de tomas restantes:
+    - Rastrea qué tomas ya se han tomado hoy
+    - Solo muestra las tomas pendientes del día actual
+    - Registro automático si solo queda una toma pendiente
+    - Mensaje de confirmación al completar todas las tomas del día
+  - Descuento automático de stock según la cantidad específica de cada toma
+  - Validación de stock disponible para la dosis específica antes de permitir el registro
+  - Validación de tomas disponibles (no permite registrar más tomas de las programadas)
+  - Confirmación visual con stock restante y tomas pendientes
+  - Reprogramación automática de notificaciones tras cada registro
+- **Gestión de stock (Pastillero)**: Control completo del inventario de medicamentos
+  - Registra la cantidad disponible de cada medicamento con unidades específicas (pastillas, ml, gramos, óvulos, aplicaciones, gotas)
+  - Pantalla dedicada "Pastillero" con vista general del inventario
+  - Indicadores visuales de estado: disponible (verde), stock bajo (naranja), sin stock (rojo)
+  - Cálculo automático de duración estimada considerando dosis variables por toma
+  - Umbral de stock bajo configurable por medicamento: decide con cuántos días de anticipación quieres ser avisado (1-30 días, por defecto 3)
+  - Tarjetas resumen con totales, medicamentos con stock bajo y sin stock
+- **Recarga de medicamentos**: Sistema inteligente para reponer el stock
+  - Botón "Recargar medicamento" accesible desde cada medicamento
+  - Diálogo intuitivo que muestra el stock actual
+  - Sugerencia automática basada en la última recarga
+  - El sistema recuerda la cantidad de la última recarga y la muestra como sugerencia en futuras recargas
+  - Unidades específicas según el tipo de medicamento (pastillas, ml, gramos, etc.)
+  - Actualización automática del stock y confirmación visual
+- **Próxima toma**: Visualiza la hora de la siguiente toma de cada medicamento en la lista principal
+- **Notificaciones push**: Recibe recordatorios automáticos en cada hora de toma programada
+  - Notificaciones locales programadas para cada horario del medicamento
+  - Se repiten diariamente a la misma hora
+  - Incluyen el nombre y tipo del medicamento
+  - Se reprograman automáticamente al editar medicamentos
+  - Se cancelan automáticamente al eliminar medicamentos
+  - **Acciones desde notificaciones**: Al tocar una notificación, accedes a una pantalla con tres opciones:
+    - **Registrar toma**: Marca la toma como tomada y descuenta del stock
+    - **Marcar como no tomada**: Registra que no tomaste la dosis sin descontar stock
+    - **Posponer toma**: Programa una notificación única para más tarde sin alterar el horario habitual
+- **Historial completo de dosis**: Sistema avanzado de seguimiento de adherencia
+  - Registro automático de cada toma con hora programada y hora real
+  - Historial persistente de todas las dosis tomadas y omitidas
+  - Estadísticas de adherencia al tratamiento:
+    - Total de dosis programadas
+    - Dosis tomadas y omitidas
+    - Porcentaje de adherencia calculado automáticamente
+  - Vista cronológica con información detallada:
+    - Diferencia entre hora programada y hora real (delay)
+    - Indicador de puntualidad (tomada a tiempo o tarde)
+    - Cantidad específica tomada con unidades
+    - Estado visual con colores (verde: tomada, rojo: omitida)
+  - Filtros avanzados por rango de fechas y medicamento específico
+  - Acceso desde pantalla principal y pantalla de acciones
+  - Datos almacenados en tabla dedicada `dose_history` con índices optimizados
+- **Edición completa**: Modifica tanto la información básica como la duración del tratamiento y horarios
+- **Eliminación**: Elimina medicamentos de tu lista
+- **Validación inteligente**:
+  - Previene la creación de medicamentos duplicados (case-insensitive)
+  - Valida que se seleccione al menos una fecha o día en patrones específicos
+  - Valida frecuencias de tomas que dividan 24 horas exactamente
+  - Previene horarios duplicados con alertas visuales
+  - Valida que las cantidades de stock sean no negativas
+- **Interfaz responsiva**:
+  - Diseño moderno con Material Design 3
+  - Layout adaptable que muestra 3 tipos de medicamento por fila en todos los dispositivos
+  - Scroll optimizado para pantallas pequeñas
+  - Pull-to-refresh en pantalla de Pastillero
+- **Visualización detallada**: Cada medicamento muestra su tipo, nombre, duración del tratamiento y próxima toma
+- **Indicadores visuales de stock**: Alertas en pantalla principal para medicamentos con problemas de stock
+  - Icono rojo de error cuando el medicamento se ha agotado (stock = 0)
+  - Icono naranja de advertencia cuando el stock es bajo (según el umbral configurado para cada medicamento)
+  - Sin indicador cuando el stock es suficiente
+  - Toca el indicador para ver detalles: cantidad exacta y duración estimada en días

@@ -1,10 +1,13 @@
 # Funcionalidades
 
-- **Añadir medicamentos**: Con un flujo guiado en 4 pasos:
+- **Añadir medicamentos**: Con un flujo guiado modular en 7 pasos:
   - **Paso 1**: Información básica (nombre, tipo de medicamento)
-  - **Paso 2**: Duración del tratamiento (todos los días, hasta acabar, fechas específicas, días de la semana)
-  - **Paso 3**: Fechas de inicio y fin del tratamiento (opcional)
-  - **Paso 4**: Programación de horarios y dosis
+  - **Paso 2**: Tipo de duración del tratamiento (tratamiento continuo, hasta acabar medicación, fechas específicas)
+  - **Paso 3**: Fechas del tratamiento (inicio y fin)
+  - **Paso 4**: Frecuencia de medicación (todos los días, días específicos de la semana, cada N días, fechas específicas)
+  - **Paso 5**: Configuración de dosis (intervalo fijo o dosis personalizadas por día)
+  - **Paso 6**: Horario de tomas (definición de horarios y cantidades específicas)
+  - **Paso 7**: Cantidad de medicamento (stock inicial y umbral de alerta)
 - **Tipos de medicamento**: Elige entre diferentes tipos de medicamento, cada uno con su unidad de medida específica:
   - Pastilla, Inyección, Óvulo, Aplicación, Gota, Gramo, Mililitro
 - **Programación de horarios y dosis**: Sistema de horarios flexible y potente:
@@ -18,6 +21,7 @@
   - **Hasta acabar la medicación**: Para tratamientos que terminarán cuando se acabe el medicamento
   - **Fechas específicas**: Selecciona días concretos del calendario en los que tomar el medicamento
   - **Días de la semana**: Define un patrón semanal (ej: lunes, miércoles y viernes)
+  - **Cada N días**: Para tratamientos con intervalo de días (ej: cada 2 días, cada 3 días)
 - **Control de fechas del tratamiento**: Sistema flexible para definir inicio y fin
   - **Fecha de inicio**: Define cuándo comenzar el tratamiento (el medicamento aparece como "pendiente" hasta esa fecha)
   - **Fecha de fin**: Define cuándo termina el tratamiento (el medicamento se marca como "finalizado" después de esa fecha)
@@ -76,7 +80,14 @@
   - Filtros avanzados por rango de fechas y medicamento específico
   - Acceso desde pantalla principal y pantalla de acciones
   - Datos almacenados en tabla dedicada `dose_history` con índices optimizados
-- **Edición completa**: Modifica tanto la información básica como la duración del tratamiento y horarios
+- **Edición modular**: Sistema flexible de edición por secciones
+  - **Menú de edición**: Selecciona qué aspecto del medicamento deseas modificar
+  - **Información básica**: Edita nombre y tipo de medicamento
+  - **Duración del tratamiento**: Modifica tipo de duración y fechas
+  - **Frecuencia**: Cambia el patrón de frecuencia (diario, semanal, específico)
+  - **Horarios y cantidades**: Ajusta los horarios de toma y las dosis específicas
+  - **Cantidad disponible**: Actualiza el stock y el umbral de alerta
+  - Cada sección se edita de forma independiente y se guarda inmediatamente
 - **Eliminación**: Elimina medicamentos de tu lista
 - **Validación inteligente**:
   - Previene la creación de medicamentos duplicados (case-insensitive)

@@ -1,0 +1,541 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../models/medication.dart';
+import '../../models/treatment_duration_type.dart';
+import '../../database/database_helper.dart';
+import '../../services/notification_service.dart';
+import '../specific_dates_selector_screen.dart';
+import '../weekly_days_selector_screen.dart';
+
+/// Pantalla para editar la frecuencia del medicamento
+class EditFrequencyScreen extends StatefulWidget {
+  final Medication medication;
+
+  const EditFrequencyScreen({
+    super.key,
+    required this.medication,
+  });
+
+  @override
+  State<EditFrequencyScreen> createState() => _EditFrequencyScreenState();
+}
+
+enum FrequencyMode {
+  everyday,
+  untilFinished,
+  specificDates,
+  weeklyPattern,
+  alternateDays,
+  customInterval,
+}
+
+class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
+  late FrequencyMode _selectedMode;
+  late List<String>? _selectedDates;
+  late List<int>? _weeklyDays;
+  late int? _dayInterval;
+  final _intervalController = TextEditingController(text: '3');
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDates = widget.medication.selectedDates;
+    _weeklyDays = widget.medication.weeklyDays;
+    _dayInterval = widget.medication.dayInterval;
+
+    // Determine current mode from medication
+    _selectedMode = _getModeFromMedication();
+
+    if (_dayInterval != null && _dayInterval != 2) {
+      _intervalController.text = _dayInterval.toString();
+    }
+  }
+
+  @override
+  void dispose() {
+    _intervalController.dispose();
+    super.dispose();
+  }
+
+  FrequencyMode _getModeFromMedication() {
+    switch (widget.medication.durationType) {
+      case TreatmentDurationType.everyday:
+        return FrequencyMode.everyday;
+      case TreatmentDurationType.untilFinished:
+        return FrequencyMode.untilFinished;
+      case TreatmentDurationType.specificDates:
+        return FrequencyMode.specificDates;
+      case TreatmentDurationType.weeklyPattern:
+        return FrequencyMode.weeklyPattern;
+      case TreatmentDurationType.intervalDays:
+        if (_dayInterval == 2) {
+          return FrequencyMode.alternateDays;
+        } else {
+          return FrequencyMode.customInterval;
+        }
+    }
+  }
+
+  Future<void> _saveChanges() async {
+    TreatmentDurationType durationType;
+    List<String>? specificDates;
+    List<int>? weeklyDays;
+    int? dayInterval;
+
+    // Convert mode to duration type and related fields
+    switch (_selectedMode) {
+      case FrequencyMode.everyday:
+        durationType = TreatmentDurationType.everyday;
+        specificDates = null;
+        weeklyDays = null;
+        dayInterval = null;
+        break;
+
+      case FrequencyMode.untilFinished:
+        durationType = TreatmentDurationType.untilFinished;
+        specificDates = null;
+        weeklyDays = null;
+        dayInterval = null;
+        break;
+
+      case FrequencyMode.specificDates:
+        durationType = TreatmentDurationType.specificDates;
+        if (_selectedDates == null || _selectedDates!.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Por favor, selecciona al menos una fecha'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+        specificDates = _selectedDates;
+        weeklyDays = null;
+        dayInterval = null;
+        break;
+
+      case FrequencyMode.weeklyPattern:
+        durationType = TreatmentDurationType.weeklyPattern;
+        if (_weeklyDays == null || _weeklyDays!.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Por favor, selecciona al menos un día de la semana'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+        specificDates = null;
+        weeklyDays = _weeklyDays;
+        dayInterval = null;
+        break;
+
+      case FrequencyMode.alternateDays:
+        durationType = TreatmentDurationType.intervalDays;
+        specificDates = null;
+        weeklyDays = null;
+        dayInterval = 2;
+        break;
+
+      case FrequencyMode.customInterval:
+        durationType = TreatmentDurationType.intervalDays;
+        final interval = int.tryParse(_intervalController.text);
+        if (interval == null || interval < 2) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('El intervalo debe ser al menos 2 días'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+        specificDates = null;
+        weeklyDays = null;
+        dayInterval = interval;
+        break;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final updatedMedication = Medication(
+        id: widget.medication.id,
+        name: widget.medication.name,
+        type: widget.medication.type,
+        dosageIntervalHours: widget.medication.dosageIntervalHours,
+        durationType: durationType,
+        selectedDates: specificDates,
+        weeklyDays: weeklyDays,
+        dayInterval: dayInterval,
+        doseSchedule: widget.medication.doseSchedule,
+        stockQuantity: widget.medication.stockQuantity,
+        takenDosesToday: widget.medication.takenDosesToday,
+        skippedDosesToday: widget.medication.skippedDosesToday,
+        takenDosesDate: widget.medication.takenDosesDate,
+        lastRefillAmount: widget.medication.lastRefillAmount,
+        lowStockThresholdDays: widget.medication.lowStockThresholdDays,
+        startDate: widget.medication.startDate,
+        endDate: widget.medication.endDate,
+      );
+
+      await DatabaseHelper.instance.updateMedication(updatedMedication);
+
+      // Reschedule notifications
+      await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Frecuencia actualizada correctamente'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      Navigator.pop(context, updatedMedication);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al guardar cambios: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Editar Frecuencia'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Patrón de frecuencia',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '¿Con qué frecuencia tomarás este medicamento?',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                            ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Frequency options
+                      _buildFrequencyOption(
+                        FrequencyMode.everyday,
+                        Icons.calendar_today,
+                        'Todos los días',
+                        'Tomar el medicamento diariamente',
+                        Colors.blue,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildFrequencyOption(
+                        FrequencyMode.untilFinished,
+                        Icons.hourglass_bottom,
+                        'Hasta acabar',
+                        'Hasta que se termine el medicamento',
+                        Colors.green,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildFrequencyOption(
+                        FrequencyMode.specificDates,
+                        Icons.event,
+                        'Fechas específicas',
+                        'Seleccionar fechas concretas',
+                        Colors.purple,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildFrequencyOption(
+                        FrequencyMode.weeklyPattern,
+                        Icons.view_week,
+                        'Días de la semana',
+                        'Seleccionar días específicos cada semana',
+                        Colors.indigo,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildFrequencyOption(
+                        FrequencyMode.alternateDays,
+                        Icons.repeat,
+                        'Días alternos',
+                        'Cada 2 días desde el inicio del tratamiento',
+                        Colors.orange,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildFrequencyOption(
+                        FrequencyMode.customInterval,
+                        Icons.timeline,
+                        'Intervalo personalizado',
+                        'Cada N días desde el inicio',
+                        Colors.teal,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Show additional controls based on selected mode
+              if (_selectedMode == FrequencyMode.specificDates) ...[
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Fechas seleccionadas',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _selectedDates != null && _selectedDates!.isNotEmpty
+                              ? '${_selectedDates!.length} fechas seleccionadas'
+                              : 'Ninguna fecha seleccionada',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            final result = await Navigator.push<List<String>>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SpecificDatesSelectorScreen(
+                                  initialSelectedDates: _selectedDates ?? [],
+                                ),
+                              ),
+                            );
+                            if (result != null) {
+                              setState(() {
+                                _selectedDates = result;
+                              });
+                            }
+                          },
+                          icon: const Icon(Icons.event),
+                          label: const Text('Seleccionar fechas'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+
+              if (_selectedMode == FrequencyMode.weeklyPattern) ...[
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Días de la semana',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _weeklyDays != null && _weeklyDays!.isNotEmpty
+                              ? '${_weeklyDays!.length} días seleccionados'
+                              : 'Ningún día seleccionado',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            final result = await Navigator.push<List<int>>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => WeeklyDaysSelectorScreen(
+                                  initialSelectedDays: _weeklyDays ?? [],
+                                ),
+                              ),
+                            );
+                            if (result != null) {
+                              setState(() {
+                                _weeklyDays = result;
+                              });
+                            }
+                          },
+                          icon: const Icon(Icons.view_week),
+                          label: const Text('Seleccionar días'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+
+              if (_selectedMode == FrequencyMode.customInterval) ...[
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Intervalo de días',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _intervalController,
+                          decoration: InputDecoration(
+                            labelText: 'Cada cuántos días',
+                            hintText: 'Ej: 3',
+                            prefixIcon: const Icon(Icons.timeline),
+                            suffixText: 'días',
+                            helperText: 'Debe ser al menos 2 días',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: _isSaving ? null : _saveChanges,
+                icon: _isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Icon(Icons.check),
+                label: Text(_isSaving ? 'Guardando...' : 'Guardar Cambios'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: _isSaving ? null : () => Navigator.pop(context),
+                icon: const Icon(Icons.cancel),
+                label: const Text('Cancelar'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFrequencyOption(
+    FrequencyMode mode,
+    IconData icon,
+    String title,
+    String subtitle,
+    Color color,
+  ) {
+    final isSelected = _selectedMode == mode;
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedMode = mode;
+        });
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withOpacity(0.1) : Colors.transparent,
+          border: Border.all(
+            color: isSelected ? color : Theme.of(context).dividerColor,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? color : Theme.of(context).colorScheme.onSurface,
+              size: 28,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: isSelected ? color : Theme.of(context).colorScheme.onSurface,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: isSelected
+                              ? color.withOpacity(0.8)
+                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              Icon(
+                Icons.check_circle,
+                color: color,
+                size: 28,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

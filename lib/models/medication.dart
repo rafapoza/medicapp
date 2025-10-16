@@ -18,6 +18,7 @@ class Medication {
   final int lowStockThresholdDays; // Days before running out to show low stock warning
   final List<String>? selectedDates; // Specific dates for specificDates type in "yyyy-MM-dd" format
   final List<int>? weeklyDays; // Days of week (1=Mon, 7=Sun) for weeklyPattern type
+  final int? dayInterval; // Interval in days for intervalDays type (e.g., 2 for every 2 days)
   final DateTime? startDate; // When the treatment starts
   final DateTime? endDate; // When the treatment ends
 
@@ -36,6 +37,7 @@ class Medication {
     this.lowStockThresholdDays = 3, // Default to 3 days
     this.selectedDates, // Specific dates for specificDates type
     this.weeklyDays, // Days of week for weeklyPattern type
+    this.dayInterval, // Interval in days for intervalDays type
     this.startDate, // Treatment start date
     this.endDate, // Treatment end date
   }) : doseSchedule = doseSchedule ?? {};
@@ -60,6 +62,7 @@ class Medication {
       'lowStockThresholdDays': lowStockThresholdDays,
       'selectedDates': selectedDates?.join(','), // Store as comma-separated string
       'weeklyDays': weeklyDays?.join(','), // Store as comma-separated string
+      'dayInterval': dayInterval, // Interval in days for intervalDays type
       'startDate': startDate?.toIso8601String(), // Phase 2: Store as ISO8601 string
       'endDate': endDate?.toIso8601String(), // Phase 2: Store as ISO8601 string
     };
@@ -116,6 +119,9 @@ class Medication {
         ? weeklyDaysString.split(',').where((s) => s.isNotEmpty).map((s) => int.parse(s)).toList()
         : null;
 
+    // Parse day interval (for intervalDays type)
+    final dayInterval = json['dayInterval'] as int?;
+
     // Parse start and end dates (Phase 2)
     final startDateString = json['startDate'] as String?;
     final startDate = startDateString != null && startDateString.isNotEmpty
@@ -148,6 +154,7 @@ class Medication {
       lowStockThresholdDays: json['lowStockThresholdDays'] as int? ?? 3, // Default to 3 days for backward compatibility
       selectedDates: selectedDates,
       weeklyDays: weeklyDays,
+      dayInterval: dayInterval,
       startDate: startDate, // Phase 2
       endDate: endDate, // Phase 2
     );
@@ -165,6 +172,9 @@ class Medication {
       case TreatmentDurationType.weeklyPattern:
         final count = weeklyDays?.length ?? 0;
         return '$count día${count != 1 ? 's' : ''} por semana';
+      case TreatmentDurationType.intervalDays:
+        final interval = dayInterval ?? 2;
+        return 'Cada $interval días';
     }
   }
 
@@ -187,6 +197,15 @@ class Medication {
         // Monday = 1, Sunday = 7
         final weekday = today.weekday;
         return weeklyDays?.contains(weekday) ?? false;
+      case TreatmentDurationType.intervalDays:
+        // Calculate days since start date
+        final interval = dayInterval ?? 2;
+        final start = startDate ?? DateTime(today.year, today.month, today.day);
+        final startDay = DateTime(start.year, start.month, start.day);
+        final todayDay = DateTime(today.year, today.month, today.day);
+        final daysSinceStart = todayDay.difference(startDay).inDays;
+        // Take medication if days since start is divisible by interval
+        return daysSinceStart % interval == 0;
     }
   }
 

@@ -6,7 +6,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
 
 - **Patrón Singleton**: Una única instancia de `DatabaseHelper` gestiona todas las operaciones
 - **CRUD completo**: Create, Read, Update, Delete
-- **Tabla medications** (versión 11):
+- **Tabla medications** (versión 12):
   - `id` (TEXT PRIMARY KEY)
   - `name` (TEXT NOT NULL)
   - `type` (TEXT NOT NULL)
@@ -15,6 +15,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `customDays` (INTEGER NULLABLE) - OBSOLETO: Mantenido solo para compatibilidad con versiones anteriores
   - `selectedDates` (TEXT NULLABLE) - Fechas específicas para el tratamiento
   - `weeklyDays` (TEXT NULLABLE) - Días de la semana para tratamiento semanal
+  - `dayInterval` (INTEGER NULLABLE) - Intervalo en días para tratamientos como "cada N días"
   - `doseTimes` (TEXT NOT NULL) - Horarios de tomas en formato "HH:mm" separados por comas (generado automáticamente desde doseSchedule para compatibilidad)
   - `doseSchedule` (TEXT NOT NULL) - Horarios y cantidades en formato JSON: {"HH:mm": cantidad, ...}
   - `stockQuantity` (REAL NOT NULL DEFAULT 0) - Cantidad de medicamento disponible
@@ -25,7 +26,7 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `lowStockThresholdDays` (INTEGER NOT NULL DEFAULT 3) - Días de anticipación para aviso de stock bajo configurables por medicamento
   - `startDate` (TEXT NULLABLE) - Fecha de inicio del tratamiento
   - `endDate` (TEXT NULLABLE) - Fecha de fin del tratamiento
-- **Tabla dose_history** (versión 11): Historial completo de todas las dosis
+- **Tabla dose_history** (desde versión 11): Historial completo de todas las dosis
   - `id` (TEXT PRIMARY KEY)
   - `medicationId` (TEXT NOT NULL)
   - `medicationName` (TEXT NOT NULL)
@@ -37,4 +38,6 @@ La aplicación utiliza SQLite para almacenar localmente todos los medicamentos. 
   - `notes` (TEXT NULLABLE) - Notas opcionales
   - Índices en `medicationId` y `scheduledDateTime` para consultas rápidas
 - **Migraciones**: Sistema de versionado para actualizar el esquema sin perder datos
-  - Versión 1 → 2: Añadidos campos de duración de tratamiento y horarios de
+  - Versión 1 → 2: Añadidos campos de duración de tratamiento y horarios
+  - Versión 2 → 11: Múltiples mejoras incluyendo sistema de historial de dosis
+  - Versión 11 → 12: Añadido campo `dayInterval` para soportar tratamientos con intervalo de días (ej: cada 2 días, cada 3 días)

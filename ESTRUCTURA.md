@@ -14,11 +14,28 @@ lib/
 │   ├── medication_stock_screen.dart    # Pantalla de Pastillero con gestión de inventario
 │   ├── dose_action_screen.dart         # Pantalla de acciones desde notificación
 │   ├── dose_history_screen.dart        # Pantalla de historial de dosis
-│   ├── add_medication_screen.dart      # Pantalla para añadir medicamento (paso 1)
-│   ├── edit_medication_screen.dart     # Pantalla para editar medicamento
-│   ├── treatment_duration_screen.dart  # Pantalla de duración del tratamiento (paso 2)
-│   ├── treatment_dates_screen.dart     # Pantalla de fechas de tratamiento
-│   └── medication_schedule_screen.dart # Pantalla de programación de horarios (paso 3)
+│   │
+│   ├── # Flujo modular de añadir medicamento (7 pasos)
+│   ├── medication_info_screen.dart     # Paso 1: Información básica (nombre, tipo)
+│   ├── medication_duration_screen.dart # Paso 2: Tipo de duración del tratamiento
+│   ├── medication_dates_screen.dart    # Paso 3: Fechas del tratamiento
+│   ├── medication_frequency_screen.dart# Paso 4: Frecuencia de medicación
+│   ├── medication_dosage_screen.dart   # Paso 5: Configuración de dosis
+│   ├── medication_times_screen.dart    # Paso 6: Horario de tomas
+│   ├── medication_quantity_screen.dart # Paso 7: Cantidad de medicamento
+│   │
+│   ├── # Flujo modular de edición
+│   ├── edit_medication_menu_screen.dart# Menú de selección de sección a editar
+│   └── edit_sections/                  # Pantallas de edición por sección
+│       ├── edit_basic_info_screen.dart # Editar información básica
+│       ├── edit_duration_screen.dart   # Editar duración del tratamiento
+│       ├── edit_frequency_screen.dart  # Editar frecuencia
+│       ├── edit_schedule_screen.dart   # Editar horarios y cantidades
+│       └── edit_quantity_screen.dart   # Editar cantidad disponible
+│   │
+│   ├── # Selectores especializados
+│   ├── specific_dates_selector_screen.dart # Selector de fechas específicas
+│   └── weekly_days_selector_screen.dart    # Selector de días de la semana
 ├── services/
 │   └── notification_service.dart       # Servicio de notificaciones locales (singleton)
 ├── main.dart                            # Punto de entrada con inicialización de notificaciones

@@ -5,6 +5,7 @@ import '../models/treatment_duration_type.dart';
 import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
+import '../utils/medication_sorter.dart';
 import 'medication_info_screen.dart';
 import 'edit_medication_menu_screen.dart';
 import 'medication_stock_screen.dart';
@@ -214,6 +215,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       print('- ${med.name}: ${med.doseTimes.length} dose times');
     }
 
+    // Sort medications by next dose proximity
+    MedicationSorter.sortByNextDose(medications);
+
     if (!mounted) return; // Check if widget is still mounted
 
     // Update UI immediately
@@ -263,6 +267,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       final reloadedMeds = await DatabaseHelper.instance.getAllMedications();
       print('Reloaded ${reloadedMeds.length} medications from DB after insert');
 
+      // Sort by next dose proximity
+      MedicationSorter.sortByNextDose(reloadedMeds);
+
       // Update UI immediately
       if (mounted) {
         setState(() {
@@ -300,6 +307,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       // Reload medications from database to ensure we have fresh data
       final reloadedMeds = await DatabaseHelper.instance.getAllMedications();
       print('Reloaded ${reloadedMeds.length} medications from DB');
+
+      // Sort by next dose proximity
+      MedicationSorter.sortByNextDose(reloadedMeds);
 
       // Update UI immediately
       if (mounted) {
@@ -488,11 +498,6 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         return 'Próxima toma: $dayName ${date.day}/${date.month} a las $time';
       }
     }
-  }
-
-  String? _getNextDoseTime(Medication medication) {
-    final info = _getNextDoseInfo(medication);
-    return info?['time'] as String?;
   }
 
   void _registerDose(Medication medication) async {

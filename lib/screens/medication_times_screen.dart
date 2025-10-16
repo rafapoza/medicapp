@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
-import 'medication_quantity_screen.dart';
+import 'medication_fasting_screen.dart';
 
 /// Helper class to hold time and quantity for each dose
 class _DoseEntry {
@@ -188,11 +188,11 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
       }
     }
 
-    // Continuar a la pantalla de cantidad
+    // Continuar a la pantalla de ayuno
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MedicationQuantityScreen(
+        builder: (context) => MedicationFastingScreen(
           medicationName: widget.medicationName,
           medicationType: widget.medicationType,
           durationType: widget.durationType,
@@ -214,8 +214,8 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '5 de 6' : '6 de 7';
-    final progressValue = widget.durationType == TreatmentDurationType.specificDates ? 5 / 6 : 6 / 7;
+    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '5 de 7' : '6 de 8';
+    final progressValue = widget.durationType == TreatmentDurationType.specificDates ? 5 / 7 : 6 / 8;
 
     return Scaffold(
       appBar: AppBar(

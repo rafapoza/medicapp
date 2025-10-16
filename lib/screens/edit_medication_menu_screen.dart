@@ -6,6 +6,7 @@ import 'edit_sections/edit_duration_screen.dart';
 import 'edit_sections/edit_frequency_screen.dart';
 import 'edit_sections/edit_schedule_screen.dart';
 import 'edit_sections/edit_quantity_screen.dart';
+import 'edit_sections/edit_fasting_screen.dart';
 
 /// Pantalla de menú para editar diferentes aspectos de un medicamento
 class EditMedicationMenuScreen extends StatelessWidget {
@@ -179,6 +180,28 @@ class EditMedicationMenuScreen extends StatelessWidget {
 
               _buildEditOption(
                 context,
+                icon: Icons.restaurant_outlined,
+                title: 'Configuración de Ayuno',
+                subtitle: _getFastingDescription(),
+                color: Colors.red,
+                onTap: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditFastingScreen(
+                        medication: medication,
+                      ),
+                    ),
+                  );
+                  if (result != null && context.mounted) {
+                    Navigator.pop(context, result);
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+
+              _buildEditOption(
+                context,
                 icon: Icons.inventory_2,
                 title: 'Cantidad Disponible',
                 subtitle: '${medication.stockQuantity} ${medication.type.stockUnit}',
@@ -279,5 +302,27 @@ class EditMedicationMenuScreen extends StatelessWidget {
       return 'Cada $interval días';
     }
     return 'Frecuencia no definida';
+  }
+
+  String _getFastingDescription() {
+    if (!medication.requiresFasting) {
+      return 'Sin ayuno';
+    }
+
+    final duration = medication.fastingDurationMinutes ?? 0;
+    final hours = duration ~/ 60;
+    final minutes = duration % 60;
+
+    String durationText;
+    if (hours > 0 && minutes > 0) {
+      durationText = '$hours h $minutes min';
+    } else if (hours > 0) {
+      durationText = '$hours h';
+    } else {
+      durationText = '$minutes min';
+    }
+
+    final typeText = medication.fastingType == 'before' ? 'antes' : 'después';
+    return 'Ayuno $durationText $typeText';
   }
 }

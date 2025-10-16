@@ -5,7 +5,7 @@ import '../models/treatment_duration_type.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
 
-/// Pantalla 6: Cantidad de medicamentos (última pantalla del flujo)
+/// Pantalla 7: Cantidad de medicamentos (última pantalla del flujo)
 class MedicationQuantityScreen extends StatefulWidget {
   final String medicationName;
   final MedicationType medicationType;
@@ -17,6 +17,10 @@ class MedicationQuantityScreen extends StatefulWidget {
   final int? dayInterval;
   final int dosageIntervalHours;
   final Map<String, double> doseSchedule;
+  final bool requiresFasting;
+  final String? fastingType;
+  final int? fastingDurationMinutes;
+  final bool notifyFasting;
 
   const MedicationQuantityScreen({
     super.key,
@@ -30,6 +34,10 @@ class MedicationQuantityScreen extends StatefulWidget {
     this.dayInterval,
     required this.dosageIntervalHours,
     required this.doseSchedule,
+    this.requiresFasting = false,
+    this.fastingType,
+    this.fastingDurationMinutes,
+    this.notifyFasting = false,
   });
 
   @override
@@ -74,6 +82,10 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
         lowStockThresholdDays: int.tryParse(_lowStockThresholdController.text) ?? 3,
         startDate: widget.startDate,
         endDate: widget.endDate,
+        requiresFasting: widget.requiresFasting,
+        fastingType: widget.fastingType,
+        fastingDurationMinutes: widget.fastingDurationMinutes,
+        notifyFasting: widget.notifyFasting,
       );
 
       // Save to database
@@ -116,7 +128,7 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '6 de 6' : '7 de 7';
+    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '7 de 7' : '8 de 8';
 
     return Scaffold(
       appBar: AppBar(

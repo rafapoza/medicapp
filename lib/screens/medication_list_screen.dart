@@ -688,6 +688,17 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         try {
           await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
           print('Notifications rescheduled after registering dose for ${updatedMedication.name}');
+
+          // Schedule dynamic fasting notification if medication requires fasting after dose
+          if (updatedMedication.requiresFasting &&
+              updatedMedication.fastingType == 'after' &&
+              updatedMedication.notifyFasting) {
+            await NotificationService.instance.scheduleDynamicFastingNotification(
+              medication: updatedMedication,
+              actualDoseTime: DateTime.now(),
+            );
+            print('Dynamic fasting notification scheduled for ${updatedMedication.name}');
+          }
         } catch (e) {
           print('Error rescheduling notifications: $e');
         }

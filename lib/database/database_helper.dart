@@ -42,7 +42,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 12,
+      version: 13,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -81,7 +81,11 @@ class DatabaseHelper {
         lastRefillAmount REAL,
         lowStockThresholdDays $integerType DEFAULT 3,
         startDate $textNullableType,
-        endDate $textNullableType
+        endDate $textNullableType,
+        requiresFasting $integerType DEFAULT 0,
+        fastingType $textNullableType,
+        fastingDurationMinutes $integerNullableType,
+        notifyFasting $integerType DEFAULT 0
       )
     ''');
 
@@ -221,6 +225,22 @@ class DatabaseHelper {
       // Add dayInterval column for version 12 (interval-based medication schedules)
       await db.execute('''
         ALTER TABLE medications ADD COLUMN dayInterval INTEGER
+      ''');
+    }
+
+    if (oldVersion < 13) {
+      // Add fasting columns for version 13 (fasting period configuration)
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN requiresFasting INTEGER NOT NULL DEFAULT 0
+      ''');
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN fastingType TEXT
+      ''');
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN fastingDurationMinutes INTEGER
+      ''');
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN notifyFasting INTEGER NOT NULL DEFAULT 0
       ''');
     }
   }

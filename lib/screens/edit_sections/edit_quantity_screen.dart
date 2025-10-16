@@ -149,20 +149,50 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Stock quantity
+                        // Stock quantity label
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4, bottom: 8),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.inventory_2, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Cantidad disponible',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '(${widget.medication.type.stockUnit})',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Stock quantity field
                         TextFormField(
                           controller: _stockController,
                           decoration: InputDecoration(
-                            labelText: 'Cantidad disponible',
                             hintText: 'Ej: 30',
-                            prefixIcon: const Icon(Icons.inventory_2),
-                            suffixText: widget.medication.type.stockUnit,
                             helperText: 'Cantidad de ${widget.medication.type.stockUnit} que tienes actualmente',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             filled: true,
                           ),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {

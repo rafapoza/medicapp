@@ -5,7 +5,7 @@ import '../models/treatment_duration_type.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
 
-/// Pantalla 6: Cantidad de medicamentos (última pantalla del flujo)
+/// Pantalla 7: Cantidad de medicamentos (última pantalla del flujo)
 class MedicationQuantityScreen extends StatefulWidget {
   final String medicationName;
   final MedicationType medicationType;
@@ -17,6 +17,10 @@ class MedicationQuantityScreen extends StatefulWidget {
   final int? dayInterval;
   final int dosageIntervalHours;
   final Map<String, double> doseSchedule;
+  final bool requiresFasting;
+  final String? fastingType;
+  final int? fastingDurationMinutes;
+  final bool notifyFasting;
 
   const MedicationQuantityScreen({
     super.key,
@@ -30,6 +34,10 @@ class MedicationQuantityScreen extends StatefulWidget {
     this.dayInterval,
     required this.dosageIntervalHours,
     required this.doseSchedule,
+    this.requiresFasting = false,
+    this.fastingType,
+    this.fastingDurationMinutes,
+    this.notifyFasting = false,
   });
 
   @override
@@ -74,6 +82,10 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
         lowStockThresholdDays: int.tryParse(_lowStockThresholdController.text) ?? 3,
         startDate: widget.startDate,
         endDate: widget.endDate,
+        requiresFasting: widget.requiresFasting,
+        fastingType: widget.fastingType,
+        fastingDurationMinutes: widget.fastingDurationMinutes,
+        notifyFasting: widget.notifyFasting,
       );
 
       // Save to database
@@ -116,7 +128,7 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '6 de 6' : '7 de 7';
+    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '7 de 7' : '8 de 8';
 
     return Scaffold(
       appBar: AppBar(
@@ -186,20 +198,50 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Stock quantity
+                        // Stock quantity label
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4, bottom: 8),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.inventory_2, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Cantidad disponible',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '(${widget.medicationType.stockUnit})',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Stock quantity field
                         TextFormField(
                           controller: _stockController,
                           decoration: InputDecoration(
-                            labelText: 'Cantidad disponible',
                             hintText: 'Ej: 30',
-                            prefixIcon: const Icon(Icons.inventory_2),
-                            suffixText: widget.medicationType.stockUnit,
                             helperText: 'Cantidad de ${widget.medicationType.stockUnit} que tienes actualmente',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             filled: true,
                           ),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {

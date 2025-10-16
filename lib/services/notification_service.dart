@@ -10,6 +10,21 @@ import '../screens/dose_action_screen.dart';
 import '../database/database_helper.dart';
 import '../main.dart' show navigatorKey;
 
+/// Helper class to represent a fasting period
+class _FastingPeriod {
+  final tz.TZDateTime start;
+  final tz.TZDateTime end;
+  final String doseTime;
+  final bool isBefore;
+
+  _FastingPeriod({
+    required this.start,
+    required this.end,
+    required this.doseTime,
+    required this.isBefore,
+  });
+}
+
 class NotificationService {
   // Singleton pattern
   static final NotificationService instance = NotificationService._init();
@@ -363,6 +378,11 @@ class NotificationService {
         break;
     }
 
+    // Schedule fasting notifications if required
+    if (medication.requiresFasting && medication.notifyFasting) {
+      await _scheduleFastingNotifications(medication);
+    }
+
     // Verify notifications were scheduled
     final pending = await getPendingNotifications();
     print('Total pending notifications after scheduling: ${pending.length}');
@@ -619,6 +639,168 @@ class NotificationService {
         }
       }
     }
+  }
+
+  /// Schedule fasting notifications for a medication
+  Future<void> _scheduleFastingNotifications(Medication medication) async {
+    if (!medication.requiresFasting || !medication.notifyFasting) {
+      return;
+    }
+
+    if (medication.fastingDurationMinutes == null || medication.fastingDurationMinutes! <= 0) {
+      print('Invalid fasting duration for ${medication.name}');
+      return;
+    }
+
+    if (medication.fastingType == null) {
+      print('Fasting type not specified for ${medication.name}');
+      return;
+    }
+
+    print('========================================');
+    print('Scheduling fasting notifications for ${medication.name}');
+    print('Fasting type: ${medication.fastingType}');
+    print('Fasting duration: ${medication.fastingDurationMinutes} minutes');
+    print('========================================');
+
+    final now = tz.TZDateTime.now(tz.local);
+
+    // Calculate fasting periods for each dose
+    final fastingPeriods = <_FastingPeriod>[];
+
+    for (final doseTime in medication.doseTimes) {
+      final parts = doseTime.split(':');
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
+
+      // Create a reference datetime for today
+      var doseDateTime = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+      );
+
+      // If dose time has passed today, use tomorrow
+      if (doseDateTime.isBefore(now)) {
+        doseDateTime = doseDateTime.add(const Duration(days: 1));
+      }
+
+      // Calculate fasting period
+      tz.TZDateTime fastingStart;
+      tz.TZDateTime fastingEnd;
+
+      if (medication.fastingType == 'before') {
+        // Fasting before the dose
+        fastingStart = doseDateTime.subtract(Duration(minutes: medication.fastingDurationMinutes!));
+        fastingEnd = doseDateTime;
+      } else {
+        // Fasting after the dose
+        fastingStart = doseDateTime;
+        fastingEnd = doseDateTime.add(Duration(minutes: medication.fastingDurationMinutes!));
+      }
+
+      fastingPeriods.add(_FastingPeriod(
+        start: fastingStart,
+        end: fastingEnd,
+        doseTime: doseTime,
+        isBefore: medication.fastingType == 'before',
+      ));
+    }
+
+    // Merge overlapping fasting periods to find the most restrictive times
+    final mergedPeriods = _mergeOverlappingFastingPeriods(fastingPeriods);
+
+    // Schedule notifications for each merged period
+    for (int i = 0; i < mergedPeriods.length; i++) {
+      final period = mergedPeriods[i];
+
+      // Skip if the fasting start time has already passed
+      if (period.start.isBefore(now)) {
+        print('⏭️  Skipping past fasting period: ${period.start}');
+        continue;
+      }
+
+      // Determine notification message based on fasting type
+      String title;
+      String body;
+      tz.TZDateTime notificationTime;
+
+      if (period.isBefore) {
+        // Notify when to stop eating
+        title = '🍽️ Comenzar ayuno';
+        body = 'Es hora de dejar de comer para ${medication.name}';
+        notificationTime = period.start;
+      } else {
+        // Notify when eating can resume
+        title = '🍴 Fin del ayuno';
+        body = 'Ya puedes volver a comer después de ${medication.name}';
+        notificationTime = period.end;
+      }
+
+      // Generate unique notification ID for fasting
+      final notificationId = _generateFastingNotificationId(medication.id, period.start, period.isBefore);
+
+      print('Scheduling fasting notification ID $notificationId for ${medication.name} at $notificationTime');
+
+      await _scheduleOneTimeNotification(
+        id: notificationId,
+        title: title,
+        body: body,
+        scheduledDate: notificationTime,
+        payload: '${medication.id}|fasting',
+      );
+    }
+  }
+
+  /// Merge overlapping fasting periods to get the most restrictive times
+  List<_FastingPeriod> _mergeOverlappingFastingPeriods(List<_FastingPeriod> periods) {
+    if (periods.isEmpty) return [];
+
+    // Sort periods by start time
+    final sortedPeriods = List<_FastingPeriod>.from(periods)
+      ..sort((a, b) => a.start.compareTo(b.start));
+
+    final merged = <_FastingPeriod>[];
+    var current = sortedPeriods[0];
+
+    for (int i = 1; i < sortedPeriods.length; i++) {
+      final next = sortedPeriods[i];
+
+      // Check if periods overlap
+      if (current.end.isAfter(next.start) || current.end.isAtSameMomentAs(next.start)) {
+        // Merge: use earliest start and latest end
+        current = _FastingPeriod(
+          start: current.start.isBefore(next.start) ? current.start : next.start,
+          end: current.end.isAfter(next.end) ? current.end : next.end,
+          doseTime: current.doseTime,
+          isBefore: current.isBefore,
+        );
+      } else {
+        // No overlap, add current to merged list
+        merged.add(current);
+        current = next;
+      }
+    }
+
+    // Add the last period
+    merged.add(current);
+
+    print('Merged ${periods.length} fasting periods into ${merged.length} non-overlapping periods');
+
+    return merged;
+  }
+
+  /// Generate a unique notification ID for fasting reminders
+  int _generateFastingNotificationId(String medicationId, tz.TZDateTime fastingTime, bool isBefore) {
+    // Create a combined hash of medication ID, fasting time, and type
+    final timeString = '${fastingTime.year}-${fastingTime.month}-${fastingTime.day}-${fastingTime.hour}-${fastingTime.minute}';
+    final combinedString = '$medicationId-fasting-$timeString-${isBefore ? "before" : "after"}';
+    final hash = combinedString.hashCode.abs();
+    // Use range 5000000+ for fasting notifications
+    return 5000000 + (hash % 1000000);
   }
 
   /// Schedule a single notification at a specific time daily
@@ -1105,5 +1287,87 @@ class NotificationService {
     await _notificationsPlugin.cancel(notificationId);
 
     print('Cancelled postponed notification ID $notificationId for medication $medicationId at $doseTime');
+  }
+
+  /// Schedule a dynamic fasting notification based on actual dose time
+  /// This is called when a dose is registered (for "after" fasting type only)
+  /// The notification will be scheduled for: actual time taken + fasting duration
+  Future<void> scheduleDynamicFastingNotification({
+    required Medication medication,
+    required DateTime actualDoseTime,
+  }) async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    // Only schedule for "after" fasting type
+    if (medication.fastingType != 'after') {
+      return;
+    }
+
+    // Validate fasting configuration
+    if (!medication.requiresFasting || !medication.notifyFasting) {
+      return;
+    }
+
+    if (medication.fastingDurationMinutes == null || medication.fastingDurationMinutes! <= 0) {
+      print('Invalid fasting duration for ${medication.name}');
+      return;
+    }
+
+    print('========================================');
+    print('Scheduling dynamic fasting notification for ${medication.name}');
+    print('Actual dose time: $actualDoseTime');
+    print('Fasting duration: ${medication.fastingDurationMinutes} minutes');
+    print('========================================');
+
+    // Calculate when fasting ends (actual time + fasting duration)
+    final fastingEndTime = actualDoseTime.add(Duration(minutes: medication.fastingDurationMinutes!));
+
+    // Convert to TZDateTime
+    final scheduledDate = tz.TZDateTime(
+      tz.local,
+      fastingEndTime.year,
+      fastingEndTime.month,
+      fastingEndTime.day,
+      fastingEndTime.hour,
+      fastingEndTime.minute,
+    );
+
+    // Skip if the notification time has already passed (shouldn't happen but safety check)
+    final now = tz.TZDateTime.now(tz.local);
+    if (scheduledDate.isBefore(now)) {
+      print('⏭️  Skipping past fasting notification time: $scheduledDate');
+      return;
+    }
+
+    // Generate unique notification ID for dynamic fasting
+    final notificationId = _generateDynamicFastingNotificationId(
+      medication.id,
+      actualDoseTime,
+    );
+
+    print('Scheduling dynamic fasting notification ID $notificationId for ${medication.name} at $scheduledDate');
+
+    // Schedule the "you can eat now" notification
+    await _scheduleOneTimeNotification(
+      id: notificationId,
+      title: '🍴 Fin del ayuno',
+      body: 'Ya puedes volver a comer después de ${medication.name}',
+      scheduledDate: scheduledDate,
+      payload: '${medication.id}|fasting-dynamic',
+    );
+
+    print('Successfully scheduled dynamic fasting notification');
+  }
+
+  /// Generate a unique notification ID for dynamic fasting reminders
+  /// Uses a different range (6000000+) to avoid conflicts with scheduled fasting notifications
+  int _generateDynamicFastingNotificationId(String medicationId, DateTime actualDoseTime) {
+    // Create a combined hash of medication ID and actual dose time
+    final timeString = '${actualDoseTime.year}-${actualDoseTime.month}-${actualDoseTime.day}-${actualDoseTime.hour}-${actualDoseTime.minute}';
+    final combinedString = '$medicationId-dynamic-fasting-$timeString';
+    final hash = combinedString.hashCode.abs();
+    // Use range 6000000+ for dynamic fasting notifications
+    return 6000000 + (hash % 1000000);
   }
 }

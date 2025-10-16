@@ -22,6 +22,12 @@ class Medication {
   final DateTime? startDate; // When the treatment starts
   final DateTime? endDate; // When the treatment ends
 
+  // Fasting configuration
+  final bool requiresFasting; // Whether medication requires fasting
+  final String? fastingType; // 'before' or 'after' - when fasting is required
+  final int? fastingDurationMinutes; // Duration of fasting period in minutes
+  final bool notifyFasting; // Whether to send fasting notifications
+
   Medication({
     required this.id,
     required this.name,
@@ -40,6 +46,10 @@ class Medication {
     this.dayInterval, // Interval in days for intervalDays type
     this.startDate, // Treatment start date
     this.endDate, // Treatment end date
+    this.requiresFasting = false, // Default to no fasting
+    this.fastingType, // 'before' or 'after'
+    this.fastingDurationMinutes, // Duration in minutes
+    this.notifyFasting = false, // Default to no notifications
   }) : doseSchedule = doseSchedule ?? {};
 
   /// Legacy compatibility: get list of dose times (keys from doseSchedule)
@@ -65,6 +75,10 @@ class Medication {
       'dayInterval': dayInterval, // Interval in days for intervalDays type
       'startDate': startDate?.toIso8601String(), // Phase 2: Store as ISO8601 string
       'endDate': endDate?.toIso8601String(), // Phase 2: Store as ISO8601 string
+      'requiresFasting': requiresFasting ? 1 : 0, // Store as integer (SQLite doesn't have boolean)
+      'fastingType': fastingType, // 'before' or 'after'
+      'fastingDurationMinutes': fastingDurationMinutes,
+      'notifyFasting': notifyFasting ? 1 : 0, // Store as integer
     };
   }
 
@@ -133,6 +147,12 @@ class Medication {
         ? DateTime.parse(endDateString)
         : null;
 
+    // Parse fasting fields
+    final requiresFasting = (json['requiresFasting'] as int?) == 1;
+    final fastingType = json['fastingType'] as String?;
+    final fastingDurationMinutes = json['fastingDurationMinutes'] as int?;
+    final notifyFasting = (json['notifyFasting'] as int?) == 1;
+
     return Medication(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -157,6 +177,10 @@ class Medication {
       dayInterval: dayInterval,
       startDate: startDate, // Phase 2
       endDate: endDate, // Phase 2
+      requiresFasting: requiresFasting,
+      fastingType: fastingType,
+      fastingDurationMinutes: fastingDurationMinutes,
+      notifyFasting: notifyFasting,
     );
   }
 

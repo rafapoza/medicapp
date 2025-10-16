@@ -171,7 +171,17 @@ Future<void> addMedicationWithDuration(
   // Wait a moment for auto-fill to complete
   await tester.pump(const Duration(milliseconds: 100));
 
-  // Scroll to and tap continue button to go to quantity screen
+  // Scroll to and tap continue button to go to fasting screen
+  await scrollToWidget(tester, find.text('Continuar'));
+  await tester.tap(find.text('Continuar'));
+  await tester.pumpAndSettle();
+
+  // Now we're on the fasting configuration screen
+  // Just verify we're there
+  expect(find.text('Configuración de Ayuno'), findsOneWidget);
+
+  // For testing, select "No" for fasting (default behavior)
+  // The "No" option should be pre-selected by default, so we just continue
   await scrollToWidget(tester, find.text('Continuar'));
   await tester.tap(find.text('Continuar'));
   await tester.pumpAndSettle();

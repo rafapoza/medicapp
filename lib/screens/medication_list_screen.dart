@@ -5,6 +5,7 @@ import '../models/treatment_duration_type.dart';
 import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
+import '../utils/medication_sorter.dart';
 import 'medication_info_screen.dart';
 import 'edit_medication_menu_screen.dart';
 import 'medication_stock_screen.dart';
@@ -214,6 +215,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       print('- ${med.name}: ${med.doseTimes.length} dose times');
     }
 
+    // Sort medications by next dose proximity
+    MedicationSorter.sortByNextDose(medications);
+
     if (!mounted) return; // Check if widget is still mounted
 
     // Update UI immediately
@@ -263,6 +267,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       final reloadedMeds = await DatabaseHelper.instance.getAllMedications();
       print('Reloaded ${reloadedMeds.length} medications from DB after insert');
 
+      // Sort by next dose proximity
+      MedicationSorter.sortByNextDose(reloadedMeds);
+
       // Update UI immediately
       if (mounted) {
         setState(() {
@@ -300,6 +307,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
       // Reload medications from database to ensure we have fresh data
       final reloadedMeds = await DatabaseHelper.instance.getAllMedications();
       print('Reloaded ${reloadedMeds.length} medications from DB');
+
+      // Sort by next dose proximity
+      MedicationSorter.sortByNextDose(reloadedMeds);
 
       // Update UI immediately
       if (mounted) {
@@ -490,11 +500,6 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     }
   }
 
-  String? _getNextDoseTime(Medication medication) {
-    final info = _getNextDoseInfo(medication);
-    return info?['time'] as String?;
-  }
-
   void _registerDose(Medication medication) async {
     print('_registerDose called');
     print('stockQuantity: ${medication.stockQuantity}');
@@ -683,6 +688,17 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
         try {
           await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
           print('Notifications rescheduled after registering dose for ${updatedMedication.name}');
+
+          // Schedule dynamic fasting notification if medication requires fasting after dose
+          if (updatedMedication.requiresFasting &&
+              updatedMedication.fastingType == 'after' &&
+              updatedMedication.notifyFasting) {
+            await NotificationService.instance.scheduleDynamicFastingNotification(
+              medication: updatedMedication,
+              actualDoseTime: DateTime.now(),
+            );
+            print('Dynamic fasting notification scheduled for ${updatedMedication.name}');
+          }
         } catch (e) {
           print('Error rescheduling notifications: $e');
         }
@@ -735,22 +751,52 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                       ),
                 ),
                 const SizedBox(height: 16),
+                // Quantity label
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.add_box, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Cantidad a agregar',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(dialogContext).colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '(${medication.type.stockUnit})',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Quantity field
                 TextField(
                   controller: refillController,
                   decoration: InputDecoration(
-                    labelText: 'Cantidad a agregar',
                     hintText: medication.lastRefillAmount != null
                         ? 'Ej: ${medication.lastRefillAmount}'
                         : 'Ej: 30',
-                    suffixText: medication.type.stockUnit,
                     helperText: medication.lastRefillAmount != null
                         ? 'Última recarga: ${medication.lastRefillAmount} ${medication.type.stockUnit}'
                         : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    prefixIcon: const Icon(Icons.add_box),
                   ),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   autofocus: true,
                 ),

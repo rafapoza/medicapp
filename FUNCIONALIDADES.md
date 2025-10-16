@@ -1,13 +1,14 @@
 # Funcionalidades
 
-- **Añadir medicamentos**: Con un flujo guiado modular en 7 pasos:
+- **Añadir medicamentos**: Con un flujo guiado modular en 8 pasos:
   - **Paso 1**: Información básica (nombre, tipo de medicamento)
   - **Paso 2**: Tipo de duración del tratamiento (tratamiento continuo, hasta acabar medicación, fechas específicas)
   - **Paso 3**: Fechas del tratamiento (inicio y fin)
   - **Paso 4**: Frecuencia de medicación (todos los días, días específicos de la semana, cada N días, fechas específicas)
   - **Paso 5**: Configuración de dosis (intervalo fijo o dosis personalizadas por día)
   - **Paso 6**: Horario de tomas (definición de horarios y cantidades específicas)
-  - **Paso 7**: Cantidad de medicamento (stock inicial y umbral de alerta)
+  - **Paso 7**: Configuración de ayuno (opcional: define si requiere ayuno, tipo, duración y notificaciones)
+  - **Paso 8**: Cantidad de medicamento (stock inicial y umbral de alerta)
 - **Tipos de medicamento**: Elige entre diferentes tipos de medicamento, cada uno con su unidad de medida específica:
   - Pastilla, Inyección, Óvulo, Aplicación, Gota, Gramo, Mililitro
 - **Programación de horarios y dosis**: Sistema de horarios flexible y potente:
@@ -65,6 +66,16 @@
     - **Registrar toma**: Marca la toma como tomada y descuenta del stock
     - **Marcar como no tomada**: Registra que no tomaste la dosis sin descontar stock
     - **Posponer toma**: Programa una notificación única para más tarde sin alterar el horario habitual
+- **Configuración de ayuno**: Sistema completo para gestionar períodos de ayuno asociados a medicamentos
+  - **Configuración por medicamento**: Define si un medicamento requiere ayuno durante el flujo de añadir/editar
+  - **Tipo de ayuno**: Especifica si el ayuno es antes o después de tomar el medicamento
+  - **Duración personalizable**: Define la duración del ayuno en horas y minutos (ej: 2 horas, 1 hora 30 minutos)
+  - **Notificaciones de ayuno**: Recibe recordatorios automáticos para comenzar y terminar el ayuno
+    - **Ayuno antes**: Notificación para dejar de comer antes de la toma programada
+    - **Ayuno después**: Notificación dinámica para volver a comer, basada en la hora real de la toma
+  - **Gestión de solapamientos**: El sistema fusiona períodos de ayuno solapados automáticamente, usando las restricciones más estrictas
+  - **Edición flexible**: Modifica la configuración de ayuno en cualquier momento desde el menú de edición
+  - **Persistencia**: La configuración de ayuno se guarda junto con cada medicamento
 - **Historial completo de dosis**: Sistema avanzado de seguimiento de adherencia
   - Registro automático de cada toma con hora programada y hora real
   - Historial persistente de todas las dosis tomadas y omitidas
@@ -86,6 +97,7 @@
   - **Duración del tratamiento**: Modifica tipo de duración y fechas
   - **Frecuencia**: Cambia el patrón de frecuencia (diario, semanal, específico)
   - **Horarios y cantidades**: Ajusta los horarios de toma y las dosis específicas
+  - **Configuración de ayuno**: Modifica los parámetros de ayuno (tipo, duración, notificaciones)
   - **Cantidad disponible**: Actualiza el stock y el umbral de alerta
   - Cada sección se edita de forma independiente y se guarda inmediatamente
 - **Eliminación**: Elimina medicamentos de tu lista

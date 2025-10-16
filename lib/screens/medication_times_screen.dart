@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
-import 'medication_quantity_screen.dart';
+import 'medication_fasting_screen.dart';
 
 /// Helper class to hold time and quantity for each dose
 class _DoseEntry {
@@ -188,11 +188,11 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
       }
     }
 
-    // Continuar a la pantalla de cantidad
+    // Continuar a la pantalla de ayuno
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MedicationQuantityScreen(
+        builder: (context) => MedicationFastingScreen(
           medicationName: widget.medicationName,
           medicationType: widget.medicationType,
           durationType: widget.durationType,
@@ -214,8 +214,8 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '5 de 6' : '6 de 7';
-    final progressValue = widget.durationType == TreatmentDurationType.specificDates ? 5 / 6 : 6 / 7;
+    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '5 de 7' : '6 de 8';
+    final progressValue = widget.durationType == TreatmentDurationType.specificDates ? 5 / 7 : 6 / 8;
 
     return Scaffold(
       appBar: AppBar(
@@ -334,68 +334,120 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // Time and quantity inputs
-                        Row(
-                          children: [
-                            // Time selection
-                            Expanded(
-                              flex: 2,
-                              child: OutlinedButton.icon(
-                                onPressed: () => _selectTime(index),
-                                icon: Icon(
-                                  Icons.access_time,
-                                  size: 20,
-                                  color: isDuplicated ? Colors.orange : null,
-                                ),
-                                label: Text(
-                                  time != null ? _formatTime(time) : 'Seleccionar hora',
-                                  style: TextStyle(
-                                    color: isDuplicated
-                                        ? Colors.orange
-                                        : time != null
-                                            ? Theme.of(context).colorScheme.primary
-                                            : Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                    color: isDuplicated
-                                        ? Colors.orange
-                                        : Theme.of(context).colorScheme.outline,
-                                  ),
-                                ),
-                              ),
+                        // Time selection button (full width)
+                        OutlinedButton.icon(
+                          onPressed: () => _selectTime(index),
+                          icon: Icon(
+                            Icons.access_time,
+                            size: 20,
+                            color: isDuplicated ? Colors.orange : null,
+                          ),
+                          label: Text(
+                            time != null ? _formatTime(time) : 'Seleccionar hora',
+                            style: TextStyle(
+                              color: isDuplicated
+                                  ? Colors.orange
+                                  : time != null
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
-                            const SizedBox(width: 12),
-                            // Quantity input
-                            Expanded(
-                              flex: 1,
-                              child: TextField(
-                                controller: _quantityControllers[index],
-                                decoration: InputDecoration(
-                                  labelText: 'Cantidad',
-                                  suffixText: widget.medicationType.stockUnitSingular,
-                                  border: const OutlineInputBorder(),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: isDuplicated
+                                  ? Colors.orange
+                                  : Theme.of(context).colorScheme.outline,
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            minimumSize: const Size(double.infinity, 48),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Quantity input section
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Label for quantity
+                            Padding(
+                              padding: const EdgeInsets.only(left: 4, bottom: 8),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Cantidad por toma',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
                                   ),
-                                ),
-                                keyboardType: const TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                    RegExp(r'^\d*\.?\d*'),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '(${widget.medicationType.stockUnitSingular})',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ],
-                                onChanged: (value) {
-                                  final quantity = double.tryParse(value);
-                                  if (quantity != null && quantity > 0) {
-                                    entry.quantity = quantity;
-                                  }
-                                },
                               ),
+                            ),
+                            // Quantity input field (number only)
+                            TextField(
+                              controller: _quantityControllers[index],
+                              decoration: InputDecoration(
+                                hintText: 'Ej: 1, 0.5, 2',
+                                hintStyle: TextStyle(
+                                  fontSize: 18,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context).colorScheme.outline,
+                                    width: 2,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context).colorScheme.outline,
+                                    width: 2,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    width: 2,
+                                  ),
+                                ),
+                                filled: true,
+                                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 18,
+                                ),
+                              ),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                              keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d*\.?\d*'),
+                                ),
+                              ],
+                              onChanged: (value) {
+                                final quantity = double.tryParse(value);
+                                if (quantity != null && quantity > 0) {
+                                  entry.quantity = quantity;
+                                }
+                              },
                             ),
                           ],
                         ),

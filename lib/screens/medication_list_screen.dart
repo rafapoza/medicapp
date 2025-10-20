@@ -225,8 +225,15 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
   Future<void> _loadMedications() async {
     print('Loading medications from database...');
-    final medications = await DatabaseHelper.instance.getAllMedications();
-    print('Loaded ${medications.length} medications');
+    final allMedications = await DatabaseHelper.instance.getAllMedications();
+    print('Loaded ${allMedications.length} medications');
+
+    // Filter out "as needed" medications and suspended medications - they only appear in Botiquín
+    final medications = allMedications.where((m) =>
+      m.durationType != TreatmentDurationType.asNeeded &&
+      !m.isSuspended
+    ).toList();
+    print('Filtered to ${medications.length} medications (excluded ${allMedications.length - medications.length} "as needed" or suspended)');
 
     for (var med in medications) {
       print('- ${med.name}: ${med.doseTimes.length} dose times');
@@ -1762,13 +1769,16 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     );
   }
 
-  void _navigateToCabinet() {
-    Navigator.push(
+  void _navigateToCabinet() async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const MedicineCabinetScreen(),
       ),
     );
+
+    // Reload medications after returning from cabinet (in case medications were resumed/deleted)
+    await _loadMedications();
   }
 
   void _navigateToHistory() async {

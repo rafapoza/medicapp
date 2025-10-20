@@ -42,7 +42,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 13,
+      version: 14,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -85,7 +85,8 @@ class DatabaseHelper {
         requiresFasting $integerType DEFAULT 0,
         fastingType $textNullableType,
         fastingDurationMinutes $integerNullableType,
-        notifyFasting $integerType DEFAULT 0
+        notifyFasting $integerType DEFAULT 0,
+        isSuspended $integerType DEFAULT 0
       )
     ''');
 
@@ -241,6 +242,13 @@ class DatabaseHelper {
       ''');
       await db.execute('''
         ALTER TABLE medications ADD COLUMN notifyFasting INTEGER NOT NULL DEFAULT 0
+      ''');
+    }
+
+    if (oldVersion < 14) {
+      // Add isSuspended column for version 14 (medication suspension)
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN isSuspended INTEGER NOT NULL DEFAULT 0
       ''');
     }
   }

@@ -28,6 +28,9 @@ class Medication {
   final int? fastingDurationMinutes; // Duration of fasting period in minutes
   final bool notifyFasting; // Whether to send fasting notifications
 
+  // Suspension status
+  final bool isSuspended; // Whether medication is temporarily suspended (no notifications, but kept in inventory)
+
   Medication({
     required this.id,
     required this.name,
@@ -50,6 +53,7 @@ class Medication {
     this.fastingType, // 'before' or 'after'
     this.fastingDurationMinutes, // Duration in minutes
     this.notifyFasting = false, // Default to no notifications
+    this.isSuspended = false, // Default to not suspended
   }) : doseSchedule = doseSchedule ?? {};
 
   /// Legacy compatibility: get list of dose times (keys from doseSchedule)
@@ -79,6 +83,7 @@ class Medication {
       'fastingType': fastingType, // 'before' or 'after'
       'fastingDurationMinutes': fastingDurationMinutes,
       'notifyFasting': notifyFasting ? 1 : 0, // Store as integer
+      'isSuspended': isSuspended ? 1 : 0, // Store as integer
     };
   }
 
@@ -153,6 +158,9 @@ class Medication {
     final fastingDurationMinutes = json['fastingDurationMinutes'] as int?;
     final notifyFasting = (json['notifyFasting'] as int?) == 1;
 
+    // Parse suspension status
+    final isSuspended = (json['isSuspended'] as int?) == 1;
+
     return Medication(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -181,6 +189,7 @@ class Medication {
       fastingType: fastingType,
       fastingDurationMinutes: fastingDurationMinutes,
       notifyFasting: notifyFasting,
+      isSuspended: isSuspended,
     );
   }
 

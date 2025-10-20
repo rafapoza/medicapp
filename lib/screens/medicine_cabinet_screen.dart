@@ -207,29 +207,70 @@ class _MedicationCard extends StatelessWidget {
             ? Colors.orange
             : Colors.green;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: medication.type.getColor(context).withOpacity(0.2),
-          child: Icon(
-            medication.type.icon,
-            color: medication.type.getColor(context),
+    return Opacity(
+      opacity: medication.isSuspended ? 0.5 : 1.0,
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          leading: CircleAvatar(
+            backgroundColor: medication.type.getColor(context).withOpacity(0.2),
+            child: Icon(
+              medication.type.icon,
+              color: medication.type.getColor(context),
+            ),
           ),
-        ),
-        title: Text(
-          medication.name,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  medication.name,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
               ),
-        ),
-        subtitle: Text(
-          medication.type.displayName,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: medication.type.getColor(context),
-              ),
-        ),
+              if (medication.isSuspended) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.grey.shade600,
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.pause_circle_outline,
+                        size: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Suspendido',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+          subtitle: Text(
+            medication.type.displayName,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: medication.type.getColor(context),
+                ),
+          ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -265,6 +306,7 @@ class _MedicationCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

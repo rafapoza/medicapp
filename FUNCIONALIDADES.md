@@ -111,6 +111,15 @@
   - **Configuración de ayuno**: Modifica los parámetros de ayuno (tipo, duración, notificaciones)
   - **Cantidad disponible**: Actualiza el stock y el umbral de alerta
   - Cada sección se edita de forma independiente y se guarda inmediatamente
+- **Suspensión de medicamentos**: Gestión temporal de tratamientos
+  - **Suspender medicamento**: Pausa temporalmente las notificaciones de un medicamento
+  - **Visibilidad selectiva**:
+    - Los medicamentos suspendidos NO aparecen en el Pastillero (vista de stock activo)
+    - Los medicamentos suspendidos SÍ aparecen en el Botiquín (inventario completo) con su stock actual
+    - Los medicamentos suspendidos SÍ aparecen en la lista principal con indicador visual
+  - **Indicador visual**: Los medicamentos suspendidos aparecen atenuados con un icono de pausa
+  - **Reactivación**: Reactiva fácilmente el medicamento y reprograma todas las notificaciones
+  - **Acceso rápido**: Suspender/reactivar desde el menú de acciones de cada medicamento
 - **Eliminación**: Elimina medicamentos de tu lista
 - **Validación inteligente**:
   - Previene la creación de medicamentos duplicados (case-insensitive)

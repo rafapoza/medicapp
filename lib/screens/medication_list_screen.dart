@@ -738,6 +738,68 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     }
   }
 
+  void _toggleSuspendMedication(Medication medication) async {
+    // Close the modal first
+    Navigator.pop(context);
+
+    // Toggle the suspended status
+    final updatedMedication = Medication(
+      id: medication.id,
+      name: medication.name,
+      type: medication.type,
+      dosageIntervalHours: medication.dosageIntervalHours,
+      durationType: medication.durationType,
+      doseSchedule: medication.doseSchedule,
+      stockQuantity: medication.stockQuantity,
+      takenDosesToday: medication.takenDosesToday,
+      skippedDosesToday: medication.skippedDosesToday,
+      takenDosesDate: medication.takenDosesDate,
+      lastRefillAmount: medication.lastRefillAmount,
+      lowStockThresholdDays: medication.lowStockThresholdDays,
+      selectedDates: medication.selectedDates,
+      weeklyDays: medication.weeklyDays,
+      dayInterval: medication.dayInterval,
+      startDate: medication.startDate,
+      endDate: medication.endDate,
+      requiresFasting: medication.requiresFasting,
+      fastingType: medication.fastingType,
+      fastingDurationMinutes: medication.fastingDurationMinutes,
+      notifyFasting: medication.notifyFasting,
+      isSuspended: !medication.isSuspended, // Toggle the suspension status
+    );
+
+    // Update in database
+    await DatabaseHelper.instance.updateMedication(updatedMedication);
+
+    // If suspending, cancel all notifications
+    if (updatedMedication.isSuspended) {
+      await NotificationService.instance.cancelMedicationNotifications(
+        medication.id,
+        medication: updatedMedication,
+      );
+    } else {
+      // If reactivating, reschedule notifications
+      await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
+    }
+
+    // Reload medications
+    await _loadMedications();
+
+    if (!mounted) return;
+
+    // Show confirmation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          updatedMedication.isSuspended
+              ? '${medication.name} suspendido\nNo se programarán más notificaciones'
+              : '${medication.name} reactivado\nNotificaciones reprogramadas',
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   void _refillMedication(Medication medication) async {
     // Close the modal first
     Navigator.pop(context);
@@ -983,6 +1045,27 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                       icon: const Icon(Icons.add_box, size: 18),
                       label: const Text('Recargar medicamento'),
                       style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.tonalIcon(
+                      onPressed: () => _toggleSuspendMedication(medication),
+                      icon: Icon(
+                        medication.isSuspended ? Icons.play_arrow : Icons.pause,
+                        size: 18,
+                      ),
+                      label: Text(medication.isSuspended ? 'Reactivar medicamento' : 'Suspender medicamento'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: medication.isSuspended
+                            ? Theme.of(context).colorScheme.primaryContainer
+                            : Theme.of(context).colorScheme.secondaryContainer,
+                        foregroundColor: medication.isSuspended
+                            ? Theme.of(context).colorScheme.onPrimaryContainer
+                            : Theme.of(context).colorScheme.onSecondaryContainer,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                     ),
@@ -2207,7 +2290,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                       }
 
                       return Opacity(
-                  opacity: medication.isFinished ? 0.5 : 1.0, // Phase 2: Dim finished medications
+                  opacity: (medication.isFinished || medication.isSuspended) ? 0.5 : 1.0, // Dim finished or suspended medications
                   child: Card(
                     margin: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -2249,8 +2332,29 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                                 ),
                                 const SizedBox(height: 4),
                               ],
+                              // Show suspended status
+                              if (medication.isSuspended) ...[
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.pause_circle_outline,
+                                      size: 16,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Suspendido',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Colors.grey.shade600,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                              ],
                               // Phase 2: Show status description (e.g., "Día 3 de 7", "Empieza el...", "Finalizado")
-                              if (medication.statusDescription.isNotEmpty) ...[
+                              if (!medication.isSuspended && medication.statusDescription.isNotEmpty) ...[
                                 Text(
                                   medication.statusDescription,
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(

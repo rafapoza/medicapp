@@ -329,6 +329,14 @@ class NotificationService {
       return;
     }
 
+    // Skip if medication is suspended
+    if (medication.isSuspended) {
+      print('Skipping notifications for ${medication.name}: medication is suspended');
+      // Cancel any existing notifications for this medication
+      await cancelMedicationNotifications(medication.id, medication: medication);
+      return;
+    }
+
     // Check if exact alarms are allowed (Android 12+)
     final canScheduleExact = await canScheduleExactAlarms();
     if (!canScheduleExact) {

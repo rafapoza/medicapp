@@ -9,6 +9,7 @@ import '../utils/medication_sorter.dart';
 import 'medication_info_screen.dart';
 import 'edit_medication_menu_screen.dart';
 import 'medication_stock_screen.dart';
+import 'medicine_cabinet_screen.dart';
 import 'dose_history_screen.dart';
 
 class MedicationListScreen extends StatefulWidget {
@@ -1475,6 +1476,15 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     );
   }
 
+  void _navigateToCabinet() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MedicineCabinetScreen(),
+      ),
+    );
+  }
+
   void _navigateToHistory() async {
     final hasChanges = await Navigator.push<bool>(
       context,
@@ -1536,6 +1546,21 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   },
                   icon: const Icon(Icons.inventory_2),
                   label: const Text('Ver Pastillero'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _navigateToCabinet();
+                  },
+                  icon: const Icon(Icons.medical_information),
+                  label: const Text('Ver Botiquín'),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),

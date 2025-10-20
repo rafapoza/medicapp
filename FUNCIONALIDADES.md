@@ -48,6 +48,16 @@
   - Cálculo automático de duración estimada considerando dosis variables por toma
   - Umbral de stock bajo configurable por medicamento: decide con cuántos días de anticipación quieres ser avisado (1-30 días, por defecto 3)
   - Tarjetas resumen con totales, medicamentos con stock bajo y sin stock
+- **Botiquín**: Vista completa de inventario de medicamentos
+  - Pantalla dedicada "Botiquín" accesible desde el menú FAB
+  - Lista alfabética de todos los medicamentos registrados
+  - Muestra nombre, tipo y cantidad disponible de cada medicamento
+  - Indicadores visuales de stock con códigos de color (verde/naranja/rojo)
+  - Buscador integrado para filtrar medicamentos por nombre
+  - Búsqueda case-insensitive (no distingue mayúsculas/minúsculas)
+  - Botón de borrado rápido en el buscador
+  - Pull-to-refresh para recargar el inventario
+  - Estados vacíos informativos cuando no hay medicamentos o no hay resultados de búsqueda
 - **Recarga de medicamentos**: Sistema inteligente para reponer el stock
   - Botón "Recargar medicamento" accesible desde cada medicamento
   - Diálogo intuitivo que muestra el stock actual

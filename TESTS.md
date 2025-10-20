@@ -71,6 +71,8 @@ flutter test
 
 **Total**: 134 tests cubriendo modelo, servicios, persistencia, UI, historial, funcionalidad de ayuno y ordenamiento
 
+**Nota sobre el Botiquín**: La funcionalidad del Botiquín (vista de inventario) está implementada y funcional, pero no tiene tests dedicados ya que utiliza los mismos componentes y datos que el resto de la aplicación (lectura de base de datos, UI de lista, búsqueda). La funcionalidad es verificada manualmente.
+
 ### Mejoras recientes en la suite de tests
 
 - **Corrección de timeouts**: Reemplazado `pumpAndSettle()` con `pump()` explícitos en el helper `addMedicationWithDuration` para evitar problemas de timeout con animaciones de modales

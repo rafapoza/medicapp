@@ -74,6 +74,10 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
         } else {
           return FrequencyMode.customInterval;
         }
+      case TreatmentDurationType.asNeeded:
+        // "As needed" medications don't have a frequency mode (they're taken manually)
+        // This should not normally be reached, as these medications shouldn't be edited here
+        return FrequencyMode.everyday; // Default fallback
     }
   }
 

@@ -3,6 +3,7 @@ import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
 import 'specific_dates_selector_screen.dart';
 import 'medication_dates_screen.dart';
+import 'medication_quantity_screen.dart';
 
 /// Pantalla 2: Tipo de duración del tratamiento
 class MedicationDurationScreen extends StatefulWidget {
@@ -41,6 +42,29 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
   }
 
   void _continueToNextStep() async {
+    // Si es medicamento ocasional, ir directamente a la pantalla de cantidad
+    if (_selectedDurationType == TreatmentDurationType.asNeeded) {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MedicationQuantityScreen(
+            medicationName: widget.medicationName,
+            medicationType: widget.medicationType,
+            durationType: _selectedDurationType,
+            dosageIntervalHours: 0,
+            doseSchedule: {},
+            requiresFasting: false,
+            notifyFasting: false,
+          ),
+        ),
+      );
+
+      if (result != null && mounted) {
+        Navigator.pop(context, result);
+      }
+      return;
+    }
+
     // Si se seleccionaron fechas específicas, validar
     if (_selectedDurationType == TreatmentDurationType.specificDates) {
       if (_specificDates == null || _specificDates!.isEmpty) {
@@ -163,6 +187,12 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
                         TreatmentDurationType.specificDates,
                         'Fechas específicas',
                         'Solo días concretos seleccionados',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildDurationOption(
+                        TreatmentDurationType.asNeeded,
+                        'Medicamento ocasional',
+                        'Solo cuando sea necesario, sin horarios',
                       ),
                     ],
                   ),

@@ -224,6 +224,21 @@ Future<void> addMedicationWithDuration(
   await tester.pump(const Duration(milliseconds: 100));
 }
 
+// Helper function to tap a text widget multiple times
+// Useful for activating the debug menu by tapping the title 5 times
+Future<void> tapTextMultipleTimes(
+  WidgetTester tester,
+  String text, {
+  int times = 5,
+}) async {
+  final finder = find.text(text);
+  for (int i = 0; i < times; i++) {
+    await tester.tap(finder);
+    await tester.pump();
+  }
+  await tester.pumpAndSettle();
+}
+
 void main() {
   // Initialize sqflite for testing on desktop/VM
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -1050,18 +1065,11 @@ void main() {
     // Verify the debug menu is not visible initially
     expect(find.byType(PopupMenuButton<String>), findsNothing);
 
-    // Find the title text
-    final titleFinder = find.text('Mis Medicamentos');
-    expect(titleFinder, findsOneWidget);
+    // Verify the title exists
+    expect(find.text('Mis Medicamentos'), findsOneWidget);
 
-    // Tap the title 5 times
-    for (int i = 0; i < 5; i++) {
-      await tester.tap(titleFinder);
-      await tester.pump();
-    }
-
-    // Wait for the state to update and SnackBar to appear
-    await tester.pumpAndSettle();
+    // Tap the title 5 times to activate debug menu
+    await tapTextMultipleTimes(tester, 'Mis Medicamentos');
 
     // Verify the debug menu is now visible
     expect(find.byType(PopupMenuButton<String>), findsOneWidget);
@@ -1075,15 +1083,8 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Find the title text
-    final titleFinder = find.text('Mis Medicamentos');
-
-    // Tap the title 5 times to show the menu
-    for (int i = 0; i < 5; i++) {
-      await tester.tap(titleFinder);
-      await tester.pump();
-    }
-    await tester.pumpAndSettle();
+    // Tap the title 5 times to show the debug menu
+    await tapTextMultipleTimes(tester, 'Mis Medicamentos');
 
     // Verify the debug menu is visible
     expect(find.byType(PopupMenuButton<String>), findsOneWidget);
@@ -1091,12 +1092,8 @@ void main() {
     // Wait for the SnackBar to disappear
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    // Tap the title 5 more times to hide the menu
-    for (int i = 0; i < 5; i++) {
-      await tester.tap(titleFinder);
-      await tester.pump();
-    }
-    await tester.pumpAndSettle();
+    // Tap the title 5 more times to hide the debug menu
+    await tapTextMultipleTimes(tester, 'Mis Medicamentos');
 
     // Verify the debug menu is now hidden
     expect(find.byType(PopupMenuButton<String>), findsNothing);
@@ -1110,13 +1107,8 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Find the title text and tap 5 times to activate debug menu
-    final titleFinder = find.text('Mis Medicamentos');
-    for (int i = 0; i < 5; i++) {
-      await tester.tap(titleFinder);
-      await tester.pump();
-    }
-    await tester.pumpAndSettle();
+    // Tap the title 5 times to activate debug menu
+    await tapTextMultipleTimes(tester, 'Mis Medicamentos');
 
     // Verify the debug menu button (PopupMenuButton) is now accessible
     expect(find.byType(PopupMenuButton<String>), findsOneWidget);

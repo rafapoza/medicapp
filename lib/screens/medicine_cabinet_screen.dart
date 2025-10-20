@@ -272,22 +272,23 @@ class _MedicationCard extends StatelessWidget {
                 ),
           ),
         trailing: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
               medication.stockDisplayText,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: stockColor,
                   ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: stockColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: stockColor,
                   width: 1,
@@ -299,7 +300,7 @@ class _MedicationCard extends StatelessWidget {
                     : medication.isStockLow
                         ? Icons.warning
                         : Icons.check_circle,
-                size: 16,
+                size: 14,
                 color: stockColor,
               ),
             ),

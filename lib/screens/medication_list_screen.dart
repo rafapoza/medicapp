@@ -680,29 +680,25 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
 
       await DatabaseHelper.instance.insertDoseHistory(historyEntry);
 
+      // Cancel today's notification for this specific dose to prevent it from firing
+      await NotificationService.instance.cancelTodaysDoseNotification(
+        medication: updatedMedication,
+        doseTime: selectedDoseTime,
+      );
+
+      // Schedule dynamic fasting notification if medication requires fasting after dose
+      if (updatedMedication.requiresFasting &&
+          updatedMedication.fastingType == 'after' &&
+          updatedMedication.notifyFasting) {
+        await NotificationService.instance.scheduleDynamicFastingNotification(
+          medication: updatedMedication,
+          actualDoseTime: DateTime.now(),
+        );
+        print('Dynamic fasting notification scheduled for ${updatedMedication.name}');
+      }
+
       // Reload medications
       await _loadMedications();
-
-      // Reschedule notifications in background (non-blocking)
-      Future.microtask(() async {
-        try {
-          await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
-          print('Notifications rescheduled after registering dose for ${updatedMedication.name}');
-
-          // Schedule dynamic fasting notification if medication requires fasting after dose
-          if (updatedMedication.requiresFasting &&
-              updatedMedication.fastingType == 'after' &&
-              updatedMedication.notifyFasting) {
-            await NotificationService.instance.scheduleDynamicFastingNotification(
-              medication: updatedMedication,
-              actualDoseTime: DateTime.now(),
-            );
-            print('Dynamic fasting notification scheduled for ${updatedMedication.name}');
-          }
-        } catch (e) {
-          print('Error rescheduling notifications: $e');
-        }
-      });
 
       if (!mounted) return;
 
@@ -1058,7 +1054,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
 
       // Determine notification type based on ID range
       final id = notification.id;
-      if (id >= 4000000) {
+      if (id >= 6000000) {
+        notificationType = 'Ayuno dinámico';
+      } else if (id >= 5000000) {
+        notificationType = 'Ayuno programado';
+      } else if (id >= 4000000) {
         notificationType = 'Patrón semanal';
       } else if (id >= 3000000) {
         notificationType = 'Fecha específica';
@@ -1081,8 +1081,17 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
           if (medication.id == medicationId) {
             medicationName = medication.name;
 
-            // Try to get dose time
-            if (parts.length > 1) {
+            // Check if this is a fasting notification
+            if (parts.length > 1 && (parts[1].contains('fasting'))) {
+              // This is a fasting notification
+              final isDynamic = parts[1].contains('dynamic');
+              final fastingType = medication.fastingType == 'before' ? 'Antes de tomar' : 'Después de tomar';
+              final duration = medication.fastingDurationMinutes ?? 0;
+
+              scheduledTime = '$fastingType ($duration min)';
+              scheduledDate = isDynamic ? 'Basado en toma real' : 'Basado en horario';
+            } else if (parts.length > 1) {
+              // Regular dose notification
               final doseIndexOrTime = parts[1];
 
               // Check if it's a time string (HH:mm)

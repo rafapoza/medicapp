@@ -42,12 +42,6 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
   Future<void> _registerTaken() async {
     if (_medication == null) return;
 
-    // Cancel any postponed notification for this dose
-    await NotificationService.instance.cancelPostponedNotification(
-      _medication!.id,
-      widget.doseTime,
-    );
-
     // Get the dose quantity for this specific time
     final doseQuantity = _medication!.getDoseQuantity(widget.doseTime);
 
@@ -126,8 +120,23 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
     await DatabaseHelper.instance.insertDoseHistory(historyEntry);
 
-    // Reschedule notifications
-    await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
+    // Cancel today's notification for this specific dose to prevent it from firing
+    await NotificationService.instance.cancelTodaysDoseNotification(
+      medication: updatedMedication,
+      doseTime: widget.doseTime,
+    );
+
+    // Schedule dynamic fasting notification if medication requires fasting after dose
+    // This uses the ACTUAL time the dose was taken (DateTime.now()), not the scheduled time
+    if (updatedMedication.requiresFasting &&
+        updatedMedication.fastingType == 'after' &&
+        updatedMedication.notifyFasting) {
+      await NotificationService.instance.scheduleDynamicFastingNotification(
+        medication: updatedMedication,
+        actualDoseTime: now, // Use the actual time when dose was registered
+      );
+      print('Dynamic fasting notification scheduled for ${updatedMedication.name} at ${now.add(Duration(minutes: updatedMedication.fastingDurationMinutes!))}');
+    }
 
     if (!mounted) return;
 
@@ -146,12 +155,6 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
   Future<void> _registerSkipped() async {
     if (_medication == null) return;
-
-    // Cancel any postponed notification for this dose
-    await NotificationService.instance.cancelPostponedNotification(
-      _medication!.id,
-      widget.doseTime,
-    );
 
     // Get today's date
     final today = DateTime.now();
@@ -210,6 +213,12 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     );
 
     await DatabaseHelper.instance.insertDoseHistory(historyEntry);
+
+    // Cancel today's notification for this specific dose to prevent it from firing
+    await NotificationService.instance.cancelTodaysDoseNotification(
+      medication: updatedMedication,
+      doseTime: widget.doseTime,
+    );
 
     if (!mounted) return;
 

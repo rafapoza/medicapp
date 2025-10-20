@@ -58,12 +58,24 @@ flutter test
     - Manejo de horas de toma pasadas y futuras
     - Medicamentos con múltiples horarios de toma
     - Compatibilidad con todos los tipos de duración de tratamiento
+- **test/medication_sorting_test.dart**: Tests de ordenamiento de medicamentos
+  - 8 tests cubriendo el sistema de priorización de medicamentos:
+    - Ordenamiento por urgencia (dosis pendientes primero)
+    - Priorización por retraso (más atrasadas primero)
+    - Ordenamiento por proximidad para dosis futuras
+    - Manejo de medicamentos sin próxima dosis
+    - Priorización de pendientes sobre futuras
+    - Manejo de múltiples dosis por medicamento
+    - Soporte para patrones semanales y otros tipos de duración
+    - Cálculo correcto de próxima dosis con DateTime
+  - **Importante**: Los tests usan fechas y horas reales (`DateTime.now()`) para compatibilidad con el modelo `Medication` que usa tiempo real internamente
 
-**Total**: 117+ tests cubriendo modelo, servicios, persistencia, UI, historial y funcionalidad de ayuno
+**Total**: 125+ tests cubriendo modelo, servicios, persistencia, UI, historial, funcionalidad de ayuno y ordenamiento
 
 ### Mejoras recientes en la suite de tests
 
 - **Corrección de timeouts**: Reemplazado `pumpAndSettle()` con `pump()` explícitos en el helper `addMedicationWithDuration` para evitar problemas de timeout con animaciones de modales
 - **Verificación indirecta de SnackBars**: Implementada estrategia de verificación indirecta para casos donde los SnackBars no son confiables en tests automatizados, verificando el comportamiento mediante el estado de la UI (modales cerrados, diálogos no mostrados, etc.)
 - **Finders específicos**: Uso de finders descendientes para evitar ambigüedades al buscar widgets con textos duplicados
-- **Todos los tests pasan**: La suite completa de widget_test.dart (44 tests) ahora pasa exitosamente sin fallos
+- **Tests con fechas reales**: Los tests de ordenamiento (`medication_sorting_test.dart`) ahora usan `DateTime.now()` en lugar de fechas fijas para compatibilidad con el modelo `Medication` que usa tiempo real internamente. Esto asegura que las validaciones de fecha (`takenDosesDate`, `shouldTakeToday()`, etc.) funcionen correctamente
+- **Todos los tests pasan**: La suite completa de tests ahora pasa exitosamente sin fallos

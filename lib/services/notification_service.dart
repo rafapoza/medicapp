@@ -1289,6 +1289,74 @@ class NotificationService {
     print('Cancelled postponed notification ID $notificationId for medication $medicationId at $doseTime');
   }
 
+  /// Cancel a specific dose notification for today
+  /// This cancels the notification for a specific dose time on the current date
+  /// Call this when the user registers a dose (taken or skipped) to prevent the notification from firing
+  Future<void> cancelTodaysDoseNotification({
+    required Medication medication,
+    required String doseTime,
+  }) async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    print('Cancelling today\'s dose notification for ${medication.name} at $doseTime');
+
+    // Find the dose index for this time
+    final doseIndex = medication.doseTimes.indexOf(doseTime);
+    if (doseIndex == -1) {
+      print('Dose time $doseTime not found in medication dose times');
+      return;
+    }
+
+    final now = DateTime.now();
+    final todayString = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
+    // Cancel different notification types based on treatment duration type
+    switch (medication.durationType) {
+      case TreatmentDurationType.specificDates:
+        // For specific dates, cancel the specific date notification for today if today is a selected date
+        if (medication.selectedDates?.contains(todayString) ?? false) {
+          final notificationId = _generateSpecificDateNotificationId(medication.id, todayString, doseIndex);
+          await _notificationsPlugin.cancel(notificationId);
+          print('Cancelled specific date notification ID $notificationId for $todayString at $doseTime');
+        }
+        break;
+
+      case TreatmentDurationType.weeklyPattern:
+        // For weekly patterns, check if medication has an end date
+        if (medication.endDate != null) {
+          // Individual occurrences scheduled, cancel today's specific date notification
+          final notificationId = _generateSpecificDateNotificationId(medication.id, todayString, doseIndex);
+          await _notificationsPlugin.cancel(notificationId);
+          print('Cancelled weekly pattern notification ID $notificationId for $todayString at $doseTime');
+        } else {
+          // Recurring weekly notifications, cancel by weekday
+          final notificationId = _generateWeeklyNotificationId(medication.id, now.weekday, doseIndex);
+          await _notificationsPlugin.cancel(notificationId);
+          print('Cancelled recurring weekly notification ID $notificationId for weekday ${now.weekday} at $doseTime');
+        }
+        break;
+
+      default:
+        // For everyday and untilFinished
+        if (medication.endDate != null) {
+          // Individual occurrences scheduled, cancel today's specific date notification
+          final notificationId = _generateSpecificDateNotificationId(medication.id, todayString, doseIndex);
+          await _notificationsPlugin.cancel(notificationId);
+          print('Cancelled specific date notification ID $notificationId for $todayString at $doseTime');
+        } else {
+          // Recurring daily notifications, cancel the recurring notification
+          final notificationId = _generateNotificationId(medication.id, doseIndex);
+          await _notificationsPlugin.cancel(notificationId);
+          print('Cancelled recurring daily notification ID $notificationId for $doseTime');
+        }
+        break;
+    }
+
+    // Also cancel any postponed notification for this dose
+    await cancelPostponedNotification(medication.id, doseTime);
+  }
+
   /// Schedule a dynamic fasting notification based on actual dose time
   /// This is called when a dose is registered (for "after" fasting type only)
   /// The notification will be scheduled for: actual time taken + fasting duration

@@ -18,7 +18,7 @@ class MedicationListScreen extends StatefulWidget {
   State<MedicationListScreen> createState() => _MedicationListScreenState();
 }
 
-class _MedicationListScreenState extends State<MedicationListScreen> {
+class _MedicationListScreenState extends State<MedicationListScreen> with WidgetsBindingObserver {
   final List<Medication> _medications = [];
   bool _isLoading = true;
   bool _debugMenuVisible = false;
@@ -29,9 +29,25 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this); // Add lifecycle observer
     _loadBatteryBannerPreference();
     _loadMedications();
     _checkNotificationPermissions();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this); // Remove lifecycle observer
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Reload medications when app resumes (e.g., after handling a notification)
+    if (state == AppLifecycleState.resumed) {
+      _loadMedications();
+    }
   }
 
   /// Load battery banner dismissal preference
@@ -680,29 +696,25 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
 
       await DatabaseHelper.instance.insertDoseHistory(historyEntry);
 
+      // Cancel today's notification for this specific dose to prevent it from firing
+      await NotificationService.instance.cancelTodaysDoseNotification(
+        medication: updatedMedication,
+        doseTime: selectedDoseTime,
+      );
+
+      // Schedule dynamic fasting notification if medication requires fasting after dose
+      if (updatedMedication.requiresFasting &&
+          updatedMedication.fastingType == 'after' &&
+          updatedMedication.notifyFasting) {
+        await NotificationService.instance.scheduleDynamicFastingNotification(
+          medication: updatedMedication,
+          actualDoseTime: DateTime.now(),
+        );
+        print('Dynamic fasting notification scheduled for ${updatedMedication.name}');
+      }
+
       // Reload medications
       await _loadMedications();
-
-      // Reschedule notifications in background (non-blocking)
-      Future.microtask(() async {
-        try {
-          await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
-          print('Notifications rescheduled after registering dose for ${updatedMedication.name}');
-
-          // Schedule dynamic fasting notification if medication requires fasting after dose
-          if (updatedMedication.requiresFasting &&
-              updatedMedication.fastingType == 'after' &&
-              updatedMedication.notifyFasting) {
-            await NotificationService.instance.scheduleDynamicFastingNotification(
-              medication: updatedMedication,
-              actualDoseTime: DateTime.now(),
-            );
-            print('Dynamic fasting notification scheduled for ${updatedMedication.name}');
-          }
-        } catch (e) {
-          print('Error rescheduling notifications: $e');
-        }
-      });
 
       if (!mounted) return;
 
@@ -1058,7 +1070,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
 
       // Determine notification type based on ID range
       final id = notification.id;
-      if (id >= 4000000) {
+      if (id >= 6000000) {
+        notificationType = 'Ayuno dinámico';
+      } else if (id >= 5000000) {
+        notificationType = 'Ayuno programado';
+      } else if (id >= 4000000) {
         notificationType = 'Patrón semanal';
       } else if (id >= 3000000) {
         notificationType = 'Fecha específica';
@@ -1081,8 +1097,17 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
           if (medication.id == medicationId) {
             medicationName = medication.name;
 
-            // Try to get dose time
-            if (parts.length > 1) {
+            // Check if this is a fasting notification
+            if (parts.length > 1 && (parts[1].contains('fasting'))) {
+              // This is a fasting notification
+              final isDynamic = parts[1].contains('dynamic');
+              final fastingType = medication.fastingType == 'before' ? 'Antes de tomar' : 'Después de tomar';
+              final duration = medication.fastingDurationMinutes ?? 0;
+
+              scheduledTime = '$fastingType ($duration min)';
+              scheduledDate = isDynamic ? 'Basado en toma real' : 'Basado en horario';
+            } else if (parts.length > 1) {
+              // Regular dose notification
               final doseIndexOrTime = parts[1];
 
               // Check if it's a time string (HH:mm)
@@ -1965,30 +1990,50 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               child: CircularProgressIndicator(),
             )
           : _medications.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.medical_services_outlined,
-                    size: 80,
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No hay medicamentos registrados',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ? RefreshIndicator(
+              onRefresh: _loadMedications,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.medical_services_outlined,
+                              size: 80,
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No hay medicamentos registrados',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Pulsa el botón + para añadir uno',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Arrastra hacia abajo para recargar',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
+                                  ),
+                            ),
+                          ],
                         ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pulsa el botón + para añadir uno',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ],
+                      ),
+                    ),
+                  );
+                },
               ),
             )
           : Column(
@@ -2117,10 +2162,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   ),
                 // Medications list
                 Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-                    itemCount: _medications.length,
-                    itemBuilder: (context, index) {
+                  child: RefreshIndicator(
+                    onRefresh: _loadMedications,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                      itemCount: _medications.length,
+                      itemBuilder: (context, index) {
                       final medication = _medications[index];
 
                       // Determine stock status icon and color
@@ -2290,7 +2337,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                 );
                     },
                   ),
-                ),
+                    ),
+                  ),
               ],
             ),
       floatingActionButton: FloatingActionButton(

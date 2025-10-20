@@ -28,6 +28,12 @@ class Medication {
   final int? fastingDurationMinutes; // Duration of fasting period in minutes
   final bool notifyFasting; // Whether to send fasting notifications
 
+  // Suspension status
+  final bool isSuspended; // Whether medication is temporarily suspended (no notifications, but kept in inventory)
+
+  // For "as needed" medications: amount consumed on the last day it was used
+  final double? lastDailyConsumption; // Used to calculate low stock warning for occasional medications
+
   Medication({
     required this.id,
     required this.name,
@@ -50,6 +56,8 @@ class Medication {
     this.fastingType, // 'before' or 'after'
     this.fastingDurationMinutes, // Duration in minutes
     this.notifyFasting = false, // Default to no notifications
+    this.isSuspended = false, // Default to not suspended
+    this.lastDailyConsumption, // Last day consumption for "as needed" medications
   }) : doseSchedule = doseSchedule ?? {};
 
   /// Legacy compatibility: get list of dose times (keys from doseSchedule)
@@ -79,6 +87,8 @@ class Medication {
       'fastingType': fastingType, // 'before' or 'after'
       'fastingDurationMinutes': fastingDurationMinutes,
       'notifyFasting': notifyFasting ? 1 : 0, // Store as integer
+      'isSuspended': isSuspended ? 1 : 0, // Store as integer
+      'lastDailyConsumption': lastDailyConsumption, // Last day consumption for "as needed" medications
     };
   }
 
@@ -153,6 +163,12 @@ class Medication {
     final fastingDurationMinutes = json['fastingDurationMinutes'] as int?;
     final notifyFasting = (json['notifyFasting'] as int?) == 1;
 
+    // Parse suspension status
+    final isSuspended = (json['isSuspended'] as int?) == 1;
+
+    // Parse lastDailyConsumption
+    final lastDailyConsumption = (json['lastDailyConsumption'] as num?)?.toDouble();
+
     return Medication(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -181,6 +197,8 @@ class Medication {
       fastingType: fastingType,
       fastingDurationMinutes: fastingDurationMinutes,
       notifyFasting: notifyFasting,
+      isSuspended: isSuspended,
+      lastDailyConsumption: lastDailyConsumption,
     );
   }
 
@@ -199,6 +217,8 @@ class Medication {
       case TreatmentDurationType.intervalDays:
         final interval = dayInterval ?? 2;
         return 'Cada $interval días';
+      case TreatmentDurationType.asNeeded:
+        return 'Según necesidad';
     }
   }
 
@@ -230,6 +250,9 @@ class Medication {
         final daysSinceStart = todayDay.difference(startDay).inDays;
         // Take medication if days since start is divisible by interval
         return daysSinceStart % interval == 0;
+      case TreatmentDurationType.asNeeded:
+        // "As needed" medications don't have scheduled doses
+        return false;
     }
   }
 
@@ -256,6 +279,17 @@ class Medication {
 
   /// Check if stock is low (less than the configured threshold days worth of medication)
   bool get isStockLow {
+    // For "as needed" medications, use lastDailyConsumption to calculate days remaining
+    if (durationType == TreatmentDurationType.asNeeded) {
+      // If no consumption history yet, can't calculate low stock
+      if (lastDailyConsumption == null || lastDailyConsumption! == 0) return false;
+
+      // Calculate days remaining based on last day's consumption
+      final daysRemaining = stockQuantity / lastDailyConsumption!;
+      return stockQuantity > 0 && daysRemaining < lowStockThresholdDays;
+    }
+
+    // For scheduled medications, use existing logic with doseSchedule
     if (doseSchedule.isEmpty) return false;
 
     final dailyDose = totalDailyDose;
@@ -360,6 +394,25 @@ class Medication {
     if (totalDays == null || currentDay == null) return null;
     if (totalDays == 0) return 1.0;
     return (currentDay! / totalDays!).clamp(0.0, 1.0);
+  }
+
+  /// Check if medication allows manual dose registration (for "as needed" medications)
+  /// Returns true if medication doesn't have active scheduled doses
+  bool get allowsManualDoseRegistration {
+    // Suspended medications can register manual doses
+    if (isSuspended) return true;
+
+    // Pending or finished medications can register manual doses
+    if (isPending || isFinished) return true;
+
+    // Medications without configured dose times can register manual doses
+    if (doseTimes.isEmpty) return true;
+
+    // Medications that shouldn't be taken today can register manual doses
+    if (!shouldTakeToday()) return true;
+
+    // Otherwise, use regular dose registration
+    return false;
   }
 
   /// Get status description for UI

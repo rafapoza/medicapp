@@ -25,7 +25,8 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
     if (!mounted) return;
 
     setState(() {
-      _medications = medications;
+      // Filter out suspended medications from Pastillero
+      _medications = medications.where((m) => !m.isSuspended).toList();
       _isLoading = false;
     });
   }

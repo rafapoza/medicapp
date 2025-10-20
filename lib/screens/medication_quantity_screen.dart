@@ -128,7 +128,11 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '7 de 7' : '8 de 8';
+    final stepNumber = widget.durationType == TreatmentDurationType.asNeeded
+        ? '2 de 2'
+        : widget.durationType == TreatmentDurationType.specificDates
+            ? '7 de 7'
+            : '8 de 8';
 
     return Scaffold(
       appBar: AppBar(
@@ -332,16 +336,18 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                           'Tipo',
                           widget.medicationType.displayName,
                         ),
-                        _buildSummaryRow(
-                          Icons.access_time,
-                          'Tomas al día',
-                          '${widget.doseSchedule.length}',
-                        ),
-                        _buildSummaryRow(
-                          Icons.schedule,
-                          'Horarios',
-                          widget.doseSchedule.keys.join(', '),
-                        ),
+                        if (widget.doseSchedule.isNotEmpty) ...[
+                          _buildSummaryRow(
+                            Icons.access_time,
+                            'Tomas al día',
+                            '${widget.doseSchedule.length}',
+                          ),
+                          _buildSummaryRow(
+                            Icons.schedule,
+                            'Horarios',
+                            widget.doseSchedule.keys.join(', '),
+                          ),
+                        ],
                         _buildSummaryRow(
                           Icons.calendar_today,
                           'Frecuencia',
@@ -442,6 +448,8 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
       case TreatmentDurationType.intervalDays:
         final interval = widget.dayInterval ?? 2;
         return 'Cada $interval días';
+      case TreatmentDurationType.asNeeded:
+        return 'Según necesidad';
     }
   }
 }

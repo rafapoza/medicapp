@@ -5,7 +5,8 @@ enum TreatmentDurationType {
   untilFinished('Hasta acabar la medicación'),
   specificDates('Fechas específicas'),
   weeklyPattern('Días de la semana'),
-  intervalDays('Cada N días');
+  intervalDays('Cada N días'),
+  asNeeded('Según necesidad');
 
   final String displayName;
 
@@ -23,6 +24,8 @@ enum TreatmentDurationType {
         return Icons.date_range;
       case TreatmentDurationType.intervalDays:
         return Icons.repeat;
+      case TreatmentDurationType.asNeeded:
+        return Icons.healing;
     }
   }
 
@@ -38,6 +41,8 @@ enum TreatmentDurationType {
         return Colors.teal;
       case TreatmentDurationType.intervalDays:
         return Colors.orange;
+      case TreatmentDurationType.asNeeded:
+        return Colors.indigo;
     }
   }
 }

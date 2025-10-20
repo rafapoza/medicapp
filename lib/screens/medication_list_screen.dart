@@ -9,6 +9,7 @@ import '../utils/medication_sorter.dart';
 import 'medication_info_screen.dart';
 import 'edit_medication_menu_screen.dart';
 import 'medication_stock_screen.dart';
+import 'medicine_cabinet_screen.dart';
 import 'dose_history_screen.dart';
 
 class MedicationListScreen extends StatefulWidget {
@@ -224,8 +225,15 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
   Future<void> _loadMedications() async {
     print('Loading medications from database...');
-    final medications = await DatabaseHelper.instance.getAllMedications();
-    print('Loaded ${medications.length} medications');
+    final allMedications = await DatabaseHelper.instance.getAllMedications();
+    print('Loaded ${allMedications.length} medications');
+
+    // Filter out "as needed" medications and suspended medications - they only appear in Botiquín
+    final medications = allMedications.where((m) =>
+      m.durationType != TreatmentDurationType.asNeeded &&
+      !m.isSuspended
+    ).toList();
+    print('Filtered to ${medications.length} medications (excluded ${allMedications.length - medications.length} "as needed" or suspended)');
 
     for (var med in medications) {
       print('- ${med.name}: ${med.doseTimes.length} dose times');
@@ -737,6 +745,253 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     }
   }
 
+  void _registerManualDose(Medication medication) async {
+    // Close the modal first
+    Navigator.pop(context);
+
+    // Check if there's any stock available
+    if (medication.stockQuantity <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No hay stock disponible de este medicamento'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Show dialog to input dose quantity
+    final doseController = TextEditingController(text: '1.0');
+
+    final doseQuantity = await showDialog<double>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Registrar toma de ${medication.name}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Stock disponible: ${medication.stockDisplayText}',
+                  style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 16),
+                // Quantity label
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.medication, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Cantidad tomada',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(dialogContext).colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '(${medication.type.stockUnit})',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Quantity field
+                TextField(
+                  controller: doseController,
+                  decoration: InputDecoration(
+                    hintText: 'Ej: 1',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  autofocus: true,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, null),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final quantity = double.tryParse(doseController.text.trim());
+                if (quantity != null && quantity > 0) {
+                  Navigator.pop(dialogContext, quantity);
+                }
+              },
+              child: const Text('Registrar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Dispose controller after dialog closes
+    Future.delayed(const Duration(milliseconds: 100), () {
+      doseController.dispose();
+    });
+
+    if (doseQuantity != null && doseQuantity > 0) {
+      // Check if there's enough stock for this dose
+      if (medication.stockQuantity < doseQuantity) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Stock insuficiente para esta toma\n'
+              'Necesitas: $doseQuantity ${medication.type.stockUnit}\n'
+              'Disponible: ${medication.stockDisplayText}'
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+
+      // Decrease stock
+      final updatedMedication = Medication(
+        id: medication.id,
+        name: medication.name,
+        type: medication.type,
+        dosageIntervalHours: medication.dosageIntervalHours,
+        durationType: medication.durationType,
+        doseSchedule: medication.doseSchedule,
+        stockQuantity: medication.stockQuantity - doseQuantity,
+        takenDosesToday: medication.takenDosesToday,
+        skippedDosesToday: medication.skippedDosesToday,
+        takenDosesDate: medication.takenDosesDate,
+        lastRefillAmount: medication.lastRefillAmount,
+        lowStockThresholdDays: medication.lowStockThresholdDays,
+        selectedDates: medication.selectedDates,
+        weeklyDays: medication.weeklyDays,
+        dayInterval: medication.dayInterval,
+        startDate: medication.startDate,
+        endDate: medication.endDate,
+        requiresFasting: medication.requiresFasting,
+        fastingType: medication.fastingType,
+        fastingDurationMinutes: medication.fastingDurationMinutes,
+        notifyFasting: medication.notifyFasting,
+        isSuspended: medication.isSuspended,
+      );
+
+      // Update in database
+      await DatabaseHelper.instance.updateMedication(updatedMedication);
+
+      // Create history entry with current time
+      final now = DateTime.now();
+      final historyEntry = DoseHistoryEntry(
+        id: '${medication.id}_${now.millisecondsSinceEpoch}',
+        medicationId: medication.id,
+        medicationName: medication.name,
+        medicationType: medication.type,
+        scheduledDateTime: now, // For manual doses, scheduled time = actual time
+        registeredDateTime: now,
+        status: DoseStatus.taken,
+        quantity: doseQuantity,
+      );
+
+      await DatabaseHelper.instance.insertDoseHistory(historyEntry);
+
+      // Reload medications
+      await _loadMedications();
+
+      if (!mounted) return;
+
+      // Show confirmation
+      final confirmationMessage = 'Toma manual de ${medication.name} registrada\n'
+          'Cantidad: $doseQuantity ${medication.type.stockUnit}\n'
+          'Stock restante: ${updatedMedication.stockDisplayText}';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(confirmationMessage),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  void _toggleSuspendMedication(Medication medication) async {
+    // Close the modal first
+    Navigator.pop(context);
+
+    // Toggle the suspended status
+    final updatedMedication = Medication(
+      id: medication.id,
+      name: medication.name,
+      type: medication.type,
+      dosageIntervalHours: medication.dosageIntervalHours,
+      durationType: medication.durationType,
+      doseSchedule: medication.doseSchedule,
+      stockQuantity: medication.stockQuantity,
+      takenDosesToday: medication.takenDosesToday,
+      skippedDosesToday: medication.skippedDosesToday,
+      takenDosesDate: medication.takenDosesDate,
+      lastRefillAmount: medication.lastRefillAmount,
+      lowStockThresholdDays: medication.lowStockThresholdDays,
+      selectedDates: medication.selectedDates,
+      weeklyDays: medication.weeklyDays,
+      dayInterval: medication.dayInterval,
+      startDate: medication.startDate,
+      endDate: medication.endDate,
+      requiresFasting: medication.requiresFasting,
+      fastingType: medication.fastingType,
+      fastingDurationMinutes: medication.fastingDurationMinutes,
+      notifyFasting: medication.notifyFasting,
+      isSuspended: !medication.isSuspended, // Toggle the suspension status
+    );
+
+    // Update in database
+    await DatabaseHelper.instance.updateMedication(updatedMedication);
+
+    // If suspending, cancel all notifications
+    if (updatedMedication.isSuspended) {
+      await NotificationService.instance.cancelMedicationNotifications(
+        medication.id,
+        medication: updatedMedication,
+      );
+    } else {
+      // If reactivating, reschedule notifications
+      await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
+    }
+
+    // Reload medications
+    await _loadMedications();
+
+    if (!mounted) return;
+
+    // Show confirmation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          updatedMedication.isSuspended
+              ? '${medication.name} suspendido\nNo se programarán más notificaciones'
+              : '${medication.name} reactivado\nNotificaciones reprogramadas',
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   void _refillMedication(Medication medication) async {
     // Close the modal first
     Navigator.pop(context);
@@ -889,9 +1144,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       ),
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.5,
-          minChildSize: 0.4,
-          maxChildSize: 0.9,
+          initialChildSize: 0.7,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
           expand: false,
           builder: (context, scrollController) {
             return SingleChildScrollView(
@@ -963,12 +1218,42 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   ),
                   const SizedBox(height: 16),
                   // Action buttons - more compact
+                  // Show different button based on whether medication allows manual registration
+                  if (medication.allowsManualDoseRegistration) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: () => _registerManualDose(medication),
+                        icon: const Icon(Icons.medication, size: 18),
+                        label: const Text('Registrar toma manual'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+                          foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                  ] else ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: () => _registerDose(medication),
+                        icon: const Icon(Icons.medication_liquid, size: 18),
+                        label: const Text('Registrar toma'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                  ],
                   SizedBox(
                     width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: () => _registerDose(medication),
-                      icon: const Icon(Icons.medication_liquid, size: 18),
-                      label: const Text('Registrar toma'),
+                    child: FilledButton.tonalIcon(
+                      onPressed: () => _refillMedication(medication),
+                      icon: const Icon(Icons.add_box, size: 18),
+                      label: const Text('Recargar medicamento'),
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
@@ -978,10 +1263,19 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.tonalIcon(
-                      onPressed: () => _refillMedication(medication),
-                      icon: const Icon(Icons.add_box, size: 18),
-                      label: const Text('Recargar medicamento'),
+                      onPressed: () => _toggleSuspendMedication(medication),
+                      icon: Icon(
+                        medication.isSuspended ? Icons.play_arrow : Icons.pause,
+                        size: 18,
+                      ),
+                      label: Text(medication.isSuspended ? 'Reactivar medicamento' : 'Suspender medicamento'),
                       style: FilledButton.styleFrom(
+                        backgroundColor: medication.isSuspended
+                            ? Theme.of(context).colorScheme.primaryContainer
+                            : Theme.of(context).colorScheme.secondaryContainer,
+                        foregroundColor: medication.isSuspended
+                            ? Theme.of(context).colorScheme.onPrimaryContainer
+                            : Theme.of(context).colorScheme.onSecondaryContainer,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                     ),
@@ -1475,6 +1769,18 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     );
   }
 
+  void _navigateToCabinet() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MedicineCabinetScreen(),
+      ),
+    );
+
+    // Reload medications after returning from cabinet (in case medications were resumed/deleted)
+    await _loadMedications();
+  }
+
   void _navigateToHistory() async {
     final hasChanges = await Navigator.push<bool>(
       context,
@@ -1536,6 +1842,21 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   },
                   icon: const Icon(Icons.inventory_2),
                   label: const Text('Ver Pastillero'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _navigateToCabinet();
+                  },
+                  icon: const Icon(Icons.medical_information),
+                  label: const Text('Ver Botiquín'),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -2182,7 +2503,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                       }
 
                       return Opacity(
-                  opacity: medication.isFinished ? 0.5 : 1.0, // Phase 2: Dim finished medications
+                  opacity: (medication.isFinished || medication.isSuspended) ? 0.5 : 1.0, // Dim finished or suspended medications
                   child: Card(
                     margin: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -2224,8 +2545,29 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                                 ),
                                 const SizedBox(height: 4),
                               ],
+                              // Show suspended status
+                              if (medication.isSuspended) ...[
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.pause_circle_outline,
+                                      size: 16,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Suspendido',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Colors.grey.shade600,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                              ],
                               // Phase 2: Show status description (e.g., "Día 3 de 7", "Empieza el...", "Finalizado")
-                              if (medication.statusDescription.isNotEmpty) ...[
+                              if (!medication.isSuspended && medication.statusDescription.isNotEmpty) ...[
                                 Text(
                                   medication.statusDescription,
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(

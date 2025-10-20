@@ -1,14 +1,22 @@
 # Funcionalidades
 
-- **Añadir medicamentos**: Con un flujo guiado modular en 8 pasos:
-  - **Paso 1**: Información básica (nombre, tipo de medicamento)
-  - **Paso 2**: Tipo de duración del tratamiento (tratamiento continuo, hasta acabar medicación, fechas específicas)
-  - **Paso 3**: Fechas del tratamiento (inicio y fin)
-  - **Paso 4**: Frecuencia de medicación (todos los días, días específicos de la semana, cada N días, fechas específicas)
-  - **Paso 5**: Configuración de dosis (intervalo fijo o dosis personalizadas por día)
-  - **Paso 6**: Horario de tomas (definición de horarios y cantidades específicas)
-  - **Paso 7**: Configuración de ayuno (opcional: define si requiere ayuno, tipo, duración y notificaciones)
-  - **Paso 8**: Cantidad de medicamento (stock inicial y umbral de alerta)
+- **Añadir medicamentos**: Con un flujo guiado modular adaptable:
+  - **Flujo completo (8 pasos)** para medicamentos con horarios programados:
+    - **Paso 1**: Información básica (nombre, tipo de medicamento)
+    - **Paso 2**: Tipo de duración del tratamiento (tratamiento continuo, hasta acabar medicación, fechas específicas)
+    - **Paso 3**: Fechas del tratamiento (inicio y fin)
+    - **Paso 4**: Frecuencia de medicación (todos los días, días específicos de la semana, cada N días, fechas específicas)
+    - **Paso 5**: Configuración de dosis (intervalo fijo o dosis personalizadas por día)
+    - **Paso 6**: Horario de tomas (definición de horarios y cantidades específicas)
+    - **Paso 7**: Configuración de ayuno (opcional: define si requiere ayuno, tipo, duración y notificaciones)
+    - **Paso 8**: Cantidad de medicamento (stock inicial y umbral de alerta)
+  - **Flujo simplificado (2 pasos)** para medicamentos ocasionales:
+    - **Paso 1**: Información básica (nombre, tipo de medicamento)
+    - **Paso 2**: Seleccionar "Medicamento ocasional" → salta directamente al paso de cantidad
+    - Perfecto para analgésicos, antiácidos, o cualquier medicamento que se tome solo cuando sea necesario
+    - No requiere configurar horarios, frecuencias ni fechas
+    - **No aparecen en la pantalla principal** (solo en Botiquín)
+    - Se registran tocando el medicamento en el Botiquín
 - **Tipos de medicamento**: Elige entre diferentes tipos de medicamento, cada uno con su unidad de medida específica:
   - Pastilla, Inyección, Óvulo, Aplicación, Gota, Gramo, Mililitro
 - **Programación de horarios y dosis**: Sistema de horarios flexible y potente:
@@ -23,31 +31,79 @@
   - **Fechas específicas**: Selecciona días concretos del calendario en los que tomar el medicamento
   - **Días de la semana**: Define un patrón semanal (ej: lunes, miércoles y viernes)
   - **Cada N días**: Para tratamientos con intervalo de días (ej: cada 2 días, cada 3 días)
+  - **Medicamento ocasional (Según necesidad)**: Para medicamentos que se toman solo cuando es necesario, sin horarios programados
+    - Flujo simplificado que omite la configuración de horarios, frecuencias y fechas
+    - Ideal para analgésicos, antiácidos, medicamentos para síntomas puntuales, etc.
+    - Se registran manualmente cada vez que se toman
 - **Control de fechas del tratamiento**: Sistema flexible para definir inicio y fin
   - **Fecha de inicio**: Define cuándo comenzar el tratamiento (el medicamento aparece como "pendiente" hasta esa fecha)
   - **Fecha de fin**: Define cuándo termina el tratamiento (el medicamento se marca como "finalizado" después de esa fecha)
   - **Progreso del tratamiento**: Visualización del día actual y días restantes
   - **Totalmente opcional**: Si no defines fechas, el tratamiento continúa indefinidamente según el tipo de duración elegido
 - **Registro de tomas**: Sistema completo e inteligente para registrar cuando tomas tus medicamentos
-  - Botón "Registrar toma" accesible desde cada medicamento
-  - Selección del horario específico que acabas de tomar
-  - Sistema inteligente de tomas restantes:
-    - Rastrea qué tomas ya se han tomado hoy
-    - Solo muestra las tomas pendientes del día actual
-    - Registro automático si solo queda una toma pendiente
-    - Mensaje de confirmación al completar todas las tomas del día
-  - Descuento automático de stock según la cantidad específica de cada toma
-  - Validación de stock disponible para la dosis específica antes de permitir el registro
-  - Validación de tomas disponibles (no permite registrar más tomas de las programadas)
-  - Confirmación visual con stock restante y tomas pendientes
-  - Reprogramación automática de notificaciones tras cada registro
+  - **Registro programado**: Para medicamentos con horarios configurados
+    - Botón "Registrar toma" accesible desde cada medicamento
+    - Selección del horario específico que acabas de tomar
+    - Sistema inteligente de tomas restantes:
+      - Rastrea qué tomas ya se han tomado hoy
+      - Solo muestra las tomas pendientes del día actual
+      - Registro automático si solo queda una toma pendiente
+      - Mensaje de confirmación al completar todas las tomas del día
+    - Descuento automático de stock según la cantidad específica de cada toma
+    - Validación de stock disponible para la dosis específica antes de permitir el registro
+    - Validación de tomas disponibles (no permite registrar más tomas de las programadas)
+    - Confirmación visual con stock restante y tomas pendientes
+    - Reprogramación automática de notificaciones tras cada registro
+  - **Registro manual**: Para medicamentos "según necesidad" o sin medicación activa
+    - Botón "Registrar toma manual" para medicamentos suspendidos, sin horarios, o fuera de su calendario
+    - Diálogo para introducir la cantidad exacta tomada
+    - Registro en el historial con la hora actual
+    - Descuento automático de stock según la cantidad introducida
+    - Perfecto para analgésicos, antiácidos, medicamentos esporádicos, etc.
 - **Gestión de stock (Pastillero)**: Control completo del inventario de medicamentos
   - Registra la cantidad disponible de cada medicamento con unidades específicas (pastillas, ml, gramos, óvulos, aplicaciones, gotas)
   - Pantalla dedicada "Pastillero" con vista general del inventario
   - Indicadores visuales de estado: disponible (verde), stock bajo (naranja), sin stock (rojo)
-  - Cálculo automático de duración estimada considerando dosis variables por toma
+  - Cálculo automático de duración estimada:
+    - **Medicamentos programados**: Se basa en la dosis diaria total configurada en los horarios
+    - **Medicamentos ocasionales**: Se basa en la cantidad consumida el último día que se utilizó el medicamento
   - Umbral de stock bajo configurable por medicamento: decide con cuántos días de anticipación quieres ser avisado (1-30 días, por defecto 3)
   - Tarjetas resumen con totales, medicamentos con stock bajo y sin stock
+- **Botiquín**: Vista completa de inventario de medicamentos
+  - Pantalla dedicada "Botiquín" accesible desde el menú FAB
+  - Lista alfabética de todos los medicamentos registrados
+  - Muestra nombre, tipo y cantidad disponible de cada medicamento
+  - Indicadores visuales de stock con códigos de color (verde/naranja/rojo)
+  - **Modal de acciones rápidas**:
+    - Acceso directo al tocar cualquier tarjeta de medicamento
+    - Interfaz limpia sin botones adicionales en las tarjetas
+    - Muestra información del medicamento y stock actual
+    - Opciones disponibles según el estado del medicamento:
+      - **Reanudar medicación**: Para medicamentos suspendidos (reactiva notificaciones)
+      - **Registrar toma**: Para medicamentos ocasionales que no están suspendidos
+      - **Recargar medicamento**: Para todos los medicamentos
+      - **Editar medicamento**: Para modificar cualquier aspecto del medicamento
+      - **Eliminar medicamento**: Para eliminar permanentemente el medicamento y su historial
+    - Experiencia consistente e intuitiva para todos los medicamentos
+    - Confirmación de seguridad antes de eliminar
+  - **Recarga de stock**:
+    - Diálogo intuitivo que muestra el stock actual
+    - Sugerencia automática basada en la última recarga
+    - Unidades específicas según el tipo de medicamento
+    - Actualización inmediata del stock y confirmación visual
+  - **Registro de medicamentos ocasionales**:
+    - Los medicamentos "según necesidad" solo aparecen en el Botiquín (no en pantalla principal)
+    - Muestra indicador visual "Toca para registrar" en medicamentos ocasionales activos
+    - Toca la tarjeta para abrir el modal con las opciones disponibles
+    - Diálogo para introducir la cantidad exacta tomada
+    - Registro automático en el historial con hora actual
+    - Descuento automático del stock según la cantidad introducida
+    - Cálculo inteligente de stock bajo basado en consumo real
+  - Buscador integrado para filtrar medicamentos por nombre
+  - Búsqueda case-insensitive (no distingue mayúsculas/minúsculas)
+  - Botón de borrado rápido en el buscador
+  - Pull-to-refresh para recargar el inventario
+  - Estados vacíos informativos cuando no hay medicamentos o no hay resultados de búsqueda
 - **Recarga de medicamentos**: Sistema inteligente para reponer el stock
   - Botón "Recargar medicamento" accesible desde cada medicamento
   - Diálogo intuitivo que muestra el stock actual
@@ -101,6 +157,14 @@
   - **Configuración de ayuno**: Modifica los parámetros de ayuno (tipo, duración, notificaciones)
   - **Cantidad disponible**: Actualiza el stock y el umbral de alerta
   - Cada sección se edita de forma independiente y se guarda inmediatamente
+- **Suspensión de medicamentos**: Gestión temporal de tratamientos
+  - **Suspender medicamento**: Pausa temporalmente las notificaciones de un medicamento
+  - **Visibilidad selectiva**:
+    - Los medicamentos suspendidos NO aparecen en el Pastillero (vista de stock activo)
+    - Los medicamentos suspendidos NO aparecen en la pantalla principal
+    - Los medicamentos suspendidos SÍ aparecen en el Botiquín (inventario completo) con su stock actual e indicador visual
+  - **Reactivación**: Reactiva fácilmente el medicamento desde el Botiquín y reprograma todas las notificaciones
+  - **Acceso rápido**: Suspender/reactivar desde el menú de acciones de cada medicamento o desde el Botiquín
 - **Eliminación**: Elimina medicamentos de tu lista
 - **Validación inteligente**:
   - Previene la creación de medicamentos duplicados (case-insensitive)

@@ -141,7 +141,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     if (!mounted) return;
 
     // Show confirmation and go back
-    Navigator.pop(context);
+    Navigator.pop(context, true); // Return true to indicate changes were made
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -223,7 +223,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     if (!mounted) return;
 
     // Show confirmation and go back
-    Navigator.pop(context);
+    Navigator.pop(context, true); // Return true to indicate changes were made
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -265,7 +265,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     if (!mounted) return;
 
     // Show confirmation and go back
-    Navigator.pop(context);
+    Navigator.pop(context, true); // Return true to indicate changes were made
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -298,7 +298,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     if (!mounted) return;
 
     // Show confirmation and go back
-    Navigator.pop(context);
+    Navigator.pop(context, true); // Return true to indicate changes were made
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(

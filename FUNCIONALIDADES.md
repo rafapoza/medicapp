@@ -66,6 +66,7 @@
     - **Registrar toma**: Marca la toma como tomada y descuenta del stock
     - **Marcar como no tomada**: Registra que no tomaste la dosis sin descontar stock
     - **Posponer toma**: Programa una notificación única para más tarde sin alterar el horario habitual
+  - **Actualización automática**: La pantalla principal se recarga automáticamente cuando vuelves a la app después de registrar una dosis desde una notificación
 - **Configuración de ayuno**: Sistema completo para gestionar períodos de ayuno asociados a medicamentos
   - **Configuración por medicamento**: Define si un medicamento requiere ayuno durante el flujo de añadir/editar
   - **Tipo de ayuno**: Especifica si el ayuno es antes o después de tomar el medicamento
@@ -111,7 +112,7 @@
   - Diseño moderno con Material Design 3
   - Layout adaptable que muestra 3 tipos de medicamento por fila en todos los dispositivos
   - Scroll optimizado para pantallas pequeñas
-  - Pull-to-refresh en pantalla de Pastillero
+  - **Pull-to-refresh**: Arrastra hacia abajo para recargar manualmente la pantalla principal y el Pastillero
 - **Visualización detallada**: Cada medicamento muestra su tipo, nombre, duración del tratamiento y próxima toma
 - **Indicadores visuales de stock**: Alertas en pantalla principal para medicamentos con problemas de stock
   - Icono rojo de error cuando el medicamento se ha agotado (stock = 0)

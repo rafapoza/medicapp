@@ -18,7 +18,7 @@ class MedicationListScreen extends StatefulWidget {
   State<MedicationListScreen> createState() => _MedicationListScreenState();
 }
 
-class _MedicationListScreenState extends State<MedicationListScreen> {
+class _MedicationListScreenState extends State<MedicationListScreen> with WidgetsBindingObserver {
   final List<Medication> _medications = [];
   bool _isLoading = true;
   bool _debugMenuVisible = false;
@@ -29,9 +29,25 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this); // Add lifecycle observer
     _loadBatteryBannerPreference();
     _loadMedications();
     _checkNotificationPermissions();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this); // Remove lifecycle observer
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Reload medications when app resumes (e.g., after handling a notification)
+    if (state == AppLifecycleState.resumed) {
+      _loadMedications();
+    }
   }
 
   /// Load battery banner dismissal preference
@@ -1974,30 +1990,50 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               child: CircularProgressIndicator(),
             )
           : _medications.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.medical_services_outlined,
-                    size: 80,
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No hay medicamentos registrados',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ? RefreshIndicator(
+              onRefresh: _loadMedications,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.medical_services_outlined,
+                              size: 80,
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No hay medicamentos registrados',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Pulsa el botón + para añadir uno',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Arrastra hacia abajo para recargar',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
+                                  ),
+                            ),
+                          ],
                         ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pulsa el botón + para añadir uno',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ],
+                      ),
+                    ),
+                  );
+                },
               ),
             )
           : Column(
@@ -2126,10 +2162,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   ),
                 // Medications list
                 Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-                    itemCount: _medications.length,
-                    itemBuilder: (context, index) {
+                  child: RefreshIndicator(
+                    onRefresh: _loadMedications,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                      itemCount: _medications.length,
+                      itemBuilder: (context, index) {
                       final medication = _medications[index];
 
                       // Determine stock status icon and color
@@ -2299,7 +2337,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                 );
                     },
                   ),
-                ),
+                    ),
+                  ),
               ],
             ),
       floatingActionButton: FloatingActionButton(

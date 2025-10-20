@@ -738,6 +738,191 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     }
   }
 
+  void _registerManualDose(Medication medication) async {
+    // Close the modal first
+    Navigator.pop(context);
+
+    // Check if there's any stock available
+    if (medication.stockQuantity <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No hay stock disponible de este medicamento'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Show dialog to input dose quantity
+    final doseController = TextEditingController(text: '1.0');
+
+    final doseQuantity = await showDialog<double>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Registrar toma de ${medication.name}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Stock disponible: ${medication.stockDisplayText}',
+                  style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 16),
+                // Quantity label
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.medication, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Cantidad tomada',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(dialogContext).colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '(${medication.type.stockUnit})',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Quantity field
+                TextField(
+                  controller: doseController,
+                  decoration: InputDecoration(
+                    hintText: 'Ej: 1',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  autofocus: true,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, null),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final quantity = double.tryParse(doseController.text.trim());
+                if (quantity != null && quantity > 0) {
+                  Navigator.pop(dialogContext, quantity);
+                }
+              },
+              child: const Text('Registrar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Dispose controller after dialog closes
+    Future.delayed(const Duration(milliseconds: 100), () {
+      doseController.dispose();
+    });
+
+    if (doseQuantity != null && doseQuantity > 0) {
+      // Check if there's enough stock for this dose
+      if (medication.stockQuantity < doseQuantity) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Stock insuficiente para esta toma\n'
+              'Necesitas: $doseQuantity ${medication.type.stockUnit}\n'
+              'Disponible: ${medication.stockDisplayText}'
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+
+      // Decrease stock
+      final updatedMedication = Medication(
+        id: medication.id,
+        name: medication.name,
+        type: medication.type,
+        dosageIntervalHours: medication.dosageIntervalHours,
+        durationType: medication.durationType,
+        doseSchedule: medication.doseSchedule,
+        stockQuantity: medication.stockQuantity - doseQuantity,
+        takenDosesToday: medication.takenDosesToday,
+        skippedDosesToday: medication.skippedDosesToday,
+        takenDosesDate: medication.takenDosesDate,
+        lastRefillAmount: medication.lastRefillAmount,
+        lowStockThresholdDays: medication.lowStockThresholdDays,
+        selectedDates: medication.selectedDates,
+        weeklyDays: medication.weeklyDays,
+        dayInterval: medication.dayInterval,
+        startDate: medication.startDate,
+        endDate: medication.endDate,
+        requiresFasting: medication.requiresFasting,
+        fastingType: medication.fastingType,
+        fastingDurationMinutes: medication.fastingDurationMinutes,
+        notifyFasting: medication.notifyFasting,
+        isSuspended: medication.isSuspended,
+      );
+
+      // Update in database
+      await DatabaseHelper.instance.updateMedication(updatedMedication);
+
+      // Create history entry with current time
+      final now = DateTime.now();
+      final historyEntry = DoseHistoryEntry(
+        id: '${medication.id}_${now.millisecondsSinceEpoch}',
+        medicationId: medication.id,
+        medicationName: medication.name,
+        medicationType: medication.type,
+        scheduledDateTime: now, // For manual doses, scheduled time = actual time
+        registeredDateTime: now,
+        status: DoseStatus.taken,
+        quantity: doseQuantity,
+      );
+
+      await DatabaseHelper.instance.insertDoseHistory(historyEntry);
+
+      // Reload medications
+      await _loadMedications();
+
+      if (!mounted) return;
+
+      // Show confirmation
+      final confirmationMessage = 'Toma manual de ${medication.name} registrada\n'
+          'Cantidad: $doseQuantity ${medication.type.stockUnit}\n'
+          'Stock restante: ${updatedMedication.stockDisplayText}';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(confirmationMessage),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   void _toggleSuspendMedication(Medication medication) async {
     // Close the modal first
     Navigator.pop(context);
@@ -1026,18 +1211,36 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   ),
                   const SizedBox(height: 16),
                   // Action buttons - more compact
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: () => _registerDose(medication),
-                      icon: const Icon(Icons.medication_liquid, size: 18),
-                      label: const Text('Registrar toma'),
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                  // Show different button based on whether medication allows manual registration
+                  if (medication.allowsManualDoseRegistration) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: () => _registerManualDose(medication),
+                        icon: const Icon(Icons.medication, size: 18),
+                        label: const Text('Registrar toma manual'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+                          foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 6),
+                    const SizedBox(height: 6),
+                  ] else ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: () => _registerDose(medication),
+                        icon: const Icon(Icons.medication_liquid, size: 18),
+                        label: const Text('Registrar toma'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                  ],
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.tonalIcon(

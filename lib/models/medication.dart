@@ -371,6 +371,25 @@ class Medication {
     return (currentDay! / totalDays!).clamp(0.0, 1.0);
   }
 
+  /// Check if medication allows manual dose registration (for "as needed" medications)
+  /// Returns true if medication doesn't have active scheduled doses
+  bool get allowsManualDoseRegistration {
+    // Suspended medications can register manual doses
+    if (isSuspended) return true;
+
+    // Pending or finished medications can register manual doses
+    if (isPending || isFinished) return true;
+
+    // Medications without configured dose times can register manual doses
+    if (doseTimes.isEmpty) return true;
+
+    // Medications that shouldn't be taken today can register manual doses
+    if (!shouldTakeToday()) return true;
+
+    // Otherwise, use regular dose registration
+    return false;
+  }
+
   /// Get status description for UI
   String get statusDescription {
     if (isPending) {

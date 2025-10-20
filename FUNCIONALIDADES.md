@@ -29,18 +29,25 @@
   - **Progreso del tratamiento**: Visualización del día actual y días restantes
   - **Totalmente opcional**: Si no defines fechas, el tratamiento continúa indefinidamente según el tipo de duración elegido
 - **Registro de tomas**: Sistema completo e inteligente para registrar cuando tomas tus medicamentos
-  - Botón "Registrar toma" accesible desde cada medicamento
-  - Selección del horario específico que acabas de tomar
-  - Sistema inteligente de tomas restantes:
-    - Rastrea qué tomas ya se han tomado hoy
-    - Solo muestra las tomas pendientes del día actual
-    - Registro automático si solo queda una toma pendiente
-    - Mensaje de confirmación al completar todas las tomas del día
-  - Descuento automático de stock según la cantidad específica de cada toma
-  - Validación de stock disponible para la dosis específica antes de permitir el registro
-  - Validación de tomas disponibles (no permite registrar más tomas de las programadas)
-  - Confirmación visual con stock restante y tomas pendientes
-  - Reprogramación automática de notificaciones tras cada registro
+  - **Registro programado**: Para medicamentos con horarios configurados
+    - Botón "Registrar toma" accesible desde cada medicamento
+    - Selección del horario específico que acabas de tomar
+    - Sistema inteligente de tomas restantes:
+      - Rastrea qué tomas ya se han tomado hoy
+      - Solo muestra las tomas pendientes del día actual
+      - Registro automático si solo queda una toma pendiente
+      - Mensaje de confirmación al completar todas las tomas del día
+    - Descuento automático de stock según la cantidad específica de cada toma
+    - Validación de stock disponible para la dosis específica antes de permitir el registro
+    - Validación de tomas disponibles (no permite registrar más tomas de las programadas)
+    - Confirmación visual con stock restante y tomas pendientes
+    - Reprogramación automática de notificaciones tras cada registro
+  - **Registro manual**: Para medicamentos "según necesidad" o sin medicación activa
+    - Botón "Registrar toma manual" para medicamentos suspendidos, sin horarios, o fuera de su calendario
+    - Diálogo para introducir la cantidad exacta tomada
+    - Registro en el historial con la hora actual
+    - Descuento automático de stock según la cantidad introducida
+    - Perfecto para analgésicos, antiácidos, medicamentos esporádicos, etc.
 - **Gestión de stock (Pastillero)**: Control completo del inventario de medicamentos
   - Registra la cantidad disponible de cada medicamento con unidades específicas (pastillas, ml, gramos, óvulos, aplicaciones, gotas)
   - Pantalla dedicada "Pastillero" con vista general del inventario

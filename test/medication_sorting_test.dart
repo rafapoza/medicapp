@@ -3,55 +3,47 @@ import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
 import 'package:medicapp/utils/medication_sorter.dart';
+import 'helpers/medication_builder.dart';
+import 'helpers/test_helpers.dart';
 
 void main() {
   group('Medication Sorting', () {
     test('should sort pending doses first (most overdue first)', () {
-      // Use real current time since Medication model uses DateTime.now()
       final now = DateTime.now();
       final currentHour = now.hour;
-      final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final today = getTodayString();
 
       // Calculate times: 2 hours ago, 1 hour ago, 1 hour ahead
-      final twoHoursAgo = ((currentHour - 2) % 24).clamp(0, 23);
-      final oneHourAgo = ((currentHour - 1) % 24).clamp(0, 23);
-      final oneHourAhead = (currentHour + 1) % 24;
+      final twoHoursAgo = formatRelativeTime(currentHour, -2);
+      final oneHourAgo = formatRelativeTime(currentHour, -1);
+      final oneHourAhead = formatRelativeTime(currentHour, 1);
 
       // Medication A: pending dose (1 hour overdue)
-      final medA = Medication(
-        id: 'med_a',
-        name: 'Medication A',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'${oneHourAgo.toString().padLeft(2, '0')}:00': 1.0},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medA = MedicationBuilder()
+          .withId('med_a')
+          .withName('Medication A')
+          .withDosageInterval(24)
+          .withSingleDose(oneHourAgo, 1.0)
+          .withTakenDoses([], today)
+          .build();
 
       // Medication B: pending dose (2 hours overdue)
-      final medB = Medication(
-        id: 'med_b',
-        name: 'Medication B',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'${twoHoursAgo.toString().padLeft(2, '0')}:00': 1.0},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medB = MedicationBuilder()
+          .withId('med_b')
+          .withName('Medication B')
+          .withDosageInterval(24)
+          .withSingleDose(twoHoursAgo, 1.0)
+          .withTakenDoses([], today)
+          .build();
 
       // Medication C: future dose (1 hour ahead)
-      final medC = Medication(
-        id: 'med_c',
-        name: 'Medication C',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'${oneHourAhead.toString().padLeft(2, '0')}:00': 1.0},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medC = MedicationBuilder()
+          .withId('med_c')
+          .withName('Medication C')
+          .withDosageInterval(24)
+          .withSingleDose(oneHourAhead, 1.0)
+          .withTakenDoses([], today)
+          .build();
 
       final medications = [medC, medA, medB];
       MedicationSorter.sortByNextDose(medications, currentTime: now);
@@ -63,51 +55,41 @@ void main() {
     });
 
     test('should sort future doses by proximity', () {
-      // Use real current time since Medication model uses DateTime.now()
       final now = DateTime.now();
       final currentHour = now.hour;
-      final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final today = getTodayString();
 
       // Calculate future times: 1, 2, and 6 hours ahead
-      final oneHourAhead = (currentHour + 1) % 24;
-      final twoHoursAhead = (currentHour + 2) % 24;
-      final sixHoursAhead = (currentHour + 6) % 24;
+      final oneHourAhead = formatRelativeTime(currentHour, 1);
+      final twoHoursAhead = formatRelativeTime(currentHour, 2);
+      final sixHoursAhead = formatRelativeTime(currentHour, 6);
 
       // Medication A: dose 6 hours ahead
-      final medA = Medication(
-        id: 'med_a',
-        name: 'Medication A',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'${sixHoursAhead.toString().padLeft(2, '0')}:00': 1.0},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medA = MedicationBuilder()
+          .withId('med_a')
+          .withName('Medication A')
+          .withDosageInterval(24)
+          .withSingleDose(sixHoursAhead, 1.0)
+          .withTakenDoses([], today)
+          .build();
 
       // Medication B: dose 1 hour ahead
-      final medB = Medication(
-        id: 'med_b',
-        name: 'Medication B',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'${oneHourAhead.toString().padLeft(2, '0')}:00': 1.0},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medB = MedicationBuilder()
+          .withId('med_b')
+          .withName('Medication B')
+          .withDosageInterval(24)
+          .withSingleDose(oneHourAhead, 1.0)
+          .withTakenDoses([], today)
+          .build();
 
       // Medication C: dose 2 hours ahead
-      final medC = Medication(
-        id: 'med_c',
-        name: 'Medication C',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'${twoHoursAhead.toString().padLeft(2, '0')}:00': 1.0},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medC = MedicationBuilder()
+          .withId('med_c')
+          .withName('Medication C')
+          .withDosageInterval(24)
+          .withSingleDose(twoHoursAhead, 1.0)
+          .withTakenDoses([], today)
+          .build();
 
       final medications = [medA, medC, medB];
       MedicationSorter.sortByNextDose(medications, currentTime: now);
@@ -119,53 +101,40 @@ void main() {
     });
 
     test('should place medications without next dose at the end', () {
-      // Use real current time for this test since Medication model uses DateTime.now()
       final now = DateTime.now();
       final currentHour = now.hour;
-      final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final today = getTodayString();
 
-      // Calculate a future time (2 hours from now, but ensure it's before midnight)
-      final futureHour = (currentHour + 2) % 24;
-      final futureTime = '${futureHour.toString().padLeft(2, '0')}:00';
+      // Calculate a future time (2 hours from now)
+      final futureTime = formatRelativeTime(currentHour, 2);
 
       // Medication A: has future dose (2 hours from now)
-      final medA = Medication(
-        id: 'med_a',
-        name: 'Medication A',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {futureTime: 1.0},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medA = MedicationBuilder()
+          .withId('med_a')
+          .withName('Medication A')
+          .withDosageInterval(24)
+          .withSingleDose(futureTime, 1.0)
+          .withTakenDoses([], today)
+          .build();
 
       // Medication B: no dose times configured
-      final medB = Medication(
-        id: 'med_b',
-        name: 'Medication B',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medB = MedicationBuilder()
+          .withId('med_b')
+          .withName('Medication B')
+          .withDosageInterval(24)
+          .withDoseSchedule({})
+          .withTakenDoses([], today)
+          .build();
 
       // Medication C: all doses already taken today
-      // Use a past time (2 hours ago, but ensure it's after midnight)
-      final pastHour = (currentHour - 2).clamp(0, 23);
-      final pastTime = '${pastHour.toString().padLeft(2, '0')}:00';
-      final medC = Medication(
-        id: 'med_c',
-        name: 'Medication C',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {pastTime: 1.0},
-        takenDosesToday: [pastTime],
-        takenDosesDate: today,
-      );
+      final pastTime = formatRelativeTime(currentHour, -2);
+      final medC = MedicationBuilder()
+          .withId('med_c')
+          .withName('Medication C')
+          .withDosageInterval(24)
+          .withSingleDose(pastTime, 1.0)
+          .withTakenDoses([pastTime], today)
+          .build();
 
       final medications = [medB, medA, medC];
       MedicationSorter.sortByNextDose(medications, currentTime: now);
@@ -179,40 +148,38 @@ void main() {
     });
 
     test('should prioritize pending over future doses', () {
-      // Use real current time since Medication model uses DateTime.now()
       final now = DateTime.now();
       final currentHour = now.hour;
       final currentMinute = now.minute;
-      final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final today = getTodayString();
 
-      // Calculate a past time (1 hour ago) and a very close future time (few minutes from now)
-      final oneHourAgo = ((currentHour - 1) % 24).clamp(0, 23);
+      // Calculate a past time (1 hour ago)
+      final oneHourAgo = formatRelativeTime(currentHour, -1);
+
+      // Calculate a very close future time (few minutes from now)
       final fewMinutesAhead = (currentMinute + 5) % 60;
-      final fewMinutesAheadHour = (fewMinutesAhead < currentMinute) ? (currentHour + 1) % 24 : currentHour;
+      final fewMinutesAheadHour = (fewMinutesAhead < currentMinute)
+          ? (currentHour + 1) % 24
+          : currentHour;
+      final closeFutureTime = formatTime(fewMinutesAheadHour, fewMinutesAhead);
 
       // Medication A: pending dose (overdue by 1 hour)
-      final medA = Medication(
-        id: 'med_a',
-        name: 'Medication A',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'${oneHourAgo.toString().padLeft(2, '0')}:00': 1.0},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medA = MedicationBuilder()
+          .withId('med_a')
+          .withName('Medication A')
+          .withDosageInterval(24)
+          .withSingleDose(oneHourAgo, 1.0)
+          .withTakenDoses([], today)
+          .build();
 
       // Medication B: future dose (very close, in few minutes)
-      final medB = Medication(
-        id: 'med_b',
-        name: 'Medication B',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'${fewMinutesAheadHour.toString().padLeft(2, '0')}:${fewMinutesAhead.toString().padLeft(2, '0')}': 1.0},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medB = MedicationBuilder()
+          .withId('med_b')
+          .withName('Medication B')
+          .withDosageInterval(24)
+          .withSingleDose(closeFutureTime, 1.0)
+          .withTakenDoses([], today)
+          .build();
 
       final medications = [medB, medA];
       MedicationSorter.sortByNextDose(medications, currentTime: now);
@@ -223,43 +190,37 @@ void main() {
     });
 
     test('should handle medications with multiple doses (find next available)', () {
-      // Use real current time since Medication model uses DateTime.now()
       final now = DateTime.now();
       final currentHour = now.hour;
-      final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final today = getTodayString();
 
       // Calculate times: 4 hours ago (taken), current hour (pending), 2 hours ahead (future)
-      final fourHoursAgo = ((currentHour - 4) % 24).clamp(0, 23);
-      final twoHoursAhead = (currentHour + 2) % 24;
+      final fourHoursAgo = formatRelativeTime(currentHour, -4);
+      final currentHourTime = formatTime(currentHour);
+      final twoHoursAhead = formatRelativeTime(currentHour, 2);
 
       // Medication A: has doses at multiple times, one already taken
-      final medA = Medication(
-        id: 'med_a',
-        name: 'Medication A',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 6,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {
-          '${fourHoursAgo.toString().padLeft(2, '0')}:00': 1.0,
-          '${currentHour.toString().padLeft(2, '0')}:00': 1.0,
-          '${twoHoursAhead.toString().padLeft(2, '0')}:00': 1.0,
-        },
-        takenDosesToday: ['${fourHoursAgo.toString().padLeft(2, '0')}:00'],
-        takenDosesDate: today,
-      );
+      final medA = MedicationBuilder()
+          .withId('med_a')
+          .withName('Medication A')
+          .withDosageInterval(6)
+          .withDoseSchedule({
+            fourHoursAgo: 1.0,
+            currentHourTime: 1.0,
+            twoHoursAhead: 1.0,
+          })
+          .withTakenDoses([fourHoursAgo], today)
+          .build();
 
       // Medication B: has dose 1 hour ahead
-      final oneHourAhead = (currentHour + 1) % 24;
-      final medB = Medication(
-        id: 'med_b',
-        name: 'Medication B',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'${oneHourAhead.toString().padLeft(2, '0')}:00': 1.0},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final oneHourAhead = formatRelativeTime(currentHour, 1);
+      final medB = MedicationBuilder()
+          .withId('med_b')
+          .withName('Medication B')
+          .withDosageInterval(24)
+          .withSingleDose(oneHourAhead, 1.0)
+          .withTakenDoses([], today)
+          .build();
 
       final medications = [medB, medA];
       MedicationSorter.sortByNextDose(medications, currentTime: now);
@@ -270,45 +231,40 @@ void main() {
     });
 
     test('should handle weekly pattern medications', () {
-      // Use real current time since Medication model uses DateTime.now()
       final now = DateTime.now();
       final currentWeekday = now.weekday;
       final currentHour = now.hour;
-      final todayString = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayString = getTodayString();
 
-      // Find a weekday that is NOT today (for the weekly pattern medication)
-      // This ensures med_a won't be taken today
-      final otherWeekdays = [1, 2, 3, 4, 5, 6, 7].where((d) => d != currentWeekday).take(3).toList();
+      // Find weekdays that are NOT today (for the weekly pattern medication)
+      final otherWeekdays = [1, 2, 3, 4, 5, 6, 7]
+          .where((d) => d != currentWeekday)
+          .take(3)
+          .toList();
 
       // Calculate a future time for today
-      final futureHour = (currentHour + 2) % 24;
-      final futureTime = '${futureHour.toString().padLeft(2, '0')}:00';
+      final futureTime = formatRelativeTime(currentHour, 2);
 
       // Medication A: weekly pattern on days that are NOT today
       // So its next dose will be on a future day
-      final medA = Medication(
-        id: 'med_a',
-        name: 'Medication A',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.weeklyPattern,
-        doseSchedule: {'08:00': 1.0},
-        weeklyDays: otherWeekdays,
-        takenDosesToday: [],
-        takenDosesDate: todayString,
-      );
+      final medA = MedicationBuilder()
+          .withId('med_a')
+          .withName('Medication A')
+          .withDosageInterval(24)
+          .withDurationType(TreatmentDurationType.weeklyPattern)
+          .withSingleDose('08:00', 1.0)
+          .withWeeklyPattern(otherWeekdays)
+          .withTakenDoses([], todayString)
+          .build();
 
       // Medication B: everyday with dose in the future today
-      final medB = Medication(
-        id: 'med_b',
-        name: 'Medication B',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {futureTime: 1.0},
-        takenDosesToday: [],
-        takenDosesDate: todayString,
-      );
+      final medB = MedicationBuilder()
+          .withId('med_b')
+          .withName('Medication B')
+          .withDosageInterval(24)
+          .withSingleDose(futureTime, 1.0)
+          .withTakenDoses([], todayString)
+          .build();
 
       final medications = [medA, medB];
       MedicationSorter.sortByNextDose(medications, currentTime: now);
@@ -319,25 +275,21 @@ void main() {
     });
 
     test('should get correct next dose DateTime', () {
-      // Use real current time since Medication model uses DateTime.now()
       final now = DateTime.now();
       final currentHour = now.hour;
-      final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final today = getTodayString();
 
       // Create a future dose time (3 hours ahead)
-      final futureHour = (currentHour + 3) % 24;
-      final futureTime = '${futureHour.toString().padLeft(2, '0')}:30';
+      final futureTime = formatRelativeTime(currentHour, 3, 30);
+      final futureHour = calculateRelativeHour(currentHour, 3);
 
-      final medication = Medication(
-        id: 'med_test',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {futureTime: 1.0},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medication = MedicationBuilder()
+          .withId('med_test')
+          .withName('Test Medication')
+          .withDosageInterval(24)
+          .withSingleDose(futureTime, 1.0)
+          .withTakenDoses([], today)
+          .build();
 
       final nextDose = MedicationSorter.getNextDoseDateTime(medication, now);
 
@@ -350,20 +302,16 @@ void main() {
     });
 
     test('should return null for medication without doses', () {
-      // Use real current time since Medication model uses DateTime.now()
       final now = DateTime.now();
-      final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final today = getTodayString();
 
-      final medication = Medication(
-        id: 'med_test',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {},
-        takenDosesToday: [],
-        takenDosesDate: today,
-      );
+      final medication = MedicationBuilder()
+          .withId('med_test')
+          .withName('Test Medication')
+          .withDosageInterval(24)
+          .withDoseSchedule({})
+          .withTakenDoses([], today)
+          .build();
 
       final nextDose = MedicationSorter.getNextDoseDateTime(medication, now);
 

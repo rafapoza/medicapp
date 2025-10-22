@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
+import '../widgets/forms/frequency_option_card.dart';
 import 'weekly_days_selector_screen.dart';
 import 'medication_dosage_screen.dart';
 
@@ -216,28 +217,34 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
                       const SizedBox(height: 24),
 
                       // Opciones de frecuencia
-                      _buildFrequencyOption(
-                        FrequencyMode.everyday,
-                        Icons.calendar_today,
-                        'Todos los días',
-                        'Medicación diaria continua',
-                        Colors.blue,
+                      FrequencyOptionCard<FrequencyMode>(
+                        value: FrequencyMode.everyday,
+                        selectedValue: _selectedMode,
+                        icon: Icons.calendar_today,
+                        title: 'Todos los días',
+                        subtitle: 'Medicación diaria continua',
+                        color: Colors.blue,
+                        onTap: (value) => setState(() => _selectedMode = value),
                       ),
                       const SizedBox(height: 12),
-                      _buildFrequencyOption(
-                        FrequencyMode.alternateDays,
-                        Icons.repeat,
-                        'Días alternos',
-                        'Cada 2 días desde el inicio del tratamiento',
-                        Colors.orange,
+                      FrequencyOptionCard<FrequencyMode>(
+                        value: FrequencyMode.alternateDays,
+                        selectedValue: _selectedMode,
+                        icon: Icons.repeat,
+                        title: 'Días alternos',
+                        subtitle: 'Cada 2 días desde el inicio del tratamiento',
+                        color: Colors.orange,
+                        onTap: (value) => setState(() => _selectedMode = value),
                       ),
                       const SizedBox(height: 12),
-                      _buildFrequencyOption(
-                        FrequencyMode.weeklyDays,
-                        Icons.date_range,
-                        'Días de la semana específicos',
-                        'Selecciona qué días tomar el medicamento',
-                        Colors.teal,
+                      FrequencyOptionCard<FrequencyMode>(
+                        value: FrequencyMode.weeklyDays,
+                        selectedValue: _selectedMode,
+                        icon: Icons.date_range,
+                        title: 'Días de la semana específicos',
+                        subtitle: 'Selecciona qué días tomar el medicamento',
+                        color: Colors.teal,
+                        onTap: (value) => setState(() => _selectedMode = value),
                       ),
                     ],
                   ),
@@ -309,75 +316,6 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFrequencyOption(
-    FrequencyMode mode,
-    IconData icon,
-    String title,
-    String subtitle,
-    Color color,
-  ) {
-    final isSelected = _selectedMode == mode;
-
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedMode = mode;
-        });
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.transparent,
-          border: Border.all(
-            color: isSelected ? color : Theme.of(context).dividerColor,
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? color : Theme.of(context).colorScheme.onSurface,
-              size: 28,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: isSelected ? color : Theme.of(context).colorScheme.onSurface,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: isSelected
-                              ? color.withOpacity(0.8)
-                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                        ),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              Icon(
-                Icons.check_circle,
-                color: color,
-                size: 28,
-              ),
-          ],
         ),
       ),
     );

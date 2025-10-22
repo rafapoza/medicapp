@@ -977,7 +977,7 @@ void main() {
     expect(find.text('Información del medicamento'), findsOneWidget);
   });
 
-  testWidgets('Floating action button should show menu with two options', (WidgetTester tester) async {
+  testWidgets('Floating action button should show simplified menu', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
@@ -986,10 +986,15 @@ void main() {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
 
-    // Verify the menu modal is shown with both options
+    // Verify the menu modal is shown with the add medication option
+    // Navigation to other sections (Pastillero, Botiquín, Historial) is now via BottomNavigationBar
     expect(find.text('Añadir medicamento'), findsOneWidget);
-    expect(find.text('Ver Pastillero'), findsOneWidget);
     expect(find.text('Cancelar'), findsOneWidget);
+
+    // Verify old navigation options are NOT present
+    expect(find.text('Ver Pastillero'), findsNothing);
+    expect(find.text('Ver Botiquín'), findsNothing);
+    expect(find.text('Ver Historial'), findsNothing);
   });
 
   testWidgets('Should navigate to add medication screen from menu', (WidgetTester tester) async {
@@ -1010,21 +1015,19 @@ void main() {
     expect(find.text('Información del medicamento'), findsOneWidget);
   });
 
-  testWidgets('Should have Ver Pastillero option in menu', (WidgetTester tester) async {
+  testWidgets('Should show BottomNavigationBar with all sections', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Open the menu
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
+    // Verify the bottom navigation bar is present with all 4 sections
+    expect(find.text('Medicación'), findsOneWidget);
+    expect(find.text('Pastillero'), findsOneWidget);
+    expect(find.text('Botiquín'), findsOneWidget);
+    expect(find.text('Historial'), findsOneWidget);
 
-    // Verify "Ver Pastillero" option is present in the menu
-    expect(find.text('Ver Pastillero'), findsOneWidget);
-    expect(find.text('Añadir medicamento'), findsOneWidget);
-
-    // Note: Full navigation test to stock screen is complex in test environment
-    // The functionality is verified through the menu option presence and can be tested manually
+    // Verify the navigation bar is displayed using NavigationBar widget
+    expect(find.byType(NavigationBar), findsOneWidget);
   });
 
   testWidgets('Should close menu when cancel is pressed', (WidgetTester tester) async {

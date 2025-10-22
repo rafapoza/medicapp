@@ -5,6 +5,7 @@ import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
 import 'edit_medication_menu_screen.dart';
+import 'medication_info_screen.dart';
 
 class MedicineCabinetScreen extends StatefulWidget {
   const MedicineCabinetScreen({super.key});
@@ -55,6 +56,78 @@ class _MedicineCabinetScreenState extends State<MedicineCabinetScreen> {
         }).toList();
       }
     });
+  }
+
+  void _navigateToAddMedication() async {
+    final newMedication = await Navigator.push<Medication>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MedicationInfoScreen(
+          existingMedications: _allMedications,
+        ),
+      ),
+    );
+
+    if (newMedication != null) {
+      // Reload medications after adding a new one
+      await _loadMedications();
+    }
+  }
+
+  /// Show modal to add a new medication
+  void _showAddMedicationModal() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _navigateToAddMedication();
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Añadir medicamento'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -196,6 +269,10 @@ class _MedicineCabinetScreenState extends State<MedicineCabinetScreen> {
                           ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddMedicationModal,
+        child: const Icon(Icons.add),
       ),
     );
   }

@@ -112,7 +112,22 @@ flutter test
 
 ### Mejoras recientes en la suite de tests
 
-#### Últimas correcciones (enero 2025)
+#### Refactorización con Test Helpers (enero 2025)
+- **Suite completa refactorizada para usar nuevos helpers** (13 archivos, -751 líneas netas):
+  - Implementados 3 nuevos módulos de helpers en `test/helpers/`:
+    - `medication_builder.dart`: Builder pattern para crear medicamentos de test
+    - `database_test_helper.dart`: Setup unificado de base de datos
+    - `test_helpers.dart`: Funciones utilitarias (fechas, notificaciones, UI)
+  - Archivos refactorizados:
+    - `medication_model_test.dart`, `database_refill_test.dart`, `as_needed_stock_test.dart`
+    - `dose_management_test.dart`, `fasting_test.dart`, `fasting_notification_scheduling_test.dart`
+    - `dynamic_fasting_notification_test.dart`, `notification_cancellation_test.dart`, `notification_service_test.dart`
+    - `medication_sorting_test.dart`, `edit_screens_validation_test.dart`
+  - Reducción de código: -1948 líneas, +1197 líneas = **-751 líneas netas (-38%)**
+  - Mejoras en legibilidad y mantenibilidad
+  - Todos los tests verificados y pasando exitosamente
+
+#### Últimas correcciones
 - **Corrección de tests de EditDurationScreen** (5 tests corregidos):
   - Problema: Tests definían variables `startDate`/`endDate` pero no las pasaban a `createTestMedication()`
   - Tests corregidos: "should display formatted dates when set", "should display duration in days", "should calculate duration correctly for 1 day", "should calculate duration correctly for long period", "should show 'No seleccionada' when dates are null"

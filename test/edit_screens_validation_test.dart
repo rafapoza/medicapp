@@ -3,38 +3,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medicapp/screens/edit_sections/edit_quantity_screen.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
-import 'package:medicapp/models/treatment_duration_type.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'helpers/test_helpers.dart';
 
 void main() {
-  setUpAll(() {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  });
+  setupTestDatabase();
 
   group('EditQuantityScreen Validation', () {
     late Medication testMedication;
 
     setUp(() {
-      testMedication = Medication(
-        id: 'test-med-1',
-        name: 'Test Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 20.0,
-        lowStockThresholdDays: 3,
-        startDate: DateTime.now(),
-      );
+      testMedication = createTestMedication(id: 'test-med-1');
     });
 
     testWidgets('should render edit quantity screen', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       expect(find.text('Editar Cantidad'), findsOneWidget);
       expect(find.text('Cantidad disponible'), findsOneWidget);
@@ -42,11 +24,7 @@ void main() {
     });
 
     testWidgets('should initialize with current stock quantity', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Find the stock quantity field
       final stockField = find.widgetWithText(TextFormField, '20.0');
@@ -54,11 +32,7 @@ void main() {
     });
 
     testWidgets('should initialize with current threshold days', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Find the threshold field
       final thresholdField = find.widgetWithText(TextFormField, '3');
@@ -66,11 +40,7 @@ void main() {
     });
 
     testWidgets('should show error for empty stock quantity', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Clear stock field and try to save
       final stockField = find.widgetWithText(TextFormField, '20.0');
@@ -86,11 +56,7 @@ void main() {
     });
 
     testWidgets('should show error for negative stock quantity', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Enter negative value
       final stockField = find.widgetWithText(TextFormField, '20.0');
@@ -106,11 +72,7 @@ void main() {
     });
 
     testWidgets('should accept zero stock quantity', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Enter zero value - should be valid
       final stockField = find.widgetWithText(TextFormField, '20.0');
@@ -126,11 +88,7 @@ void main() {
     });
 
     testWidgets('should show error for empty threshold days', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Clear threshold field
       final thresholdFields = find.byType(TextFormField);
@@ -146,11 +104,7 @@ void main() {
     });
 
     testWidgets('should show error for threshold less than 1 day', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Enter invalid value
       final thresholdFields = find.byType(TextFormField);
@@ -166,11 +120,7 @@ void main() {
     });
 
     testWidgets('should show error for threshold greater than 30 days', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Enter invalid value
       final thresholdFields = find.byType(TextFormField);
@@ -186,11 +136,7 @@ void main() {
     });
 
     testWidgets('should accept valid threshold values (1-30)', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Test a valid value within range
       final thresholdFields = find.byType(TextFormField);
@@ -207,74 +153,30 @@ void main() {
     });
 
     testWidgets('should show cancel button', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
-      expect(find.text('Cancelar'), findsOneWidget);
+      expectCancelButtonExists();
     });
 
     testWidgets('should navigate back when cancel is pressed', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditQuantityScreen(medication: testMedication),
-                      ),
-                    );
-                  },
-                  child: const Text('Open'),
-                ),
-              ),
-            ),
-          ),
-        ),
+      await testCancelNavigation(
+        tester,
+        screenTitle: 'Editar Cantidad',
+        screenBuilder: (context) => EditQuantityScreen(medication: testMedication),
       );
-
-      // Open the edit screen
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-
-      // Verify we're on the edit screen
-      expect(find.text('Editar Cantidad'), findsOneWidget);
-
-      // Tap cancel
-      await tester.tap(find.text('Cancelar'));
-      await tester.pumpAndSettle();
-
-      // Should be back to the original screen
-      expect(find.text('Editar Cantidad'), findsNothing);
-      expect(find.text('Open'), findsOneWidget);
     });
 
     testWidgets('should display medication type stock unit', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Should show the stock unit for pills
       expect(find.text('(${testMedication.type.stockUnit})'), findsOneWidget);
     });
 
     testWidgets('should have save button enabled initially', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
-      // Verify save button exists
-      expect(find.text('Guardar Cambios'), findsOneWidget);
+      expectSaveButtonExists();
     });
   });
 
@@ -282,25 +184,19 @@ void main() {
     late Medication testMedication;
 
     setUp(() {
-      testMedication = Medication(
+      testMedication = createTestMedication(
         id: 'test-med-2',
         name: 'Test Medicine 2',
         type: MedicationType.capsula,
         dosageIntervalHours: 12,
-        durationType: TreatmentDurationType.everyday,
         doseSchedule: {'08:00': 1.0, '20:00': 1.0},
         stockQuantity: 50.5,
         lowStockThresholdDays: 5,
-        startDate: DateTime.now(),
       );
     });
 
     testWidgets('should accept decimal stock quantities', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Enter decimal value
       final stockField = find.byType(TextFormField).first;
@@ -316,11 +212,7 @@ void main() {
     });
 
     testWidgets('should handle invalid number format gracefully', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: testMedication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: testMedication));
 
       // Enter invalid format
       final stockField = find.byType(TextFormField).first;
@@ -338,45 +230,32 @@ void main() {
 
   group('EditQuantityScreen Edge Cases', () {
     testWidgets('should handle medication with large stock quantity', (WidgetTester tester) async {
-      final medication = Medication(
+      final medication = createTestMedication(
         id: 'test-med-3',
         name: 'Test Medicine 3',
         type: MedicationType.jarabe,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
         doseSchedule: {'08:00': 5.0},
         stockQuantity: 999.99,
         lowStockThresholdDays: 10,
-        startDate: DateTime.now(),
       );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: medication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: medication));
 
       expect(find.text('999.99'), findsOneWidget);
     });
 
     testWidgets('should handle medication with threshold at boundaries', (WidgetTester tester) async {
-      final medication = Medication(
+      final medication = createTestMedication(
         id: 'test-med-4',
         name: 'Test Medicine 4',
         type: MedicationType.inhalador,
         dosageIntervalHours: 12,
-        durationType: TreatmentDurationType.everyday,
         doseSchedule: {'08:00': 2.0},
         stockQuantity: 10.0,
         lowStockThresholdDays: 1, // Minimum valid value
-        startDate: DateTime.now(),
       );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EditQuantityScreen(medication: medication),
-        ),
-      );
+      await pumpScreen(tester, EditQuantityScreen(medication: medication));
 
       expect(find.text('1'), findsOneWidget);
     });

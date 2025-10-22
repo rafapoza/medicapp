@@ -2,18 +2,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
+import 'helpers/medication_builder.dart';
 
 void main() {
   group('Medication Model - Fasting Configuration', () {
     test('should create medication without fasting by default', () {
-      final medication = Medication(
-        id: 'test_1',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-      );
+      final medication = MedicationBuilder()
+          .withId('test_1')
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .build();
 
       expect(medication.requiresFasting, false);
       expect(medication.fastingType, isNull);
@@ -22,18 +19,11 @@ void main() {
     });
 
     test('should create medication with fasting before dose', () {
-      final medication = Medication(
-        id: 'test_2',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 60, // 1 hour
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('test_2')
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .withFasting(type: 'before', duration: 60)
+          .build();
 
       expect(medication.requiresFasting, true);
       expect(medication.fastingType, 'before');
@@ -42,18 +32,12 @@ void main() {
     });
 
     test('should create medication with fasting after dose', () {
-      final medication = Medication(
-        id: 'test_3',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 12,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '20:00': 1.0},
-        requiresFasting: true,
-        fastingType: 'after',
-        fastingDurationMinutes: 120, // 2 hours
-        notifyFasting: false,
-      );
+      final medication = MedicationBuilder()
+          .withId('test_3')
+          .withDosageInterval(12)
+          .withMultipleDoses(['08:00', '20:00'], 1.0)
+          .withFasting(type: 'after', duration: 120, notify: false)
+          .build();
 
       expect(medication.requiresFasting, true);
       expect(medication.fastingType, 'after');
@@ -62,52 +46,31 @@ void main() {
     });
 
     test('should handle fasting duration in minutes', () {
-      final medication = Medication(
-        id: 'test_4',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 30, // 30 minutes
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('test_4')
+          .withSingleDose('08:00', 1.0)
+          .withFasting(type: 'before', duration: 30)
+          .build();
 
       expect(medication.fastingDurationMinutes, 30);
     });
 
     test('should handle fasting duration in hours and minutes', () {
-      final medication = Medication(
-        id: 'test_5',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 90, // 1 hour 30 minutes
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('test_5')
+          .withSingleDose('08:00', 1.0)
+          .withFasting(type: 'before', duration: 90)
+          .build();
 
       expect(medication.fastingDurationMinutes, 90);
     });
 
     test('should serialize fasting configuration to JSON', () {
-      final medication = Medication(
-        id: 'test_6',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 60,
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('test_6')
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .withFasting(type: 'before', duration: 60)
+          .build();
 
       final json = medication.toJson();
 
@@ -118,15 +81,11 @@ void main() {
     });
 
     test('should serialize fasting disabled to JSON', () {
-      final medication = Medication(
-        id: 'test_7',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        requiresFasting: false,
-      );
+      final medication = MedicationBuilder()
+          .withId('test_7')
+          .withSingleDose('08:00', 1.0)
+          .withFastingDisabled()
+          .build();
 
       final json = medication.toJson();
 
@@ -212,18 +171,11 @@ void main() {
     });
 
     test('should round-trip serialize and deserialize fasting configuration', () {
-      final original = Medication(
-        id: 'test_11',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-        requiresFasting: true,
-        fastingType: 'after',
-        fastingDurationMinutes: 90,
-        notifyFasting: true,
-      );
+      final original = MedicationBuilder()
+          .withId('test_11')
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .withFasting(type: 'after', duration: 90)
+          .build();
 
       final json = original.toJson();
       final deserialized = Medication.fromJson(json);
@@ -235,34 +187,17 @@ void main() {
     });
 
     test('should update medication with fasting configuration', () {
-      final original = Medication(
-        id: 'test_12',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-        stockQuantity: 10,
-        requiresFasting: false,
-      );
+      final original = MedicationBuilder()
+          .withId('test_12')
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .withStock(10.0)
+          .withFastingDisabled()
+          .build();
 
-      // Update to require fasting
-      final updated = Medication(
-        id: original.id,
-        name: original.name,
-        type: original.type,
-        dosageIntervalHours: original.dosageIntervalHours,
-        durationType: original.durationType,
-        doseSchedule: original.doseSchedule,
-        stockQuantity: original.stockQuantity,
-        takenDosesToday: original.takenDosesToday,
-        skippedDosesToday: original.skippedDosesToday,
-        takenDosesDate: original.takenDosesDate,
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 60,
-        notifyFasting: true,
-      );
+      // Update to require fasting using builder
+      final updated = MedicationBuilder.from(original)
+          .withFasting(type: 'before', duration: 60)
+          .build();
 
       expect(updated.requiresFasting, true);
       expect(updated.fastingType, 'before');
@@ -274,48 +209,31 @@ void main() {
 
     test('should handle fasting with various duration values', () {
       // Test 15 minutes
-      final med15 = Medication(
-        id: 'test_13',
-        name: 'Test Med 15min',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 15,
-        notifyFasting: true,
-      );
+      final med15 = MedicationBuilder()
+          .withId('test_13')
+          .withName('Test Med 15min')
+          .withSingleDose('08:00', 1.0)
+          .withFasting(type: 'before', duration: 15)
+          .build();
       expect(med15.fastingDurationMinutes, 15);
 
       // Test 4 hours (240 minutes)
-      final med4h = Medication(
-        id: 'test_14',
-        name: 'Test Med 4h',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        requiresFasting: true,
-        fastingType: 'after',
-        fastingDurationMinutes: 240,
-        notifyFasting: false,
-      );
+      final med4h = MedicationBuilder()
+          .withId('test_14')
+          .withName('Test Med 4h')
+          .withSingleDose('08:00', 1.0)
+          .withFasting(type: 'after', duration: 240, notify: false)
+          .build();
       expect(med4h.fastingDurationMinutes, 240);
 
       // Test 12 hours (720 minutes)
-      final med12h = Medication(
-        id: 'test_15',
-        name: 'Test Med 12h',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 720,
-        notifyFasting: true,
-      );
+      final med12h = MedicationBuilder()
+          .withId('test_15')
+          .withName('Test Med 12h')
+          .withDosageInterval(24)
+          .withSingleDose('08:00', 1.0)
+          .withFasting(type: 'before', duration: 720)
+          .build();
       expect(med12h.fastingDurationMinutes, 720);
     });
 
@@ -330,18 +248,13 @@ void main() {
       ];
 
       for (final type in types) {
-        final medication = Medication(
-          id: 'test_${type.name}',
-          name: 'Test ${type.displayName}',
-          type: type,
-          dosageIntervalHours: 8,
-          durationType: TreatmentDurationType.everyday,
-          doseSchedule: {'08:00': 1.0},
-          requiresFasting: true,
-          fastingType: 'before',
-          fastingDurationMinutes: 60,
-          notifyFasting: true,
-        );
+        final medication = MedicationBuilder()
+            .withId('test_${type.name}')
+            .withName('Test ${type.displayName}')
+            .withType(type)
+            .withSingleDose('08:00', 1.0)
+            .withFasting(type: 'before', duration: 60)
+            .build();
 
         expect(medication.requiresFasting, true);
         expect(medication.fastingType, 'before');
@@ -351,46 +264,23 @@ void main() {
     });
 
     test('should preserve other fields when adding fasting', () {
-      final original = Medication(
-        id: 'test_16',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.weeklyPattern,
-        doseSchedule: {'08:00': 1.5, '16:00': 2.0},
-        stockQuantity: 50,
-        takenDosesToday: ['08:00'],
-        skippedDosesToday: ['16:00'],
-        takenDosesDate: '2025-10-16',
-        lastRefillAmount: 30,
-        lowStockThresholdDays: 5,
-        weeklyDays: [1, 3, 5], // Monday, Wednesday, Friday
-        startDate: DateTime(2025, 10, 1),
-        endDate: DateTime(2025, 10, 31),
-      );
+      final original = MedicationBuilder()
+          .withId('test_16')
+          .withDurationType(TreatmentDurationType.weeklyPattern)
+          .withDoseSchedule({'08:00': 1.5, '16:00': 2.0})
+          .withStock(50.0)
+          .withTakenDoses(['08:00'], '2025-10-16')
+          .withSkippedDoses(['16:00'], '2025-10-16')
+          .withLastRefill(30.0)
+          .withLowStockThreshold(5)
+          .withWeeklyPattern([1, 3, 5])
+          .withDateRange(DateTime(2025, 10, 1), DateTime(2025, 10, 31))
+          .build();
 
-      // Add fasting
-      final withFasting = Medication(
-        id: original.id,
-        name: original.name,
-        type: original.type,
-        dosageIntervalHours: original.dosageIntervalHours,
-        durationType: original.durationType,
-        doseSchedule: original.doseSchedule,
-        stockQuantity: original.stockQuantity,
-        takenDosesToday: original.takenDosesToday,
-        skippedDosesToday: original.skippedDosesToday,
-        takenDosesDate: original.takenDosesDate,
-        lastRefillAmount: original.lastRefillAmount,
-        lowStockThresholdDays: original.lowStockThresholdDays,
-        weeklyDays: original.weeklyDays,
-        startDate: original.startDate,
-        endDate: original.endDate,
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 60,
-        notifyFasting: true,
-      );
+      // Add fasting using builder.from()
+      final withFasting = MedicationBuilder.from(original)
+          .withFasting(type: 'before', duration: 60)
+          .build();
 
       // Verify all original fields are preserved
       expect(withFasting.id, original.id);

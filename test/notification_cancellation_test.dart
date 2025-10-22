@@ -4,6 +4,8 @@ import 'package:medicapp/services/notification_service.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
+import 'helpers/medication_builder.dart';
+import 'helpers/test_helpers.dart';
 
 void main() {
   group('Notification Cancellation on Manual Registration', () {
@@ -17,18 +19,16 @@ void main() {
     });
 
     test('should cancel today\'s dose notification when dose is registered', () async {
-      final medication = Medication(
-        id: 'test_cancel_1',
-        name: 'Test Medication',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {
-          '08:00': 1.0,
-          '16:00': 1.0,
-          '21:00': 1.0,
-        },
-      );
+      final medication = MedicationBuilder()
+          .withId('test_cancel_1')
+          .withName('Test Medication')
+          .withDosageInterval(8)
+          .withDoseSchedule({
+            '08:00': 1.0,
+            '16:00': 1.0,
+            '21:00': 1.0,
+          })
+          .build();
 
       // Schedule notifications first
       await NotificationService.instance.scheduleMedicationNotifications(medication);
@@ -44,14 +44,12 @@ void main() {
     });
 
     test('should cancel notification for everyday medication', () async {
-      final medication = Medication(
-        id: 'test_cancel_2',
-        name: 'Everyday Med',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 24,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'09:00': 1.0},
-      );
+      final medication = MedicationBuilder()
+          .withId('test_cancel_2')
+          .withName('Everyday Med')
+          .withDosageInterval(24)
+          .withSingleDose('09:00', 1.0)
+          .build();
 
       await NotificationService.instance.scheduleMedicationNotifications(medication);
 
@@ -64,17 +62,14 @@ void main() {
     });
 
     test('should cancel notification for untilFinished medication', () async {
-      final medication = Medication(
-        id: 'test_cancel_3',
-        name: 'Until Finished Med',
-        type: MedicationType.capsula,
-        dosageIntervalHours: 12,
-        durationType: TreatmentDurationType.untilFinished,
-        doseSchedule: {
-          '08:00': 1.0,
-          '20:00': 1.0,
-        },
-      );
+      final medication = MedicationBuilder()
+          .withId('test_cancel_3')
+          .withName('Until Finished Med')
+          .withType(MedicationType.capsula)
+          .withDosageInterval(12)
+          .withDurationType(TreatmentDurationType.untilFinished)
+          .withMultipleDoses(['08:00', '20:00'], 1.0)
+          .build();
 
       await NotificationService.instance.scheduleMedicationNotifications(medication);
 
@@ -90,16 +85,13 @@ void main() {
       final now = DateTime.now();
       final tomorrow = now.add(const Duration(days: 1));
 
-      final medication = Medication(
-        id: 'test_cancel_4',
-        name: 'Med with End Date',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'10:00': 1.0},
-        startDate: now,
-        endDate: tomorrow,
-      );
+      final medication = MedicationBuilder()
+          .withId('test_cancel_4')
+          .withName('Med with End Date')
+          .withDosageInterval(8)
+          .withSingleDose('10:00', 1.0)
+          .withDateRange(now, tomorrow)
+          .build();
 
       await NotificationService.instance.scheduleMedicationNotifications(medication);
 
@@ -112,18 +104,16 @@ void main() {
     });
 
     test('should cancel notification for specific dates medication', () async {
-      final today = DateTime.now();
-      final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      final todayString = getTodayString();
 
-      final medication = Medication(
-        id: 'test_cancel_5',
-        name: 'Specific Dates Med',
-        type: MedicationType.jarabe,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.specificDates,
-        doseSchedule: {'12:00': 5.0},
-        selectedDates: [todayString],
-      );
+      final medication = MedicationBuilder()
+          .withId('test_cancel_5')
+          .withName('Specific Dates Med')
+          .withType(MedicationType.jarabe)
+          .withDosageInterval(8)
+          .withSingleDose('12:00', 5.0)
+          .withSpecificDates([todayString])
+          .build();
 
       await NotificationService.instance.scheduleMedicationNotifications(medication);
 
@@ -138,15 +128,13 @@ void main() {
     test('should cancel notification for weekly pattern medication', () async {
       final today = DateTime.now();
 
-      final medication = Medication(
-        id: 'test_cancel_6',
-        name: 'Weekly Pattern Med',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.weeklyPattern,
-        doseSchedule: {'15:00': 1.0},
-        weeklyDays: [today.weekday], // Today's weekday
-      );
+      final medication = MedicationBuilder()
+          .withId('test_cancel_6')
+          .withName('Weekly Pattern Med')
+          .withDosageInterval(8)
+          .withSingleDose('15:00', 1.0)
+          .withWeeklyPattern([today.weekday]) // Today's weekday
+          .build();
 
       await NotificationService.instance.scheduleMedicationNotifications(medication);
 
@@ -159,14 +147,12 @@ void main() {
     });
 
     test('should handle cancellation for non-existent dose time gracefully', () async {
-      final medication = Medication(
-        id: 'test_cancel_7',
-        name: 'Test Med',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-      );
+      final medication = MedicationBuilder()
+          .withId('test_cancel_7')
+          .withName('Test Med')
+          .withDosageInterval(8)
+          .withSingleDose('08:00', 1.0)
+          .build();
 
       // Try to cancel a dose time that doesn't exist
       await NotificationService.instance.cancelTodaysDoseNotification(
@@ -179,19 +165,17 @@ void main() {
     });
 
     test('should cancel multiple dose notifications independently', () async {
-      final medication = Medication(
-        id: 'test_cancel_8',
-        name: 'Multiple Doses Med',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {
-          '08:00': 1.0,
-          '12:00': 1.0,
-          '16:00': 1.0,
-          '20:00': 1.0,
-        },
-      );
+      final medication = MedicationBuilder()
+          .withId('test_cancel_8')
+          .withName('Multiple Doses Med')
+          .withDosageInterval(8)
+          .withDoseSchedule({
+            '08:00': 1.0,
+            '12:00': 1.0,
+            '16:00': 1.0,
+            '20:00': 1.0,
+          })
+          .build();
 
       await NotificationService.instance.scheduleMedicationNotifications(medication);
 
@@ -210,14 +194,12 @@ void main() {
     });
 
     test('should cancel postponed notification along with regular notification', () async {
-      final medication = Medication(
-        id: 'test_cancel_9',
-        name: 'Test Med',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'09:00': 1.0},
-      );
+      final medication = MedicationBuilder()
+          .withId('test_cancel_9')
+          .withName('Test Med')
+          .withDosageInterval(8)
+          .withSingleDose('09:00', 1.0)
+          .build();
 
       // Schedule regular notification
       await NotificationService.instance.scheduleMedicationNotifications(medication);
@@ -249,14 +231,13 @@ void main() {
       ];
 
       for (final type in types) {
-        final medication = Medication(
-          id: 'test_cancel_type_${type.name}',
-          name: 'Test ${type.displayName}',
-          type: type,
-          dosageIntervalHours: 12,
-          durationType: TreatmentDurationType.everyday,
-          doseSchedule: {'10:00': 1.0},
-        );
+        final medication = MedicationBuilder()
+            .withId('test_cancel_type_${type.name}')
+            .withName('Test ${type.displayName}')
+            .withType(type)
+            .withDosageInterval(12)
+            .withSingleDose('10:00', 1.0)
+            .build();
 
         await NotificationService.instance.scheduleMedicationNotifications(medication);
 
@@ -270,14 +251,12 @@ void main() {
     });
 
     test('should handle cancellation when medication was never scheduled', () async {
-      final medication = Medication(
-        id: 'test_cancel_10',
-        name: 'Never Scheduled',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'14:00': 1.0},
-      );
+      final medication = MedicationBuilder()
+          .withId('test_cancel_10')
+          .withName('Never Scheduled')
+          .withDosageInterval(8)
+          .withSingleDose('14:00', 1.0)
+          .build();
 
       // Don't schedule, just try to cancel
       await NotificationService.instance.cancelTodaysDoseNotification(

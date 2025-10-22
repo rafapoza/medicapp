@@ -4,6 +4,7 @@ import 'package:medicapp/services/notification_service.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
+import 'helpers/medication_builder.dart';
 
 void main() {
   late NotificationService service;
@@ -101,16 +102,14 @@ void main() {
     test('should skip notifications in test mode', () async {
       service.enableTestMode();
 
-      final medication = Medication(
-        id: 'test-med-1',
-        name: 'Test Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-        stockQuantity: 10,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-1')
+          .withName('Test Medicine')
+          .withDosageInterval(8)
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .withStock(10)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should not throw in test mode
       await service.scheduleMedicationNotifications(medication);
@@ -121,17 +120,15 @@ void main() {
     });
 
     test('should skip notifications for suspended medications', () async {
-      final medication = Medication(
-        id: 'test-med-suspended',
-        name: 'Suspended Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10,
-        isSuspended: true,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-suspended')
+          .withName('Suspended Medicine')
+          .withDosageInterval(8)
+          .withSingleDose('08:00', 1.0)
+          .withStock(10)
+          .suspended()
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should handle suspended medication gracefully
       await service.scheduleMedicationNotifications(medication);
@@ -141,16 +138,13 @@ void main() {
     });
 
     test('should skip notifications for medications without dose times', () async {
-      final medication = Medication(
-        id: 'test-med-no-doses',
-        name: 'No Doses Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {},
-        stockQuantity: 10,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-no-doses')
+          .withName('No Doses Medicine')
+          .withDosageInterval(8)
+          .withStock(10)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should handle medications without doses gracefully
       await service.scheduleMedicationNotifications(medication);
@@ -162,16 +156,14 @@ void main() {
     test('should skip notifications for pending (not yet started) medications', () async {
       final futureDate = DateTime.now().add(const Duration(days: 7));
 
-      final medication = Medication(
-        id: 'test-med-pending',
-        name: 'Future Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10,
-        startDate: futureDate,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-pending')
+          .withName('Future Medicine')
+          .withDosageInterval(8)
+          .withSingleDose('08:00', 1.0)
+          .withStock(10)
+          .withStartDate(futureDate)
+          .build();
 
       // Should skip pending medications
       await service.scheduleMedicationNotifications(medication);
@@ -183,17 +175,15 @@ void main() {
     test('should skip notifications for finished medications', () async {
       final pastDate = DateTime.now().subtract(const Duration(days: 7));
 
-      final medication = Medication(
-        id: 'test-med-finished',
-        name: 'Finished Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10,
-        startDate: pastDate.subtract(const Duration(days: 30)),
-        endDate: pastDate,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-finished')
+          .withName('Finished Medicine')
+          .withDosageInterval(8)
+          .withSingleDose('08:00', 1.0)
+          .withStock(10)
+          .withStartDate(pastDate.subtract(const Duration(days: 30)))
+          .withEndDate(pastDate)
+          .build();
 
       // Should skip finished medications
       await service.scheduleMedicationNotifications(medication);
@@ -221,16 +211,14 @@ void main() {
     test('should cancel today\'s dose notification in test mode', () async {
       service.enableTestMode();
 
-      final medication = Medication(
-        id: 'test-med-cancel',
-        name: 'Test Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-        stockQuantity: 10,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-cancel')
+          .withName('Test Medicine')
+          .withDosageInterval(8)
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .withStock(10)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should not throw
       await service.cancelTodaysDoseNotification(
@@ -284,20 +272,15 @@ void main() {
     test('should schedule dynamic fasting notification in test mode', () async {
       service.enableTestMode();
 
-      final medication = Medication(
-        id: 'test-med-fasting',
-        name: 'Test Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10,
-        requiresFasting: true,
-        fastingType: 'after',
-        fastingDurationMinutes: 60,
-        notifyFasting: true,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-fasting')
+          .withName('Test Medicine')
+          .withDosageInterval(8)
+          .withSingleDose('08:00', 1.0)
+          .withStock(10)
+          .withFasting(type: 'after', duration: 60)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should not throw
       await service.scheduleDynamicFastingNotification(
@@ -309,20 +292,15 @@ void main() {
     test('should not schedule dynamic fasting for before type', () async {
       service.enableTestMode();
 
-      final medication = Medication(
-        id: 'test-med-fasting-before',
-        name: 'Test Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10,
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 60,
-        notifyFasting: true,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-fasting-before')
+          .withName('Test Medicine')
+          .withDosageInterval(8)
+          .withSingleDose('08:00', 1.0)
+          .withStock(10)
+          .withFasting(type: 'before', duration: 60)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should skip for "before" type
       await service.scheduleDynamicFastingNotification(
@@ -334,20 +312,15 @@ void main() {
     test('should not schedule dynamic fasting without notification flag', () async {
       service.enableTestMode();
 
-      final medication = Medication(
-        id: 'test-med-fasting-no-notify',
-        name: 'Test Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10,
-        requiresFasting: true,
-        fastingType: 'after',
-        fastingDurationMinutes: 60,
-        notifyFasting: false,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-fasting-no-notify')
+          .withName('Test Medicine')
+          .withDosageInterval(8)
+          .withSingleDose('08:00', 1.0)
+          .withStock(10)
+          .withFasting(type: 'after', duration: 60, notify: false)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should skip when notifyFasting is false
       await service.scheduleDynamicFastingNotification(
@@ -361,16 +334,14 @@ void main() {
     test('should schedule postponed dose notification in test mode', () async {
       service.enableTestMode();
 
-      final medication = Medication(
-        id: 'test-med-postpone',
-        name: 'Test Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-postpone')
+          .withName('Test Medicine')
+          .withDosageInterval(8)
+          .withSingleDose('08:00', 1.0)
+          .withStock(10)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should not throw
       await service.schedulePostponedDoseNotification(
@@ -408,17 +379,14 @@ void main() {
 
   group('Edge Cases', () {
     test('should handle medication with no end date', () async {
-      final medication = Medication(
-        id: 'test-med-no-end',
-        name: 'No End Date Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-        stockQuantity: 10,
-        startDate: DateTime.now(),
-        // No end date
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-no-end')
+          .withName('No End Date Medicine')
+          .withDosageInterval(8)
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .withStock(10)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should handle medications without end date
       await service.scheduleMedicationNotifications(medication);
@@ -428,71 +396,58 @@ void main() {
       final tomorrow = DateTime.now().add(const Duration(days: 1));
       final dateString = '${tomorrow.year}-${tomorrow.month.toString().padLeft(2, '0')}-${tomorrow.day.toString().padLeft(2, '0')}';
 
-      final medication = Medication(
-        id: 'test-med-specific-dates',
-        name: 'Specific Dates Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.specificDates,
-        selectedDates: [dateString],
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-specific-dates')
+          .withName('Specific Dates Medicine')
+          .withDosageInterval(8)
+          .withSpecificDates([dateString])
+          .withSingleDose('08:00', 1.0)
+          .withStock(10)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should handle specific dates
       await service.scheduleMedicationNotifications(medication);
     });
 
     test('should handle medication with weekly pattern', () async {
-      final medication = Medication(
-        id: 'test-med-weekly',
-        name: 'Weekly Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.weeklyPattern,
-        weeklyDays: [1, 3, 5], // Monday, Wednesday, Friday
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-weekly')
+          .withName('Weekly Medicine')
+          .withDosageInterval(8)
+          .withWeeklyPattern([1, 3, 5]) // Monday, Wednesday, Friday
+          .withSingleDose('08:00', 1.0)
+          .withStock(10)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should handle weekly patterns
       await service.scheduleMedicationNotifications(medication);
     });
 
     test('should handle medication with multiple doses', () async {
-      final medication = Medication(
-        id: 'test-med-multiple',
-        name: 'Multiple Doses Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 6,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {
-          '08:00': 1.0,
-          '14:00': 1.0,
-          '20:00': 1.0,
-          '02:00': 1.0,
-        },
-        stockQuantity: 10,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-multiple')
+          .withName('Multiple Doses Medicine')
+          .withDosageInterval(6)
+          .withMultipleDoses(['08:00', '14:00', '20:00', '02:00'], 1.0)
+          .withStock(10)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should handle multiple doses
       await service.scheduleMedicationNotifications(medication);
     });
 
     test('should handle cancellation for non-existent dose time', () async {
-      final medication = Medication(
-        id: 'test-med-invalid-dose',
-        name: 'Test Medicine',
-        type: MedicationType.pastilla,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10,
-        startDate: DateTime.now(),
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-invalid-dose')
+          .withName('Test Medicine')
+          .withDosageInterval(8)
+          .withSingleDose('08:00', 1.0)
+          .withStock(10)
+          .withStartDate(DateTime.now())
+          .build();
 
       // Should handle non-existent dose time gracefully
       await service.cancelTodaysDoseNotification(

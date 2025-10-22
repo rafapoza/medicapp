@@ -220,6 +220,16 @@ Future<void> addMedicationWithDuration(
   await tester.pump(const Duration(milliseconds: 300));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
+
+  // Wait for main screen to reload medications from database
+  await tester.runAsync(() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  });
+  await tester.pump();
+
+  // Wait for SnackBar to disappear (default duration is 4 seconds)
+  // This ensures that the FAB is not blocked when this helper returns
+  await tester.pumpAndSettle(const Duration(seconds: 5));
 }
 
 // Helper function to tap a text widget multiple times
@@ -368,6 +378,9 @@ void main() {
     await addMedicationWithDuration(tester, 'Paracetamol');
     await waitForDatabase(tester);
 
+    // Wait for all animations and overlays (like SnackBars) to complete
+    await tester.pumpAndSettle();
+
     // Try to add the same medication again
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
@@ -390,6 +403,9 @@ void main() {
     // Add first medication
     await addMedicationWithDuration(tester, 'Ibuprofeno');
     await waitForDatabase(tester);
+
+    // Wait for all animations and overlays (like SnackBars) to complete
+    await tester.pumpAndSettle();
 
     // Try to add the same medication with different case
     await tester.tap(find.byIcon(Icons.add));
@@ -519,10 +535,15 @@ void main() {
     // Add three medications
     await addMedicationWithDuration(tester, 'Medicamento A');
     await waitForDatabase(tester);
+    await tester.pumpAndSettle(); // Wait for any overlays to clear
+
     await addMedicationWithDuration(tester, 'Medicamento B');
     await waitForDatabase(tester);
+    await tester.pumpAndSettle(); // Wait for any overlays to clear
+
     await addMedicationWithDuration(tester, 'Medicamento C');
     await waitForDatabase(tester);
+    await tester.pumpAndSettle(); // Wait for any overlays to clear
 
     // Verify all three medications are in the list
     expect(find.text('Medicamento A'), findsOneWidget);
@@ -798,8 +819,16 @@ void main() {
     // Add two medications
     await addMedicationWithDuration(tester, 'Amoxicilina');
     await waitForDatabase(tester);
+    await tester.pumpAndSettle(); // Wait for any overlays to clear
+    // Extra delay to ensure SnackBar is completely gone
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 500));
+    });
+    await tester.pump();
+
     await addMedicationWithDuration(tester, 'Azitromicina');
     await waitForDatabase(tester);
+    await tester.pumpAndSettle(); // Wait for any overlays to clear
 
     // Navigate to edit menu and select "Información Básica"
     await openEditMenuAndSelectSection(tester, 'Azitromicina', 'Información Básica');

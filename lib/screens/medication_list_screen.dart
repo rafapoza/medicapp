@@ -911,6 +911,53 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
       await DatabaseHelper.instance.insertDoseHistory(historyEntry);
 
+      // Cancel the next pending notification for this medication today
+      // This prevents notifications from firing after a manual dose registration
+      if (medication.doseTimes.isNotEmpty) {
+        final now = DateTime.now();
+        final currentTime = TimeOfDay(hour: now.hour, minute: now.minute);
+
+        // Find the next scheduled dose time that hasn't been taken yet
+        String? nextDoseTime;
+        for (final doseTime in medication.doseTimes) {
+          final parts = doseTime.split(':');
+          final doseTimeOfDay = TimeOfDay(
+            hour: int.parse(parts[0]),
+            minute: int.parse(parts[1]),
+          );
+
+          // Check if this dose time is in the future and hasn't been taken
+          final doseMinutes = doseTimeOfDay.hour * 60 + doseTimeOfDay.minute;
+          final currentMinutes = currentTime.hour * 60 + currentTime.minute;
+
+          if (doseMinutes > currentMinutes &&
+              !updatedMedication.takenDosesToday.contains(doseTime)) {
+            nextDoseTime = doseTime;
+            break; // Found the next pending dose
+          }
+        }
+
+        // If we found a next dose time, cancel its notification
+        if (nextDoseTime != null) {
+          await NotificationService.instance.cancelTodaysDoseNotification(
+            medication: updatedMedication,
+            doseTime: nextDoseTime,
+          );
+          print('Cancelled notification for $nextDoseTime after manual dose registration');
+        }
+      }
+
+      // Schedule dynamic fasting notification if medication requires fasting after dose
+      if (updatedMedication.requiresFasting &&
+          updatedMedication.fastingType == 'after' &&
+          updatedMedication.notifyFasting) {
+        await NotificationService.instance.scheduleDynamicFastingNotification(
+          medication: updatedMedication,
+          actualDoseTime: now,
+        );
+        print('Dynamic fasting notification scheduled for ${updatedMedication.name}');
+      }
+
       // Reload medications
       await _loadMedications();
 

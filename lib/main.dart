@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import '../.dart_tool/flutter_gen/gen_l10n/app_localizations.dart';
 import 'screens/main_screen.dart';
 import 'services/notification_service.dart';
 
@@ -43,15 +44,13 @@ class MedicApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('es', 'ES'), // Spanish
-        Locale('en', 'US'), // English
-      ],
-      locale: const Locale('es', 'ES'),
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('es'),
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),
       themeMode: ThemeMode.system,

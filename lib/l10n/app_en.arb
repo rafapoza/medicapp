@@ -1,0 +1,61 @@
+{
+  "@@locale": "en",
+
+  "@_NAVIGATION": {},
+  "appTitle": "MedicApp",
+  "navMedication": "Medication",
+  "navPillOrganizer": "Pill Organizer",
+  "navMedicineCabinet": "Medicine Cabinet",
+  "navHistory": "History",
+
+  "@_COMMON_BUTTONS": {},
+  "btnContinue": "Continue",
+  "btnBack": "Back",
+  "btnSave": "Save",
+  "btnCancel": "Cancel",
+  "btnDelete": "Delete",
+  "btnEdit": "Edit",
+  "btnClose": "Close",
+  "btnConfirm": "Confirm",
+  "btnAccept": "Accept",
+
+  "@_MEDICATION_TYPES": {},
+  "medicationTypePill": "Pill",
+  "medicationTypeCapsule": "Capsule",
+  "medicationTypeTablet": "Tablet",
+  "medicationTypeSyrup": "Syrup",
+  "medicationTypeDrops": "Drops",
+  "medicationTypeInjection": "Injection",
+  "medicationTypePatch": "Patch",
+  "medicationTypeInhaler": "Inhaler",
+  "medicationTypeCream": "Cream",
+  "medicationTypeOther": "Other",
+
+  "@_DOSE_STATUS": {},
+  "doseStatusTaken": "Taken",
+  "doseStatusSkipped": "Skipped",
+  "doseStatusPending": "Pending",
+
+  "@_TREATMENT_DURATION": {},
+  "durationContinuous": "Continuous",
+  "durationSpecificDates": "Specific Dates",
+  "durationAsNeeded": "As Needed",
+
+  "@_MAIN_SCREEN": {},
+  "mainScreenTitle": "My Medications",
+  "mainScreenEmptyTitle": "No medications registered",
+  "mainScreenEmptySubtitle": "Add medications using the + button",
+  "mainScreenTodayDoses": "Today's Doses",
+  "mainScreenNoMedications": "You don't have active medications",
+
+  "@_COMMON_MESSAGES": {},
+  "msgMedicationAdded": "Medication added successfully",
+  "msgMedicationUpdated": "Medication updated successfully",
+  "msgMedicationDeleted": "{name} deleted successfully",
+
+  "@_VALIDATION": {},
+  "validationRequired": "This field is required",
+  "validationDuplicateMedication": "This medication already exists in your list",
+  "validationInvalidNumber": "Enter a valid number",
+  "validationMinValue": "Value must be greater than {min}"
+}

@@ -1,0 +1,75 @@
+{
+  "@@locale": "es",
+
+  "@_NAVIGATION": {},
+  "appTitle": "MedicApp",
+  "navMedication": "Medicación",
+  "navPillOrganizer": "Pastillero",
+  "navMedicineCabinet": "Botiquín",
+  "navHistory": "Historial",
+
+  "@_COMMON_BUTTONS": {},
+  "btnContinue": "Continuar",
+  "btnBack": "Atrás",
+  "btnSave": "Guardar",
+  "btnCancel": "Cancelar",
+  "btnDelete": "Eliminar",
+  "btnEdit": "Editar",
+  "btnClose": "Cerrar",
+  "btnConfirm": "Confirmar",
+  "btnAccept": "Aceptar",
+
+  "@_MEDICATION_TYPES": {},
+  "medicationTypePill": "Pastilla",
+  "medicationTypeCapsule": "Cápsula",
+  "medicationTypeTablet": "Comprimido",
+  "medicationTypeSyrup": "Jarabe",
+  "medicationTypeDrops": "Gotas",
+  "medicationTypeInjection": "Inyección",
+  "medicationTypePatch": "Parche",
+  "medicationTypeInhaler": "Inhalador",
+  "medicationTypeCream": "Crema",
+  "medicationTypeOther": "Otro",
+
+  "@_DOSE_STATUS": {},
+  "doseStatusTaken": "Tomada",
+  "doseStatusSkipped": "Omitida",
+  "doseStatusPending": "Pendiente",
+
+  "@_TREATMENT_DURATION": {},
+  "durationContinuous": "Continuo",
+  "durationSpecificDates": "Fechas específicas",
+  "durationAsNeeded": "Según necesidad",
+
+  "@_MAIN_SCREEN": {},
+  "mainScreenTitle": "Mis Medicamentos",
+  "mainScreenEmptyTitle": "No hay medicamentos registrados",
+  "mainScreenEmptySubtitle": "Añade medicamentos usando el botón +",
+  "mainScreenTodayDoses": "Tomas de hoy",
+  "mainScreenNoMedications": "No tienes medicamentos activos",
+
+  "@_COMMON_MESSAGES": {},
+  "msgMedicationAdded": "Medicamento añadido correctamente",
+  "msgMedicationUpdated": "Medicamento actualizado correctamente",
+  "msgMedicationDeleted": "{name} eliminado correctamente",
+  "@msgMedicationDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "@_VALIDATION": {},
+  "validationRequired": "Este campo es obligatorio",
+  "validationDuplicateMedication": "Este medicamento ya existe en tu lista",
+  "validationInvalidNumber": "Introduce un número válido",
+  "validationMinValue": "El valor debe ser mayor que {min}",
+  "@validationMinValue": {
+    "placeholders": {
+      "min": {
+        "type": "num"
+      }
+    }
+  }
+}

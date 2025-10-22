@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/medication.dart';
@@ -2338,16 +2339,18 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   ],
                 ),
               ),
-              const PopupMenuItem(
-                value: 'open_battery',
-                child: Row(
-                  children: [
-                    Icon(Icons.battery_full),
-                    SizedBox(width: 8),
-                    Text('⚙️ Optimización de batería'),
-                  ],
+              // Battery optimization is only available on Android
+              if (Platform.isAndroid)
+                const PopupMenuItem(
+                  value: 'open_battery',
+                  child: Row(
+                    children: [
+                      Icon(Icons.battery_full),
+                      SizedBox(width: 8),
+                      Text('⚙️ Optimización de batería'),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ]
@@ -2406,8 +2409,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
             )
           : Column(
               children: [
-                // Battery optimization info (only show if not dismissed)
-                if (!_batteryBannerDismissed)
+                // Battery optimization info (only show on Android and if not dismissed)
+                if (Platform.isAndroid && !_batteryBannerDismissed)
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

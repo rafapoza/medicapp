@@ -1,8 +1,5 @@
-// ignore: unused_import
-import 'package:intl/intl.dart' as intl;
-import 'app_localizations.dart';
-
 // ignore_for_file: type=lint
+import 'app_localizations.dart';
 
 /// The translations for English (`en`).
 class AppLocalizationsEn extends AppLocalizations {
@@ -128,8 +125,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validationRequired => 'This field is required';
 
   @override
-  String get validationDuplicateMedication =>
-      'This medication already exists in your list';
+  String get validationDuplicateMedication => 'This medication already exists in your list';
 
   @override
   String get validationInvalidNumber => 'Enter a valid number';

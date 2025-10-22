@@ -1,8 +1,5 @@
-// ignore: unused_import
-import 'package:intl/intl.dart' as intl;
-import 'app_localizations.dart';
-
 // ignore_for_file: type=lint
+import 'app_localizations.dart';
 
 /// The translations for Spanish Castilian (`es`).
 class AppLocalizationsEs extends AppLocalizations {
@@ -128,8 +125,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get validationRequired => 'Este campo es obligatorio';
 
   @override
-  String get validationDuplicateMedication =>
-      'Este medicamento ya existe en tu lista';
+  String get validationDuplicateMedication => 'Este medicamento ya existe en tu lista';
 
   @override
   String get validationInvalidNumber => 'Introduce un número válido';

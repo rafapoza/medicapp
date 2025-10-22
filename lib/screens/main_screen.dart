@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'medication_list_screen.dart';
 import 'medication_stock_screen.dart';
 import 'medicine_cabinet_screen.dart';
@@ -46,31 +47,33 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: _getCurrentScreen(),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.medical_services_outlined),
-            selectedIcon: Icon(Icons.medical_services),
-            label: 'Medicación',
+            icon: const Icon(Icons.medical_services_outlined),
+            selectedIcon: const Icon(Icons.medical_services),
+            label: l10n.navMedication,
           ),
           NavigationDestination(
-            icon: Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2),
-            label: 'Pastillero',
+            icon: const Icon(Icons.inventory_2_outlined),
+            selectedIcon: const Icon(Icons.inventory_2),
+            label: l10n.navPillOrganizer,
           ),
           NavigationDestination(
-            icon: Icon(Icons.medical_information_outlined),
-            selectedIcon: Icon(Icons.medical_information),
-            label: 'Botiquín',
+            icon: const Icon(Icons.medical_information_outlined),
+            selectedIcon: const Icon(Icons.medical_information),
+            label: l10n.navMedicineCabinet,
           ),
           NavigationDestination(
-            icon: Icon(Icons.history_outlined),
-            selectedIcon: Icon(Icons.history),
-            label: 'Historial',
+            icon: const Icon(Icons.history_outlined),
+            selectedIcon: const Icon(Icons.history),
+            label: l10n.navHistory,
           ),
         ],
       ),

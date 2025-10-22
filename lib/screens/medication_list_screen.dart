@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_localizations.dart';
 import '../models/medication.dart';
 import '../models/treatment_duration_type.dart';
 import '../models/dose_history_entry.dart';
@@ -2129,11 +2130,13 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
           onTap: _onTitleTap,
-          child: const Text('Mis Medicamentos'),
+          child: Text(l10n.mainScreenTitle),
         ),
         actions: _debugMenuVisible
             ? [

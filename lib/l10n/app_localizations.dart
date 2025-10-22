@@ -345,6 +345,79 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'El valor debe ser mayor que {min}'**
   String validationMinValue(num min);
+
+  // Pill Organizer Screen
+  String get pillOrganizerTitle;
+  String get pillOrganizerTotal;
+  String get pillOrganizerLowStock;
+  String get pillOrganizerNoStock;
+  String get pillOrganizerAvailableStock;
+  String get pillOrganizerMedicationsTitle;
+  String get pillOrganizerEmptyTitle;
+  String get pillOrganizerEmptySubtitle;
+  String get pillOrganizerCurrentStock;
+  String get pillOrganizerEstimatedDuration;
+  String get pillOrganizerDays;
+
+  // Medicine Cabinet Screen
+  String get medicineCabinetTitle;
+  String get medicineCabinetSearchHint;
+  String get medicineCabinetEmptyTitle;
+  String get medicineCabinetEmptySubtitle;
+  String get medicineCabinetPullToRefresh;
+  String get medicineCabinetNoResults;
+  String get medicineCabinetNoResultsHint;
+  String get medicineCabinetStock;
+  String get medicineCabinetSuspended;
+  String get medicineCabinetTapToRegister;
+  String get medicineCabinetResumeMedication;
+  String get medicineCabinetRegisterDose;
+  String get medicineCabinetRefillMedication;
+  String get medicineCabinetEditMedication;
+  String get medicineCabinetDeleteMedication;
+  String medicineCabinetRefillTitle(String name);
+  String medicineCabinetRegisterDoseTitle(String name);
+  String get medicineCabinetCurrentStock;
+  String get medicineCabinetAddQuantity;
+  String get medicineCabinetAddQuantityLabel;
+  String get medicineCabinetExample;
+  String get medicineCabinetLastRefill;
+  String get medicineCabinetRefillButton;
+  String get medicineCabinetAvailableStock;
+  String get medicineCabinetDoseTaken;
+  String get medicineCabinetRegisterButton;
+  String get medicineCabinetNewStock;
+  String get medicineCabinetDeleteConfirmTitle;
+  String medicineCabinetDeleteConfirmMessage(String name);
+  String get medicineCabinetNoStockAvailable;
+  String medicineCabinetInsufficientStock(String needed, String unit, String available);
+  String medicineCabinetRefillSuccess(String name, String amount, String unit, String newStock);
+  String medicineCabinetDoseRegistered(String name, String amount, String unit, String remaining);
+  String medicineCabinetDeleteSuccess(String name);
+  String medicineCabinetResumeSuccess(String name);
+
+  // Dose History Screen
+  String get doseHistoryTitle;
+  String get doseHistoryFilterTitle;
+  String get doseHistoryMedicationLabel;
+  String get doseHistoryAllMedications;
+  String get doseHistoryDateRangeLabel;
+  String get doseHistoryClearDates;
+  String get doseHistoryApply;
+  String get doseHistoryTotal;
+  String get doseHistoryTaken;
+  String get doseHistorySkipped;
+  String get doseHistoryClear;
+  String doseHistoryEditEntry(String name);
+  String get doseHistoryScheduledTime;
+  String get doseHistoryActualTime;
+  String get doseHistoryStatus;
+  String get doseHistoryMarkAsSkipped;
+  String get doseHistoryMarkAsTaken;
+  String get doseHistoryConfirmDelete;
+  String get doseHistoryConfirmDeleteMessage;
+  String get doseHistoryRecordDeleted;
+  String doseHistoryDeleteError(String error);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

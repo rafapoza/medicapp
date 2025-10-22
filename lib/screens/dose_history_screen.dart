@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/dose_history_entry.dart';
 import '../models/medication.dart';
 import '../database/database_helper.dart';
@@ -73,10 +74,12 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
   }
 
   void _showFilterDialog() {
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filtrar historial'),
+        title: Text(l10n.doseHistoryFilterTitle),
         content: StatefulBuilder(
           builder: (context, setDialogState) {
             return SingleChildScrollView(
@@ -85,7 +88,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Medication filter
-                  const Text('Medicamento:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(l10n.doseHistoryMedicationLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String?>(
                     value: _selectedMedicationId,
@@ -94,9 +97,9 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
                     items: [
-                      const DropdownMenuItem<String?>(
+                      DropdownMenuItem<String?>(
                         value: null,
-                        child: Text('Todos los medicamentos'),
+                        child: Text(l10n.doseHistoryAllMedications),
                       ),
                       ..._medications.map((med) => DropdownMenuItem<String?>(
                             value: med.id,
@@ -111,7 +114,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                   ),
                   const SizedBox(height: 16),
                   // Date range filter
-                  const Text('Rango de fechas:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(l10n.doseHistoryDateRangeLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -177,7 +180,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                           });
                         },
                         icon: const Icon(Icons.clear, size: 18),
-                        label: const Text('Limpiar fechas'),
+                        label: Text(l10n.doseHistoryClearDates),
                       ),
                     ),
                   ],
@@ -189,14 +192,14 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(l10n.btnCancel),
           ),
           FilledButton(
             onPressed: () {
               Navigator.pop(context);
               _loadData();
             },
-            child: const Text('Aplicar'),
+            child: Text(l10n.doseHistoryApply),
           ),
         ],
       ),
@@ -214,6 +217,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final hasFilters = _selectedMedicationId != null || _startDate != null || _endDate != null;
 
     return Scaffold(
@@ -228,7 +232,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                 },
               )
             : null,
-        title: const Text('Historial de Tomas'),
+        title: Text(l10n.doseHistoryTitle),
         actions: [
           IconButton(
             onPressed: _showFilterDialog,
@@ -264,7 +268,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                             Expanded(
                               child: _StatCard(
                                 icon: Icons.medication,
-                                label: 'Total',
+                                label: l10n.doseHistoryTotal,
                                 value: '${_statistics['total']}',
                                 color: Colors.blue,
                               ),
@@ -273,7 +277,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                             Expanded(
                               child: _StatCard(
                                 icon: Icons.check_circle,
-                                label: 'Tomadas',
+                                label: l10n.doseHistoryTaken,
                                 value: '${_statistics['taken']}',
                                 color: Colors.green,
                               ),
@@ -282,7 +286,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                             Expanded(
                               child: _StatCard(
                                 icon: Icons.cancel,
-                                label: 'Omitidas',
+                                label: l10n.doseHistorySkipped,
                                 value: '${_statistics['skipped']}',
                                 color: Colors.orange,
                               ),
@@ -347,7 +351,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                         TextButton.icon(
                           onPressed: _clearFilters,
                           icon: const Icon(Icons.clear, size: 16),
-                          label: const Text('Limpiar'),
+                          label: Text(l10n.doseHistoryClear),
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                           ),
@@ -398,6 +402,8 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
   }
 
   void _showEditEntryDialog(DoseHistoryEntry entry) {
+    final l10n = AppLocalizations.of(context)!;
+
     // Check if entry is from today (allows deletion)
     final now = DateTime.now();
     final isToday = entry.scheduledDateTime.year == now.year &&
@@ -407,7 +413,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Editar registro de ${entry.medicationName}'),
+        title: Text(l10n.doseHistoryEditEntry(entry.medicationName)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,7 +451,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                 _confirmDeleteEntry(entry);
               },
               icon: const Icon(Icons.delete_outline),
-              label: const Text('Eliminar'),
+              label: Text(l10n.btnDelete),
               style: TextButton.styleFrom(
                 foregroundColor: Colors.red,
               ),
@@ -455,7 +461,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
             const SizedBox(width: 8),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(l10n.btnCancel),
           ),
           if (entry.status == DoseStatus.taken)
             FilledButton.icon(
@@ -464,7 +470,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                 _changeEntryStatus(entry, DoseStatus.skipped);
               },
               icon: const Icon(Icons.cancel),
-              label: const Text('Marcar como Omitida'),
+              label: Text(l10n.doseHistoryMarkAsSkipped),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.orange,
               ),
@@ -476,7 +482,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                 _changeEntryStatus(entry, DoseStatus.taken);
               },
               icon: const Icon(Icons.check_circle),
-              label: const Text('Marcar como Tomada'),
+              label: Text(l10n.doseHistoryMarkAsTaken),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
@@ -513,18 +519,18 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
   }
 
   void _confirmDeleteEntry(DoseHistoryEntry entry) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar eliminación'),
+        title: Text(l10n.doseHistoryConfirmDelete),
         content: Text(
-          '¿Eliminar el registro de ${entry.medicationName} del ${entry.scheduledTimeFormatted}?\n\n'
-          'La dosis volverá a estar disponible para registrar.',
+          l10n.doseHistoryConfirmDeleteMessage,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(l10n.btnCancel),
           ),
           FilledButton(
             onPressed: () {
@@ -534,7 +540,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Eliminar'),
+            child: Text(l10n.btnDelete),
           ),
         ],
       ),
@@ -542,6 +548,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
   }
 
   Future<void> _deleteHistoryEntry(DoseHistoryEntry entry) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       // Get the medication
       final medication = await DatabaseHelper.instance.getMedication(entry.medicationId);
@@ -607,9 +614,9 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
 
       // Show confirmation
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registro eliminado correctamente'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.doseHistoryRecordDeleted),
+          duration: const Duration(seconds: 2),
         ),
       );
     } catch (e) {
@@ -617,7 +624,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al eliminar: $e'),
+          content: Text(l10n.doseHistoryDeleteError(e.toString())),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),

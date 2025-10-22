@@ -71,5 +71,172 @@
         "type": "num"
       }
     }
+  },
+
+  "@_PILL_ORGANIZER_SCREEN": {},
+  "pillOrganizerTitle": "Pastillero",
+  "pillOrganizerTotal": "Total",
+  "pillOrganizerLowStock": "Stock bajo",
+  "pillOrganizerNoStock": "Sin stock",
+  "pillOrganizerAvailableStock": "Stock disponible",
+  "pillOrganizerMedicationsTitle": "Medicamentos",
+  "pillOrganizerEmptyTitle": "No hay medicamentos registrados",
+  "pillOrganizerEmptySubtitle": "Añade medicamentos para ver tu pastillero",
+  "pillOrganizerCurrentStock": "Stock actual",
+  "pillOrganizerEstimatedDuration": "Duración estimada",
+  "pillOrganizerDays": "días",
+
+  "@_MEDICINE_CABINET_SCREEN": {},
+  "medicineCabinetTitle": "Botiquín",
+  "medicineCabinetSearchHint": "Buscar medicamento...",
+  "medicineCabinetEmptyTitle": "No hay medicamentos registrados",
+  "medicineCabinetEmptySubtitle": "Añade medicamentos para ver tu botiquín",
+  "medicineCabinetPullToRefresh": "Arrastra hacia abajo para recargar",
+  "medicineCabinetNoResults": "No se encontraron medicamentos",
+  "medicineCabinetNoResultsHint": "Prueba con otro término de búsqueda",
+  "medicineCabinetStock": "Stock:",
+  "medicineCabinetSuspended": "Suspendido",
+  "medicineCabinetTapToRegister": "Toca para registrar",
+  "medicineCabinetResumeMedication": "Reanudar medicación",
+  "medicineCabinetRegisterDose": "Registrar toma",
+  "medicineCabinetRefillMedication": "Recargar medicamento",
+  "medicineCabinetEditMedication": "Editar medicamento",
+  "medicineCabinetDeleteMedication": "Eliminar medicamento",
+  "medicineCabinetRefillTitle": "Recargar {name}",
+  "@medicineCabinetRefillTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetRegisterDoseTitle": "Registrar toma de {name}",
+  "@medicineCabinetRegisterDoseTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetCurrentStock": "Stock actual:",
+  "medicineCabinetAddQuantity": "Cantidad a añadir:",
+  "medicineCabinetAddQuantityLabel": "Cantidad a agregar",
+  "medicineCabinetExample": "Ej:",
+  "medicineCabinetLastRefill": "Última recarga:",
+  "medicineCabinetRefillButton": "Recargar",
+  "medicineCabinetAvailableStock": "Stock disponible:",
+  "medicineCabinetDoseTaken": "Cantidad tomada",
+  "medicineCabinetRegisterButton": "Registrar",
+  "medicineCabinetNewStock": "Nuevo stock:",
+  "medicineCabinetDeleteConfirmTitle": "Eliminar medicamento",
+  "medicineCabinetDeleteConfirmMessage": "¿Estás seguro de que deseas eliminar \"{name}\"?\n\nEsta acción no se puede deshacer y se perderá todo el historial de este medicamento.",
+  "@medicineCabinetDeleteConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetNoStockAvailable": "No hay stock disponible de este medicamento",
+  "medicineCabinetInsufficientStock": "Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}",
+  "@medicineCabinetInsufficientStock": {
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "available": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetRefillSuccess": "Stock de {name} recargado\nAgregado: {amount} {unit}\nNuevo stock: {newStock}",
+  "@medicineCabinetRefillSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "newStock": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetDoseRegistered": "Toma de {name} registrada\nCantidad: {amount} {unit}\nStock restante: {remaining}",
+  "@medicineCabinetDoseRegistered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetDeleteSuccess": "{name} eliminado correctamente",
+  "@medicineCabinetDeleteSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetResumeSuccess": "{name} reanudado correctamente\nNotificaciones reprogramadas",
+  "@medicineCabinetResumeSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "@_DOSE_HISTORY_SCREEN": {},
+  "doseHistoryTitle": "Historial de Tomas",
+  "doseHistoryFilterTitle": "Filtrar historial",
+  "doseHistoryMedicationLabel": "Medicamento:",
+  "doseHistoryAllMedications": "Todos los medicamentos",
+  "doseHistoryDateRangeLabel": "Rango de fechas:",
+  "doseHistoryClearDates": "Limpiar fechas",
+  "doseHistoryApply": "Aplicar",
+  "doseHistoryTotal": "Total",
+  "doseHistoryTaken": "Tomadas",
+  "doseHistorySkipped": "Omitidas",
+  "doseHistoryClear": "Limpiar",
+  "doseHistoryEditEntry": "Editar registro de {name}",
+  "@doseHistoryEditEntry": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "doseHistoryScheduledTime": "Hora programada:",
+  "doseHistoryActualTime": "Hora real:",
+  "doseHistoryStatus": "Estado:",
+  "doseHistoryMarkAsSkipped": "Marcar como Omitida",
+  "doseHistoryMarkAsTaken": "Marcar como Tomada",
+  "doseHistoryConfirmDelete": "Confirmar eliminación",
+  "doseHistoryConfirmDeleteMessage": "¿Estás seguro de que quieres eliminar este registro?",
+  "doseHistoryRecordDeleted": "Registro eliminado correctamente",
+  "doseHistoryDeleteError": "Error al eliminar: {error}",
+  "@doseHistoryDeleteError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }

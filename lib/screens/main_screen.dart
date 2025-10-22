@@ -20,27 +20,34 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // The screens corresponding to each navigation item
-  final List<Widget> _screens = [
-    const MedicationListScreen(),
-    const MedicationStockScreen(),
-    const MedicineCabinetScreen(),
-    const DoseHistoryScreen(),
-  ];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
+  /// Get the current screen based on selected index
+  /// This approach creates screens on-demand instead of keeping all in memory
+  /// which is more efficient and prevents test issues with pending timers
+  Widget _getCurrentScreen() {
+    switch (_selectedIndex) {
+      case 0:
+        return const MedicationListScreen();
+      case 1:
+        return const MedicationStockScreen();
+      case 2:
+        return const MedicineCabinetScreen();
+      case 3:
+        return const DoseHistoryScreen();
+      default:
+        return const MedicationListScreen();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
-      ),
+      body: _getCurrentScreen(),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,

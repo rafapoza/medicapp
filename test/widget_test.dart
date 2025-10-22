@@ -17,6 +17,10 @@ Future<void> waitForDatabase(WidgetTester tester) async {
   // Pump frames to rebuild UI after async operations
   await tester.pump();
   await tester.pump();
+
+  // Wait for _checkNotificationPermissions and other async timers in MedicationListScreen
+  // This prevents "pending timers" warnings in tests
+  await tester.pump(const Duration(seconds: 2));
 }
 
 // Helper function to scroll to a widget if needed
@@ -280,7 +284,7 @@ void main() {
     // Initial pump to let initState run
     await tester.pump();
 
-    // Wait for database operations to complete
+    // Wait for database operations and async timers to complete
     await waitForDatabase(tester);
 
     // Verify that the app shows the correct title.

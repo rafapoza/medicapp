@@ -79,8 +79,6 @@ class _MedicineCabinetScreenState extends State<MedicineCabinetScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Botiquín'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
       ),
       body: Column(
         children: [

@@ -66,8 +66,6 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pastillero'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
       ),
       body: _isLoading
           ? const Center(

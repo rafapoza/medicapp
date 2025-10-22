@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/medication.dart';
 import '../../models/medication_type.dart';
+import '../../widgets/forms/medication_info_form.dart';
 import '../../database/database_helper.dart';
 import '../../services/notification_service.dart';
 
@@ -36,14 +37,6 @@ class _EditBasicInfoScreenState extends State<EditBasicInfoScreen> {
   void dispose() {
     _nameController.dispose();
     super.dispose();
-  }
-
-  bool _medicationExists(String name) {
-    return widget.existingMedications.any(
-      (medication) =>
-          medication.id != widget.medication.id &&
-          medication.name.toLowerCase() == name.toLowerCase(),
-    );
   }
 
   Future<void> _saveChanges() async {
@@ -130,112 +123,17 @@ class _EditBasicInfoScreenState extends State<EditBasicInfoScreen> {
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Nombre del medicamento',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _nameController,
-                          decoration: InputDecoration(
-                            labelText: 'Nombre del medicamento',
-                            hintText: 'Ej: Paracetamol',
-                            prefixIcon: const Icon(Icons.medication),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          textCapitalization: TextCapitalization.words,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Por favor, introduce el nombre del medicamento';
-                            }
-
-                            if (_medicationExists(value.trim())) {
-                              return 'Este medicamento ya existe en tu lista';
-                            }
-
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Tipo de medicamento',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                        const SizedBox(height: 16),
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            final spacing = 8.0;
-                            final itemWidth = (constraints.maxWidth - (spacing * 2)) / 3;
-
-                            return Wrap(
-                              spacing: spacing,
-                              runSpacing: spacing,
-                              children: MedicationType.values.map((type) {
-                                final isSelected = _selectedType == type;
-                                return InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedType = type;
-                                    });
-                                  },
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Container(
-                                    width: itemWidth,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                      horizontal: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? type.getColor(context).withOpacity(0.2)
-                                          : Colors.transparent,
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? type.getColor(context)
-                                            : Theme.of(context).dividerColor,
-                                        width: isSelected ? 2 : 1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          type.icon,
-                                          size: 32,
-                                          color: isSelected
-                                              ? type.getColor(context)
-                                              : Theme.of(context).colorScheme.onSurface,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          type.displayName,
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: isSelected
-                                                    ? type.getColor(context)
-                                                    : Theme.of(context).colorScheme.onSurface,
-                                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                              ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            );
-                          },
-                        ),
-                      ],
+                    child: MedicationInfoForm(
+                      nameController: _nameController,
+                      selectedType: _selectedType,
+                      onTypeChanged: (type) {
+                        setState(() {
+                          _selectedType = type;
+                        });
+                      },
+                      existingMedications: widget.existingMedications,
+                      existingMedicationId: widget.medication.id,
+                      showDescription: false,
                     ),
                   ),
                 ),

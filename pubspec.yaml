@@ -42,14 +42,14 @@ dependencies:
   path: ^1.8.3
 
   # Local notifications for medication reminders
-  flutter_local_notifications: ^19.4.2
+  flutter_local_notifications: ^19.5.0
   timezone: ^0.10.1
 
   # Internationalization and date formatting
   intl: ^0.20.2
 
   # Android intents for opening settings
-  android_intent_plus: ^5.1.0
+  android_intent_plus: ^6.0.0
 
   # Local key-value storage
   shared_preferences: ^2.2.2
@@ -69,10 +69,10 @@ dev_dependencies:
   sqflite_common_ffi: ^2.3.0
 
   # Icon generation
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
 
   # Splash screen generation
-  flutter_native_splash: ^2.4.0
+  flutter_native_splash: ^2.4.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

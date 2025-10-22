@@ -691,6 +691,17 @@ class _MedicationCardState extends State<_MedicationCard> {
 
       await DatabaseHelper.instance.insertDoseHistory(historyEntry);
 
+      // Schedule dynamic fasting notification if medication requires fasting after dose
+      if (updatedMedication.requiresFasting &&
+          updatedMedication.fastingType == 'after' &&
+          updatedMedication.notifyFasting) {
+        await NotificationService.instance.scheduleDynamicFastingNotification(
+          medication: updatedMedication,
+          actualDoseTime: now,
+        );
+        print('Dynamic fasting notification scheduled for ${updatedMedication.name}');
+      }
+
       // Reload medications
       widget.onMedicationUpdated();
 

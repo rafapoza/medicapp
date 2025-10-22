@@ -787,29 +787,38 @@ class _DoseHistoryCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if (isTaken && !entry.wasOnTime) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          entry.delayInMinutes > 0 ? Icons.schedule : Icons.fast_forward,
-                          size: 12,
-                          color: Colors.orange,
+                  // Always show registered time
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        isTaken ? Icons.check_circle_outline : Icons.cancel_outlined,
+                        size: 12,
+                        color: statusColor.withOpacity(0.7),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Registrada a las ${entry.registeredTimeFormatted}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: statusColor.withOpacity(0.8),
+                          fontWeight: FontWeight.w500,
                         ),
-                        const SizedBox(width: 4),
+                      ),
+                      // Show delay/advance if not on time
+                      if (!entry.wasOnTime) ...[
+                        const SizedBox(width: 6),
                         Text(
-                          entry.delayInMinutes > 0
-                              ? '${entry.delayInMinutes} min tarde'
-                              : '${entry.delayInMinutes.abs()} min antes',
-                          style: const TextStyle(
+                          '(${entry.delayInMinutes > 0 ? '+' : ''}${entry.delayInMinutes} min)',
+                          style: TextStyle(
                             fontSize: 11,
-                            color: Colors.orange,
+                            color: entry.delayInMinutes > 0 ? Colors.orange : Colors.blue,
                             fontStyle: FontStyle.italic,
                           ),
                         ),
                       ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ],
               ),
             ),

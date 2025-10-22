@@ -118,6 +118,7 @@
   - Incluyen el nombre y tipo del medicamento
   - Se reprograman automáticamente al editar medicamentos
   - Se cancelan automáticamente al eliminar medicamentos
+  - **Cancelación inteligente**: Al registrar una toma manualmente, se cancela automáticamente la próxima notificación pendiente del día para evitar notificaciones innecesarias
   - **Acciones desde notificaciones**: Al tocar una notificación, accedes a una pantalla con tres opciones:
     - **Registrar toma**: Marca la toma como tomada y descuenta del stock
     - **Marcar como no tomada**: Registra que no tomaste la dosis sin descontar stock
@@ -127,9 +128,10 @@
   - **Configuración por medicamento**: Define si un medicamento requiere ayuno durante el flujo de añadir/editar
   - **Tipo de ayuno**: Especifica si el ayuno es antes o después de tomar el medicamento
   - **Duración personalizable**: Define la duración del ayuno en horas y minutos (ej: 2 horas, 1 hora 30 minutos)
-  - **Notificaciones de ayuno**: Recibe recordatorios automáticos para comenzar y terminar el ayuno
-    - **Ayuno antes**: Notificación para dejar de comer antes de la toma programada
-    - **Ayuno después**: Notificación dinámica para volver a comer, basada en la hora real de la toma
+  - **Notificaciones de ayuno inteligentes**:
+    - **Ayuno antes**: Notificación programada automáticamente para dejar de comer antes de la toma programada
+    - **Ayuno después**: Notificación dinámica que solo se programa cuando **realmente tomas** el medicamento, usando la hora real de la toma (no la programada)
+    - Esto evita notificaciones innecesarias de "ya puedes comer" cuando no has tomado el medicamento
   - **Gestión de solapamientos**: El sistema fusiona períodos de ayuno solapados automáticamente, usando las restricciones más estrictas
   - **Edición flexible**: Modifica la configuración de ayuno en cualquier momento desde el menú de edición
   - **Persistencia**: La configuración de ayuno se guarda junto con cada medicamento
@@ -141,8 +143,9 @@
     - Dosis tomadas y omitidas
     - Porcentaje de adherencia calculado automáticamente
   - Vista cronológica con información detallada:
-    - Diferencia entre hora programada y hora real (delay)
-    - Indicador de puntualidad (tomada a tiempo o tarde)
+    - **Hora de registro siempre visible**: Todas las tarjetas del historial muestran la hora real en que se registró la toma
+    - Diferencia entre hora programada y hora real cuando no se tomó a tiempo (indicador de adelanto/retraso en minutos)
+    - Indicador visual de puntualidad con códigos de color
     - Cantidad específica tomada con unidades
     - Estado visual con colores (verde: tomada, rojo: omitida)
   - Filtros avanzados por rango de fechas y medicamento específico

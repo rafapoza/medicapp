@@ -731,35 +731,30 @@ class NotificationService {
         continue;
       }
 
-      // Determine notification message based on fasting type
-      String title;
-      String body;
-      tz.TZDateTime notificationTime;
-
+      // Only schedule "before" fasting notifications automatically
+      // "after" fasting notifications are scheduled dynamically when the dose is actually taken
       if (period.isBefore) {
-        // Notify when to stop eating
-        title = '🍽️ Comenzar ayuno';
-        body = 'Es hora de dejar de comer para ${medication.name}';
-        notificationTime = period.start;
+        // Notify when to stop eating (before taking the medication)
+        final title = '🍽️ Comenzar ayuno';
+        final body = 'Es hora de dejar de comer para ${medication.name}';
+        final notificationTime = period.start;
+
+        // Generate unique notification ID for fasting
+        final notificationId = _generateFastingNotificationId(medication.id, period.start, period.isBefore);
+
+        print('Scheduling "before" fasting notification ID $notificationId for ${medication.name} at $notificationTime');
+
+        await _scheduleOneTimeNotification(
+          id: notificationId,
+          title: title,
+          body: body,
+          scheduledDate: notificationTime,
+          payload: '${medication.id}|fasting',
+        );
       } else {
-        // Notify when eating can resume
-        title = '🍴 Fin del ayuno';
-        body = 'Ya puedes volver a comer después de ${medication.name}';
-        notificationTime = period.end;
+        // For "after" fasting: notification will be scheduled dynamically when dose is registered
+        print('Skipping "after" fasting notification for ${medication.name} - will be scheduled dynamically when dose is taken');
       }
-
-      // Generate unique notification ID for fasting
-      final notificationId = _generateFastingNotificationId(medication.id, period.start, period.isBefore);
-
-      print('Scheduling fasting notification ID $notificationId for ${medication.name} at $notificationTime');
-
-      await _scheduleOneTimeNotification(
-        id: notificationId,
-        title: title,
-        body: body,
-        scheduledDate: notificationTime,
-        payload: '${medication.id}|fasting',
-      );
     }
   }
 

@@ -102,6 +102,7 @@ flutter test
   - Cálculo de duración en días
   - Edge cases: diferentes tipos de duración, períodos largos
   - **Cobertura**: edit_duration_screen.dart: 0% → 82.7%
+  - **Nota**: Requiere pasar explícitamente `startDate` y `endDate` a `createTestMedication()` cuando se necesiten valores específicos (no hay default)
 
 **Total**: 263 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock y pantallas de edición
 
@@ -110,6 +111,16 @@ flutter test
 **Nota sobre el Botiquín**: La funcionalidad del Botiquín (vista de inventario) está implementada y funcional, pero no tiene tests dedicados ya que utiliza los mismos componentes y datos que el resto de la aplicación (lectura de base de datos, UI de lista, búsqueda). La funcionalidad es verificada manualmente.
 
 ### Mejoras recientes en la suite de tests
+
+#### Últimas correcciones (enero 2025)
+- **Corrección de tests de EditDurationScreen** (5 tests corregidos):
+  - Problema: Tests definían variables `startDate`/`endDate` pero no las pasaban a `createTestMedication()`
+  - Tests corregidos: "should display formatted dates when set", "should display duration in days", "should calculate duration correctly for 1 day", "should calculate duration correctly for long period", "should show 'No seleccionada' when dates are null"
+  - Solución en helper: Removido `startDate ?? DateTime.now()` en `test_helpers.dart` para permitir valores null
+- **Corrección de typos y imports**:
+  - Corregido typo `createTestcreateTestMedication` → `createTestMedication` en `edit_fasting_screen_test.dart`
+  - Agregados imports faltantes de `MedicationType` en `edit_fasting_screen_test.dart` y `edit_schedule_screen_test.dart`
+- **Resultado**: Todos los 74 tests de las pantallas de edición ahora pasan exitosamente
 
 - **Nuevos tests de pantallas de edición** (74 tests): Suite completa que cubre todas las pantallas de edición de medicamentos
   - **EditQuantityScreen** (18 tests): validación de cantidad y umbral de stock

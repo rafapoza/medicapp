@@ -418,6 +418,161 @@ abstract class AppLocalizations {
   String get doseHistoryConfirmDeleteMessage;
   String get doseHistoryRecordDeleted;
   String doseHistoryDeleteError(String error);
+
+  // Add Medication Flow
+  String get addMedicationTitle;
+  String stepIndicator(int current, int total);
+
+  // Medication Info Screen
+  String get medicationInfoTitle;
+  String get medicationInfoSubtitle;
+  String get medicationNameLabel;
+  String get medicationNameHint;
+  String get medicationTypeLabel;
+  String get validationMedicationName;
+
+  // Medication Duration Screen
+  String get medicationDurationTitle;
+  String get medicationDurationSubtitle;
+  String get durationContinuousTitle;
+  String get durationContinuousDesc;
+  String get durationUntilEmptyTitle;
+  String get durationUntilEmptyDesc;
+  String get durationSpecificDatesTitle;
+  String get durationSpecificDatesDesc;
+  String get durationAsNeededTitle;
+  String get durationAsNeededDesc;
+  String get selectDatesButton;
+  String get selectDatesTitle;
+  String get selectDatesSubtitle;
+  String dateSelected(int count);
+  String get validationSelectDates;
+
+  // Medication Dates Screen
+  String get medicationDatesTitle;
+  String get medicationDatesSubtitle;
+  String get medicationDatesHelp;
+  String get startDateLabel;
+  String get startDateOptional;
+  String get startDateDefault;
+  String get endDateLabel;
+  String get endDateDefault;
+  String get startDatePickerTitle;
+  String get endDatePickerTitle;
+  String get startTodayButton;
+  String get noEndDateButton;
+  String treatmentDuration(int days);
+
+  // Medication Frequency Screen
+  String get medicationFrequencyTitle;
+  String get medicationFrequencySubtitle;
+  String get frequencyDailyTitle;
+  String get frequencyDailyDesc;
+  String get frequencyAlternateTitle;
+  String get frequencyAlternateDesc;
+  String get frequencyWeeklyTitle;
+  String get frequencyWeeklyDesc;
+  String get selectWeeklyDaysButton;
+  String get selectWeeklyDaysTitle;
+  String get selectWeeklyDaysSubtitle;
+  String daySelected(int count);
+  String get validationSelectWeekdays;
+
+  // Medication Dosage Screen
+  String get medicationDosageTitle;
+  String get medicationDosageSubtitle;
+  String get dosageFixedTitle;
+  String get dosageFixedDesc;
+  String get dosageCustomTitle;
+  String get dosageCustomDesc;
+  String get dosageIntervalLabel;
+  String get dosageIntervalHelp;
+  String get dosageIntervalFieldLabel;
+  String get dosageIntervalHint;
+  String get dosageIntervalUnit;
+  String get dosageIntervalValidValues;
+  String get dosageTimesLabel;
+  String get dosageTimesHelp;
+  String get dosageTimesFieldLabel;
+  String get dosageTimesHint;
+  String get dosageTimesUnit;
+  String get dosageTimesDescription;
+  String get dosesPerDay;
+  String doseCount(int count);
+  String get validationInvalidInterval;
+  String get validationIntervalTooLarge;
+  String get validationIntervalNotDivisor;
+  String get validationInvalidDoseCount;
+  String get validationTooManyDoses;
+
+  // Medication Times Screen
+  String get medicationTimesTitle;
+  String dosesPerDayLabel(int count);
+  String frequencyEveryHours(int hours);
+  String get selectTimeAndAmount;
+  String doseNumber(int number);
+  String get selectTimeButton;
+  String get amountPerDose;
+  String get amountHint;
+  String get removeDoseButton;
+  String get validationSelectAllTimes;
+  String get validationEnterValidAmounts;
+  String get validationDuplicateTimes;
+  String get validationAtLeastOneDose;
+
+  // Medication Fasting Screen
+  String get medicationFastingTitle;
+  String get fastingLabel;
+  String get fastingHelp;
+  String get requiresFastingQuestion;
+  String get fastingNo;
+  String get fastingYes;
+  String get fastingWhenQuestion;
+  String get fastingBefore;
+  String get fastingAfter;
+  String get fastingDurationQuestion;
+  String get fastingHours;
+  String get fastingMinutes;
+  String get fastingNotificationsQuestion;
+  String get fastingNotificationBeforeHelp;
+  String get fastingNotificationAfterHelp;
+  String get fastingNotificationsOn;
+  String get fastingNotificationsOff;
+  String get validationCompleteAllFields;
+  String get validationSelectFastingWhen;
+  String get validationFastingDuration;
+
+  // Medication Quantity Screen
+  String get medicationQuantityTitle;
+  String get medicationQuantitySubtitle;
+  String get availableQuantityLabel;
+  String get availableQuantityHint;
+  String availableQuantityHelp(String unit);
+  String get lowStockAlertLabel;
+  String get lowStockAlertHint;
+  String get lowStockAlertUnit;
+  String get lowStockAlertHelp;
+  String get validationEnterQuantity;
+  String get validationQuantityNonNegative;
+  String get validationEnterAlertDays;
+  String get validationAlertMinDays;
+  String get validationAlertMaxDays;
+  String get summaryTitle;
+  String get summaryMedication;
+  String get summaryType;
+  String get summaryDosesPerDay;
+  String get summarySchedules;
+  String get summaryFrequency;
+  String get summaryFrequencyDaily;
+  String get summaryFrequencyUntilEmpty;
+  String summaryFrequencySpecificDates(int count);
+  String summaryFrequencyWeekdays(int count);
+  String summaryFrequencyEveryNDays(int days);
+  String get summaryFrequencyAsNeeded;
+  String msgMedicationAddedSuccess(String name);
+  String msgMedicationAddError(String error);
+  String get saveMedicationButton;
+  String get savingButton;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

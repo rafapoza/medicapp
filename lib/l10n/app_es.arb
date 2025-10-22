@@ -238,5 +238,231 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "_comment_addMedication": "Add Medication Flow",
+  "addMedicationTitle": "Añadir Medicamento",
+  "stepIndicator": "Paso {current} de {total}",
+  "@stepIndicator": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+
+  "_comment_medicationInfo": "Medication Info Screen",
+  "medicationInfoTitle": "Información del medicamento",
+  "medicationInfoSubtitle": "Comienza proporcionando el nombre y tipo de medicamento",
+  "medicationNameLabel": "Nombre del medicamento",
+  "medicationNameHint": "Ej: Paracetamol",
+  "medicationTypeLabel": "Tipo de medicamento",
+  "validationMedicationName": "Por favor, introduce el nombre del medicamento",
+
+  "_comment_medicationDuration": "Medication Duration Screen",
+  "medicationDurationTitle": "Tipo de Tratamiento",
+  "medicationDurationSubtitle": "¿Cómo vas a tomar este medicamento?",
+  "durationContinuousTitle": "Tratamiento continuo",
+  "durationContinuousDesc": "Todos los días, con patrón regular",
+  "durationUntilEmptyTitle": "Hasta acabar medicación",
+  "durationUntilEmptyDesc": "Termina cuando se acabe el stock",
+  "durationSpecificDatesTitle": "Fechas específicas",
+  "durationSpecificDatesDesc": "Solo días concretos seleccionados",
+  "durationAsNeededTitle": "Medicamento ocasional",
+  "durationAsNeededDesc": "Solo cuando sea necesario, sin horarios",
+  "selectDatesButton": "Seleccionar fechas",
+  "selectDatesTitle": "Selecciona las fechas",
+  "selectDatesSubtitle": "Elige los días exactos en los que tomarás el medicamento",
+  "dateSelected": "{count, plural, =1{1 fecha seleccionada} other{{count} fechas seleccionadas}}",
+  "@dateSelected": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "validationSelectDates": "Por favor, selecciona al menos una fecha",
+
+  "_comment_medicationDates": "Medication Dates Screen",
+  "medicationDatesTitle": "Fechas del Tratamiento",
+  "medicationDatesSubtitle": "¿Cuándo comenzarás y terminarás este tratamiento?",
+  "medicationDatesHelp": "Ambas fechas son opcionales. Si no las estableces, el tratamiento comenzará hoy y no tendrá fecha límite.",
+  "startDateLabel": "Fecha de inicio",
+  "startDateOptional": "Opcional",
+  "startDateDefault": "Empieza hoy",
+  "endDateLabel": "Fecha de fin",
+  "endDateDefault": "Sin fecha límite",
+  "startDatePickerTitle": "Fecha de inicio del tratamiento",
+  "endDatePickerTitle": "Fecha de fin del tratamiento",
+  "startTodayButton": "Empezar hoy",
+  "noEndDateButton": "Sin fecha límite",
+  "treatmentDuration": "Tratamiento de {days} días",
+  "@treatmentDuration": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+
+  "_comment_medicationFrequency": "Medication Frequency Screen",
+  "medicationFrequencyTitle": "Frecuencia de Medicación",
+  "medicationFrequencySubtitle": "Cada cuántos días debes tomar este medicamento",
+  "frequencyDailyTitle": "Todos los días",
+  "frequencyDailyDesc": "Medicación diaria continua",
+  "frequencyAlternateTitle": "Días alternos",
+  "frequencyAlternateDesc": "Cada 2 días desde el inicio del tratamiento",
+  "frequencyWeeklyTitle": "Días de la semana específicos",
+  "frequencyWeeklyDesc": "Selecciona qué días tomar el medicamento",
+  "selectWeeklyDaysButton": "Seleccionar días",
+  "selectWeeklyDaysTitle": "Días de la semana",
+  "selectWeeklyDaysSubtitle": "Selecciona los días específicos en los que tomarás el medicamento",
+  "daySelected": "{count, plural, =1{1 día seleccionado} other{{count} días seleccionados}}",
+  "@daySelected": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "validationSelectWeekdays": "Por favor, selecciona los días de la semana",
+
+  "_comment_medicationDosage": "Medication Dosage Screen",
+  "medicationDosageTitle": "Configuración de Dosis",
+  "medicationDosageSubtitle": "¿Cómo prefieres configurar las dosis diarias?",
+  "dosageFixedTitle": "Todos los días igual",
+  "dosageFixedDesc": "Especifica cada cuántas horas tomar el medicamento",
+  "dosageCustomTitle": "Personalizado",
+  "dosageCustomDesc": "Define el número de tomas por día",
+  "dosageIntervalLabel": "Intervalo entre tomas",
+  "dosageIntervalHelp": "El intervalo debe dividir 24 exactamente",
+  "dosageIntervalFieldLabel": "Cada cuántas horas",
+  "dosageIntervalHint": "Ej: 8",
+  "dosageIntervalUnit": "horas",
+  "dosageIntervalValidValues": "Valores válidos: 1, 2, 3, 4, 6, 8, 12, 24",
+  "dosageTimesLabel": "Número de tomas al día",
+  "dosageTimesHelp": "Define cuántas veces al día tomarás el medicamento",
+  "dosageTimesFieldLabel": "Tomas por día",
+  "dosageTimesHint": "Ej: 3",
+  "dosageTimesUnit": "tomas",
+  "dosageTimesDescription": "Número total de tomas diarias",
+  "dosesPerDay": "Tomas por día",
+  "doseCount": "{count, plural, =1{1 toma} other{{count} tomas}}",
+  "@doseCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "validationInvalidInterval": "Por favor, introduce un intervalo válido",
+  "validationIntervalTooLarge": "El intervalo no puede ser mayor a 24 horas",
+  "validationIntervalNotDivisor": "El intervalo debe dividir 24 exactamente (1, 2, 3, 4, 6, 8, 12, 24)",
+  "validationInvalidDoseCount": "Por favor, introduce un número de tomas válido",
+  "validationTooManyDoses": "No puedes tomar más de 24 dosis al día",
+
+  "_comment_medicationTimes": "Medication Times Screen",
+  "medicationTimesTitle": "Horario de Tomas",
+  "dosesPerDayLabel": "Tomas al día: {count}",
+  "@dosesPerDayLabel": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "frequencyEveryHours": "Frecuencia: Cada {hours} horas",
+  "@frequencyEveryHours": {
+    "placeholders": {
+      "hours": {"type": "int"}
+    }
+  },
+  "selectTimeAndAmount": "Selecciona la hora y cantidad de cada toma",
+  "doseNumber": "Toma {number}",
+  "@doseNumber": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "selectTimeButton": "Seleccionar hora",
+  "amountPerDose": "Cantidad por toma",
+  "amountHint": "Ej: 1, 0.5, 2",
+  "removeDoseButton": "Eliminar toma",
+  "validationSelectAllTimes": "Por favor, selecciona todas las horas de las tomas",
+  "validationEnterValidAmounts": "Por favor, ingresa cantidades válidas (mayores a 0)",
+  "validationDuplicateTimes": "Las horas de las tomas no pueden repetirse",
+  "validationAtLeastOneDose": "Debe haber al menos una toma al día",
+
+  "_comment_medicationFasting": "Medication Fasting Screen",
+  "medicationFastingTitle": "Configuración de Ayuno",
+  "fastingLabel": "Ayuno",
+  "fastingHelp": "Algunos medicamentos requieren ayuno antes o después de la toma",
+  "requiresFastingQuestion": "¿Este medicamento requiere ayuno?",
+  "fastingNo": "No",
+  "fastingYes": "Sí",
+  "fastingWhenQuestion": "¿Cuándo es el ayuno?",
+  "fastingBefore": "Antes de la toma",
+  "fastingAfter": "Después de la toma",
+  "fastingDurationQuestion": "¿Cuánto tiempo de ayuno?",
+  "fastingHours": "Horas",
+  "fastingMinutes": "Minutos",
+  "fastingNotificationsQuestion": "¿Deseas recibir notificaciones de ayuno?",
+  "fastingNotificationBeforeHelp": "Te notificaremos cuándo debes dejar de comer antes de la toma",
+  "fastingNotificationAfterHelp": "Te notificaremos cuándo puedes volver a comer después de la toma",
+  "fastingNotificationsOn": "Notificaciones activadas",
+  "fastingNotificationsOff": "Notificaciones desactivadas",
+  "validationCompleteAllFields": "Por favor, completa todos los campos",
+  "validationSelectFastingWhen": "Por favor, selecciona cuándo es el ayuno",
+  "validationFastingDuration": "La duración del ayuno debe ser al menos 1 minuto",
+
+  "_comment_medicationQuantity": "Medication Quantity Screen",
+  "medicationQuantityTitle": "Cantidad de Medicamento",
+  "medicationQuantitySubtitle": "Establece la cantidad disponible y cuándo deseas recibir alertas",
+  "availableQuantityLabel": "Cantidad disponible",
+  "availableQuantityHint": "Ej: 30",
+  "availableQuantityHelp": "Cantidad de {unit} que tienes actualmente",
+  "@availableQuantityHelp": {
+    "placeholders": {
+      "unit": {"type": "String"}
+    }
+  },
+  "lowStockAlertLabel": "Avisar cuando queden",
+  "lowStockAlertHint": "Ej: 3",
+  "lowStockAlertUnit": "días",
+  "lowStockAlertHelp": "Días de antelación para recibir la alerta de bajo stock",
+  "validationEnterQuantity": "Por favor, introduce la cantidad disponible",
+  "validationQuantityNonNegative": "La cantidad debe ser mayor o igual a 0",
+  "validationEnterAlertDays": "Por favor, introduce los días de antelación",
+  "validationAlertMinDays": "Debe ser al menos 1 día",
+  "validationAlertMaxDays": "No puede ser mayor a 30 días",
+  "summaryTitle": "Resumen",
+  "summaryMedication": "Medicamento",
+  "summaryType": "Tipo",
+  "summaryDosesPerDay": "Tomas al día",
+  "summarySchedules": "Horarios",
+  "summaryFrequency": "Frecuencia",
+  "summaryFrequencyDaily": "Todos los días",
+  "summaryFrequencyUntilEmpty": "Hasta acabar medicación",
+  "summaryFrequencySpecificDates": "{count} fechas específicas",
+  "@summaryFrequencySpecificDates": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "summaryFrequencyWeekdays": "{count} días de la semana",
+  "@summaryFrequencyWeekdays": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "summaryFrequencyEveryNDays": "Cada {days} días",
+  "@summaryFrequencyEveryNDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "summaryFrequencyAsNeeded": "Según necesidad",
+  "msgMedicationAddedSuccess": "{name} añadido correctamente",
+  "@msgMedicationAddedSuccess": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "msgMedicationAddError": "Error al guardar el medicamento: {error}",
+  "@msgMedicationAddError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "saveMedicationButton": "Guardar Medicamento",
+  "savingButton": "Guardando..."
 }

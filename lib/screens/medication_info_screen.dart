@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/medication.dart';
 import '../models/medication_type.dart';
 import '../widgets/forms/medication_info_form.dart';
@@ -50,15 +51,17 @@ class _MedicationInfoScreenState extends State<MedicationInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Añadir Medicamento'),
+        title: Text(l10n.addMedicationTitle),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Text(
-                'Paso 1 de 6',
+                l10n.stepIndicator(1, 6),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
@@ -106,7 +109,7 @@ class _MedicationInfoScreenState extends State<MedicationInfoScreen> {
                 FilledButton.icon(
                   onPressed: _continueToNextStep,
                   icon: const Icon(Icons.arrow_forward),
-                  label: const Text('Continuar'),
+                  label: Text(l10n.btnContinue),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -117,7 +120,7 @@ class _MedicationInfoScreenState extends State<MedicationInfoScreen> {
                 OutlinedButton.icon(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.cancel),
-                  label: const Text('Cancelar'),
+                  label: Text(l10n.btnCancel),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),

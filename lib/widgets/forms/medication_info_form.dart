@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../models/medication.dart';
 import '../../models/medication_type.dart';
 
@@ -32,12 +33,14 @@ class MedicationInfoForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (showDescription) ...[
           Text(
-            'Información del medicamento',
+            l10n.medicationInfoTitle,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -45,7 +48,7 @@ class MedicationInfoForm extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Comienza proporcionando el nombre y tipo de medicamento',
+            l10n.medicationInfoSubtitle,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 ),
@@ -56,7 +59,7 @@ class MedicationInfoForm extends StatelessWidget {
         // Campo de nombre
         if (!showDescription)
           Text(
-            'Nombre del medicamento',
+            l10n.medicationNameLabel,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                 ),
@@ -65,8 +68,8 @@ class MedicationInfoForm extends StatelessWidget {
         TextFormField(
           controller: nameController,
           decoration: InputDecoration(
-            labelText: 'Nombre del medicamento',
-            hintText: 'Ej: Paracetamol',
+            labelText: l10n.medicationNameLabel,
+            hintText: l10n.medicationNameHint,
             prefixIcon: const Icon(Icons.medication),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -76,11 +79,11 @@ class MedicationInfoForm extends StatelessWidget {
           textCapitalization: TextCapitalization.words,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
-              return 'Por favor, introduce el nombre del medicamento';
+              return l10n.validationMedicationName;
             }
 
             if (_medicationExists(value.trim())) {
-              return 'Este medicamento ya existe en tu lista';
+              return l10n.validationDuplicateMedication;
             }
 
             return null;
@@ -90,7 +93,7 @@ class MedicationInfoForm extends StatelessWidget {
 
         // Selector de tipo
         Text(
-          'Tipo de medicamento',
+          l10n.medicationTypeLabel,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: showDescription ? FontWeight.w600 : null,

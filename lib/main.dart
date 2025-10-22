@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'screens/medication_list_screen.dart';
+import 'screens/main_screen.dart';
 import 'services/notification_service.dart';
 
 // Global navigator key to enable navigation from notification callbacks
@@ -55,7 +55,7 @@ class MedicApp extends StatelessWidget {
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),
       themeMode: ThemeMode.system,
-      home: const MedicationListScreen(),
+      home: const MainScreen(),
     );
   }
 

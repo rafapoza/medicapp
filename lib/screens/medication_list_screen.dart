@@ -1808,42 +1808,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     );
   }
 
-  void _navigateToStock() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const MedicationStockScreen(),
-      ),
-    );
-  }
-
-  void _navigateToCabinet() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const MedicineCabinetScreen(),
-      ),
-    );
-
-    // Reload medications after returning from cabinet (in case medications were resumed/deleted)
-    await _loadMedications();
-  }
-
-  void _navigateToHistory() async {
-    final hasChanges = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const DoseHistoryScreen(),
-      ),
-    );
-
-    // Reload medications if changes were made in history
-    if (hasChanges == true) {
-      await _loadMedications();
-    }
-  }
-
-  void _showMainActionMenu() {
+  /// Show modal to add a new medication
+  /// Navigation to other sections (Pastillero, Botiquín, Historial) is now done via bottom navigation bar
+  void _showAddMedicationModal() {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -1875,51 +1842,6 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   },
                   icon: const Icon(Icons.add),
                   label: const Text('Añadir medicamento'),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.tonalIcon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateToStock();
-                  },
-                  icon: const Icon(Icons.inventory_2),
-                  label: const Text('Ver Pastillero'),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.tonalIcon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateToCabinet();
-                  },
-                  icon: const Icon(Icons.medical_information),
-                  label: const Text('Ver Botiquín'),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.tonalIcon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateToHistory();
-                  },
-                  icon: const Icon(Icons.history),
-                  label: const Text('Ver Historial'),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -2734,7 +2656,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
               ],
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showMainActionMenu,
+        onPressed: _showAddMedicationModal,
         child: const Icon(Icons.add),
       ),
     );

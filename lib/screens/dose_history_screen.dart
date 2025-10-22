@@ -218,12 +218,16 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop(_hasChanges);
-          },
-        ),
+        // Only show back button if there's a previous route in the navigation stack
+        // When accessed via BottomNavigationBar, there's no previous route
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop(_hasChanges);
+                },
+              )
+            : null,
         title: const Text('Historial de Tomas'),
         actions: [
           IconButton(

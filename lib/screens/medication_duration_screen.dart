@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
 import 'specific_dates_selector_screen.dart';
@@ -42,6 +43,8 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
   }
 
   void _continueToNextStep() async {
+    final l10n = AppLocalizations.of(context)!;
+
     // Si es medicamento ocasional, ir directamente a la pantalla de cantidad
     if (_selectedDurationType == TreatmentDurationType.asNeeded) {
       final result = await Navigator.push(
@@ -69,8 +72,8 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
     if (_selectedDurationType == TreatmentDurationType.specificDates) {
       if (_specificDates == null || _specificDates!.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Por favor, selecciona al menos una fecha'),
+          SnackBar(
+            content: Text(l10n.validationSelectDates),
             backgroundColor: Colors.red,
           ),
         );
@@ -116,15 +119,17 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tipo de Tratamiento'),
+        title: Text(l10n.medicationDurationTitle),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Text(
-                'Paso 2 de 7',
+                l10n.stepIndicator(2, 7),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
@@ -155,7 +160,7 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Tipo de tratamiento',
+                        l10n.medicationDurationTitle,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,
@@ -163,7 +168,7 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '¿Cómo vas a tomar este medicamento?',
+                        l10n.medicationDurationSubtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                             ),
@@ -173,26 +178,26 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
                       // Opciones de tipo de duración
                       _buildDurationOption(
                         TreatmentDurationType.everyday,
-                        'Tratamiento continuo',
-                        'Todos los días, con patrón regular',
+                        l10n.durationContinuousTitle,
+                        l10n.durationContinuousDesc,
                       ),
                       const SizedBox(height: 12),
                       _buildDurationOption(
                         TreatmentDurationType.untilFinished,
-                        'Hasta acabar medicación',
-                        'Termina cuando se acabe el stock',
+                        l10n.durationUntilEmptyTitle,
+                        l10n.durationUntilEmptyDesc,
                       ),
                       const SizedBox(height: 12),
                       _buildDurationOption(
                         TreatmentDurationType.specificDates,
-                        'Fechas específicas',
-                        'Solo días concretos seleccionados',
+                        l10n.durationSpecificDatesTitle,
+                        l10n.durationSpecificDatesDesc,
                       ),
                       const SizedBox(height: 12),
                       _buildDurationOption(
                         TreatmentDurationType.asNeeded,
-                        'Medicamento ocasional',
-                        'Solo cuando sea necesario, sin horarios',
+                        l10n.durationAsNeededTitle,
+                        l10n.durationAsNeededDesc,
                       ),
                     ],
                   ),
@@ -209,7 +214,7 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Selecciona las fechas',
+                          l10n.selectDatesTitle,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.w600,
@@ -217,7 +222,7 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Elige los días exactos en los que tomarás el medicamento',
+                          l10n.selectDatesSubtitle,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                               ),
@@ -227,8 +232,8 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
                           onPressed: _selectSpecificDates,
                           icon: const Icon(Icons.event),
                           label: Text(_specificDates == null || _specificDates!.isEmpty
-                              ? 'Seleccionar fechas'
-                              : '${_specificDates!.length} fecha${_specificDates!.length != 1 ? 's' : ''} seleccionada${_specificDates!.length != 1 ? 's' : ''}'),
+                              ? l10n.selectDatesButton
+                              : l10n.dateSelected(_specificDates!.length)),
                           style: FilledButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             backgroundColor: Colors.purple,
@@ -246,7 +251,7 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
               FilledButton.icon(
                 onPressed: _continueToNextStep,
                 icon: const Icon(Icons.arrow_forward),
-                label: const Text('Continuar'),
+                label: Text(l10n.btnContinue),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -257,7 +262,7 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
               OutlinedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back),
-                label: const Text('Atrás'),
+                label: Text(l10n.btnBack),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),

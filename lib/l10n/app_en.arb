@@ -132,11 +132,9 @@
   "doseHistoryRecordDeleted": "Record deleted successfully",
   "doseHistoryDeleteError": "Error deleting: {error}",
 
-  "_comment_addMedication": "Add Medication Flow",
   "addMedicationTitle": "Add Medication",
   "stepIndicator": "Step {current} of {total}",
 
-  "_comment_medicationInfo": "Medication Info Screen",
   "medicationInfoTitle": "Medication information",
   "medicationInfoSubtitle": "Start by providing the medication name and type",
   "medicationNameLabel": "Medication name",
@@ -144,7 +142,6 @@
   "medicationTypeLabel": "Medication type",
   "validationMedicationName": "Please enter the medication name",
 
-  "_comment_medicationDuration": "Medication Duration Screen",
   "medicationDurationTitle": "Treatment Type",
   "medicationDurationSubtitle": "How will you take this medication?",
   "durationContinuousTitle": "Continuous treatment",
@@ -161,7 +158,6 @@
   "dateSelected": "{count, plural, =1{1 date selected} other{{count} dates selected}}",
   "validationSelectDates": "Please select at least one date",
 
-  "_comment_medicationDates": "Medication Dates Screen",
   "medicationDatesTitle": "Treatment Dates",
   "medicationDatesSubtitle": "When will you start and end this treatment?",
   "medicationDatesHelp": "Both dates are optional. If you don't set them, the treatment will start today and have no end date.",
@@ -176,7 +172,6 @@
   "noEndDateButton": "No end date",
   "treatmentDuration": "{days}-day treatment",
 
-  "_comment_medicationFrequency": "Medication Frequency Screen",
   "medicationFrequencyTitle": "Medication Frequency",
   "medicationFrequencySubtitle": "How often should you take this medication",
   "frequencyDailyTitle": "Every day",
@@ -191,7 +186,6 @@
   "daySelected": "{count, plural, =1{1 day selected} other{{count} days selected}}",
   "validationSelectWeekdays": "Please select the days of the week",
 
-  "_comment_medicationDosage": "Medication Dosage Screen",
   "medicationDosageTitle": "Dose Configuration",
   "medicationDosageSubtitle": "How do you prefer to configure daily doses?",
   "dosageFixedTitle": "Same every day",
@@ -218,7 +212,6 @@
   "validationInvalidDoseCount": "Please enter a valid number of doses",
   "validationTooManyDoses": "You cannot take more than 24 doses per day",
 
-  "_comment_medicationTimes": "Medication Times Screen",
   "medicationTimesTitle": "Dose Schedule",
   "dosesPerDayLabel": "Doses per day: {count}",
   "frequencyEveryHours": "Frequency: Every {hours} hours",
@@ -233,7 +226,6 @@
   "validationDuplicateTimes": "Dose times cannot be repeated",
   "validationAtLeastOneDose": "There must be at least one dose per day",
 
-  "_comment_medicationFasting": "Medication Fasting Screen",
   "medicationFastingTitle": "Fasting Configuration",
   "fastingLabel": "Fasting",
   "fastingHelp": "Some medications require fasting before or after taking",
@@ -255,7 +247,6 @@
   "validationSelectFastingWhen": "Please select when the fasting is",
   "validationFastingDuration": "Fasting duration must be at least 1 minute",
 
-  "_comment_medicationQuantity": "Medication Quantity Screen",
   "medicationQuantityTitle": "Medication Quantity",
   "medicationQuantitySubtitle": "Set the available quantity and when you want to receive alerts",
   "availableQuantityLabel": "Available quantity",

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
 import 'medication_times_screen.dart';
@@ -65,6 +66,7 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
   }
 
   void _continueToNextStep() {
+    final l10n = AppLocalizations.of(context)!;
     int dosageIntervalHours;
     int dosesPerDay;
 
@@ -74,8 +76,8 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
 
       if (interval == null || interval <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Por favor, introduce un intervalo válido'),
+          SnackBar(
+            content: Text(l10n.validationInvalidInterval),
             backgroundColor: Colors.red,
           ),
         );
@@ -84,8 +86,8 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
 
       if (interval > 24) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('El intervalo no puede ser mayor a 24 horas'),
+          SnackBar(
+            content: Text(l10n.validationIntervalTooLarge),
             backgroundColor: Colors.red,
           ),
         );
@@ -94,8 +96,8 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
 
       if (24 % interval != 0) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('El intervalo debe dividir 24 exactamente (1, 2, 3, 4, 6, 8, 12, 24)'),
+          SnackBar(
+            content: Text(l10n.validationIntervalNotDivisor),
             backgroundColor: Colors.red,
           ),
         );
@@ -110,8 +112,8 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
 
       if (doses == null || doses <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Por favor, introduce un número de tomas válido'),
+          SnackBar(
+            content: Text(l10n.validationInvalidDoseCount),
             backgroundColor: Colors.red,
           ),
         );
@@ -120,8 +122,8 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
 
       if (doses > 24) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No puedes tomar más de 24 dosis al día'),
+          SnackBar(
+            content: Text(l10n.validationTooManyDoses),
             backgroundColor: Colors.red,
           ),
         );
@@ -161,19 +163,21 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dosesPerDay = _getDosesPerDay();
-    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '4 de 6' : '5 de 7';
+    final currentStep = widget.durationType == TreatmentDurationType.specificDates ? 4 : 5;
+    final totalSteps = widget.durationType == TreatmentDurationType.specificDates ? 6 : 7;
     final progressValue = widget.durationType == TreatmentDurationType.specificDates ? 4 / 6 : 5 / 7;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configuración de Dosis'),
+        title: Text(l10n.medicationDosageTitle),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Text(
-                'Paso $stepNumber',
+                l10n.stepIndicator(currentStep, totalSteps),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
@@ -204,7 +208,7 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Configuración de dosis',
+                        l10n.medicationDosageTitle,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,
@@ -212,7 +216,7 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '¿Cómo prefieres configurar las dosis diarias?',
+                        l10n.medicationDosageSubtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                             ),
@@ -223,16 +227,16 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                       _buildDosageModeOption(
                         DosageMode.sameEveryDay,
                         Icons.schedule,
-                        'Todos los días igual',
-                        'Especifica cada cuántas horas tomar el medicamento',
+                        l10n.dosageFixedTitle,
+                        l10n.dosageFixedDesc,
                         Colors.blue,
                       ),
                       const SizedBox(height: 12),
                       _buildDosageModeOption(
                         DosageMode.custom,
                         Icons.tune,
-                        'Personalizado',
-                        'Define el número de tomas por día',
+                        l10n.dosageCustomTitle,
+                        l10n.dosageCustomDesc,
                         Colors.purple,
                       ),
                     ],
@@ -250,7 +254,7 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                     children: [
                       if (_selectedMode == DosageMode.sameEveryDay) ...[
                         Text(
-                          'Intervalo entre tomas',
+                          l10n.dosageIntervalLabel,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.w600,
@@ -258,7 +262,7 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'El intervalo debe dividir 24 exactamente',
+                          l10n.dosageIntervalHelp,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                               ),
@@ -267,11 +271,11 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                         TextFormField(
                           controller: _intervalController,
                           decoration: InputDecoration(
-                            labelText: 'Cada cuántas horas',
-                            hintText: 'Ej: 8',
+                            labelText: l10n.dosageIntervalFieldLabel,
+                            hintText: l10n.dosageIntervalHint,
                             prefixIcon: const Icon(Icons.access_time),
-                            suffixText: 'horas',
-                            helperText: 'Valores válidos: 1, 2, 3, 4, 6, 8, 12, 24',
+                            suffixText: l10n.dosageIntervalUnit,
+                            helperText: l10n.dosageIntervalValidValues,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -287,7 +291,7 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                         ),
                       ] else ...[
                         Text(
-                          'Número de tomas al día',
+                          l10n.dosageTimesLabel,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.w600,
@@ -295,7 +299,7 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Define cuántas veces al día tomarás el medicamento',
+                          l10n.dosageTimesHelp,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                               ),
@@ -304,11 +308,11 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                         TextFormField(
                           controller: _customDosesController,
                           decoration: InputDecoration(
-                            labelText: 'Tomas por día',
-                            hintText: 'Ej: 3',
+                            labelText: l10n.dosageTimesFieldLabel,
+                            hintText: l10n.dosageTimesHint,
                             prefixIcon: const Icon(Icons.medication),
-                            suffixText: 'tomas',
-                            helperText: 'Número total de tomas diarias',
+                            suffixText: l10n.dosageTimesUnit,
+                            helperText: l10n.dosageTimesDescription,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -345,14 +349,14 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Tomas por día',
+                                    l10n.dosesPerDay,
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                                         ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '$dosesPerDay ${dosesPerDay == 1 ? 'toma' : 'tomas'}',
+                                    l10n.doseCount(dosesPerDay),
                                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                           color: Theme.of(context).colorScheme.primary,
                                           fontWeight: FontWeight.bold,
@@ -375,7 +379,7 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
               FilledButton.icon(
                 onPressed: _continueToNextStep,
                 icon: const Icon(Icons.arrow_forward),
-                label: const Text('Continuar'),
+                label: Text(l10n.btnContinue),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -386,7 +390,7 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
               OutlinedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back),
-                label: const Text('Atrás'),
+                label: Text(l10n.btnBack),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),

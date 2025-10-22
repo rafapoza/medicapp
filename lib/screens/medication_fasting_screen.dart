@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
 import '../widgets/forms/fasting_configuration_form.dart';
@@ -71,12 +72,14 @@ class _MedicationFastingScreenState extends State<MedicationFastingScreen> {
   }
 
   void _continueToNextStep() {
+    final l10n = AppLocalizations.of(context)!;
+
     if (!_isValid()) {
-      String message = 'Por favor, completa todos los campos';
+      String message = l10n.validationCompleteAllFields;
       if (_fastingType == null) {
-        message = 'Por favor, selecciona cuándo es el ayuno';
+        message = l10n.validationSelectFastingWhen;
       } else if (_fastingDurationMinutes == null || _fastingDurationMinutes! < 1) {
-        message = 'La duración del ayuno debe ser al menos 1 minuto';
+        message = l10n.validationFastingDuration;
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,18 +121,20 @@ class _MedicationFastingScreenState extends State<MedicationFastingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '6 de 7' : '7 de 8';
+    final l10n = AppLocalizations.of(context)!;
+    final currentStep = widget.durationType == TreatmentDurationType.specificDates ? 6 : 7;
+    final totalSteps = widget.durationType == TreatmentDurationType.specificDates ? 7 : 8;
     final progressValue = widget.durationType == TreatmentDurationType.specificDates ? 6 / 7 : 7 / 8;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configuración de Ayuno'),
+        title: Text(l10n.medicationFastingTitle),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Text(
-                'Paso $stepNumber',
+                l10n.stepIndicator(currentStep, totalSteps),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
@@ -192,7 +197,7 @@ class _MedicationFastingScreenState extends State<MedicationFastingScreen> {
               FilledButton.icon(
                 onPressed: _continueToNextStep,
                 icon: const Icon(Icons.arrow_forward),
-                label: const Text('Continuar'),
+                label: Text(l10n.btnContinue),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -203,7 +208,7 @@ class _MedicationFastingScreenState extends State<MedicationFastingScreen> {
               OutlinedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back),
-                label: const Text('Atrás'),
+                label: Text(l10n.btnBack),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),

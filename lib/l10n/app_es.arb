@@ -240,7 +240,6 @@
     }
   },
 
-  "_comment_addMedication": "Add Medication Flow",
   "addMedicationTitle": "Añadir Medicamento",
   "stepIndicator": "Paso {current} de {total}",
   "@stepIndicator": {
@@ -250,7 +249,6 @@
     }
   },
 
-  "_comment_medicationInfo": "Medication Info Screen",
   "medicationInfoTitle": "Información del medicamento",
   "medicationInfoSubtitle": "Comienza proporcionando el nombre y tipo de medicamento",
   "medicationNameLabel": "Nombre del medicamento",
@@ -258,7 +256,6 @@
   "medicationTypeLabel": "Tipo de medicamento",
   "validationMedicationName": "Por favor, introduce el nombre del medicamento",
 
-  "_comment_medicationDuration": "Medication Duration Screen",
   "medicationDurationTitle": "Tipo de Tratamiento",
   "medicationDurationSubtitle": "¿Cómo vas a tomar este medicamento?",
   "durationContinuousTitle": "Tratamiento continuo",
@@ -280,7 +277,6 @@
   },
   "validationSelectDates": "Por favor, selecciona al menos una fecha",
 
-  "_comment_medicationDates": "Medication Dates Screen",
   "medicationDatesTitle": "Fechas del Tratamiento",
   "medicationDatesSubtitle": "¿Cuándo comenzarás y terminarás este tratamiento?",
   "medicationDatesHelp": "Ambas fechas son opcionales. Si no las estableces, el tratamiento comenzará hoy y no tendrá fecha límite.",
@@ -300,7 +296,6 @@
     }
   },
 
-  "_comment_medicationFrequency": "Medication Frequency Screen",
   "medicationFrequencyTitle": "Frecuencia de Medicación",
   "medicationFrequencySubtitle": "Cada cuántos días debes tomar este medicamento",
   "frequencyDailyTitle": "Todos los días",
@@ -320,7 +315,6 @@
   },
   "validationSelectWeekdays": "Por favor, selecciona los días de la semana",
 
-  "_comment_medicationDosage": "Medication Dosage Screen",
   "medicationDosageTitle": "Configuración de Dosis",
   "medicationDosageSubtitle": "¿Cómo prefieres configurar las dosis diarias?",
   "dosageFixedTitle": "Todos los días igual",
@@ -352,7 +346,6 @@
   "validationInvalidDoseCount": "Por favor, introduce un número de tomas válido",
   "validationTooManyDoses": "No puedes tomar más de 24 dosis al día",
 
-  "_comment_medicationTimes": "Medication Times Screen",
   "medicationTimesTitle": "Horario de Tomas",
   "dosesPerDayLabel": "Tomas al día: {count}",
   "@dosesPerDayLabel": {
@@ -382,7 +375,6 @@
   "validationDuplicateTimes": "Las horas de las tomas no pueden repetirse",
   "validationAtLeastOneDose": "Debe haber al menos una toma al día",
 
-  "_comment_medicationFasting": "Medication Fasting Screen",
   "medicationFastingTitle": "Configuración de Ayuno",
   "fastingLabel": "Ayuno",
   "fastingHelp": "Algunos medicamentos requieren ayuno antes o después de la toma",
@@ -404,7 +396,6 @@
   "validationSelectFastingWhen": "Por favor, selecciona cuándo es el ayuno",
   "validationFastingDuration": "La duración del ayuno debe ser al menos 1 minuto",
 
-  "_comment_medicationQuantity": "Medication Quantity Screen",
   "medicationQuantityTitle": "Cantidad de Medicamento",
   "medicationQuantitySubtitle": "Establece la cantidad disponible y cuándo deseas recibir alertas",
   "availableQuantityLabel": "Cantidad disponible",

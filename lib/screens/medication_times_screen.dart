@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
 import '../widgets/forms/dose_schedule_editor.dart';
@@ -41,13 +42,14 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
   final _editorKey = GlobalKey<DoseScheduleEditorState>();
 
   void _continueToNextStep() {
+    final l10n = AppLocalizations.of(context)!;
     final editorState = _editorKey.currentState;
     if (editorState == null) return;
 
     if (!editorState.allTimesSelected()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, selecciona todas las horas de las tomas'),
+        SnackBar(
+          content: Text(l10n.validationSelectAllTimes),
           backgroundColor: Colors.red,
         ),
       );
@@ -56,8 +58,8 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
 
     if (!editorState.allQuantitiesValid()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, ingresa cantidades válidas (mayores a 0)'),
+        SnackBar(
+          content: Text(l10n.validationEnterValidAmounts),
           backgroundColor: Colors.red,
         ),
       );
@@ -66,8 +68,8 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
 
     if (editorState.hasDuplicateTimes()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Las horas de las tomas no pueden repetirse'),
+        SnackBar(
+          content: Text(l10n.validationDuplicateTimes),
           backgroundColor: Colors.red,
         ),
       );
@@ -102,18 +104,20 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '5 de 7' : '6 de 8';
+    final l10n = AppLocalizations.of(context)!;
+    final currentStep = widget.durationType == TreatmentDurationType.specificDates ? 5 : 6;
+    final totalSteps = widget.durationType == TreatmentDurationType.specificDates ? 7 : 8;
     final progressValue = widget.durationType == TreatmentDurationType.specificDates ? 5 / 7 : 6 / 8;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Horario de Tomas'),
+        title: Text(l10n.medicationTimesTitle),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Text(
-                'Paso $stepNumber',
+                l10n.stepIndicator(currentStep, totalSteps),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
@@ -142,9 +146,9 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
               medicationType: widget.medicationType,
               allowAddRemove: false,
               headerText: widget.isCustomDosage
-                  ? 'Tomas al día: ${widget.dosesPerDay}'
-                  : 'Frecuencia: Cada ${widget.dosageIntervalHours} horas',
-              subtitleText: 'Selecciona la hora y cantidad de cada toma',
+                  ? l10n.dosesPerDayLabel(widget.dosesPerDay)
+                  : l10n.frequencyEveryHours(widget.dosageIntervalHours),
+              subtitleText: l10n.selectTimeAndAmount,
             ),
           ),
 
@@ -157,7 +161,7 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
                 FilledButton.icon(
                   onPressed: _continueToNextStep,
                   icon: const Icon(Icons.arrow_forward),
-                  label: const Text('Continuar'),
+                  label: Text(l10n.btnContinue),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -166,7 +170,7 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
                 OutlinedButton.icon(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back),
-                  label: const Text('Atrás'),
+                  label: Text(l10n.btnBack),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),

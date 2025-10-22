@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../../models/medication_type.dart';
 
 /// Helper class to hold time and quantity for each dose
@@ -195,10 +196,11 @@ class DoseScheduleEditorState extends State<DoseScheduleEditor> {
   }
 
   void _removeDose(int index) {
+    final l10n = AppLocalizations.of(context)!;
     if (_doseEntries.length <= 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Debe haber al menos una toma al día'),
+        SnackBar(
+          content: Text(l10n.validationAtLeastOneDose),
           backgroundColor: Colors.red,
         ),
       );
@@ -362,7 +364,7 @@ class DoseScheduleEditorState extends State<DoseScheduleEditor> {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            'Toma $doseNumber',
+                            AppLocalizations.of(context)!.doseNumber(doseNumber),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const Spacer(),
@@ -370,7 +372,7 @@ class DoseScheduleEditorState extends State<DoseScheduleEditor> {
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () => _removeDose(index),
-                              tooltip: 'Eliminar toma',
+                              tooltip: AppLocalizations.of(context)!.removeDoseButton,
                             ),
                           if (isDuplicated) ...[
                             const SizedBox(width: 8),
@@ -392,7 +394,7 @@ class DoseScheduleEditorState extends State<DoseScheduleEditor> {
                           color: isDuplicated ? Colors.orange : null,
                         ),
                         label: Text(
-                          time != null ? _formatTime(time) : 'Seleccionar hora',
+                          time != null ? _formatTime(time) : AppLocalizations.of(context)!.selectTimeButton,
                           style: TextStyle(
                             color: isDuplicated
                                 ? Colors.orange
@@ -421,7 +423,7 @@ class DoseScheduleEditorState extends State<DoseScheduleEditor> {
                             child: Row(
                               children: [
                                 Text(
-                                  'Cantidad por toma',
+                                  AppLocalizations.of(context)!.amountPerDose,
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -443,7 +445,7 @@ class DoseScheduleEditorState extends State<DoseScheduleEditor> {
                           TextField(
                             controller: _quantityControllers[index],
                             decoration: InputDecoration(
-                              hintText: 'Ej: 1, 0.5, 2',
+                              hintText: AppLocalizations.of(context)!.amountHint,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),

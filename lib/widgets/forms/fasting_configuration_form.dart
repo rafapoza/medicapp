@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 
 /// Widget reutilizable para el formulario de configuración de ayuno
 /// Usado tanto en creación como en edición de medicamentos
@@ -29,6 +30,8 @@ class FastingConfigurationForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -44,7 +47,7 @@ class FastingConfigurationForm extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Ayuno',
+                  l10n.fastingLabel,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -55,7 +58,7 @@ class FastingConfigurationForm extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Algunos medicamentos requieren ayuno antes o después de la toma',
+            l10n.fastingHelp,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 ),
@@ -65,7 +68,7 @@ class FastingConfigurationForm extends StatelessWidget {
 
         // Question: ¿Requiere ayuno?
         Text(
-          '¿Este medicamento requiere ayuno?',
+          l10n.requiresFastingQuestion,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -82,7 +85,7 @@ class FastingConfigurationForm extends StatelessWidget {
                   requiresFasting ? Icons.radio_button_off : Icons.radio_button_checked,
                   color: !requiresFasting ? Theme.of(context).colorScheme.primary : null,
                 ),
-                label: const Text('No'),
+                label: Text(l10n.fastingNo),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   side: BorderSide(
@@ -105,7 +108,7 @@ class FastingConfigurationForm extends StatelessWidget {
                   requiresFasting ? Icons.radio_button_checked : Icons.radio_button_off,
                   color: requiresFasting ? Theme.of(context).colorScheme.primary : null,
                 ),
-                label: const Text('Sí'),
+                label: Text(l10n.fastingYes),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   side: BorderSide(
@@ -131,7 +134,7 @@ class FastingConfigurationForm extends StatelessWidget {
 
           // Question: ¿Cuándo es el ayuno?
           Text(
-            '¿Cuándo es el ayuno?',
+            l10n.fastingWhenQuestion,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -147,7 +150,7 @@ class FastingConfigurationForm extends StatelessWidget {
                   fastingType == 'before' ? Icons.radio_button_checked : Icons.radio_button_off,
                   color: fastingType == 'before' ? Theme.of(context).colorScheme.primary : null,
                 ),
-                label: const Text('Antes de la toma'),
+                label: Text(l10n.fastingBefore),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   minimumSize: const Size(double.infinity, 48),
@@ -170,7 +173,7 @@ class FastingConfigurationForm extends StatelessWidget {
                   fastingType == 'after' ? Icons.radio_button_checked : Icons.radio_button_off,
                   color: fastingType == 'after' ? Theme.of(context).colorScheme.primary : null,
                 ),
-                label: const Text('Después de la toma'),
+                label: Text(l10n.fastingAfter),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   minimumSize: const Size(double.infinity, 48),
@@ -193,7 +196,7 @@ class FastingConfigurationForm extends StatelessWidget {
 
           // Question: ¿Cuánto tiempo de ayuno?
           Text(
-            '¿Cuánto tiempo de ayuno?',
+            l10n.fastingDurationQuestion,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -210,7 +213,7 @@ class FastingConfigurationForm extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 4, bottom: 8),
                       child: Text(
-                        'Horas',
+                        l10n.fastingHours,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -248,7 +251,7 @@ class FastingConfigurationForm extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 4, bottom: 8),
                       child: Text(
-                        'Minutos',
+                        l10n.fastingMinutes,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -285,7 +288,7 @@ class FastingConfigurationForm extends StatelessWidget {
 
           // Question: ¿Deseas recibir notificaciones?
           Text(
-            '¿Deseas recibir notificaciones de ayuno?',
+            l10n.fastingNotificationsQuestion,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -293,8 +296,8 @@ class FastingConfigurationForm extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             fastingType == 'before'
-                ? 'Te notificaremos cuándo debes dejar de comer antes de la toma'
-                : 'Te notificaremos cuándo puedes volver a comer después de la toma',
+                ? l10n.fastingNotificationBeforeHelp
+                : l10n.fastingNotificationAfterHelp,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
@@ -306,7 +309,7 @@ class FastingConfigurationForm extends StatelessWidget {
             value: notifyFasting,
             onChanged: onNotifyFastingChanged,
             title: Text(
-              notifyFasting ? 'Notificaciones activadas' : 'Notificaciones desactivadas',
+              notifyFasting ? l10n.fastingNotificationsOn : l10n.fastingNotificationsOff,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),

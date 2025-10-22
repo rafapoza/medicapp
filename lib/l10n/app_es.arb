@@ -455,5 +455,310 @@
     }
   },
   "saveMedicationButton": "Guardar Medicamento",
-  "savingButton": "Guardando..."
+  "savingButton": "Guardando...",
+
+  "@_DOSE_ACTION_SCREEN": {},
+  "doseActionTitle": "Acción de Toma",
+  "doseActionLoading": "Cargando...",
+  "doseActionError": "Error",
+  "doseActionMedicationNotFound": "Medicamento no encontrado",
+  "doseActionBack": "Volver",
+  "doseActionScheduledTime": "Hora programada: {time}",
+  "@doseActionScheduledTime": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "doseActionThisDoseQuantity": "Cantidad de esta toma",
+  "doseActionWhatToDo": "¿Qué deseas hacer?",
+  "doseActionRegisterTaken": "Registrar toma",
+  "doseActionWillDeductStock": "Descontará del stock",
+  "doseActionMarkAsNotTaken": "Marcar como no tomada",
+  "doseActionWillNotDeductStock": "No descontará del stock",
+  "doseActionPostpone15Min": "Posponer 15 minutos",
+  "doseActionQuickReminder": "Recordatorio rápido",
+  "doseActionPostponeCustom": "Posponer (elegir hora)",
+  "doseActionInsufficientStock": "Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}",
+  "@doseActionInsufficientStock": {
+    "placeholders": {
+      "needed": {"type": "String"},
+      "unit": {"type": "String"},
+      "available": {"type": "String"}
+    }
+  },
+  "doseActionTakenRegistered": "Toma de {name} registrada a las {time}\nStock restante: {stock}",
+  "@doseActionTakenRegistered": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"},
+      "stock": {"type": "String"}
+    }
+  },
+  "doseActionSkippedRegistered": "Toma de {name} marcada como no tomada a las {time}\nStock: {stock} (sin cambios)",
+  "@doseActionSkippedRegistered": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"},
+      "stock": {"type": "String"}
+    }
+  },
+  "doseActionPostponed": "Toma de {name} pospuesta\nNueva hora: {time}",
+  "@doseActionPostponed": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+  "doseActionPostponed15": "Toma de {name} pospuesta 15 minutos\nNueva hora: {time}",
+  "@doseActionPostponed15": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_MEDICATION_MENU": {},
+  "editMedicationMenuTitle": "Editar Medicamento",
+  "editMedicationMenuWhatToEdit": "¿Qué deseas editar?",
+  "editMedicationMenuSelectSection": "Selecciona la sección que deseas modificar",
+  "editMedicationMenuBasicInfo": "Información Básica",
+  "editMedicationMenuBasicInfoDesc": "Nombre y tipo de medicamento",
+  "editMedicationMenuDuration": "Duración del Tratamiento",
+  "editMedicationMenuFrequency": "Frecuencia",
+  "editMedicationMenuSchedules": "Horarios y Cantidades",
+  "editMedicationMenuSchedulesDesc": "{count} tomas al día",
+  "@editMedicationMenuSchedulesDesc": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFasting": "Configuración de Ayuno",
+  "editMedicationMenuQuantity": "Cantidad Disponible",
+  "editMedicationMenuQuantityDesc": "{quantity} {unit}",
+  "@editMedicationMenuQuantityDesc": {
+    "placeholders": {
+      "quantity": {"type": "String"},
+      "unit": {"type": "String"}
+    }
+  },
+  "editMedicationMenuFreqEveryday": "Todos los días",
+  "editMedicationMenuFreqUntilFinished": "Hasta acabar medicación",
+  "editMedicationMenuFreqSpecificDates": "{count} fechas específicas",
+  "@editMedicationMenuFreqSpecificDates": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFreqWeeklyDays": "{count} días de la semana",
+  "@editMedicationMenuFreqWeeklyDays": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFreqInterval": "Cada {interval} días",
+  "@editMedicationMenuFreqInterval": {
+    "placeholders": {
+      "interval": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFreqNotDefined": "Frecuencia no definida",
+  "editMedicationMenuFastingNone": "Sin ayuno",
+  "editMedicationMenuFastingDuration": "Ayuno {duration} {type}",
+  "@editMedicationMenuFastingDuration": {
+    "placeholders": {
+      "duration": {"type": "String"},
+      "type": {"type": "String"}
+    }
+  },
+  "editMedicationMenuFastingBefore": "antes",
+  "editMedicationMenuFastingAfter": "después",
+
+  "@_EDIT_BASIC_INFO": {},
+  "editBasicInfoTitle": "Editar Información Básica",
+  "editBasicInfoUpdated": "Información actualizada correctamente",
+  "editBasicInfoSaving": "Guardando...",
+  "editBasicInfoSaveChanges": "Guardar Cambios",
+  "editBasicInfoError": "Error al guardar cambios: {error}",
+  "@editBasicInfoError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_DURATION": {},
+  "editDurationTitle": "Editar Duración",
+  "editDurationTypeLabel": "Tipo de duración",
+  "editDurationCurrentType": "Tipo actual: {type}",
+  "@editDurationCurrentType": {
+    "placeholders": {
+      "type": {"type": "String"}
+    }
+  },
+  "editDurationChangeTypeInfo": "Para cambiar el tipo de duración, edita la sección de \"Frecuencia\"",
+  "editDurationTreatmentDates": "Fechas del tratamiento",
+  "editDurationStartDate": "Fecha de inicio",
+  "editDurationEndDate": "Fecha de fin",
+  "editDurationNotSelected": "No seleccionada",
+  "editDurationDays": "Duración: {days} días",
+  "@editDurationDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "editDurationSelectDates": "Por favor, selecciona las fechas de inicio y fin",
+  "editDurationUpdated": "Duración actualizada correctamente",
+  "editDurationError": "Error al guardar cambios: {error}",
+  "@editDurationError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_FASTING": {},
+  "editFastingTitle": "Editar Configuración de Ayuno",
+  "editFastingCompleteFields": "Por favor, completa todos los campos",
+  "editFastingSelectWhen": "Por favor, selecciona cuándo es el ayuno",
+  "editFastingMinDuration": "La duración del ayuno debe ser al menos 1 minuto",
+  "editFastingUpdated": "Configuración de ayuno actualizada correctamente",
+  "editFastingError": "Error al guardar cambios: {error}",
+  "@editFastingError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_FREQUENCY": {},
+  "editFrequencyTitle": "Editar Frecuencia",
+  "editFrequencyPattern": "Patrón de frecuencia",
+  "editFrequencyQuestion": "¿Con qué frecuencia tomarás este medicamento?",
+  "editFrequencyEveryday": "Todos los días",
+  "editFrequencyEverydayDesc": "Tomar el medicamento diariamente",
+  "editFrequencyUntilFinished": "Hasta acabar",
+  "editFrequencyUntilFinishedDesc": "Hasta que se termine el medicamento",
+  "editFrequencySpecificDates": "Fechas específicas",
+  "editFrequencySpecificDatesDesc": "Seleccionar fechas concretas",
+  "editFrequencyWeeklyDays": "Días de la semana",
+  "editFrequencyWeeklyDaysDesc": "Seleccionar días específicos cada semana",
+  "editFrequencyAlternateDays": "Días alternos",
+  "editFrequencyAlternateDaysDesc": "Cada 2 días desde el inicio del tratamiento",
+  "editFrequencyCustomInterval": "Intervalo personalizado",
+  "editFrequencyCustomIntervalDesc": "Cada N días desde el inicio",
+  "editFrequencySelectedDates": "Fechas seleccionadas",
+  "editFrequencyDatesCount": "{count} fechas seleccionadas",
+  "@editFrequencyDatesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editFrequencyNoDatesSelected": "Ninguna fecha seleccionada",
+  "editFrequencySelectDatesButton": "Seleccionar fechas",
+  "editFrequencyWeeklyDaysLabel": "Días de la semana",
+  "editFrequencyWeeklyDaysCount": "{count} días seleccionados",
+  "@editFrequencyWeeklyDaysCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editFrequencyNoDaysSelected": "Ningún día seleccionado",
+  "editFrequencySelectDaysButton": "Seleccionar días",
+  "editFrequencyIntervalLabel": "Intervalo de días",
+  "editFrequencyIntervalField": "Cada cuántos días",
+  "editFrequencyIntervalHint": "Ej: 3",
+  "editFrequencyIntervalHelp": "Debe ser al menos 2 días",
+  "editFrequencySelectAtLeastOneDate": "Por favor, selecciona al menos una fecha",
+  "editFrequencySelectAtLeastOneDay": "Por favor, selecciona al menos un día de la semana",
+  "editFrequencyIntervalMin": "El intervalo debe ser al menos 2 días",
+  "editFrequencyUpdated": "Frecuencia actualizada correctamente",
+  "editFrequencyError": "Error al guardar cambios: {error}",
+  "@editFrequencyError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_QUANTITY": {},
+  "editQuantityTitle": "Editar Cantidad",
+  "editQuantityMedicationLabel": "Cantidad de medicamento",
+  "editQuantityDescription": "Establece la cantidad disponible y cuándo deseas recibir alertas",
+  "editQuantityAvailableLabel": "Cantidad disponible",
+  "editQuantityAvailableHelp": "Cantidad de {unit} que tienes actualmente",
+  "@editQuantityAvailableHelp": {
+    "placeholders": {
+      "unit": {"type": "String"}
+    }
+  },
+  "editQuantityValidationRequired": "Por favor, introduce la cantidad disponible",
+  "editQuantityValidationMin": "La cantidad debe ser mayor o igual a 0",
+  "editQuantityThresholdLabel": "Avisar cuando queden",
+  "editQuantityThresholdHelp": "Días de antelación para recibir la alerta de bajo stock",
+  "editQuantityThresholdValidationRequired": "Por favor, introduce los días de antelación",
+  "editQuantityThresholdValidationMin": "Debe ser al menos 1 día",
+  "editQuantityThresholdValidationMax": "No puede ser mayor a 30 días",
+  "editQuantityUpdated": "Cantidad actualizada correctamente",
+  "editQuantityError": "Error al guardar cambios: {error}",
+  "@editQuantityError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_SCHEDULE": {},
+  "editScheduleTitle": "Editar Horarios",
+  "editScheduleAddDose": "Añadir toma",
+  "editScheduleValidationQuantities": "Por favor, ingresa cantidades válidas (mayores a 0)",
+  "editScheduleValidationDuplicates": "Las horas de las tomas no pueden repetirse",
+  "editScheduleUpdated": "Horarios actualizados correctamente",
+  "editScheduleError": "Error al guardar cambios: {error}",
+  "@editScheduleError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "editScheduleDosesPerDay": "Tomas al día: {count}",
+  "@editScheduleDosesPerDay": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editScheduleAdjustTimeAndQuantity": "Ajusta la hora y cantidad de cada toma",
+
+  "@_SPECIFIC_DATES_SELECTOR": {},
+  "specificDatesSelectorTitle": "Fechas específicas",
+  "specificDatesSelectorSelectDates": "Selecciona fechas",
+  "specificDatesSelectorDescription": "Elige las fechas específicas en las que tomarás este medicamento",
+  "specificDatesSelectorAddDate": "Añadir fecha",
+  "specificDatesSelectorSelectedDates": "Fechas seleccionadas ({count})",
+  "@specificDatesSelectorSelectedDates": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "specificDatesSelectorToday": "HOY",
+  "specificDatesSelectorContinue": "Continuar",
+  "specificDatesSelectorAlreadySelected": "Esta fecha ya está seleccionada",
+  "specificDatesSelectorSelectAtLeastOne": "Selecciona al menos una fecha",
+  "specificDatesSelectorPickerHelp": "Selecciona una fecha",
+  "specificDatesSelectorPickerCancel": "Cancelar",
+  "specificDatesSelectorPickerConfirm": "Aceptar",
+
+  "@_WEEKLY_DAYS_SELECTOR": {},
+  "weeklyDaysSelectorTitle": "Días de la semana",
+  "weeklyDaysSelectorSelectDays": "Selecciona los días",
+  "weeklyDaysSelectorDescription": "Elige qué días de la semana tomarás este medicamento",
+  "weeklyDaysSelectorSelectedCount": "{count} día{plural} seleccionado{plural}",
+  "@weeklyDaysSelectorSelectedCount": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "plural": {"type": "String"}
+    }
+  },
+  "weeklyDaysSelectorContinue": "Continuar",
+  "weeklyDaysSelectorSelectAtLeastOne": "Selecciona al menos un día de la semana",
+  "weeklyDayMonday": "Lunes",
+  "weeklyDayTuesday": "Martes",
+  "weeklyDayWednesday": "Miércoles",
+  "weeklyDayThursday": "Jueves",
+  "weeklyDayFriday": "Viernes",
+  "weeklyDaySaturday": "Sábado",
+  "weeklyDaySunday": "Domingo"
 }

@@ -128,8 +128,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validationRequired => 'This field is required';
 
   @override
-  String get validationDuplicateMedication =>
-      'This medication already exists in your list';
+  String get validationDuplicateMedication => 'This medication already exists in your list';
 
   @override
   String get validationInvalidNumber => 'Enter a valid number';
@@ -161,8 +160,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pillOrganizerEmptyTitle => 'No medications registered';
 
   @override
-  String get pillOrganizerEmptySubtitle =>
-      'Add medications to view your pill organizer';
+  String get pillOrganizerEmptySubtitle => 'Add medications to view your pill organizer';
 
   @override
   String get pillOrganizerCurrentStock => 'Current stock';
@@ -183,8 +181,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get medicineCabinetEmptyTitle => 'No medications registered';
 
   @override
-  String get medicineCabinetEmptySubtitle =>
-      'Add medications to view your medicine cabinet';
+  String get medicineCabinetEmptySubtitle => 'Add medications to view your medicine cabinet';
 
   @override
   String get medicineCabinetPullToRefresh => 'Pull down to refresh';
@@ -268,35 +265,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get medicineCabinetNoStockAvailable =>
-      'No stock available for this medication';
+  String get medicineCabinetNoStockAvailable => 'No stock available for this medication';
 
   @override
-  String medicineCabinetInsufficientStock(
-    String needed,
-    String unit,
-    String available,
-  ) {
+  String medicineCabinetInsufficientStock(String needed, String unit, String available) {
     return 'Insufficient stock for this dose\nNeeded: $needed $unit\nAvailable: $available';
   }
 
   @override
-  String medicineCabinetRefillSuccess(
-    String name,
-    String amount,
-    String unit,
-    String newStock,
-  ) {
+  String medicineCabinetRefillSuccess(String name, String amount, String unit, String newStock) {
     return 'Stock of $name refilled\nAdded: $amount $unit\nNew stock: $newStock';
   }
 
   @override
-  String medicineCabinetDoseRegistered(
-    String name,
-    String amount,
-    String unit,
-    String remaining,
-  ) {
+  String medicineCabinetDoseRegistered(String name, String amount, String unit, String remaining) {
     return 'Dose of $name registered\nQuantity: $amount $unit\nRemaining stock: $remaining';
   }
 
@@ -367,8 +349,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get doseHistoryConfirmDelete => 'Confirm deletion';
 
   @override
-  String get doseHistoryConfirmDeleteMessage =>
-      'Are you sure you want to delete this record?';
+  String get doseHistoryConfirmDeleteMessage => 'Are you sure you want to delete this record?';
 
   @override
   String get doseHistoryRecordDeleted => 'Record deleted successfully';
@@ -390,8 +371,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get medicationInfoTitle => 'Medication information';
 
   @override
-  String get medicationInfoSubtitle =>
-      'Start by providing the medication name and type';
+  String get medicationInfoSubtitle => 'Start by providing the medication name and type';
 
   @override
   String get medicationNameLabel => 'Medication name';
@@ -442,8 +422,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectDatesTitle => 'Select the dates';
 
   @override
-  String get selectDatesSubtitle =>
-      'Choose the exact days you will take the medication';
+  String get selectDatesSubtitle => 'Choose the exact days you will take the medication';
 
   @override
   String dateSelected(int count) {
@@ -463,12 +442,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get medicationDatesTitle => 'Treatment Dates';
 
   @override
-  String get medicationDatesSubtitle =>
-      'When will you start and end this treatment?';
+  String get medicationDatesSubtitle => 'When will you start and end this treatment?';
 
   @override
-  String get medicationDatesHelp =>
-      'Both dates are optional. If you don\'t set them, the treatment will start today and have no end date.';
+  String get medicationDatesHelp => 'Both dates are optional. If you don\'t set them, the treatment will start today and have no end date.';
 
   @override
   String get startDateLabel => 'Start date';
@@ -506,8 +483,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get medicationFrequencyTitle => 'Medication Frequency';
 
   @override
-  String get medicationFrequencySubtitle =>
-      'How often should you take this medication';
+  String get medicationFrequencySubtitle => 'How often should you take this medication';
 
   @override
   String get frequencyDailyTitle => 'Every day';
@@ -534,8 +510,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectWeeklyDaysTitle => 'Days of the week';
 
   @override
-  String get selectWeeklyDaysSubtitle =>
-      'Select the specific days you will take the medication';
+  String get selectWeeklyDaysSubtitle => 'Select the specific days you will take the medication';
 
   @override
   String daySelected(int count) {
@@ -555,15 +530,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get medicationDosageTitle => 'Dose Configuration';
 
   @override
-  String get medicationDosageSubtitle =>
-      'How do you prefer to configure daily doses?';
+  String get medicationDosageSubtitle => 'How do you prefer to configure daily doses?';
 
   @override
   String get dosageFixedTitle => 'Same every day';
 
   @override
-  String get dosageFixedDesc =>
-      'Specify how often to take the medication in hours';
+  String get dosageFixedDesc => 'Specify how often to take the medication in hours';
 
   @override
   String get dosageCustomTitle => 'Custom';
@@ -587,15 +560,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dosageIntervalUnit => 'hours';
 
   @override
-  String get dosageIntervalValidValues =>
-      'Valid values: 1, 2, 3, 4, 6, 8, 12, 24';
+  String get dosageIntervalValidValues => 'Valid values: 1, 2, 3, 4, 6, 8, 12, 24';
 
   @override
   String get dosageTimesLabel => 'Number of doses per day';
 
   @override
-  String get dosageTimesHelp =>
-      'Define how many times a day you\'ll take the medication';
+  String get dosageTimesHelp => 'Define how many times a day you\'ll take the medication';
 
   @override
   String get dosageTimesFieldLabel => 'Doses per day';
@@ -627,20 +598,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validationInvalidInterval => 'Please enter a valid interval';
 
   @override
-  String get validationIntervalTooLarge =>
-      'The interval cannot be greater than 24 hours';
+  String get validationIntervalTooLarge => 'The interval cannot be greater than 24 hours';
 
   @override
-  String get validationIntervalNotDivisor =>
-      'The interval must divide 24 exactly (1, 2, 3, 4, 6, 8, 12, 24)';
+  String get validationIntervalNotDivisor => 'The interval must divide 24 exactly (1, 2, 3, 4, 6, 8, 12, 24)';
 
   @override
-  String get validationInvalidDoseCount =>
-      'Please enter a valid number of doses';
+  String get validationInvalidDoseCount => 'Please enter a valid number of doses';
 
   @override
-  String get validationTooManyDoses =>
-      'You cannot take more than 24 doses per day';
+  String get validationTooManyDoses => 'You cannot take more than 24 doses per day';
 
   @override
   String get medicationTimesTitle => 'Dose Schedule';
@@ -679,15 +646,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validationSelectAllTimes => 'Please select all dose times';
 
   @override
-  String get validationEnterValidAmounts =>
-      'Please enter valid amounts (greater than 0)';
+  String get validationEnterValidAmounts => 'Please enter valid amounts (greater than 0)';
 
   @override
   String get validationDuplicateTimes => 'Dose times cannot be repeated';
 
   @override
-  String get validationAtLeastOneDose =>
-      'There must be at least one dose per day';
+  String get validationAtLeastOneDose => 'There must be at least one dose per day';
 
   @override
   String get medicationFastingTitle => 'Fasting Configuration';
@@ -696,8 +661,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fastingLabel => 'Fasting';
 
   @override
-  String get fastingHelp =>
-      'Some medications require fasting before or after taking';
+  String get fastingHelp => 'Some medications require fasting before or after taking';
 
   @override
   String get requiresFastingQuestion => 'Does this medication require fasting?';
@@ -727,16 +691,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fastingMinutes => 'Minutes';
 
   @override
-  String get fastingNotificationsQuestion =>
-      'Do you want to receive fasting notifications?';
+  String get fastingNotificationsQuestion => 'Do you want to receive fasting notifications?';
 
   @override
-  String get fastingNotificationBeforeHelp =>
-      'We\'ll notify you when to stop eating before taking';
+  String get fastingNotificationBeforeHelp => 'We\'ll notify you when to stop eating before taking';
 
   @override
-  String get fastingNotificationAfterHelp =>
-      'We\'ll notify you when you can eat again after taking';
+  String get fastingNotificationAfterHelp => 'We\'ll notify you when you can eat again after taking';
 
   @override
   String get fastingNotificationsOn => 'Notifications enabled';
@@ -751,15 +712,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validationSelectFastingWhen => 'Please select when the fasting is';
 
   @override
-  String get validationFastingDuration =>
-      'Fasting duration must be at least 1 minute';
+  String get validationFastingDuration => 'Fasting duration must be at least 1 minute';
 
   @override
   String get medicationQuantityTitle => 'Medication Quantity';
 
   @override
-  String get medicationQuantitySubtitle =>
-      'Set the available quantity and when you want to receive alerts';
+  String get medicationQuantitySubtitle => 'Set the available quantity and when you want to receive alerts';
 
   @override
   String get availableQuantityLabel => 'Available quantity';
@@ -782,15 +741,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lowStockAlertUnit => 'days';
 
   @override
-  String get lowStockAlertHelp =>
-      'Days in advance to receive the low stock alert';
+  String get lowStockAlertHelp => 'Days in advance to receive the low stock alert';
 
   @override
   String get validationEnterQuantity => 'Please enter the available quantity';
 
   @override
-  String get validationQuantityNonNegative =>
-      'Quantity must be greater than or equal to 0';
+  String get validationQuantityNonNegative => 'Quantity must be greater than or equal to 0';
 
   @override
   String get validationEnterAlertDays => 'Please enter the days in advance';
@@ -858,4 +815,488 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savingButton => 'Saving...';
+
+  @override
+  String get doseActionTitle => 'Dose Action';
+
+  @override
+  String get doseActionLoading => 'Loading...';
+
+  @override
+  String get doseActionError => 'Error';
+
+  @override
+  String get doseActionMedicationNotFound => 'Medication not found';
+
+  @override
+  String get doseActionBack => 'Back';
+
+  @override
+  String doseActionScheduledTime(String time) {
+    return 'Scheduled time: $time';
+  }
+
+  @override
+  String get doseActionThisDoseQuantity => 'This dose quantity';
+
+  @override
+  String get doseActionWhatToDo => 'What do you want to do?';
+
+  @override
+  String get doseActionRegisterTaken => 'Register dose';
+
+  @override
+  String get doseActionWillDeductStock => 'Will deduct from stock';
+
+  @override
+  String get doseActionMarkAsNotTaken => 'Mark as not taken';
+
+  @override
+  String get doseActionWillNotDeductStock => 'Will not deduct from stock';
+
+  @override
+  String get doseActionPostpone15Min => 'Postpone 15 minutes';
+
+  @override
+  String get doseActionQuickReminder => 'Quick reminder';
+
+  @override
+  String get doseActionPostponeCustom => 'Postpone (choose time)';
+
+  @override
+  String doseActionInsufficientStock(String needed, String unit, String available) {
+    return 'Insufficient stock for this dose\nNeeded: $needed $unit\nAvailable: $available';
+  }
+
+  @override
+  String doseActionTakenRegistered(String name, String time, String stock) {
+    return 'Dose of $name registered at $time\nRemaining stock: $stock';
+  }
+
+  @override
+  String doseActionSkippedRegistered(String name, String time, String stock) {
+    return 'Dose of $name marked as not taken at $time\nStock: $stock (no changes)';
+  }
+
+  @override
+  String doseActionPostponed(String name, String time) {
+    return 'Dose of $name postponed\nNew time: $time';
+  }
+
+  @override
+  String doseActionPostponed15(String name, String time) {
+    return 'Dose of $name postponed 15 minutes\nNew time: $time';
+  }
+
+  @override
+  String get editMedicationMenuTitle => 'Edit Medication';
+
+  @override
+  String get editMedicationMenuWhatToEdit => 'What do you want to edit?';
+
+  @override
+  String get editMedicationMenuSelectSection => 'Select the section you want to modify';
+
+  @override
+  String get editMedicationMenuBasicInfo => 'Basic Information';
+
+  @override
+  String get editMedicationMenuBasicInfoDesc => 'Name and type of medication';
+
+  @override
+  String get editMedicationMenuDuration => 'Treatment Duration';
+
+  @override
+  String get editMedicationMenuFrequency => 'Frequency';
+
+  @override
+  String get editMedicationMenuSchedules => 'Schedules and Quantities';
+
+  @override
+  String editMedicationMenuSchedulesDesc(int count) {
+    return '$count doses per day';
+  }
+
+  @override
+  String get editMedicationMenuFasting => 'Fasting Configuration';
+
+  @override
+  String get editMedicationMenuQuantity => 'Available Quantity';
+
+  @override
+  String editMedicationMenuQuantityDesc(String quantity, String unit) {
+    return '$quantity $unit';
+  }
+
+  @override
+  String get editMedicationMenuFreqEveryday => 'Every day';
+
+  @override
+  String get editMedicationMenuFreqUntilFinished => 'Until medication runs out';
+
+  @override
+  String editMedicationMenuFreqSpecificDates(int count) {
+    return '$count specific dates';
+  }
+
+  @override
+  String editMedicationMenuFreqWeeklyDays(int count) {
+    return '$count days of the week';
+  }
+
+  @override
+  String editMedicationMenuFreqInterval(int interval) {
+    return 'Every $interval days';
+  }
+
+  @override
+  String get editMedicationMenuFreqNotDefined => 'Frequency not defined';
+
+  @override
+  String get editMedicationMenuFastingNone => 'No fasting';
+
+  @override
+  String editMedicationMenuFastingDuration(String duration, String type) {
+    return 'Fasting $duration $type';
+  }
+
+  @override
+  String get editMedicationMenuFastingBefore => 'before';
+
+  @override
+  String get editMedicationMenuFastingAfter => 'after';
+
+  @override
+  String get editBasicInfoTitle => 'Edit Basic Information';
+
+  @override
+  String get editBasicInfoUpdated => 'Information updated successfully';
+
+  @override
+  String get editBasicInfoSaving => 'Saving...';
+
+  @override
+  String get editBasicInfoSaveChanges => 'Save Changes';
+
+  @override
+  String editBasicInfoError(String error) {
+    return 'Error saving changes: $error';
+  }
+
+  @override
+  String get editDurationTitle => 'Edit Duration';
+
+  @override
+  String get editDurationTypeLabel => 'Duration type';
+
+  @override
+  String editDurationCurrentType(String type) {
+    return 'Current type: $type';
+  }
+
+  @override
+  String get editDurationChangeTypeInfo => 'To change the duration type, edit the \"Frequency\" section';
+
+  @override
+  String get editDurationTreatmentDates => 'Treatment dates';
+
+  @override
+  String get editDurationStartDate => 'Start date';
+
+  @override
+  String get editDurationEndDate => 'End date';
+
+  @override
+  String get editDurationNotSelected => 'Not selected';
+
+  @override
+  String editDurationDays(int days) {
+    return 'Duration: $days days';
+  }
+
+  @override
+  String get editDurationSelectDates => 'Please select start and end dates';
+
+  @override
+  String get editDurationUpdated => 'Duration updated successfully';
+
+  @override
+  String editDurationError(String error) {
+    return 'Error saving changes: $error';
+  }
+
+  @override
+  String get editFastingTitle => 'Edit Fasting Configuration';
+
+  @override
+  String get editFastingCompleteFields => 'Please complete all fields';
+
+  @override
+  String get editFastingSelectWhen => 'Please select when the fasting is';
+
+  @override
+  String get editFastingMinDuration => 'Fasting duration must be at least 1 minute';
+
+  @override
+  String get editFastingUpdated => 'Fasting configuration updated successfully';
+
+  @override
+  String editFastingError(String error) {
+    return 'Error saving changes: $error';
+  }
+
+  @override
+  String get editFrequencyTitle => 'Edit Frequency';
+
+  @override
+  String get editFrequencyPattern => 'Frequency pattern';
+
+  @override
+  String get editFrequencyQuestion => 'How often will you take this medication?';
+
+  @override
+  String get editFrequencyEveryday => 'Every day';
+
+  @override
+  String get editFrequencyEverydayDesc => 'Take the medication daily';
+
+  @override
+  String get editFrequencyUntilFinished => 'Until finished';
+
+  @override
+  String get editFrequencyUntilFinishedDesc => 'Until the medication runs out';
+
+  @override
+  String get editFrequencySpecificDates => 'Specific dates';
+
+  @override
+  String get editFrequencySpecificDatesDesc => 'Select specific dates';
+
+  @override
+  String get editFrequencyWeeklyDays => 'Days of the week';
+
+  @override
+  String get editFrequencyWeeklyDaysDesc => 'Select specific days each week';
+
+  @override
+  String get editFrequencyAlternateDays => 'Alternate days';
+
+  @override
+  String get editFrequencyAlternateDaysDesc => 'Every 2 days from treatment start';
+
+  @override
+  String get editFrequencyCustomInterval => 'Custom interval';
+
+  @override
+  String get editFrequencyCustomIntervalDesc => 'Every N days from start';
+
+  @override
+  String get editFrequencySelectedDates => 'Selected dates';
+
+  @override
+  String editFrequencyDatesCount(int count) {
+    return '$count dates selected';
+  }
+
+  @override
+  String get editFrequencyNoDatesSelected => 'No dates selected';
+
+  @override
+  String get editFrequencySelectDatesButton => 'Select dates';
+
+  @override
+  String get editFrequencyWeeklyDaysLabel => 'Days of the week';
+
+  @override
+  String editFrequencyWeeklyDaysCount(int count) {
+    return '$count days selected';
+  }
+
+  @override
+  String get editFrequencyNoDaysSelected => 'No days selected';
+
+  @override
+  String get editFrequencySelectDaysButton => 'Select days';
+
+  @override
+  String get editFrequencyIntervalLabel => 'Day interval';
+
+  @override
+  String get editFrequencyIntervalField => 'Every how many days';
+
+  @override
+  String get editFrequencyIntervalHint => 'E.g.: 3';
+
+  @override
+  String get editFrequencyIntervalHelp => 'Must be at least 2 days';
+
+  @override
+  String get editFrequencySelectAtLeastOneDate => 'Please select at least one date';
+
+  @override
+  String get editFrequencySelectAtLeastOneDay => 'Please select at least one day of the week';
+
+  @override
+  String get editFrequencyIntervalMin => 'Interval must be at least 2 days';
+
+  @override
+  String get editFrequencyUpdated => 'Frequency updated successfully';
+
+  @override
+  String editFrequencyError(String error) {
+    return 'Error saving changes: $error';
+  }
+
+  @override
+  String get editQuantityTitle => 'Edit Quantity';
+
+  @override
+  String get editQuantityMedicationLabel => 'Medication quantity';
+
+  @override
+  String get editQuantityDescription => 'Set the available quantity and when you want to receive alerts';
+
+  @override
+  String get editQuantityAvailableLabel => 'Available quantity';
+
+  @override
+  String editQuantityAvailableHelp(String unit) {
+    return 'Amount of $unit you currently have';
+  }
+
+  @override
+  String get editQuantityValidationRequired => 'Please enter the available quantity';
+
+  @override
+  String get editQuantityValidationMin => 'Quantity must be greater than or equal to 0';
+
+  @override
+  String get editQuantityThresholdLabel => 'Alert when remaining';
+
+  @override
+  String get editQuantityThresholdHelp => 'Days in advance to receive the low stock alert';
+
+  @override
+  String get editQuantityThresholdValidationRequired => 'Please enter the days in advance';
+
+  @override
+  String get editQuantityThresholdValidationMin => 'Must be at least 1 day';
+
+  @override
+  String get editQuantityThresholdValidationMax => 'Cannot be greater than 30 days';
+
+  @override
+  String get editQuantityUpdated => 'Quantity updated successfully';
+
+  @override
+  String editQuantityError(String error) {
+    return 'Error saving changes: $error';
+  }
+
+  @override
+  String get editScheduleTitle => 'Edit Schedules';
+
+  @override
+  String get editScheduleAddDose => 'Add dose';
+
+  @override
+  String get editScheduleValidationQuantities => 'Please enter valid quantities (greater than 0)';
+
+  @override
+  String get editScheduleValidationDuplicates => 'Dose times cannot be repeated';
+
+  @override
+  String get editScheduleUpdated => 'Schedules updated successfully';
+
+  @override
+  String editScheduleError(String error) {
+    return 'Error saving changes: $error';
+  }
+
+  @override
+  String editScheduleDosesPerDay(int count) {
+    return 'Doses per day: $count';
+  }
+
+  @override
+  String get editScheduleAdjustTimeAndQuantity => 'Adjust the time and quantity of each dose';
+
+  @override
+  String get specificDatesSelectorTitle => 'Specific dates';
+
+  @override
+  String get specificDatesSelectorSelectDates => 'Select dates';
+
+  @override
+  String get specificDatesSelectorDescription => 'Choose the specific dates when you will take this medication';
+
+  @override
+  String get specificDatesSelectorAddDate => 'Add date';
+
+  @override
+  String specificDatesSelectorSelectedDates(int count) {
+    return 'Selected dates ($count)';
+  }
+
+  @override
+  String get specificDatesSelectorToday => 'TODAY';
+
+  @override
+  String get specificDatesSelectorContinue => 'Continue';
+
+  @override
+  String get specificDatesSelectorAlreadySelected => 'This date is already selected';
+
+  @override
+  String get specificDatesSelectorSelectAtLeastOne => 'Select at least one date';
+
+  @override
+  String get specificDatesSelectorPickerHelp => 'Select a date';
+
+  @override
+  String get specificDatesSelectorPickerCancel => 'Cancel';
+
+  @override
+  String get specificDatesSelectorPickerConfirm => 'Accept';
+
+  @override
+  String get weeklyDaysSelectorTitle => 'Days of the week';
+
+  @override
+  String get weeklyDaysSelectorSelectDays => 'Select the days';
+
+  @override
+  String get weeklyDaysSelectorDescription => 'Choose which days of the week you will take this medication';
+
+  @override
+  String weeklyDaysSelectorSelectedCount(int count, String plural) {
+    return '$count day$plural selected';
+  }
+
+  @override
+  String get weeklyDaysSelectorContinue => 'Continue';
+
+  @override
+  String get weeklyDaysSelectorSelectAtLeastOne => 'Select at least one day of the week';
+
+  @override
+  String get weeklyDayMonday => 'Monday';
+
+  @override
+  String get weeklyDayTuesday => 'Tuesday';
+
+  @override
+  String get weeklyDayWednesday => 'Wednesday';
+
+  @override
+  String get weeklyDayThursday => 'Thursday';
+
+  @override
+  String get weeklyDayFriday => 'Friday';
+
+  @override
+  String get weeklyDaySaturday => 'Saturday';
+
+  @override
+  String get weeklyDaySunday => 'Sunday';
 }

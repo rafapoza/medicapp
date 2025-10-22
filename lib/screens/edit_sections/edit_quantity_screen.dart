@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../../models/medication.dart';
 import '../../database/database_helper.dart';
 
@@ -40,6 +41,7 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
   }
 
   Future<void> _saveChanges() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -74,11 +76,11 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Cantidad actualizada correctamente'),
+        SnackBar(
+          content: Text(l10n.editQuantityUpdated),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
 
@@ -88,7 +90,7 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al guardar cambios: $e'),
+          content: Text(l10n.editQuantityError(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -103,9 +105,10 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Cantidad'),
+        title: Text(l10n.editQuantityTitle),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -131,7 +134,7 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Cantidad de medicamento',
+                                l10n.editQuantityMedicationLabel,
                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                       color: Theme.of(context).colorScheme.primary,
                                       fontWeight: FontWeight.bold,
@@ -142,7 +145,7 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Establece la cantidad disponible y cuándo deseas recibir alertas',
+                          l10n.editQuantityDescription,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                               ),
@@ -157,7 +160,7 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
                               const Icon(Icons.inventory_2, size: 18),
                               const SizedBox(width: 8),
                               Text(
-                                'Cantidad disponible',
+                                l10n.editQuantityAvailableLabel,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -181,8 +184,8 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
                         TextFormField(
                           controller: _stockController,
                           decoration: InputDecoration(
-                            hintText: 'Ej: 30',
-                            helperText: 'Cantidad de ${widget.medication.type.stockUnit} que tienes actualmente',
+                            hintText: l10n.availableQuantityHint,
+                            helperText: l10n.editQuantityAvailableHelp(widget.medication.type.stockUnit),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -196,12 +199,12 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Por favor, introduce la cantidad disponible';
+                              return l10n.editQuantityValidationRequired;
                             }
 
                             final quantity = double.tryParse(value.trim());
                             if (quantity == null || quantity < 0) {
-                              return 'La cantidad debe ser mayor o igual a 0';
+                              return l10n.editQuantityValidationMin;
                             }
 
                             return null;
@@ -213,11 +216,11 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
                         TextFormField(
                           controller: _lowStockThresholdController,
                           decoration: InputDecoration(
-                            labelText: 'Avisar cuando queden',
-                            hintText: 'Ej: 3',
+                            labelText: l10n.editQuantityThresholdLabel,
+                            hintText: l10n.lowStockAlertHint,
                             prefixIcon: const Icon(Icons.notifications_active),
-                            suffixText: 'días',
-                            helperText: 'Días de antelación para recibir la alerta de bajo stock',
+                            suffixText: l10n.pillOrganizerDays,
+                            helperText: l10n.editQuantityThresholdHelp,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -226,16 +229,16 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
                           keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Por favor, introduce los días de antelación';
+                              return l10n.editQuantityThresholdValidationRequired;
                             }
 
                             final days = int.tryParse(value.trim());
                             if (days == null || days < 1) {
-                              return 'Debe ser al menos 1 día';
+                              return l10n.editQuantityThresholdValidationMin;
                             }
 
                             if (days > 30) {
-                              return 'No puede ser mayor a 30 días';
+                              return l10n.editQuantityThresholdValidationMax;
                             }
 
                             return null;
@@ -258,7 +261,7 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
                           ),
                         )
                       : const Icon(Icons.check),
-                  label: Text(_isSaving ? 'Guardando...' : 'Guardar Cambios'),
+                  label: Text(_isSaving ? l10n.savingButton : l10n.editBasicInfoSaveChanges),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -267,7 +270,7 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
                 OutlinedButton.icon(
                   onPressed: _isSaving ? null : () => Navigator.pop(context),
                   icon: const Icon(Icons.cancel),
-                  label: const Text('Cancelar'),
+                  label: Text(l10n.btnCancel),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),

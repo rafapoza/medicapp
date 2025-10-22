@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../models/medication.dart';
 import '../models/treatment_duration_type.dart';
 import 'edit_sections/edit_basic_info_screen.dart';
@@ -21,9 +22,11 @@ class EditMedicationMenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Medicamento'),
+        title: Text(l10n.editMedicationMenuTitle),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -73,7 +76,7 @@ class EditMedicationMenuScreen extends StatelessWidget {
 
               // Descripción
               Text(
-                '¿Qué deseas editar?',
+                l10n.editMedicationMenuWhatToEdit,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -81,7 +84,7 @@ class EditMedicationMenuScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Selecciona la sección que deseas modificar',
+                l10n.editMedicationMenuSelectSection,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                     ),
@@ -92,8 +95,8 @@ class EditMedicationMenuScreen extends StatelessWidget {
               _buildEditOption(
                 context,
                 icon: Icons.medication,
-                title: 'Información Básica',
-                subtitle: 'Nombre y tipo de medicamento',
+                title: l10n.editMedicationMenuBasicInfo,
+                subtitle: l10n.editMedicationMenuBasicInfoDesc,
                 color: Colors.blue,
                 onTap: () async {
                   final result = await Navigator.push(
@@ -115,7 +118,7 @@ class EditMedicationMenuScreen extends StatelessWidget {
               _buildEditOption(
                 context,
                 icon: Icons.calendar_today,
-                title: 'Duración del Tratamiento',
+                title: l10n.editMedicationMenuDuration,
                 subtitle: medication.durationDisplayText,
                 color: Colors.green,
                 onTap: () async {
@@ -137,8 +140,8 @@ class EditMedicationMenuScreen extends StatelessWidget {
               _buildEditOption(
                 context,
                 icon: Icons.repeat,
-                title: 'Frecuencia',
-                subtitle: _getFrequencyDescription(),
+                title: l10n.editMedicationMenuFrequency,
+                subtitle: _getFrequencyDescription(context),
                 color: Colors.orange,
                 onTap: () async {
                   final result = await Navigator.push(
@@ -159,8 +162,8 @@ class EditMedicationMenuScreen extends StatelessWidget {
               _buildEditOption(
                 context,
                 icon: Icons.access_time,
-                title: 'Horarios y Cantidades',
-                subtitle: '${medication.doseSchedule.length} tomas al día',
+                title: l10n.editMedicationMenuSchedules,
+                subtitle: l10n.editMedicationMenuSchedulesDesc(medication.doseSchedule.length),
                 color: Colors.purple,
                 onTap: () async {
                   final result = await Navigator.push(
@@ -181,8 +184,8 @@ class EditMedicationMenuScreen extends StatelessWidget {
               _buildEditOption(
                 context,
                 icon: Icons.restaurant_outlined,
-                title: 'Configuración de Ayuno',
-                subtitle: _getFastingDescription(),
+                title: l10n.editMedicationMenuFasting,
+                subtitle: _getFastingDescription(context),
                 color: Colors.red,
                 onTap: () async {
                   final result = await Navigator.push(
@@ -203,8 +206,11 @@ class EditMedicationMenuScreen extends StatelessWidget {
               _buildEditOption(
                 context,
                 icon: Icons.inventory_2,
-                title: 'Cantidad Disponible',
-                subtitle: '${medication.stockQuantity} ${medication.type.stockUnit}',
+                title: l10n.editMedicationMenuQuantity,
+                subtitle: l10n.editMedicationMenuQuantityDesc(
+                  medication.stockQuantity.toString(),
+                  medication.type.stockUnit,
+                ),
                 color: Colors.teal,
                 onTap: () async {
                   final result = await Navigator.push(
@@ -288,25 +294,29 @@ class EditMedicationMenuScreen extends StatelessWidget {
     );
   }
 
-  String _getFrequencyDescription() {
+  String _getFrequencyDescription(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (medication.durationType == TreatmentDurationType.everyday) {
-      return 'Todos los días';
+      return l10n.editMedicationMenuFreqEveryday;
     } else if (medication.durationType == TreatmentDurationType.untilFinished) {
-      return 'Hasta acabar medicación';
+      return l10n.editMedicationMenuFreqUntilFinished;
     } else if (medication.durationType == TreatmentDurationType.specificDates) {
-      return '${medication.selectedDates?.length ?? 0} fechas específicas';
+      return l10n.editMedicationMenuFreqSpecificDates(medication.selectedDates?.length ?? 0);
     } else if (medication.durationType == TreatmentDurationType.weeklyPattern) {
-      return '${medication.weeklyDays?.length ?? 0} días de la semana';
+      return l10n.editMedicationMenuFreqWeeklyDays(medication.weeklyDays?.length ?? 0);
     } else if (medication.durationType == TreatmentDurationType.intervalDays) {
       final interval = medication.dayInterval ?? 2;
-      return 'Cada $interval días';
+      return l10n.editMedicationMenuFreqInterval(interval);
     }
-    return 'Frecuencia no definida';
+    return l10n.editMedicationMenuFreqNotDefined;
   }
 
-  String _getFastingDescription() {
+  String _getFastingDescription(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (!medication.requiresFasting) {
-      return 'Sin ayuno';
+      return l10n.editMedicationMenuFastingNone;
     }
 
     final duration = medication.fastingDurationMinutes ?? 0;
@@ -322,7 +332,9 @@ class EditMedicationMenuScreen extends StatelessWidget {
       durationText = '$minutes min';
     }
 
-    final typeText = medication.fastingType == 'before' ? 'antes' : 'después';
-    return 'Ayuno $durationText $typeText';
+    final typeText = medication.fastingType == 'before'
+        ? l10n.editMedicationMenuFastingBefore
+        : l10n.editMedicationMenuFastingAfter;
+    return l10n.editMedicationMenuFastingDuration(durationText, typeText);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../../models/medication.dart';
 import '../../models/treatment_duration_type.dart';
 import '../../database/database_helper.dart';
@@ -42,6 +43,7 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final l10n = AppLocalizations.of(context)!;
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isStartDate
@@ -67,13 +69,15 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
   }
 
   Future<void> _saveChanges() async {
+    final l10n = AppLocalizations.of(context)!;
+
     // Validate based on duration type
     if (_durationType == TreatmentDurationType.everyday ||
         _durationType == TreatmentDurationType.untilFinished) {
       if (_startDate == null || _endDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Por favor, selecciona las fechas de inicio y fin'),
+          SnackBar(
+            content: Text(l10n.editDurationSelectDates),
             backgroundColor: Colors.red,
           ),
         );
@@ -114,11 +118,11 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Duración actualizada correctamente'),
+        SnackBar(
+          content: Text(l10n.editDurationUpdated),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
 
@@ -128,7 +132,7 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al guardar cambios: $e'),
+          content: Text(l10n.editDurationError(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -143,9 +147,11 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Duración'),
+        title: Text(l10n.editDurationTitle),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -160,7 +166,7 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Tipo de duración',
+                        l10n.editDurationTypeLabel,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,
@@ -168,7 +174,7 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Tipo actual: ${_durationType.displayName}',
+                        l10n.editDurationCurrentType(_durationType.displayName),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                             ),
@@ -187,7 +193,7 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Para cambiar el tipo de duración, edita la sección de "Frecuencia"',
+                                l10n.editDurationChangeTypeInfo,
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ),
@@ -211,7 +217,7 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Fechas del tratamiento',
+                          l10n.editDurationTreatmentDates,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.bold,
@@ -222,11 +228,11 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
                         // Start date
                         ListTile(
                           leading: const Icon(Icons.calendar_today),
-                          title: const Text('Fecha de inicio'),
+                          title: Text(l10n.editDurationStartDate),
                           subtitle: Text(
                             _startDate != null
                                 ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
-                                : 'No seleccionada',
+                                : l10n.editDurationNotSelected,
                           ),
                           trailing: const Icon(Icons.edit),
                           onTap: () => _selectDate(context, true),
@@ -240,11 +246,11 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
                         // End date
                         ListTile(
                           leading: const Icon(Icons.event),
-                          title: const Text('Fecha de fin'),
+                          title: Text(l10n.editDurationEndDate),
                           subtitle: Text(
                             _endDate != null
                                 ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
-                                : 'No seleccionada',
+                                : l10n.editDurationNotSelected,
                           ),
                           trailing: const Icon(Icons.edit),
                           onTap: () => _selectDate(context, false),
@@ -271,7 +277,7 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    'Duración: ${_endDate!.difference(_startDate!).inDays + 1} días',
+                                    l10n.editDurationDays(_endDate!.difference(_startDate!).inDays + 1),
                                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -300,7 +306,7 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
                         ),
                       )
                     : const Icon(Icons.check),
-                label: Text(_isSaving ? 'Guardando...' : 'Guardar Cambios'),
+                label: Text(_isSaving ? l10n.editBasicInfoSaving : l10n.editBasicInfoSaveChanges),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -309,7 +315,7 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
               OutlinedButton.icon(
                 onPressed: _isSaving ? null : () => Navigator.pop(context),
                 icon: const Icon(Icons.cancel),
-                label: const Text('Cancelar'),
+                label: Text(l10n.btnCancel),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),

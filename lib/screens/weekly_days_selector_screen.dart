@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 
 class WeeklyDaysSelectorScreen extends StatefulWidget {
   final List<int>? initialSelectedDays;
@@ -15,16 +16,6 @@ class WeeklyDaysSelectorScreen extends StatefulWidget {
 class _WeeklyDaysSelectorScreenState extends State<WeeklyDaysSelectorScreen> {
   late Set<int> _selectedDays;
 
-  static const Map<int, String> _dayNames = {
-    1: 'Lunes',
-    2: 'Martes',
-    3: 'Miércoles',
-    4: 'Jueves',
-    5: 'Viernes',
-    6: 'Sábado',
-    7: 'Domingo',
-  };
-
   static const Map<int, String> _dayAbbreviations = {
     1: 'L',
     2: 'M',
@@ -34,6 +25,18 @@ class _WeeklyDaysSelectorScreenState extends State<WeeklyDaysSelectorScreen> {
     6: 'S',
     7: 'D',
   };
+
+  Map<int, String> _getDayNames(AppLocalizations l10n) {
+    return {
+      1: l10n.weeklyDayMonday,
+      2: l10n.weeklyDayTuesday,
+      3: l10n.weeklyDayWednesday,
+      4: l10n.weeklyDayThursday,
+      5: l10n.weeklyDayFriday,
+      6: l10n.weeklyDaySaturday,
+      7: l10n.weeklyDaySunday,
+    };
+  }
 
   @override
   void initState() {
@@ -52,10 +55,11 @@ class _WeeklyDaysSelectorScreenState extends State<WeeklyDaysSelectorScreen> {
   }
 
   void _continue() {
+    final l10n = AppLocalizations.of(context)!;
     if (_selectedDays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecciona al menos un día de la semana'),
+        SnackBar(
+          content: Text(l10n.weeklyDaysSelectorSelectAtLeastOne),
           backgroundColor: Colors.orange,
         ),
       );
@@ -68,9 +72,11 @@ class _WeeklyDaysSelectorScreenState extends State<WeeklyDaysSelectorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final dayNames = _getDayNames(l10n);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Días de la semana'),
+        title: Text(l10n.weeklyDaysSelectorTitle),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
       ),
@@ -87,14 +93,14 @@ class _WeeklyDaysSelectorScreenState extends State<WeeklyDaysSelectorScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Selecciona los días',
+                        l10n.weeklyDaysSelectorSelectDays,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Elige qué días de la semana tomarás este medicamento',
+                        l10n.weeklyDaysSelectorDescription,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
@@ -151,7 +157,7 @@ class _WeeklyDaysSelectorScreenState extends State<WeeklyDaysSelectorScreen> {
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: Text(
-                                      _dayNames[day]!,
+                                      dayNames[day]!,
                                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                             color: isSelected
                                                 ? Colors.teal
@@ -190,7 +196,7 @@ class _WeeklyDaysSelectorScreenState extends State<WeeklyDaysSelectorScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  '${_selectedDays.length} día${_selectedDays.length != 1 ? 's' : ''} seleccionado${_selectedDays.length != 1 ? 's' : ''}',
+                                  l10n.weeklyDaysSelectorSelectedCount(_selectedDays.length, _selectedDays.length != 1 ? 's' : ''),
                                   style: const TextStyle(
                                     color: Colors.teal,
                                     fontWeight: FontWeight.bold,
@@ -209,13 +215,13 @@ class _WeeklyDaysSelectorScreenState extends State<WeeklyDaysSelectorScreen> {
               FilledButton.icon(
                 onPressed: _continue,
                 icon: const Icon(Icons.arrow_forward),
-                label: const Text('Continuar'),
+                label: Text(l10n.weeklyDaysSelectorContinue),
               ),
               const SizedBox(height: 8),
               OutlinedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.cancel),
-                label: const Text('Cancelar'),
+                label: Text(l10n.btnCancel),
               ),
             ],
           ),

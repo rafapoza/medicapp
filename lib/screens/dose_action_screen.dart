@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../models/medication.dart';
 import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
@@ -49,12 +50,15 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     if (_medication!.stockQuantity < doseQuantity) {
       if (!mounted) return;
 
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Stock insuficiente para esta toma\n'
-            'Necesitas: $doseQuantity ${_medication!.type.stockUnit}\n'
-            'Disponible: ${_medication!.stockDisplayText}'
+            l10n.doseActionInsufficientStock(
+              doseQuantity.toString(),
+              _medication!.type.stockUnit,
+              _medication!.stockDisplayText,
+            ),
           ),
           duration: const Duration(seconds: 3),
         ),
@@ -142,11 +146,15 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
     // Show confirmation and go back
     Navigator.pop(context, true); // Return true to indicate changes were made
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Toma de ${_medication!.name} registrada a las ${widget.doseTime}\n'
-          'Stock restante: ${updatedMedication.stockDisplayText}'
+          l10n.doseActionTakenRegistered(
+            _medication!.name,
+            widget.doseTime,
+            updatedMedication.stockDisplayText,
+          ),
         ),
         duration: const Duration(seconds: 2),
       ),
@@ -224,11 +232,15 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
     // Show confirmation and go back
     Navigator.pop(context, true); // Return true to indicate changes were made
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Toma de ${_medication!.name} marcada como no tomada a las ${widget.doseTime}\n'
-          'Stock: ${_medication!.stockDisplayText} (sin cambios)'
+          l10n.doseActionSkippedRegistered(
+            _medication!.name,
+            widget.doseTime,
+            _medication!.stockDisplayText,
+          ),
         ),
         duration: const Duration(seconds: 2),
       ),
@@ -266,11 +278,11 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
     // Show confirmation and go back
     Navigator.pop(context, true); // Return true to indicate changes were made
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Toma de ${_medication!.name} pospuesta\n'
-          'Nueva hora: $newTimeString'
+          l10n.doseActionPostponed(_medication!.name, newTimeString),
         ),
         duration: const Duration(seconds: 2),
       ),
@@ -299,11 +311,11 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
     // Show confirmation and go back
     Navigator.pop(context, true); // Return true to indicate changes were made
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Toma de ${_medication!.name} pospuesta 15 minutos\n'
-          'Nueva hora: $newTimeString'
+          l10n.doseActionPostponed15(_medication!.name, newTimeString),
         ),
         duration: const Duration(seconds: 2),
       ),
@@ -312,10 +324,12 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Cargando...'),
+          title: Text(l10n.doseActionLoading),
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -326,7 +340,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
     if (_medication == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Error'),
+          title: Text(l10n.doseActionError),
         ),
         body: Center(
           child: Column(
@@ -334,11 +348,11 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              const Text('Medicamento no encontrado'),
+              Text(l10n.doseActionMedicationNotFound),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Volver'),
+                child: Text(l10n.doseActionBack),
               ),
             ],
           ),
@@ -348,7 +362,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Acción de Toma'),
+        title: Text(l10n.doseActionTitle),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -392,7 +406,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
                                   const Icon(Icons.access_time, size: 16),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'Hora programada: ${widget.doseTime}',
+                                    l10n.doseActionScheduledTime(widget.doseTime),
                                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -426,7 +440,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Cantidad de esta toma',
+                                l10n.doseActionThisDoseQuantity,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
                                   fontWeight: FontWeight.w500,
@@ -452,7 +466,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
             const SizedBox(height: 32),
             // Title
             Text(
-              '¿Qué deseas hacer?',
+              l10n.doseActionWhatToDo,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -476,7 +490,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
                     const Icon(Icons.check_circle, size: 32),
                     const SizedBox(height: 8),
                     Text(
-                      'Registrar toma',
+                      l10n.doseActionRegisterTaken,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -484,7 +498,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Descontará del stock',
+                      l10n.doseActionWillDeductStock,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.white70,
                       ),
@@ -512,7 +526,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
                     const Icon(Icons.cancel, size: 32),
                     const SizedBox(height: 8),
                     Text(
-                      'Marcar como no tomada',
+                      l10n.doseActionMarkAsNotTaken,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -520,7 +534,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'No descontará del stock',
+                      l10n.doseActionWillNotDeductStock,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -550,14 +564,14 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Posponer 15 minutos',
+                          l10n.doseActionPostpone15Min,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Recordatorio rápido',
+                          l10n.doseActionQuickReminder,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -584,7 +598,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
                     const Icon(Icons.schedule, size: 24),
                     const SizedBox(width: 8),
                     Text(
-                      'Posponer (elegir hora)',
+                      l10n.doseActionPostponeCustom,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -597,7 +611,7 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
             // Cancel button
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
+              child: Text(l10n.btnCancel),
             ),
           ],
         ),

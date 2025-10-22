@@ -62,8 +62,7 @@ import 'app_localizations_es.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,18 +82,17 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('es'),
+    Locale('es')
   ];
 
   /// No description provided for @appTitle.
@@ -600,33 +597,19 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}'**
-  String medicineCabinetInsufficientStock(
-    String needed,
-    String unit,
-    String available,
-  );
+  String medicineCabinetInsufficientStock(String needed, String unit, String available);
 
   /// No description provided for @medicineCabinetRefillSuccess.
   ///
   /// In es, this message translates to:
   /// **'Stock de {name} recargado\nAgregado: {amount} {unit}\nNuevo stock: {newStock}'**
-  String medicineCabinetRefillSuccess(
-    String name,
-    String amount,
-    String unit,
-    String newStock,
-  );
+  String medicineCabinetRefillSuccess(String name, String amount, String unit, String newStock);
 
   /// No description provided for @medicineCabinetDoseRegistered.
   ///
   /// In es, this message translates to:
   /// **'Toma de {name} registrada\nCantidad: {amount} {unit}\nStock restante: {remaining}'**
-  String medicineCabinetDoseRegistered(
-    String name,
-    String amount,
-    String unit,
-    String remaining,
-  );
+  String medicineCabinetDoseRegistered(String name, String amount, String unit, String remaining);
 
   /// No description provided for @medicineCabinetDeleteSuccess.
   ///
@@ -1587,10 +1570,873 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Guardando...'**
   String get savingButton;
+
+  /// No description provided for @doseActionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Acción de Toma'**
+  String get doseActionTitle;
+
+  /// No description provided for @doseActionLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando...'**
+  String get doseActionLoading;
+
+  /// No description provided for @doseActionError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error'**
+  String get doseActionError;
+
+  /// No description provided for @doseActionMedicationNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'Medicamento no encontrado'**
+  String get doseActionMedicationNotFound;
+
+  /// No description provided for @doseActionBack.
+  ///
+  /// In es, this message translates to:
+  /// **'Volver'**
+  String get doseActionBack;
+
+  /// No description provided for @doseActionScheduledTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Hora programada: {time}'**
+  String doseActionScheduledTime(String time);
+
+  /// No description provided for @doseActionThisDoseQuantity.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad de esta toma'**
+  String get doseActionThisDoseQuantity;
+
+  /// No description provided for @doseActionWhatToDo.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Qué deseas hacer?'**
+  String get doseActionWhatToDo;
+
+  /// No description provided for @doseActionRegisterTaken.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar toma'**
+  String get doseActionRegisterTaken;
+
+  /// No description provided for @doseActionWillDeductStock.
+  ///
+  /// In es, this message translates to:
+  /// **'Descontará del stock'**
+  String get doseActionWillDeductStock;
+
+  /// No description provided for @doseActionMarkAsNotTaken.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcar como no tomada'**
+  String get doseActionMarkAsNotTaken;
+
+  /// No description provided for @doseActionWillNotDeductStock.
+  ///
+  /// In es, this message translates to:
+  /// **'No descontará del stock'**
+  String get doseActionWillNotDeductStock;
+
+  /// No description provided for @doseActionPostpone15Min.
+  ///
+  /// In es, this message translates to:
+  /// **'Posponer 15 minutos'**
+  String get doseActionPostpone15Min;
+
+  /// No description provided for @doseActionQuickReminder.
+  ///
+  /// In es, this message translates to:
+  /// **'Recordatorio rápido'**
+  String get doseActionQuickReminder;
+
+  /// No description provided for @doseActionPostponeCustom.
+  ///
+  /// In es, this message translates to:
+  /// **'Posponer (elegir hora)'**
+  String get doseActionPostponeCustom;
+
+  /// No description provided for @doseActionInsufficientStock.
+  ///
+  /// In es, this message translates to:
+  /// **'Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}'**
+  String doseActionInsufficientStock(String needed, String unit, String available);
+
+  /// No description provided for @doseActionTakenRegistered.
+  ///
+  /// In es, this message translates to:
+  /// **'Toma de {name} registrada a las {time}\nStock restante: {stock}'**
+  String doseActionTakenRegistered(String name, String time, String stock);
+
+  /// No description provided for @doseActionSkippedRegistered.
+  ///
+  /// In es, this message translates to:
+  /// **'Toma de {name} marcada como no tomada a las {time}\nStock: {stock} (sin cambios)'**
+  String doseActionSkippedRegistered(String name, String time, String stock);
+
+  /// No description provided for @doseActionPostponed.
+  ///
+  /// In es, this message translates to:
+  /// **'Toma de {name} pospuesta\nNueva hora: {time}'**
+  String doseActionPostponed(String name, String time);
+
+  /// No description provided for @doseActionPostponed15.
+  ///
+  /// In es, this message translates to:
+  /// **'Toma de {name} pospuesta 15 minutos\nNueva hora: {time}'**
+  String doseActionPostponed15(String name, String time);
+
+  /// No description provided for @editMedicationMenuTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Medicamento'**
+  String get editMedicationMenuTitle;
+
+  /// No description provided for @editMedicationMenuWhatToEdit.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Qué deseas editar?'**
+  String get editMedicationMenuWhatToEdit;
+
+  /// No description provided for @editMedicationMenuSelectSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona la sección que deseas modificar'**
+  String get editMedicationMenuSelectSection;
+
+  /// No description provided for @editMedicationMenuBasicInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Información Básica'**
+  String get editMedicationMenuBasicInfo;
+
+  /// No description provided for @editMedicationMenuBasicInfoDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre y tipo de medicamento'**
+  String get editMedicationMenuBasicInfoDesc;
+
+  /// No description provided for @editMedicationMenuDuration.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración del Tratamiento'**
+  String get editMedicationMenuDuration;
+
+  /// No description provided for @editMedicationMenuFrequency.
+  ///
+  /// In es, this message translates to:
+  /// **'Frecuencia'**
+  String get editMedicationMenuFrequency;
+
+  /// No description provided for @editMedicationMenuSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Horarios y Cantidades'**
+  String get editMedicationMenuSchedules;
+
+  /// No description provided for @editMedicationMenuSchedulesDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} tomas al día'**
+  String editMedicationMenuSchedulesDesc(int count);
+
+  /// No description provided for @editMedicationMenuFasting.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración de Ayuno'**
+  String get editMedicationMenuFasting;
+
+  /// No description provided for @editMedicationMenuQuantity.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad Disponible'**
+  String get editMedicationMenuQuantity;
+
+  /// No description provided for @editMedicationMenuQuantityDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'{quantity} {unit}'**
+  String editMedicationMenuQuantityDesc(String quantity, String unit);
+
+  /// No description provided for @editMedicationMenuFreqEveryday.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los días'**
+  String get editMedicationMenuFreqEveryday;
+
+  /// No description provided for @editMedicationMenuFreqUntilFinished.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta acabar medicación'**
+  String get editMedicationMenuFreqUntilFinished;
+
+  /// No description provided for @editMedicationMenuFreqSpecificDates.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} fechas específicas'**
+  String editMedicationMenuFreqSpecificDates(int count);
+
+  /// No description provided for @editMedicationMenuFreqWeeklyDays.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} días de la semana'**
+  String editMedicationMenuFreqWeeklyDays(int count);
+
+  /// No description provided for @editMedicationMenuFreqInterval.
+  ///
+  /// In es, this message translates to:
+  /// **'Cada {interval} días'**
+  String editMedicationMenuFreqInterval(int interval);
+
+  /// No description provided for @editMedicationMenuFreqNotDefined.
+  ///
+  /// In es, this message translates to:
+  /// **'Frecuencia no definida'**
+  String get editMedicationMenuFreqNotDefined;
+
+  /// No description provided for @editMedicationMenuFastingNone.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin ayuno'**
+  String get editMedicationMenuFastingNone;
+
+  /// No description provided for @editMedicationMenuFastingDuration.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayuno {duration} {type}'**
+  String editMedicationMenuFastingDuration(String duration, String type);
+
+  /// No description provided for @editMedicationMenuFastingBefore.
+  ///
+  /// In es, this message translates to:
+  /// **'antes'**
+  String get editMedicationMenuFastingBefore;
+
+  /// No description provided for @editMedicationMenuFastingAfter.
+  ///
+  /// In es, this message translates to:
+  /// **'después'**
+  String get editMedicationMenuFastingAfter;
+
+  /// No description provided for @editBasicInfoTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Información Básica'**
+  String get editBasicInfoTitle;
+
+  /// No description provided for @editBasicInfoUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Información actualizada correctamente'**
+  String get editBasicInfoUpdated;
+
+  /// No description provided for @editBasicInfoSaving.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando...'**
+  String get editBasicInfoSaving;
+
+  /// No description provided for @editBasicInfoSaveChanges.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Cambios'**
+  String get editBasicInfoSaveChanges;
+
+  /// No description provided for @editBasicInfoError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar cambios: {error}'**
+  String editBasicInfoError(String error);
+
+  /// No description provided for @editDurationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Duración'**
+  String get editDurationTitle;
+
+  /// No description provided for @editDurationTypeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de duración'**
+  String get editDurationTypeLabel;
+
+  /// No description provided for @editDurationCurrentType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo actual: {type}'**
+  String editDurationCurrentType(String type);
+
+  /// No description provided for @editDurationChangeTypeInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Para cambiar el tipo de duración, edita la sección de \"Frecuencia\"'**
+  String get editDurationChangeTypeInfo;
+
+  /// No description provided for @editDurationTreatmentDates.
+  ///
+  /// In es, this message translates to:
+  /// **'Fechas del tratamiento'**
+  String get editDurationTreatmentDates;
+
+  /// No description provided for @editDurationStartDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha de inicio'**
+  String get editDurationStartDate;
+
+  /// No description provided for @editDurationEndDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha de fin'**
+  String get editDurationEndDate;
+
+  /// No description provided for @editDurationNotSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'No seleccionada'**
+  String get editDurationNotSelected;
+
+  /// No description provided for @editDurationDays.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración: {days} días'**
+  String editDurationDays(int days);
+
+  /// No description provided for @editDurationSelectDates.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona las fechas de inicio y fin'**
+  String get editDurationSelectDates;
+
+  /// No description provided for @editDurationUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración actualizada correctamente'**
+  String get editDurationUpdated;
+
+  /// No description provided for @editDurationError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar cambios: {error}'**
+  String editDurationError(String error);
+
+  /// No description provided for @editFastingTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Configuración de Ayuno'**
+  String get editFastingTitle;
+
+  /// No description provided for @editFastingCompleteFields.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, completa todos los campos'**
+  String get editFastingCompleteFields;
+
+  /// No description provided for @editFastingSelectWhen.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona cuándo es el ayuno'**
+  String get editFastingSelectWhen;
+
+  /// No description provided for @editFastingMinDuration.
+  ///
+  /// In es, this message translates to:
+  /// **'La duración del ayuno debe ser al menos 1 minuto'**
+  String get editFastingMinDuration;
+
+  /// No description provided for @editFastingUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración de ayuno actualizada correctamente'**
+  String get editFastingUpdated;
+
+  /// No description provided for @editFastingError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar cambios: {error}'**
+  String editFastingError(String error);
+
+  /// No description provided for @editFrequencyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Frecuencia'**
+  String get editFrequencyTitle;
+
+  /// No description provided for @editFrequencyPattern.
+  ///
+  /// In es, this message translates to:
+  /// **'Patrón de frecuencia'**
+  String get editFrequencyPattern;
+
+  /// No description provided for @editFrequencyQuestion.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Con qué frecuencia tomarás este medicamento?'**
+  String get editFrequencyQuestion;
+
+  /// No description provided for @editFrequencyEveryday.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos los días'**
+  String get editFrequencyEveryday;
+
+  /// No description provided for @editFrequencyEverydayDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Tomar el medicamento diariamente'**
+  String get editFrequencyEverydayDesc;
+
+  /// No description provided for @editFrequencyUntilFinished.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta acabar'**
+  String get editFrequencyUntilFinished;
+
+  /// No description provided for @editFrequencyUntilFinishedDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta que se termine el medicamento'**
+  String get editFrequencyUntilFinishedDesc;
+
+  /// No description provided for @editFrequencySpecificDates.
+  ///
+  /// In es, this message translates to:
+  /// **'Fechas específicas'**
+  String get editFrequencySpecificDates;
+
+  /// No description provided for @editFrequencySpecificDatesDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar fechas concretas'**
+  String get editFrequencySpecificDatesDesc;
+
+  /// No description provided for @editFrequencyWeeklyDays.
+  ///
+  /// In es, this message translates to:
+  /// **'Días de la semana'**
+  String get editFrequencyWeeklyDays;
+
+  /// No description provided for @editFrequencyWeeklyDaysDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar días específicos cada semana'**
+  String get editFrequencyWeeklyDaysDesc;
+
+  /// No description provided for @editFrequencyAlternateDays.
+  ///
+  /// In es, this message translates to:
+  /// **'Días alternos'**
+  String get editFrequencyAlternateDays;
+
+  /// No description provided for @editFrequencyAlternateDaysDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Cada 2 días desde el inicio del tratamiento'**
+  String get editFrequencyAlternateDaysDesc;
+
+  /// No description provided for @editFrequencyCustomInterval.
+  ///
+  /// In es, this message translates to:
+  /// **'Intervalo personalizado'**
+  String get editFrequencyCustomInterval;
+
+  /// No description provided for @editFrequencyCustomIntervalDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Cada N días desde el inicio'**
+  String get editFrequencyCustomIntervalDesc;
+
+  /// No description provided for @editFrequencySelectedDates.
+  ///
+  /// In es, this message translates to:
+  /// **'Fechas seleccionadas'**
+  String get editFrequencySelectedDates;
+
+  /// No description provided for @editFrequencyDatesCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} fechas seleccionadas'**
+  String editFrequencyDatesCount(int count);
+
+  /// No description provided for @editFrequencyNoDatesSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna fecha seleccionada'**
+  String get editFrequencyNoDatesSelected;
+
+  /// No description provided for @editFrequencySelectDatesButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar fechas'**
+  String get editFrequencySelectDatesButton;
+
+  /// No description provided for @editFrequencyWeeklyDaysLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Días de la semana'**
+  String get editFrequencyWeeklyDaysLabel;
+
+  /// No description provided for @editFrequencyWeeklyDaysCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} días seleccionados'**
+  String editFrequencyWeeklyDaysCount(int count);
+
+  /// No description provided for @editFrequencyNoDaysSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'Ningún día seleccionado'**
+  String get editFrequencyNoDaysSelected;
+
+  /// No description provided for @editFrequencySelectDaysButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar días'**
+  String get editFrequencySelectDaysButton;
+
+  /// No description provided for @editFrequencyIntervalLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Intervalo de días'**
+  String get editFrequencyIntervalLabel;
+
+  /// No description provided for @editFrequencyIntervalField.
+  ///
+  /// In es, this message translates to:
+  /// **'Cada cuántos días'**
+  String get editFrequencyIntervalField;
+
+  /// No description provided for @editFrequencyIntervalHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: 3'**
+  String get editFrequencyIntervalHint;
+
+  /// No description provided for @editFrequencyIntervalHelp.
+  ///
+  /// In es, this message translates to:
+  /// **'Debe ser al menos 2 días'**
+  String get editFrequencyIntervalHelp;
+
+  /// No description provided for @editFrequencySelectAtLeastOneDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona al menos una fecha'**
+  String get editFrequencySelectAtLeastOneDate;
+
+  /// No description provided for @editFrequencySelectAtLeastOneDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona al menos un día de la semana'**
+  String get editFrequencySelectAtLeastOneDay;
+
+  /// No description provided for @editFrequencyIntervalMin.
+  ///
+  /// In es, this message translates to:
+  /// **'El intervalo debe ser al menos 2 días'**
+  String get editFrequencyIntervalMin;
+
+  /// No description provided for @editFrequencyUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Frecuencia actualizada correctamente'**
+  String get editFrequencyUpdated;
+
+  /// No description provided for @editFrequencyError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar cambios: {error}'**
+  String editFrequencyError(String error);
+
+  /// No description provided for @editQuantityTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Cantidad'**
+  String get editQuantityTitle;
+
+  /// No description provided for @editQuantityMedicationLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad de medicamento'**
+  String get editQuantityMedicationLabel;
+
+  /// No description provided for @editQuantityDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Establece la cantidad disponible y cuándo deseas recibir alertas'**
+  String get editQuantityDescription;
+
+  /// No description provided for @editQuantityAvailableLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad disponible'**
+  String get editQuantityAvailableLabel;
+
+  /// No description provided for @editQuantityAvailableHelp.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad de {unit} que tienes actualmente'**
+  String editQuantityAvailableHelp(String unit);
+
+  /// No description provided for @editQuantityValidationRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, introduce la cantidad disponible'**
+  String get editQuantityValidationRequired;
+
+  /// No description provided for @editQuantityValidationMin.
+  ///
+  /// In es, this message translates to:
+  /// **'La cantidad debe ser mayor o igual a 0'**
+  String get editQuantityValidationMin;
+
+  /// No description provided for @editQuantityThresholdLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Avisar cuando queden'**
+  String get editQuantityThresholdLabel;
+
+  /// No description provided for @editQuantityThresholdHelp.
+  ///
+  /// In es, this message translates to:
+  /// **'Días de antelación para recibir la alerta de bajo stock'**
+  String get editQuantityThresholdHelp;
+
+  /// No description provided for @editQuantityThresholdValidationRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, introduce los días de antelación'**
+  String get editQuantityThresholdValidationRequired;
+
+  /// No description provided for @editQuantityThresholdValidationMin.
+  ///
+  /// In es, this message translates to:
+  /// **'Debe ser al menos 1 día'**
+  String get editQuantityThresholdValidationMin;
+
+  /// No description provided for @editQuantityThresholdValidationMax.
+  ///
+  /// In es, this message translates to:
+  /// **'No puede ser mayor a 30 días'**
+  String get editQuantityThresholdValidationMax;
+
+  /// No description provided for @editQuantityUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad actualizada correctamente'**
+  String get editQuantityUpdated;
+
+  /// No description provided for @editQuantityError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar cambios: {error}'**
+  String editQuantityError(String error);
+
+  /// No description provided for @editScheduleTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar Horarios'**
+  String get editScheduleTitle;
+
+  /// No description provided for @editScheduleAddDose.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir toma'**
+  String get editScheduleAddDose;
+
+  /// No description provided for @editScheduleValidationQuantities.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, ingresa cantidades válidas (mayores a 0)'**
+  String get editScheduleValidationQuantities;
+
+  /// No description provided for @editScheduleValidationDuplicates.
+  ///
+  /// In es, this message translates to:
+  /// **'Las horas de las tomas no pueden repetirse'**
+  String get editScheduleValidationDuplicates;
+
+  /// No description provided for @editScheduleUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Horarios actualizados correctamente'**
+  String get editScheduleUpdated;
+
+  /// No description provided for @editScheduleError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al guardar cambios: {error}'**
+  String editScheduleError(String error);
+
+  /// No description provided for @editScheduleDosesPerDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Tomas al día: {count}'**
+  String editScheduleDosesPerDay(int count);
+
+  /// No description provided for @editScheduleAdjustTimeAndQuantity.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajusta la hora y cantidad de cada toma'**
+  String get editScheduleAdjustTimeAndQuantity;
+
+  /// No description provided for @specificDatesSelectorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Fechas específicas'**
+  String get specificDatesSelectorTitle;
+
+  /// No description provided for @specificDatesSelectorSelectDates.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona fechas'**
+  String get specificDatesSelectorSelectDates;
+
+  /// No description provided for @specificDatesSelectorDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige las fechas específicas en las que tomarás este medicamento'**
+  String get specificDatesSelectorDescription;
+
+  /// No description provided for @specificDatesSelectorAddDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir fecha'**
+  String get specificDatesSelectorAddDate;
+
+  /// No description provided for @specificDatesSelectorSelectedDates.
+  ///
+  /// In es, this message translates to:
+  /// **'Fechas seleccionadas ({count})'**
+  String specificDatesSelectorSelectedDates(int count);
+
+  /// No description provided for @specificDatesSelectorToday.
+  ///
+  /// In es, this message translates to:
+  /// **'HOY'**
+  String get specificDatesSelectorToday;
+
+  /// No description provided for @specificDatesSelectorContinue.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get specificDatesSelectorContinue;
+
+  /// No description provided for @specificDatesSelectorAlreadySelected.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta fecha ya está seleccionada'**
+  String get specificDatesSelectorAlreadySelected;
+
+  /// No description provided for @specificDatesSelectorSelectAtLeastOne.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona al menos una fecha'**
+  String get specificDatesSelectorSelectAtLeastOne;
+
+  /// No description provided for @specificDatesSelectorPickerHelp.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona una fecha'**
+  String get specificDatesSelectorPickerHelp;
+
+  /// No description provided for @specificDatesSelectorPickerCancel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar'**
+  String get specificDatesSelectorPickerCancel;
+
+  /// No description provided for @specificDatesSelectorPickerConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptar'**
+  String get specificDatesSelectorPickerConfirm;
+
+  /// No description provided for @weeklyDaysSelectorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Días de la semana'**
+  String get weeklyDaysSelectorTitle;
+
+  /// No description provided for @weeklyDaysSelectorSelectDays.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona los días'**
+  String get weeklyDaysSelectorSelectDays;
+
+  /// No description provided for @weeklyDaysSelectorDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige qué días de la semana tomarás este medicamento'**
+  String get weeklyDaysSelectorDescription;
+
+  /// No description provided for @weeklyDaysSelectorSelectedCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} día{plural} seleccionado{plural}'**
+  String weeklyDaysSelectorSelectedCount(int count, String plural);
+
+  /// No description provided for @weeklyDaysSelectorContinue.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get weeklyDaysSelectorContinue;
+
+  /// No description provided for @weeklyDaysSelectorSelectAtLeastOne.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona al menos un día de la semana'**
+  String get weeklyDaysSelectorSelectAtLeastOne;
+
+  /// No description provided for @weeklyDayMonday.
+  ///
+  /// In es, this message translates to:
+  /// **'Lunes'**
+  String get weeklyDayMonday;
+
+  /// No description provided for @weeklyDayTuesday.
+  ///
+  /// In es, this message translates to:
+  /// **'Martes'**
+  String get weeklyDayTuesday;
+
+  /// No description provided for @weeklyDayWednesday.
+  ///
+  /// In es, this message translates to:
+  /// **'Miércoles'**
+  String get weeklyDayWednesday;
+
+  /// No description provided for @weeklyDayThursday.
+  ///
+  /// In es, this message translates to:
+  /// **'Jueves'**
+  String get weeklyDayThursday;
+
+  /// No description provided for @weeklyDayFriday.
+  ///
+  /// In es, this message translates to:
+  /// **'Viernes'**
+  String get weeklyDayFriday;
+
+  /// No description provided for @weeklyDaySaturday.
+  ///
+  /// In es, this message translates to:
+  /// **'Sábado'**
+  String get weeklyDaySaturday;
+
+  /// No description provided for @weeklyDaySunday.
+  ///
+  /// In es, this message translates to:
+  /// **'Domingo'**
+  String get weeklyDaySunday;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -1599,26 +2445,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'es'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'es'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'es':
-      return AppLocalizationsEs();
+    case 'en': return AppLocalizationsEn();
+    case 'es': return AppLocalizationsEs();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

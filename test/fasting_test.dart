@@ -239,11 +239,11 @@ void main() {
 
     test('should handle fasting configuration with all medication types', () {
       final types = [
-        MedicationType.pastilla,
-        MedicationType.capsula,
-        MedicationType.jarabe,
-        MedicationType.inyeccion,
-        MedicationType.pomada,
+        MedicationType.pill,
+        MedicationType.capsule,
+        MedicationType.syrup,
+        MedicationType.injection,
+        MedicationType.ointment,
         MedicationType.spray,
       ];
 

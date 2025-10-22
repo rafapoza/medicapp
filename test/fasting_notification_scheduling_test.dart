@@ -89,7 +89,7 @@ void main() {
       final afterMed = MedicationBuilder()
           .withId('test_mixed_2')
           .withName('After Med')
-          .withType(MedicationType.capsula)
+          .withType(MedicationType.capsule)
           .withDosageInterval(24)
           .withSingleDose('21:00', 1.0)
           .withFasting(type: 'after', duration: 60)

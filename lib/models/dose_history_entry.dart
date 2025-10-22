@@ -47,7 +47,7 @@ class DoseHistoryEntry {
       medicationName: map['medicationName'] as String,
       medicationType: MedicationType.values.firstWhere(
         (e) => e.name == map['medicationType'],
-        orElse: () => MedicationType.pastilla,
+        orElse: () => MedicationType.pill,
       ),
       scheduledDateTime: DateTime.parse(map['scheduledDateTime'] as String),
       registeredDateTime: DateTime.parse(map['registeredDateTime'] as String),

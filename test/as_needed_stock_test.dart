@@ -124,7 +124,7 @@ void main() {
       final medication = MedicationBuilder()
           .withId('test_8')
           .withName('Jarabe')
-          .withType(MedicationType.jarabe)
+          .withType(MedicationType.syrup)
           .withAsNeeded()
           .withStock(5.5)
           .withLastDailyConsumption(1.5)
@@ -245,7 +245,7 @@ void main() {
         MedicationBuilder()
             .withId('test_15_a')
             .withName('Ibuprofeno')
-            .withType(MedicationType.pastilla)
+            .withType(MedicationType.pill)
             .withAsNeeded()
             .withStock(10.0)
             .withLastDailyConsumption(4.0) // 2.5 days remaining < 3
@@ -253,7 +253,7 @@ void main() {
         MedicationBuilder()
             .withId('test_15_b')
             .withName('Jarabe para la tos')
-            .withType(MedicationType.jarabe)
+            .withType(MedicationType.syrup)
             .withAsNeeded()
             .withStock(100.0)
             .withLastDailyConsumption(15.0) // 6.67 days remaining >= 3

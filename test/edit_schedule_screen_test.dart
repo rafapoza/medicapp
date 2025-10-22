@@ -176,7 +176,7 @@ void main() {
       final medication = createTestMedication(
         id: 'test-med-10',
         name: 'Single Dose Medicine',
-        type: MedicationType.jarabe,
+        type: MedicationType.syrup,
         dosageIntervalHours: 24,
         doseSchedule: {'08:00': 5.0},
         stockQuantity: 100.0,
@@ -230,7 +230,7 @@ void main() {
     testWidgets('should display medication type stock unit', (WidgetTester tester) async {
       final medication = createTestMedication(
         id: 'test-med-13',
-        type: MedicationType.inhalador,
+        type: MedicationType.inhaler,
         dosageIntervalHours: 12,
         doseSchedule: {'08:00': 2.0},
         stockQuantity: 10.0,

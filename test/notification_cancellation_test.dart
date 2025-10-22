@@ -65,7 +65,7 @@ void main() {
       final medication = MedicationBuilder()
           .withId('test_cancel_3')
           .withName('Until Finished Med')
-          .withType(MedicationType.capsula)
+          .withType(MedicationType.capsule)
           .withDosageInterval(12)
           .withDurationType(TreatmentDurationType.untilFinished)
           .withMultipleDoses(['08:00', '20:00'], 1.0)
@@ -109,7 +109,7 @@ void main() {
       final medication = MedicationBuilder()
           .withId('test_cancel_5')
           .withName('Specific Dates Med')
-          .withType(MedicationType.jarabe)
+          .withType(MedicationType.syrup)
           .withDosageInterval(8)
           .withSingleDose('12:00', 5.0)
           .withSpecificDates([todayString])
@@ -222,11 +222,11 @@ void main() {
 
     test('should work with different medication types', () async {
       final types = [
-        MedicationType.pastilla,
-        MedicationType.capsula,
-        MedicationType.jarabe,
-        MedicationType.inyeccion,
-        MedicationType.pomada,
+        MedicationType.pill,
+        MedicationType.capsule,
+        MedicationType.syrup,
+        MedicationType.injection,
+        MedicationType.ointment,
         MedicationType.spray,
       ];
 

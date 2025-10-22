@@ -105,7 +105,7 @@ void main() {
       final medication = Medication(
         id: 'test_5',
         name: 'Test Medication',
-        type: MedicationType.pastilla,
+        type: MedicationType.pill,
         dosageIntervalHours: 8,
         durationType: TreatmentDurationType.everyday,
         doseSchedule: {'08:00': 1.0},
@@ -131,7 +131,7 @@ void main() {
       final medication = Medication(
         id: 'test_6',
         name: 'Test Medication',
-        type: MedicationType.pastilla,
+        type: MedicationType.pill,
         dosageIntervalHours: 8,
         durationType: TreatmentDurationType.everyday,
         doseSchedule: {'08:00': 1.0},
@@ -181,11 +181,11 @@ void main() {
 
     test('should work with all medication types', () async {
       final types = [
-        MedicationType.pastilla,
-        MedicationType.capsula,
-        MedicationType.jarabe,
-        MedicationType.inyeccion,
-        MedicationType.pomada,
+        MedicationType.pill,
+        MedicationType.capsule,
+        MedicationType.syrup,
+        MedicationType.injection,
+        MedicationType.ointment,
         MedicationType.spray,
       ];
 

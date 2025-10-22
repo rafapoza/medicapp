@@ -20,7 +20,7 @@ class MedicationInfoScreen extends StatefulWidget {
 class _MedicationInfoScreenState extends State<MedicationInfoScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  MedicationType _selectedType = MedicationType.pastilla;
+  MedicationType _selectedType = MedicationType.pill;
 
   @override
   void dispose() {

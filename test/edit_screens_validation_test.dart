@@ -187,7 +187,7 @@ void main() {
       testMedication = createTestMedication(
         id: 'test-med-2',
         name: 'Test Medicine 2',
-        type: MedicationType.capsula,
+        type: MedicationType.capsule,
         dosageIntervalHours: 12,
         doseSchedule: {'08:00': 1.0, '20:00': 1.0},
         stockQuantity: 50.5,
@@ -233,7 +233,7 @@ void main() {
       final medication = createTestMedication(
         id: 'test-med-3',
         name: 'Test Medicine 3',
-        type: MedicationType.jarabe,
+        type: MedicationType.syrup,
         doseSchedule: {'08:00': 5.0},
         stockQuantity: 999.99,
         lowStockThresholdDays: 10,
@@ -248,7 +248,7 @@ void main() {
       final medication = createTestMedication(
         id: 'test-med-4',
         name: 'Test Medicine 4',
-        type: MedicationType.inhalador,
+        type: MedicationType.inhaler,
         dosageIntervalHours: 12,
         doseSchedule: {'08:00': 2.0},
         stockQuantity: 10.0,

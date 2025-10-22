@@ -38,7 +38,7 @@ Medication createTestMedication({
   return Medication(
     id: id ?? 'test-med-${DateTime.now().millisecondsSinceEpoch}',
     name: name ?? 'Test Medicine',
-    type: type ?? MedicationType.pastilla,
+    type: type ?? MedicationType.pill,
     dosageIntervalHours: dosageIntervalHours ?? 8,
     durationType: durationType ?? TreatmentDurationType.everyday,
     doseSchedule: doseSchedule ?? {'08:00': 1.0},

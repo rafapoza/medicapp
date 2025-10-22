@@ -1204,7 +1204,7 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Add a medication with stock (12-hour interval creates 2 doses: 00:00 and 12:00)
+    // Add a medication with stock (12-hour interval creates 2 doses: 08:00 and 20:00)
     await addMedicationWithDuration(tester, 'Aspirina', stockQuantity: '15', dosageIntervalHours: 12);
     await waitForDatabase(tester);
 
@@ -1223,9 +1223,9 @@ void main() {
     expect(find.text('Registrar toma de Aspirina'), findsOneWidget);
     expect(find.text('¿Qué toma has tomado?'), findsOneWidget);
 
-    // The medication should have dose times like "00:00" and "12:00"
-    // Find the first dose time button - we know "00:00" exists
-    final firstDoseTime = find.text('00:00');
+    // The medication should have dose times like "08:00" and "20:00"
+    // Find the first dose time button - we know "08:00" exists
+    final firstDoseTime = find.text('08:00');
 
     // Verify at least one dose time button is shown
     expect(firstDoseTime, findsAtLeastNWidgets(1));
@@ -1427,12 +1427,12 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify all 3 doses are shown initially
-    expect(find.text('00:00'), findsOneWidget);
     expect(find.text('08:00'), findsOneWidget);
-    expect(find.text('16:00'), findsOneWidget);
+    expect(find.text('14:00'), findsOneWidget);
+    expect(find.text('20:00'), findsOneWidget);
 
-    // Select the first dose (00:00)
-    await tester.tap(find.text('00:00'));
+    // Select the first dose (08:00)
+    await tester.tap(find.text('08:00'));
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 500));
     });
@@ -1456,11 +1456,11 @@ void main() {
     // Verify the dialog is shown
     expect(find.text('Registrar toma de Medicamento'), findsOneWidget);
 
-    // Verify only remaining doses are shown in the dialog (08:00 and 16:00)
-    // Note: 00:00 may still appear elsewhere on screen (in "Tomas de hoy" section),
+    // Verify only remaining doses are shown in the dialog (14:00 and 20:00)
+    // Note: 08:00 may still appear elsewhere on screen (in "Tomas de hoy" section),
     // but it should not appear as a button in the dialog
-    expect(find.text('08:00'), findsOneWidget);
-    expect(find.text('16:00'), findsOneWidget);
+    expect(find.text('14:00'), findsOneWidget);
+    expect(find.text('20:00'), findsOneWidget);
 
     // Verify there are only 2 dose buttons in the dialog by counting alarm icons within the dialog
     // (We can't count all alarm icons on screen because the medication card also has one)
@@ -1486,7 +1486,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Registrar toma'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('00:00'));
+    await tester.tap(find.text('08:00'));
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 500));
     });
@@ -1532,7 +1532,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Registrar toma'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('00:00'));
+    await tester.tap(find.text('08:00'));
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 500));
     });

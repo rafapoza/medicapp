@@ -63,12 +63,54 @@ class DoseScheduleEditorState extends State<DoseScheduleEditor> {
       // Sort by time
       _sortDoses();
     } else {
-      // Initialize empty entries
-      _doseEntries = List.generate(widget.initialDoseCount, (_) => DoseEntry());
+      // Initialize entries with default times distributed throughout the day
+      // This helps with testing and provides a better initial UX
+      _doseEntries = List.generate(widget.initialDoseCount, (index) {
+        final defaultTime = _calculateDefaultTime(index, widget.initialDoseCount);
+        return DoseEntry(time: defaultTime, quantity: 1.0);
+      });
       _quantityControllers = List.generate(
         widget.initialDoseCount,
         (_) => TextEditingController(text: '1.0'),
       );
+    }
+  }
+
+  /// Calculate a default time for a dose, distributed throughout the day
+  TimeOfDay _calculateDefaultTime(int index, int totalDoses) {
+    if (totalDoses == 1) {
+      // Single dose at 8:00 AM
+      return const TimeOfDay(hour: 8, minute: 0);
+    } else if (totalDoses == 2) {
+      // Two doses: 8:00 AM and 8:00 PM
+      return index == 0
+          ? const TimeOfDay(hour: 8, minute: 0)
+          : const TimeOfDay(hour: 20, minute: 0);
+    } else if (totalDoses == 3) {
+      // Three doses: 8:00 AM, 2:00 PM, 8:00 PM
+      return [
+        const TimeOfDay(hour: 8, minute: 0),
+        const TimeOfDay(hour: 14, minute: 0),
+        const TimeOfDay(hour: 20, minute: 0),
+      ][index];
+    } else if (totalDoses == 4) {
+      // Four doses: 8:00 AM, 12:00 PM, 4:00 PM, 8:00 PM
+      return [
+        const TimeOfDay(hour: 8, minute: 0),
+        const TimeOfDay(hour: 12, minute: 0),
+        const TimeOfDay(hour: 16, minute: 0),
+        const TimeOfDay(hour: 20, minute: 0),
+      ][index];
+    } else {
+      // For more doses, distribute evenly across waking hours (8 AM to 10 PM = 14 hours)
+      const startHour = 8;
+      const endHour = 22;
+      const totalHours = endHour - startHour;
+
+      final interval = totalHours / (totalDoses - 1);
+      final hour = startHour + (interval * index);
+
+      return TimeOfDay(hour: hour.floor(), minute: 0);
     }
   }
 

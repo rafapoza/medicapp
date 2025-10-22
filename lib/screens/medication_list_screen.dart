@@ -1808,63 +1808,6 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     );
   }
 
-  /// Show modal to add a new medication
-  /// Navigation to other sections (Pastillero, Botiquín, Historial) is now done via bottom navigation bar
-  void _showAddMedicationModal() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
-      ),
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateToAddMedication();
-                  },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Añadir medicamento'),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancelar'),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildTodayDosesSection(Medication medication) {
     final allDoses = [
       ...medication.takenDosesToday.map((time) => {'time': time, 'status': 'taken'}),
@@ -2656,7 +2599,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
               ],
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddMedicationModal,
+        onPressed: _navigateToAddMedication,
         child: const Icon(Icons.add),
       ),
     );

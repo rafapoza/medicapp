@@ -87,14 +87,8 @@ Future<void> addMedicationWithDuration(
   int dosageIntervalHours = 8, // Default to 8 hours
   String stockQuantity = '0', // Default stock quantity
 }) async {
-  // Tap the floating action button to open the menu
+  // Tap the floating action button to go directly to add medication screen
   await tester.tap(find.byIcon(Icons.add));
-  await tester.pump(); // Start the animation
-  await tester.pump(const Duration(milliseconds: 300)); // Allow modal to open
-  await tester.pump(); // Complete frame
-
-  // Tap "Añadir medicamento" in the modal
-  await tester.tap(find.text('Añadir medicamento'));
   await tester.pump(); // Start navigation
   await tester.pump(const Duration(milliseconds: 300)); // Allow navigation
   await tester.pump(); // Complete frame
@@ -303,12 +297,8 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Open the menu
+    // Tap FAB to navigate directly to add medication
     await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    // Tap "Añadir medicamento" in the modal
-    await tester.tap(find.text('Añadir medicamento'));
     await tester.pumpAndSettle();
 
     // Enter name (use .first to get the name field, not the frequency field)
@@ -378,12 +368,8 @@ void main() {
     await addMedicationWithDuration(tester, 'Paracetamol');
     await waitForDatabase(tester);
 
-    // Try to add the same medication again - open menu first
+    // Try to add the same medication again
     await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    // Tap "Añadir medicamento" in the modal
-    await tester.tap(find.text('Añadir medicamento'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextFormField).first, 'Paracetamol');
@@ -405,12 +391,8 @@ void main() {
     await addMedicationWithDuration(tester, 'Ibuprofeno');
     await waitForDatabase(tester);
 
-    // Try to add the same medication with different case - open menu first
+    // Try to add the same medication with different case
     await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    // Tap "Añadir medicamento" in the modal
-    await tester.tap(find.text('Añadir medicamento'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextFormField).first, 'IBUPROFENO');
@@ -955,12 +937,8 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Start adding a medication - open menu first
+    // Start adding a medication
     await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    // Tap "Añadir medicamento" in the modal
-    await tester.tap(find.text('Añadir medicamento'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextFormField).first, 'TestMed');
@@ -981,7 +959,7 @@ void main() {
     expect(find.text('Información del medicamento'), findsOneWidget);
   });
 
-  testWidgets('Floating action button should show simplified menu', (WidgetTester tester) async {
+  testWidgets('Floating action button should navigate directly to add medication', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
@@ -990,33 +968,30 @@ void main() {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
 
-    // Verify the menu modal is shown with the add medication option
+    // Verify we're directly on the add medication screen (no modal)
     // Navigation to other sections (Pastillero, Botiquín, Historial) is now via BottomNavigationBar
-    expect(find.text('Añadir medicamento'), findsOneWidget);
-    expect(find.text('Cancelar'), findsOneWidget);
-
-    // Verify old navigation options are NOT present
-    expect(find.text('Ver Pastillero'), findsNothing);
-    expect(find.text('Ver Botiquín'), findsNothing);
-    expect(find.text('Ver Historial'), findsNothing);
+    expect(find.text('Añadir Medicamento'), findsOneWidget);
+    expect(find.text('Información del medicamento'), findsOneWidget);
   });
 
-  testWidgets('Should navigate to add medication screen from menu', (WidgetTester tester) async {
+  testWidgets('Should navigate back from add medication screen', (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Open the menu
+    // Tap FAB to navigate to add medication
     await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    // Tap "Añadir medicamento"
-    await tester.tap(find.text('Añadir medicamento'));
     await tester.pumpAndSettle();
 
     // Verify we're on the add medication screen
     expect(find.text('Añadir Medicamento'), findsOneWidget);
-    expect(find.text('Información del medicamento'), findsOneWidget);
+
+    // Navigate back
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+
+    // Verify we're back on the main screen
+    expect(find.text('Mis Medicamentos'), findsOneWidget);
   });
 
   testWidgets('Should show BottomNavigationBar with all sections', (WidgetTester tester) async {
@@ -1032,27 +1007,6 @@ void main() {
 
     // Verify the navigation bar is displayed using NavigationBar widget
     expect(find.byType(NavigationBar), findsOneWidget);
-  });
-
-  testWidgets('Should close menu when cancel is pressed', (WidgetTester tester) async {
-    // Build our app
-    await tester.pumpWidget(const MedicApp());
-    await waitForDatabase(tester);
-
-    // Open the menu
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-
-    // Verify menu is open
-    expect(find.text('Añadir medicamento'), findsOneWidget);
-
-    // Tap cancel
-    await tester.tap(find.text('Cancelar'));
-    await tester.pumpAndSettle();
-
-    // Verify we're back on the main screen and menu is closed
-    expect(find.text('Mis Medicamentos'), findsOneWidget);
-    expect(find.text('Añadir medicamento'), findsNothing);
   });
 
   testWidgets('Debug menu should be hidden by default', (WidgetTester tester) async {

@@ -2434,6 +2434,150 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Domingo'**
   String get weeklyDaySunday;
+
+  /// No description provided for @dateFromLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Desde'**
+  String get dateFromLabel;
+
+  /// No description provided for @dateToLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta'**
+  String get dateToLabel;
+
+  /// No description provided for @statisticsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas'**
+  String get statisticsTitle;
+
+  /// No description provided for @adherenceLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Adherencia'**
+  String get adherenceLabel;
+
+  /// No description provided for @emptyDosesWithFilters.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay tomas con estos filtros'**
+  String get emptyDosesWithFilters;
+
+  /// No description provided for @emptyDoses.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay tomas registradas'**
+  String get emptyDoses;
+
+  /// No description provided for @permissionRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Permiso necesario'**
+  String get permissionRequired;
+
+  /// No description provided for @notNowButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahora no'**
+  String get notNowButton;
+
+  /// No description provided for @openSettingsButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir ajustes'**
+  String get openSettingsButton;
+
+  /// No description provided for @medicationUpdatedMsg.
+  ///
+  /// In es, this message translates to:
+  /// **'{name} actualizado'**
+  String medicationUpdatedMsg(String name);
+
+  /// No description provided for @noScheduledTimes.
+  ///
+  /// In es, this message translates to:
+  /// **'Este medicamento no tiene horarios configurados'**
+  String get noScheduledTimes;
+
+  /// No description provided for @allDosesTakenToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya has tomado todas las dosis de hoy'**
+  String get allDosesTakenToday;
+
+  /// No description provided for @registerDoseOfMedication.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar toma de {name}'**
+  String registerDoseOfMedication(String name);
+
+  /// No description provided for @refillMedicationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Recargar {name}'**
+  String refillMedicationTitle(String name);
+
+  /// No description provided for @doseRegisteredAt.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrada a las {time}'**
+  String doseRegisteredAt(String time);
+
+  /// No description provided for @statusUpdatedTo.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado actualizado a: {status}'**
+  String statusUpdatedTo(String status);
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha:'**
+  String get dateLabel;
+
+  /// No description provided for @scheduledTimeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Hora programada:'**
+  String get scheduledTimeLabel;
+
+  /// No description provided for @currentStatusLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado actual:'**
+  String get currentStatusLabel;
+
+  /// No description provided for @changeStatusToQuestion.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cambiar estado a:'**
+  String get changeStatusToQuestion;
+
+  /// No description provided for @filterApplied.
+  ///
+  /// In es, this message translates to:
+  /// **'Filtro aplicado'**
+  String get filterApplied;
+
+  /// No description provided for @filterFrom.
+  ///
+  /// In es, this message translates to:
+  /// **'Desde {date}'**
+  String filterFrom(String date);
+
+  /// No description provided for @filterTo.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta {date}'**
+  String filterTo(String date);
+
+  /// No description provided for @insufficientStockForDose.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay suficiente stock para marcar como tomada'**
+  String get insufficientStockForDose;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

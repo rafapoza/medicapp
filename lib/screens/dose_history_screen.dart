@@ -137,7 +137,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                           label: Text(
                             _startDate != null
                                 ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
-                                : 'Desde',
+                                : l10n.dateFromLabel,
                             style: const TextStyle(fontSize: 12),
                           ),
                         ),
@@ -162,7 +162,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                           label: Text(
                             _endDate != null
                                 ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
-                                : 'Hasta',
+                                : l10n.dateToLabel,
                             style: const TextStyle(fontSize: 12),
                           ),
                         ),
@@ -257,7 +257,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Estadísticas',
+                          l10n.statisticsTitle,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -301,9 +301,9 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  'Adherencia',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                Text(
+                                  l10n.adherenceLabel,
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                                 ),
                                 Text(
                                   '${_statistics['adherence'].toStringAsFixed(1)}%',
@@ -344,7 +344,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            _getFilterDescription(),
+                            _getFilterDescription(l10n),
                             style: const TextStyle(fontSize: 12),
                           ),
                         ),
@@ -375,8 +375,8 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                               const SizedBox(height: 16),
                               Text(
                                 hasFilters
-                                    ? 'No hay tomas con estos filtros'
-                                    : 'No hay tomas registradas',
+                                    ? l10n.emptyDosesWithFilters
+                                    : l10n.emptyDoses,
                                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
@@ -419,25 +419,25 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Fecha: ${entry.scheduledDateFormatted}',
+              '${l10n.dateLabel} ${entry.scheduledDateFormatted}',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 4),
             Text(
-              'Hora programada: ${entry.scheduledTimeFormatted}',
+              '${l10n.scheduledTimeLabel} ${entry.scheduledTimeFormatted}',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
             Text(
-              'Estado actual: ${entry.status.displayName}',
+              '${l10n.currentStatusLabel} ${entry.status.displayName}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              '¿Cambiar estado a:',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+            Text(
+              l10n.changeStatusToQuestion,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
@@ -493,6 +493,8 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
   }
 
   Future<void> _changeEntryStatus(DoseHistoryEntry entry, DoseStatus newStatus) async {
+    final l10n = AppLocalizations.of(context)!;
+
     // Create updated entry
     final updatedEntry = entry.copyWith(
       status: newStatus,
@@ -511,7 +513,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Estado actualizado a: ${newStatus.displayName}',
+          l10n.statusUpdatedTo(newStatus.displayName),
         ),
         duration: const Duration(seconds: 2),
       ),
@@ -554,7 +556,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
       final medication = await DatabaseHelper.instance.getMedication(entry.medicationId);
 
       if (medication == null) {
-        throw Exception('Medicamento no encontrado');
+        throw Exception(l10n.doseActionMedicationNotFound);
       }
 
       // Check if entry is from today
@@ -632,7 +634,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
     }
   }
 
-  String _getFilterDescription() {
+  String _getFilterDescription(AppLocalizations l10n) {
     final parts = <String>[];
 
     if (_selectedMedicationId != null) {
@@ -643,9 +645,9 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
     if (_startDate != null && _endDate != null) {
       parts.add('${_startDate!.day}/${_startDate!.month} - ${_endDate!.day}/${_endDate!.month}');
     } else if (_startDate != null) {
-      parts.add('Desde ${_startDate!.day}/${_startDate!.month}/${_startDate!.year}');
+      parts.add(l10n.filterFrom('${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'));
     } else if (_endDate != null) {
-      parts.add('Hasta ${_endDate!.day}/${_endDate!.month}/${_endDate!.year}');
+      parts.add(l10n.filterTo('${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'));
     }
 
     return parts.join(' • ');
@@ -716,6 +718,7 @@ class _DoseHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isTaken = entry.status == DoseStatus.taken;
     final statusColor = isTaken ? Colors.green : Colors.orange;
 
@@ -809,7 +812,7 @@ class _DoseHistoryCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Registrada a las ${entry.registeredTimeFormatted}',
+                        l10n.doseRegisteredAt(entry.registeredTimeFormatted),
                         style: TextStyle(
                           fontSize: 11,
                           color: statusColor.withOpacity(0.8),

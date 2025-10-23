@@ -117,6 +117,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
     if (!canScheduleExact && _medications.isNotEmpty) {
       // Show warning dialog for exact alarms only
+      final l10n = AppLocalizations.of(context)!;
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -124,7 +125,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
             children: [
               Icon(Icons.warning, color: Colors.orange),
               SizedBox(width: 8),
-              Flexible(child: Text('Permiso necesario')),
+              Flexible(child: Text(l10n.permissionRequired)),
             ],
           ),
           content: Column(
@@ -171,7 +172,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Ahora no'),
+              child: Text(l10n.notNowButton),
             ),
             FilledButton(
               onPressed: () async {
@@ -183,7 +184,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                 children: [
                   Icon(Icons.settings, size: 16),
                   SizedBox(width: 6),
-                  Text('Abrir ajustes'),
+                  Text(l10n.openSettingsButton),
                 ],
               ),
             ),
@@ -527,6 +528,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   void _registerDose(Medication medication) async {
+    final l10n = AppLocalizations.of(context)!;
     print('_registerDose called');
     print('stockQuantity: ${medication.stockQuantity}');
 
@@ -536,9 +538,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       final messenger = ScaffoldMessenger.of(context);
       Navigator.pop(context);
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Este medicamento no tiene horarios configurados'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.noScheduledTimes),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -552,9 +554,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       Navigator.pop(context);
       print('Showing SnackBar');
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('No hay stock disponible de este medicamento'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.medicineCabinetNoStockAvailable),
+          duration: const Duration(seconds: 2),
         ),
       );
       print('SnackBar shown');
@@ -572,9 +574,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     // Check if there are available doses
     if (availableDoses.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ya has tomado todas las dosis de hoy'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.allDosesTakenToday),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -748,15 +750,16 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   void _registerManualDose(Medication medication) async {
+    final l10n = AppLocalizations.of(context)!;
     // Close the modal first
     Navigator.pop(context);
 
     // Check if there's any stock available
     if (medication.stockQuantity <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No hay stock disponible de este medicamento'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.medicineCabinetNoStockAvailable),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -1042,6 +1045,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   void _refillMedication(Medication medication) async {
+    final l10n = AppLocalizations.of(context)!;
     // Close the modal first
     Navigator.pop(context);
 
@@ -1131,7 +1135,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   Navigator.pop(dialogContext, amount);
                 }
               },
-              child: const Text('Recargar'),
+              child: Text(l10n.medicineCabinetRefillButton),
             ),
           ],
         );
@@ -1198,6 +1202,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
           maxChildSize: 0.95,
           expand: false,
           builder: (context, scrollController) {
+            final l10n = AppLocalizations.of(context)!;
             return SingleChildScrollView(
               controller: scrollController,
               child: Container(
@@ -1289,7 +1294,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                       child: FilledButton.icon(
                         onPressed: () => _registerDose(medication),
                         icon: const Icon(Icons.medication_liquid, size: 18),
-                        label: const Text('Registrar toma'),
+                        label: Text(l10n.medicineCabinetRegisterDose),
                         style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                         ),
@@ -2023,6 +2028,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   Future<void> _toggleTodayDoseStatus(Medication medication, String doseTime, bool wasTaken) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       // Move between taken and skipped
       List<String> takenDoses = List.from(medication.takenDosesToday);
@@ -2044,10 +2050,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         // Remove stock
         if (newStock < doseQuantity) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No hay suficiente stock para marcar como tomada'),
+            SnackBar(
+              content: Text(l10n.insufficientStockForDose),
               backgroundColor: Colors.red,
-              duration: Duration(seconds: 2),
+              duration: const Duration(seconds: 2),
             ),
           );
           return;

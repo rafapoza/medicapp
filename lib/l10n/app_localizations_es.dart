@@ -1299,4 +1299,90 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get weeklyDaySunday => 'Domingo';
+
+  @override
+  String get dateFromLabel => 'Desde';
+
+  @override
+  String get dateToLabel => 'Hasta';
+
+  @override
+  String get statisticsTitle => 'Estadísticas';
+
+  @override
+  String get adherenceLabel => 'Adherencia';
+
+  @override
+  String get emptyDosesWithFilters => 'No hay tomas con estos filtros';
+
+  @override
+  String get emptyDoses => 'No hay tomas registradas';
+
+  @override
+  String get permissionRequired => 'Permiso necesario';
+
+  @override
+  String get notNowButton => 'Ahora no';
+
+  @override
+  String get openSettingsButton => 'Abrir ajustes';
+
+  @override
+  String medicationUpdatedMsg(String name) {
+    return '$name actualizado';
+  }
+
+  @override
+  String get noScheduledTimes => 'Este medicamento no tiene horarios configurados';
+
+  @override
+  String get allDosesTakenToday => 'Ya has tomado todas las dosis de hoy';
+
+  @override
+  String registerDoseOfMedication(String name) {
+    return 'Registrar toma de $name';
+  }
+
+  @override
+  String refillMedicationTitle(String name) {
+    return 'Recargar $name';
+  }
+
+  @override
+  String doseRegisteredAt(String time) {
+    return 'Registrada a las $time';
+  }
+
+  @override
+  String statusUpdatedTo(String status) {
+    return 'Estado actualizado a: $status';
+  }
+
+  @override
+  String get dateLabel => 'Fecha:';
+
+  @override
+  String get scheduledTimeLabel => 'Hora programada:';
+
+  @override
+  String get currentStatusLabel => 'Estado actual:';
+
+  @override
+  String get changeStatusToQuestion => '¿Cambiar estado a:';
+
+  @override
+  String get filterApplied => 'Filtro aplicado';
+
+  @override
+  String filterFrom(String date) {
+    return 'Desde $date';
+  }
+
+  @override
+  String filterTo(String date) {
+    return 'Hasta $date';
+  }
+
+  @override
+  String get insufficientStockForDose => 'No hay suficiente stock para marcar como tomada';
 }

@@ -31,8 +31,13 @@ flutter test
   - Integración con base de datos SQLite
   - Verificación de persistencia de `lastRefillAmount`
   - Tests de actualización y compatibilidad
-- **test/widget_test.dart**: Suite completa de tests de widgets e integración (1 test)
-  - Test básico de smoke test de la aplicación
+- **test/widget_test.dart**: Suite completa de tests de widgets e integración (43 tests)
+  - Tests de navegación y flujo de usuario
+  - Tests de formularios de añadir/editar medicamentos
+  - Tests de validación de inputs
+  - Tests de funcionalidad del botiquín
+  - Tests de eliminación y edición de medicamentos
+  - **Todos los tests usan internacionalización (i18n)** mediante helper `getL10n(tester)`
 - **test/dose_management_test.dart**: Tests del sistema de historial de dosis (11 tests)
   - Tests de eliminación de entradas de historial
   - Tests de cambio de estado (tomada/omitida)
@@ -104,7 +109,7 @@ flutter test
   - **Cobertura**: edit_duration_screen.dart: 0% → 82.7%
   - **Nota**: Requiere pasar explícitamente `startDate` y `endDate` a `createTestMedication()` cuando se necesiten valores específicos (no hay default)
 
-**Total**: 263 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock y pantallas de edición
+**Total**: 305 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock, pantallas de edición y widgets de integración
 
 **Cobertura global**: 45.7% (2710 de 5927 líneas)
 
@@ -158,3 +163,21 @@ flutter test
 - **Finders específicos**: Uso de finders descendientes para evitar ambigüedades al buscar widgets con textos duplicados
 - **Tests con fechas reales**: Los tests de ordenamiento (`medication_sorting_test.dart`) ahora usan `DateTime.now()` en lugar de fechas fijas para compatibilidad con el modelo `Medication` que usa tiempo real internamente. Esto asegura que las validaciones de fecha (`takenDosesDate`, `shouldTakeToday()`, etc.) funcionen correctamente
 - **Todos los tests pasan**: La suite completa de 263 tests ahora pasa exitosamente sin fallos
+
+#### Internacionalización completa de tests (enero 2025)
+- **Migración completa a i18n en widget_test.dart** (43 tests actualizados):
+  - Implementado helper `getL10n(tester)` para acceder a cadenas localizadas en tests
+  - Reemplazadas ~140 cadenas hardcodeadas en español por claves de localización
+  - Añadidas 24 nuevas claves de traducción (ES/EN) en archivos ARB
+  - Actualizadas 3 pantallas de producción con i18n:
+    - `dose_history_screen.dart` (12 cadenas)
+    - `medication_list_screen.dart` (9 cadenas)
+    - `edit_fasting_screen.dart` (2 cadenas)
+  - Corregidos bugs en helpers de tests:
+    - `calculateRelativeHour()`: manejo correcto de módulo negativo en Dart
+    - Tests de ordenamiento: uso de tiempo fijo (10:00 AM) para evitar problemas con cruces de medianoche
+  - Corregidas expectativas de texto en diferentes contextos:
+    - Pantallas de selección vs. pantallas de edición vs. listas de medicamentos
+    - SnackBars que desaparecen al navegar
+  - **Resultado**: 100% de cobertura de i18n en tests de widgets y pantallas actualizadas
+  - **Compatibilidad**: Tests verifican correctamente tanto versión ES como EN

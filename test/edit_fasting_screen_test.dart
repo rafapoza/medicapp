@@ -270,7 +270,7 @@ void main() {
         fastingType: 'before',
         fastingDurationMinutes: 30,
         notifyFasting: true,
-        type: MedicationType.jarabe,
+        type: MedicationType.syrup,
       );
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));

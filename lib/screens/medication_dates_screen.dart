@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
@@ -34,14 +35,16 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
   }
 
   Future<void> _selectStartDate() async {
+    final l10n = AppLocalizations.of(context)!;
+
     final picked = await showDatePicker(
       context: context,
       initialDate: _startDate ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 730)),
-      helpText: 'Fecha de inicio del tratamiento',
-      cancelText: 'Cancelar',
-      confirmText: 'Aceptar',
+      helpText: l10n.startDatePickerTitle,
+      cancelText: l10n.btnCancel,
+      confirmText: l10n.btnAccept,
     );
 
     if (picked != null) {
@@ -56,14 +59,16 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
   }
 
   Future<void> _selectEndDate() async {
+    final l10n = AppLocalizations.of(context)!;
+
     final picked = await showDatePicker(
       context: context,
       initialDate: _endDate ?? (_startDate ?? DateTime.now()).add(const Duration(days: 7)),
       firstDate: _startDate ?? DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 730)),
-      helpText: 'Fecha de fin del tratamiento',
-      cancelText: 'Cancelar',
-      confirmText: 'Aceptar',
+      helpText: l10n.endDatePickerTitle,
+      cancelText: l10n.btnCancel,
+      confirmText: l10n.btnAccept,
     );
 
     if (picked != null) {
@@ -117,19 +122,21 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dateFormat = DateFormat('dd/MM/yyyy');
-    final stepNumber = widget.durationType == TreatmentDurationType.specificDates ? '3 de 6' : '3 de 7';
+    final currentStep = widget.durationType == TreatmentDurationType.specificDates ? 3 : 3;
+    final totalSteps = widget.durationType == TreatmentDurationType.specificDates ? 6 : 7;
     final progressValue = widget.durationType == TreatmentDurationType.specificDates ? 3 / 6 : 3 / 7;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fechas del Tratamiento'),
+        title: Text(l10n.medicationDatesTitle),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Text(
-                'Paso $stepNumber',
+                l10n.stepIndicator(currentStep, totalSteps),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
@@ -160,7 +167,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Fechas del tratamiento',
+                        l10n.medicationDatesTitle,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,
@@ -168,7 +175,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '¿Cuándo comenzarás y terminarás este tratamiento?',
+                        l10n.medicationDatesSubtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                             ),
@@ -190,7 +197,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Ambas fechas son opcionales. Si no las estableces, el tratamiento comenzará hoy y no tendrá fecha límite.',
+                                l10n.medicationDatesHelp,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.blue.shade700,
@@ -233,7 +240,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                                     Row(
                                       children: [
                                         Text(
-                                          'Fecha de inicio',
+                                          l10n.startDateLabel,
                                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                               ),
@@ -246,7 +253,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                                             borderRadius: BorderRadius.circular(4),
                                           ),
                                           child: Text(
-                                            'Opcional',
+                                            l10n.startDateOptional,
                                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                   fontSize: 10,
                                                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -257,7 +264,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      _startDate != null ? dateFormat.format(_startDate!) : 'Empieza hoy',
+                                      _startDate != null ? dateFormat.format(_startDate!) : l10n.startDateDefault,
                                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                             fontWeight: FontWeight.w600,
                                             color: _startDate != null ? Colors.green : null,
@@ -288,7 +295,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                             });
                           },
                           icon: const Icon(Icons.clear, size: 18),
-                          label: const Text('Empezar hoy'),
+                          label: Text(l10n.startTodayButton),
                         ),
                       ],
 
@@ -325,7 +332,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                                     Row(
                                       children: [
                                         Text(
-                                          'Fecha de fin',
+                                          l10n.endDateLabel,
                                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                               ),
@@ -338,7 +345,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                                             borderRadius: BorderRadius.circular(4),
                                           ),
                                           child: Text(
-                                            'Opcional',
+                                            l10n.startDateOptional,
                                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                   fontSize: 10,
                                                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -349,7 +356,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      _endDate != null ? dateFormat.format(_endDate!) : 'Sin fecha límite',
+                                      _endDate != null ? dateFormat.format(_endDate!) : l10n.endDateDefault,
                                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                             fontWeight: FontWeight.w600,
                                             color: _endDate != null ? Colors.deepOrange : null,
@@ -379,7 +386,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                             });
                           },
                           icon: const Icon(Icons.clear, size: 18),
-                          label: const Text('Sin fecha límite'),
+                          label: Text(l10n.noEndDateButton),
                         ),
                       ],
 
@@ -402,7 +409,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  'Tratamiento de ${_endDate!.difference(_startDate!).inDays + 1} días',
+                                  l10n.treatmentDuration(_endDate!.difference(_startDate!).inDays + 1),
                                   style: TextStyle(
                                     color: Theme.of(context).colorScheme.primary,
                                     fontWeight: FontWeight.bold,
@@ -425,7 +432,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
               FilledButton.icon(
                 onPressed: _continueToNextStep,
                 icon: const Icon(Icons.arrow_forward),
-                label: const Text('Continuar'),
+                label: Text(l10n.btnContinue),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -436,7 +443,7 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
               OutlinedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back),
-                label: const Text('Atrás'),
+                label: Text(l10n.btnBack),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/medication.dart';
 import '../../widgets/forms/fasting_configuration_form.dart';
 import '../../database/database_helper.dart';
@@ -88,6 +89,8 @@ class _EditFastingScreenState extends State<EditFastingScreen> {
       return;
     }
 
+    final l10n = AppLocalizations.of(context)!;
+
     setState(() {
       _isSaving = true;
     });
@@ -125,11 +128,11 @@ class _EditFastingScreenState extends State<EditFastingScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Configuración de ayuno actualizada correctamente'),
+        SnackBar(
+          content: Text(l10n.editFastingUpdated),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
 
@@ -139,7 +142,7 @@ class _EditFastingScreenState extends State<EditFastingScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al guardar cambios: $e'),
+          content: Text(l10n.editFastingError(e.toString())),
           backgroundColor: Colors.red,
         ),
       );

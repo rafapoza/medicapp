@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../models/medication.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
@@ -58,6 +59,8 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
   }
 
   Future<void> _saveMedication() async {
+    final l10n = AppLocalizations.of(context)!;
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -99,7 +102,7 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${newMedication.name} añadido correctamente'),
+          content: Text(l10n.msgMedicationAddedSuccess(newMedication.name)),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
@@ -113,7 +116,7 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al guardar el medicamento: $e'),
+          content: Text(l10n.msgMedicationAddError(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -128,21 +131,27 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final stepNumber = widget.durationType == TreatmentDurationType.asNeeded
-        ? '2 de 2'
+    final l10n = AppLocalizations.of(context)!;
+    final currentStep = widget.durationType == TreatmentDurationType.asNeeded
+        ? 2
         : widget.durationType == TreatmentDurationType.specificDates
-            ? '7 de 7'
-            : '8 de 8';
+            ? 7
+            : 8;
+    final totalSteps = widget.durationType == TreatmentDurationType.asNeeded
+        ? 2
+        : widget.durationType == TreatmentDurationType.specificDates
+            ? 7
+            : 8;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cantidad de Medicamento'),
+        title: Text(l10n.medicationQuantityTitle),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Text(
-                'Paso $stepNumber',
+                l10n.stepIndicator(currentStep, totalSteps),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
@@ -184,7 +193,7 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Cantidad de medicamento',
+                                l10n.medicationQuantityTitle,
                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                       color: Theme.of(context).colorScheme.primary,
                                       fontWeight: FontWeight.bold,
@@ -195,7 +204,7 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Establece la cantidad disponible y cuándo deseas recibir alertas',
+                          l10n.medicationQuantitySubtitle,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                               ),
@@ -210,7 +219,7 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                               const Icon(Icons.inventory_2, size: 18),
                               const SizedBox(width: 8),
                               Text(
-                                'Cantidad disponible',
+                                l10n.availableQuantityLabel,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -234,8 +243,8 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                         TextFormField(
                           controller: _stockController,
                           decoration: InputDecoration(
-                            hintText: 'Ej: 30',
-                            helperText: 'Cantidad de ${widget.medicationType.stockUnit} que tienes actualmente',
+                            hintText: l10n.availableQuantityHint,
+                            helperText: l10n.availableQuantityHelp(widget.medicationType.stockUnit),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -249,12 +258,12 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Por favor, introduce la cantidad disponible';
+                              return l10n.validationEnterQuantity;
                             }
 
                             final quantity = double.tryParse(value.trim());
                             if (quantity == null || quantity < 0) {
-                              return 'La cantidad debe ser mayor o igual a 0';
+                              return l10n.validationQuantityNonNegative;
                             }
 
                             return null;
@@ -266,11 +275,11 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                         TextFormField(
                           controller: _lowStockThresholdController,
                           decoration: InputDecoration(
-                            labelText: 'Avisar cuando queden',
-                            hintText: 'Ej: 3',
+                            labelText: l10n.lowStockAlertLabel,
+                            hintText: l10n.lowStockAlertHint,
                             prefixIcon: const Icon(Icons.notifications_active),
-                            suffixText: 'días',
-                            helperText: 'Días de antelación para recibir la alerta de bajo stock',
+                            suffixText: l10n.lowStockAlertUnit,
+                            helperText: l10n.lowStockAlertHelp,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -279,16 +288,16 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                           keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Por favor, introduce los días de antelación';
+                              return l10n.validationEnterAlertDays;
                             }
 
                             final days = int.tryParse(value.trim());
                             if (days == null || days < 1) {
-                              return 'Debe ser al menos 1 día';
+                              return l10n.validationAlertMinDays;
                             }
 
                             if (days > 30) {
-                              return 'No puede ser mayor a 30 días';
+                              return l10n.validationAlertMaxDays;
                             }
 
                             return null;
@@ -317,7 +326,7 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              'Resumen',
+                              l10n.summaryTitle,
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.primary,
                                     fontWeight: FontWeight.bold,
@@ -328,29 +337,29 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                         const SizedBox(height: 16),
                         _buildSummaryRow(
                           Icons.medication,
-                          'Medicamento',
+                          l10n.summaryMedication,
                           widget.medicationName,
                         ),
                         _buildSummaryRow(
                           widget.medicationType.icon,
-                          'Tipo',
+                          l10n.summaryType,
                           widget.medicationType.displayName,
                         ),
                         if (widget.doseSchedule.isNotEmpty) ...[
                           _buildSummaryRow(
                             Icons.access_time,
-                            'Tomas al día',
+                            l10n.summaryDosesPerDay,
                             '${widget.doseSchedule.length}',
                           ),
                           _buildSummaryRow(
                             Icons.schedule,
-                            'Horarios',
+                            l10n.summarySchedules,
                             widget.doseSchedule.keys.join(', '),
                           ),
                         ],
                         _buildSummaryRow(
                           Icons.calendar_today,
-                          'Frecuencia',
+                          l10n.summaryFrequency,
                           _getFrequencyDescription(),
                         ),
                       ],
@@ -373,7 +382,7 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                           ),
                         )
                       : const Icon(Icons.check),
-                  label: Text(_isSaving ? 'Guardando...' : 'Guardar Medicamento'),
+                  label: Text(_isSaving ? l10n.savingButton : l10n.saveMedicationButton),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: Colors.green,
@@ -385,7 +394,7 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                 OutlinedButton.icon(
                   onPressed: _isSaving ? null : () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back),
-                  label: const Text('Atrás'),
+                  label: Text(l10n.btnBack),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -436,20 +445,21 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
   }
 
   String _getFrequencyDescription() {
+    final l10n = AppLocalizations.of(context)!;
     switch (widget.durationType) {
       case TreatmentDurationType.everyday:
-        return 'Todos los días';
+        return l10n.summaryFrequencyDaily;
       case TreatmentDurationType.untilFinished:
-        return 'Hasta acabar medicación';
+        return l10n.summaryFrequencyUntilEmpty;
       case TreatmentDurationType.specificDates:
-        return '${widget.specificDates?.length ?? 0} fechas específicas';
+        return l10n.summaryFrequencySpecificDates(widget.specificDates?.length ?? 0);
       case TreatmentDurationType.weeklyPattern:
-        return '${widget.weeklyDays?.length ?? 0} días de la semana';
+        return l10n.summaryFrequencyWeekdays(widget.weeklyDays?.length ?? 0);
       case TreatmentDurationType.intervalDays:
         final interval = widget.dayInterval ?? 2;
-        return 'Cada $interval días';
+        return l10n.summaryFrequencyEveryNDays(interval);
       case TreatmentDurationType.asNeeded:
-        return 'Según necesidad';
+        return l10n.summaryFrequencyAsNeeded;
     }
   }
 }

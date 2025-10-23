@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'screens/medication_list_screen.dart';
+import 'l10n/app_localizations.dart';
+import 'screens/main_screen.dart';
 import 'services/notification_service.dart';
 
 // Global navigator key to enable navigation from notification callbacks
@@ -43,19 +44,17 @@ class MedicApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('es', 'ES'), // Spanish
-        Locale('en', 'US'), // English
-      ],
-      locale: const Locale('es', 'ES'),
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('es'),
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),
       themeMode: ThemeMode.system,
-      home: const MedicationListScreen(),
+      home: const MainScreen(),
     );
   }
 

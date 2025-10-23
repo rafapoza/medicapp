@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../../models/medication.dart';
 import '../../widgets/forms/dose_schedule_editor.dart';
 import '../../database/database_helper.dart';
@@ -22,13 +23,14 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
   bool _isSaving = false;
 
   Future<void> _saveChanges() async {
+    final l10n = AppLocalizations.of(context)!;
     final editorState = _editorKey.currentState;
     if (editorState == null) return;
 
     if (!editorState.allQuantitiesValid()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, ingresa cantidades válidas (mayores a 0)'),
+        SnackBar(
+          content: Text(l10n.editScheduleValidationQuantities),
           backgroundColor: Colors.red,
         ),
       );
@@ -37,8 +39,8 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
 
     if (editorState.hasDuplicateTimes()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Las horas de las tomas no pueden repetirse'),
+        SnackBar(
+          content: Text(l10n.editScheduleValidationDuplicates),
           backgroundColor: Colors.red,
         ),
       );
@@ -81,11 +83,11 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Horarios actualizados correctamente'),
+        SnackBar(
+          content: Text(l10n.editScheduleUpdated),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
 
@@ -95,7 +97,7 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al guardar cambios: $e'),
+          content: Text(l10n.editScheduleError(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -114,14 +116,15 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Horarios'),
+        title: Text(l10n.editScheduleTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: _addDose,
-            tooltip: 'Añadir toma',
+            tooltip: l10n.editScheduleAddDose,
           ),
         ],
       ),
@@ -135,8 +138,8 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
               initialSchedule: widget.medication.doseSchedule,
               medicationType: widget.medication.type,
               allowAddRemove: true,
-              headerText: 'Tomas al día: ${widget.medication.doseSchedule.length}',
-              subtitleText: 'Ajusta la hora y cantidad de cada toma',
+              headerText: l10n.editScheduleDosesPerDay(widget.medication.doseSchedule.length),
+              subtitleText: l10n.editScheduleAdjustTimeAndQuantity,
             ),
           ),
 
@@ -158,7 +161,7 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
                           ),
                         )
                       : const Icon(Icons.check),
-                  label: Text(_isSaving ? 'Guardando...' : 'Guardar Cambios'),
+                  label: Text(_isSaving ? l10n.savingButton : l10n.editBasicInfoSaveChanges),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -167,7 +170,7 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
                 OutlinedButton.icon(
                   onPressed: _isSaving ? null : () => Navigator.pop(context),
                   icon: const Icon(Icons.cancel),
-                  label: const Text('Cancelar'),
+                  label: Text(l10n.btnCancel),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),

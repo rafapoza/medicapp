@@ -1,5 +1,7 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_localizations.dart';
 import '../models/medication.dart';
 import '../models/treatment_duration_type.dart';
 import '../models/dose_history_entry.dart';
@@ -115,6 +117,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
     if (!canScheduleExact && _medications.isNotEmpty) {
       // Show warning dialog for exact alarms only
+      final l10n = AppLocalizations.of(context)!;
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -122,7 +125,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
             children: [
               Icon(Icons.warning, color: Colors.orange),
               SizedBox(width: 8),
-              Flexible(child: Text('Permiso necesario')),
+              Flexible(child: Text(l10n.permissionRequired)),
             ],
           ),
           content: Column(
@@ -169,7 +172,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Ahora no'),
+              child: Text(l10n.notNowButton),
             ),
             FilledButton(
               onPressed: () async {
@@ -181,7 +184,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                 children: [
                   Icon(Icons.settings, size: 16),
                   SizedBox(width: 6),
-                  Text('Abrir ajustes'),
+                  Text(l10n.openSettingsButton),
                 ],
               ),
             ),
@@ -525,6 +528,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   void _registerDose(Medication medication) async {
+    final l10n = AppLocalizations.of(context)!;
     print('_registerDose called');
     print('stockQuantity: ${medication.stockQuantity}');
 
@@ -534,9 +538,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       final messenger = ScaffoldMessenger.of(context);
       Navigator.pop(context);
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Este medicamento no tiene horarios configurados'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.noScheduledTimes),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -550,9 +554,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       Navigator.pop(context);
       print('Showing SnackBar');
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('No hay stock disponible de este medicamento'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.medicineCabinetNoStockAvailable),
+          duration: const Duration(seconds: 2),
         ),
       );
       print('SnackBar shown');
@@ -570,9 +574,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     // Check if there are available doses
     if (availableDoses.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ya has tomado todas las dosis de hoy'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.allDosesTakenToday),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -746,15 +750,16 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   void _registerManualDose(Medication medication) async {
+    final l10n = AppLocalizations.of(context)!;
     // Close the modal first
     Navigator.pop(context);
 
     // Check if there's any stock available
     if (medication.stockQuantity <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No hay stock disponible de este medicamento'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.medicineCabinetNoStockAvailable),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -1040,6 +1045,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   void _refillMedication(Medication medication) async {
+    final l10n = AppLocalizations.of(context)!;
     // Close the modal first
     Navigator.pop(context);
 
@@ -1129,7 +1135,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   Navigator.pop(dialogContext, amount);
                 }
               },
-              child: const Text('Recargar'),
+              child: Text(l10n.medicineCabinetRefillButton),
             ),
           ],
         );
@@ -1196,6 +1202,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
           maxChildSize: 0.95,
           expand: false,
           builder: (context, scrollController) {
+            final l10n = AppLocalizations.of(context)!;
             return SingleChildScrollView(
               controller: scrollController,
               child: Container(
@@ -1287,7 +1294,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                       child: FilledButton.icon(
                         onPressed: () => _registerDose(medication),
                         icon: const Icon(Icons.medication_liquid, size: 18),
-                        label: const Text('Registrar toma'),
+                        label: Text(l10n.medicineCabinetRegisterDose),
                         style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                         ),
@@ -1807,141 +1814,6 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     );
   }
 
-  void _navigateToStock() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const MedicationStockScreen(),
-      ),
-    );
-  }
-
-  void _navigateToCabinet() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const MedicineCabinetScreen(),
-      ),
-    );
-
-    // Reload medications after returning from cabinet (in case medications were resumed/deleted)
-    await _loadMedications();
-  }
-
-  void _navigateToHistory() async {
-    final hasChanges = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const DoseHistoryScreen(),
-      ),
-    );
-
-    // Reload medications if changes were made in history
-    if (hasChanges == true) {
-      await _loadMedications();
-    }
-  }
-
-  void _showMainActionMenu() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
-      ),
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateToAddMedication();
-                  },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Añadir medicamento'),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.tonalIcon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateToStock();
-                  },
-                  icon: const Icon(Icons.inventory_2),
-                  label: const Text('Ver Pastillero'),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.tonalIcon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateToCabinet();
-                  },
-                  icon: const Icon(Icons.medical_information),
-                  label: const Text('Ver Botiquín'),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.tonalIcon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateToHistory();
-                  },
-                  icon: const Icon(Icons.history),
-                  label: const Text('Ver Historial'),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancelar'),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildTodayDosesSection(Medication medication) {
     final allDoses = [
       ...medication.takenDosesToday.map((time) => {'time': time, 'status': 'taken'}),
@@ -2156,6 +2028,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   Future<void> _toggleTodayDoseStatus(Medication medication, String doseTime, bool wasTaken) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       // Move between taken and skipped
       List<String> takenDoses = List.from(medication.takenDosesToday);
@@ -2177,10 +2050,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         // Remove stock
         if (newStock < doseQuantity) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No hay suficiente stock para marcar como tomada'),
+            SnackBar(
+              content: Text(l10n.insufficientStockForDose),
               backgroundColor: Colors.red,
-              duration: Duration(seconds: 2),
+              duration: const Duration(seconds: 2),
             ),
           );
           return;
@@ -2263,11 +2136,13 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
           onTap: _onTitleTap,
-          child: const Text('Mis Medicamentos'),
+          child: Text(l10n.mainScreenTitle),
         ),
         actions: _debugMenuVisible
             ? [
@@ -2338,16 +2213,18 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   ],
                 ),
               ),
-              const PopupMenuItem(
-                value: 'open_battery',
-                child: Row(
-                  children: [
-                    Icon(Icons.battery_full),
-                    SizedBox(width: 8),
-                    Text('⚙️ Optimización de batería'),
-                  ],
+              // Battery optimization is only available on Android
+              if (Platform.isAndroid)
+                const PopupMenuItem(
+                  value: 'open_battery',
+                  child: Row(
+                    children: [
+                      Icon(Icons.battery_full),
+                      SizedBox(width: 8),
+                      Text('⚙️ Optimización de batería'),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ]
@@ -2406,8 +2283,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
             )
           : Column(
               children: [
-                // Battery optimization info (only show if not dismissed)
-                if (!_batteryBannerDismissed)
+                // Battery optimization info (only show on Android and if not dismissed)
+                if (Platform.isAndroid && !_batteryBannerDismissed)
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -2731,7 +2608,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
               ],
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showMainActionMenu,
+        onPressed: _navigateToAddMedication,
         child: const Icon(Icons.add),
       ),
     );

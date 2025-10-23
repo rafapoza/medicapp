@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../../models/medication.dart';
 import '../../models/medication_type.dart';
 import '../../widgets/forms/medication_info_form.dart';
@@ -78,12 +79,13 @@ class _EditBasicInfoScreenState extends State<EditBasicInfoScreen> {
 
       if (!mounted) return;
 
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Información actualizada correctamente'),
+        SnackBar(
+          content: Text(l10n.editBasicInfoUpdated),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
 
@@ -91,9 +93,10 @@ class _EditBasicInfoScreenState extends State<EditBasicInfoScreen> {
     } catch (e) {
       if (!mounted) return;
 
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al guardar cambios: $e'),
+          content: Text(l10n.editBasicInfoError(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -108,9 +111,11 @@ class _EditBasicInfoScreenState extends State<EditBasicInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Información Básica'),
+        title: Text(l10n.editBasicInfoTitle),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -150,7 +155,7 @@ class _EditBasicInfoScreenState extends State<EditBasicInfoScreen> {
                           ),
                         )
                       : const Icon(Icons.check),
-                  label: Text(_isSaving ? 'Guardando...' : 'Guardar Cambios'),
+                  label: Text(_isSaving ? l10n.editBasicInfoSaving : l10n.editBasicInfoSaveChanges),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -159,7 +164,7 @@ class _EditBasicInfoScreenState extends State<EditBasicInfoScreen> {
                 OutlinedButton.icon(
                   onPressed: _isSaving ? null : () => Navigator.pop(context),
                   icon: const Icon(Icons.cancel),
-                  label: const Text('Cancelar'),
+                  label: Text(l10n.btnCancel),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),

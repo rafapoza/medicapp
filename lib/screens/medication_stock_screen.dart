@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/medication.dart';
 import '../database/database_helper.dart';
 
@@ -51,23 +52,24 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
     }
   }
 
-  String _getStockStatusText(Medication medication) {
+  String _getStockStatusText(Medication medication, BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (medication.isStockEmpty) {
-      return 'Sin stock';
+      return l10n.pillOrganizerNoStock;
     } else if (medication.isStockLow) {
-      return 'Stock bajo';
+      return l10n.pillOrganizerLowStock;
     } else {
-      return 'Stock disponible';
+      return l10n.pillOrganizerAvailableStock;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pastillero'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        title: Text(l10n.pillOrganizerTitle),
       ),
       body: _isLoading
           ? const Center(
@@ -88,7 +90,7 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'No hay medicamentos registrados',
+                        l10n.pillOrganizerEmptyTitle,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               color:
                                   Theme.of(context).colorScheme.onSurfaceVariant,
@@ -96,7 +98,7 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Añade medicamentos para ver tu pastillero',
+                        l10n.pillOrganizerEmptySubtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color:
                                   Theme.of(context).colorScheme.onSurfaceVariant,
@@ -115,7 +117,7 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                         children: [
                           Expanded(
                             child: _SummaryCard(
-                              title: 'Total',
+                              title: l10n.pillOrganizerTotal,
                               value: _medications.length.toString(),
                               icon: Icons.medical_services,
                               color: Colors.blue,
@@ -124,7 +126,7 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: _SummaryCard(
-                              title: 'Stock bajo',
+                              title: l10n.pillOrganizerLowStock,
                               value: _medications
                                   .where((m) => m.isStockLow)
                                   .length
@@ -136,7 +138,7 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: _SummaryCard(
-                              title: 'Sin stock',
+                              title: l10n.pillOrganizerNoStock,
                               value: _medications
                                   .where((m) => m.isStockEmpty)
                                   .length
@@ -149,7 +151,7 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Medicamentos',
+                        l10n.pillOrganizerMedicationsTitle,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -159,7 +161,7 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                       ..._medications.map((medication) {
                         final statusColor = _getStockStatusColor(medication);
                         final statusIcon = _getStockStatusIcon(medication);
-                        final statusText = _getStockStatusText(medication);
+                        final statusText = _getStockStatusText(medication, context);
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
@@ -252,7 +254,7 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Stock actual',
+                                          l10n.pillOrganizerCurrentStock,
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall
@@ -281,7 +283,7 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                                             CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                            'Duración estimada',
+                                            l10n.pillOrganizerEstimatedDuration,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodySmall
@@ -294,8 +296,8 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
                                           const SizedBox(height: 4),
                                           Text(
                                             medication.stockQuantity > 0 && medication.totalDailyDose > 0
-                                                ? '${(medication.stockQuantity / medication.totalDailyDose).floor()} días'
-                                                : '0 días',
+                                                ? '${(medication.stockQuantity / medication.totalDailyDose).floor()} ${l10n.pillOrganizerDays}'
+                                                : '0 ${l10n.pillOrganizerDays}',
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .titleMedium

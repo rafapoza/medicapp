@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 
 class SpecificDatesSelectorScreen extends StatefulWidget {
   final List<String>? initialSelectedDates;
@@ -37,6 +38,7 @@ class _SpecificDatesSelectorScreenState extends State<SpecificDatesSelectorScree
   }
 
   Future<void> _addDate() async {
+    final l10n = AppLocalizations.of(context)!;
     final now = DateTime.now();
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -44,9 +46,9 @@ class _SpecificDatesSelectorScreenState extends State<SpecificDatesSelectorScree
       firstDate: now,
       lastDate: DateTime(now.year + 2),
       locale: const Locale('es', 'ES'),
-      helpText: 'Selecciona una fecha',
-      cancelText: 'Cancelar',
-      confirmText: 'Aceptar',
+      helpText: l10n.specificDatesSelectorPickerHelp,
+      cancelText: l10n.specificDatesSelectorPickerCancel,
+      confirmText: l10n.specificDatesSelectorPickerConfirm,
     );
 
     if (picked != null) {
@@ -54,8 +56,8 @@ class _SpecificDatesSelectorScreenState extends State<SpecificDatesSelectorScree
       setState(() {
         if (_selectedDates.contains(dateString)) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Esta fecha ya está seleccionada'),
+            SnackBar(
+              content: Text(l10n.specificDatesSelectorAlreadySelected),
               backgroundColor: Colors.orange,
             ),
           );
@@ -73,10 +75,11 @@ class _SpecificDatesSelectorScreenState extends State<SpecificDatesSelectorScree
   }
 
   void _continue() {
+    final l10n = AppLocalizations.of(context)!;
     if (_selectedDates.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecciona al menos una fecha'),
+        SnackBar(
+          content: Text(l10n.specificDatesSelectorSelectAtLeastOne),
           backgroundColor: Colors.orange,
         ),
       );
@@ -94,11 +97,12 @@ class _SpecificDatesSelectorScreenState extends State<SpecificDatesSelectorScree
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Wait for locale initialization
     if (!_localeInitialized) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Fechas específicas'),
+          title: Text(l10n.specificDatesSelectorTitle),
           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
         ),
@@ -112,7 +116,7 @@ class _SpecificDatesSelectorScreenState extends State<SpecificDatesSelectorScree
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fechas específicas'),
+        title: Text(l10n.specificDatesSelectorTitle),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
       ),
@@ -129,14 +133,14 @@ class _SpecificDatesSelectorScreenState extends State<SpecificDatesSelectorScree
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Selecciona fechas',
+                        l10n.specificDatesSelectorSelectDates,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Elige las fechas específicas en las que tomarás este medicamento',
+                        l10n.specificDatesSelectorDescription,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
@@ -145,7 +149,7 @@ class _SpecificDatesSelectorScreenState extends State<SpecificDatesSelectorScree
                       FilledButton.tonalIcon(
                         onPressed: _addDate,
                         icon: const Icon(Icons.add),
-                        label: const Text('Añadir fecha'),
+                        label: Text(l10n.specificDatesSelectorAddDate),
                         style: FilledButton.styleFrom(
                           backgroundColor: Colors.deepPurple.withOpacity(0.2),
                           foregroundColor: Colors.deepPurple,
@@ -172,7 +176,7 @@ class _SpecificDatesSelectorScreenState extends State<SpecificDatesSelectorScree
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Fechas seleccionadas (${_selectedDates.length})',
+                              l10n.specificDatesSelectorSelectedDates(_selectedDates.length),
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     color: Colors.deepPurple,
                                     fontWeight: FontWeight.bold,
@@ -253,9 +257,9 @@ class _SpecificDatesSelectorScreenState extends State<SpecificDatesSelectorScree
                                           color: Colors.blue,
                                           borderRadius: BorderRadius.circular(4),
                                         ),
-                                        child: const Text(
-                                          'HOY',
-                                          style: TextStyle(
+                                        child: Text(
+                                          l10n.specificDatesSelectorToday,
+                                          style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
@@ -283,13 +287,13 @@ class _SpecificDatesSelectorScreenState extends State<SpecificDatesSelectorScree
               FilledButton.icon(
                 onPressed: _continue,
                 icon: const Icon(Icons.arrow_forward),
-                label: const Text('Continuar'),
+                label: Text(l10n.specificDatesSelectorContinue),
               ),
               const SizedBox(height: 8),
               OutlinedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.cancel),
-                label: const Text('Cancelar'),
+                label: Text(l10n.btnCancel),
               ),
             ],
           ),

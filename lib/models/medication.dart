@@ -174,7 +174,7 @@ class Medication {
       name: json['name'] as String,
       type: MedicationType.values.firstWhere(
         (e) => e.name == json['type'],
-        orElse: () => MedicationType.pastilla,
+        orElse: () => MedicationType.pill,
       ),
       dosageIntervalHours: json['dosageIntervalHours'] as int? ?? 8,
       durationType: TreatmentDurationType.values.firstWhere(

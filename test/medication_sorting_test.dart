@@ -9,14 +9,14 @@ import 'helpers/test_helpers.dart';
 void main() {
   group('Medication Sorting', () {
     test('should sort pending doses first (most overdue first)', () {
-      final now = DateTime.now();
-      final currentHour = now.hour;
+      // Use a fixed time (10:00 AM) to ensure predictable results
+      final now = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 10, 0);
       final today = getTodayString();
 
-      // Calculate times: 2 hours ago, 1 hour ago, 1 hour ahead
-      final twoHoursAgo = formatRelativeTime(currentHour, -2);
-      final oneHourAgo = formatRelativeTime(currentHour, -1);
-      final oneHourAhead = formatRelativeTime(currentHour, 1);
+      // Calculate times relative to 10:00 AM: 2 hours ago, 1 hour ago, 1 hour ahead
+      final twoHoursAgo = '08:00';    // 2 hours overdue
+      final oneHourAgo = '09:00';     // 1 hour overdue
+      final oneHourAhead = '11:00';   // 1 hour in future
 
       // Medication A: pending dose (1 hour overdue)
       final medA = MedicationBuilder()
@@ -55,14 +55,15 @@ void main() {
     });
 
     test('should sort future doses by proximity', () {
-      final now = DateTime.now();
-      final currentHour = now.hour;
+      // Use a fixed time (10:00 AM) to ensure predictable results
+      // This avoids issues with tests running at different times of day
+      final now = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 10, 0);
       final today = getTodayString();
 
-      // Calculate future times: 1, 2, and 6 hours ahead
-      final oneHourAhead = formatRelativeTime(currentHour, 1);
-      final twoHoursAhead = formatRelativeTime(currentHour, 2);
-      final sixHoursAhead = formatRelativeTime(currentHour, 6);
+      // Calculate future times relative to 10:00 AM
+      final oneHourAhead = '11:00';   // 1 hour ahead
+      final twoHoursAhead = '12:00';  // 2 hours ahead
+      final sixHoursAhead = '16:00';  // 6 hours ahead
 
       // Medication A: dose 6 hours ahead
       final medA = MedicationBuilder()
@@ -148,20 +149,13 @@ void main() {
     });
 
     test('should prioritize pending over future doses', () {
-      final now = DateTime.now();
-      final currentHour = now.hour;
-      final currentMinute = now.minute;
+      // Use a fixed time (10:00 AM) to ensure predictable results
+      final now = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 10, 0);
       final today = getTodayString();
 
-      // Calculate a past time (1 hour ago)
-      final oneHourAgo = formatRelativeTime(currentHour, -1);
-
-      // Calculate a very close future time (few minutes from now)
-      final fewMinutesAhead = (currentMinute + 5) % 60;
-      final fewMinutesAheadHour = (fewMinutesAhead < currentMinute)
-          ? (currentHour + 1) % 24
-          : currentHour;
-      final closeFutureTime = formatTime(fewMinutesAheadHour, fewMinutesAhead);
+      // Calculate times relative to 10:00 AM
+      final oneHourAgo = '09:00';          // 1 hour overdue
+      final closeFutureTime = '10:05';     // 5 minutes in future
 
       // Medication A: pending dose (overdue by 1 hour)
       final medA = MedicationBuilder()

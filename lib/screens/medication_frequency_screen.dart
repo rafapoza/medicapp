@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
 import '../widgets/forms/frequency_option_card.dart';
@@ -75,12 +76,14 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
   }
 
   void _continueToNextStep() async {
+    final l10n = AppLocalizations.of(context)!;
+
     // Validar según el modo seleccionado
     if (_selectedMode == FrequencyMode.weeklyDays) {
       if (_weeklyDays == null || _weeklyDays!.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Por favor, selecciona los días de la semana'),
+          SnackBar(
+            content: Text(l10n.validationSelectWeekdays),
             backgroundColor: Colors.red,
           ),
         );
@@ -162,15 +165,17 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
       );
     }
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Frecuencia de Medicación'),
+        title: Text(l10n.medicationFrequencyTitle),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Text(
-                'Paso 4 de 7',
+                l10n.stepIndicator(4, 7),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
@@ -201,7 +206,7 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Frecuencia de medicación',
+                        l10n.medicationFrequencyTitle,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,
@@ -209,7 +214,7 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Cada cuántos días debes tomar este medicamento',
+                        l10n.medicationFrequencySubtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                             ),
@@ -221,8 +226,8 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
                         value: FrequencyMode.everyday,
                         selectedValue: _selectedMode,
                         icon: Icons.calendar_today,
-                        title: 'Todos los días',
-                        subtitle: 'Medicación diaria continua',
+                        title: l10n.frequencyDailyTitle,
+                        subtitle: l10n.frequencyDailyDesc,
                         color: Colors.blue,
                         onTap: (value) => setState(() => _selectedMode = value),
                       ),
@@ -231,8 +236,8 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
                         value: FrequencyMode.alternateDays,
                         selectedValue: _selectedMode,
                         icon: Icons.repeat,
-                        title: 'Días alternos',
-                        subtitle: 'Cada 2 días desde el inicio del tratamiento',
+                        title: l10n.frequencyAlternateTitle,
+                        subtitle: l10n.frequencyAlternateDesc,
                         color: Colors.orange,
                         onTap: (value) => setState(() => _selectedMode = value),
                       ),
@@ -241,8 +246,8 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
                         value: FrequencyMode.weeklyDays,
                         selectedValue: _selectedMode,
                         icon: Icons.date_range,
-                        title: 'Días de la semana específicos',
-                        subtitle: 'Selecciona qué días tomar el medicamento',
+                        title: l10n.frequencyWeeklyTitle,
+                        subtitle: l10n.frequencyWeeklyDesc,
                         color: Colors.teal,
                         onTap: (value) => setState(() => _selectedMode = value),
                       ),
@@ -261,7 +266,7 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Días de la semana',
+                          l10n.selectWeeklyDaysTitle,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.w600,
@@ -269,7 +274,7 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Selecciona los días específicos en los que tomarás el medicamento',
+                          l10n.selectWeeklyDaysSubtitle,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                               ),
@@ -279,8 +284,8 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
                           onPressed: _selectWeeklyDays,
                           icon: const Icon(Icons.date_range),
                           label: Text(_weeklyDays == null || _weeklyDays!.isEmpty
-                              ? 'Seleccionar días'
-                              : '${_weeklyDays!.length} día${_weeklyDays!.length != 1 ? 's' : ''} seleccionado${_weeklyDays!.length != 1 ? 's' : ''}'),
+                              ? l10n.selectWeeklyDaysButton
+                              : l10n.daySelected(_weeklyDays!.length)),
                           style: FilledButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             backgroundColor: Colors.teal,
@@ -298,7 +303,7 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
               FilledButton.icon(
                 onPressed: _continueToNextStep,
                 icon: const Icon(Icons.arrow_forward),
-                label: const Text('Continuar'),
+                label: Text(l10n.btnContinue),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -309,7 +314,7 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
               OutlinedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back),
-                label: const Text('Atrás'),
+                label: Text(l10n.btnBack),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),

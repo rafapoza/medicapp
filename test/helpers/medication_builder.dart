@@ -15,7 +15,7 @@ import 'package:medicapp/models/treatment_duration_type.dart';
 class MedicationBuilder {
   String _id = 'test_medication';
   String _name = 'Test Medication';
-  MedicationType _type = MedicationType.pastilla;
+  MedicationType _type = MedicationType.pill;
   int _dosageIntervalHours = 8;
   TreatmentDurationType _durationType = TreatmentDurationType.everyday;
   Map<String, double> _doseSchedule = {'08:00': 1.0};

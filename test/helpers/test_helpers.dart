@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
@@ -38,7 +39,7 @@ Medication createTestMedication({
   return Medication(
     id: id ?? 'test-med-${DateTime.now().millisecondsSinceEpoch}',
     name: name ?? 'Test Medicine',
-    type: type ?? MedicationType.pastilla,
+    type: type ?? MedicationType.pill,
     dosageIntervalHours: dosageIntervalHours ?? 8,
     durationType: durationType ?? TreatmentDurationType.everyday,
     doseSchedule: doseSchedule ?? {'08:00': 1.0},
@@ -153,8 +154,15 @@ String formatTime(int hour, [int minute = 0]) {
 
 /// Calcula una hora relativa (ej: 2 horas atrás, 3 horas adelante).
 /// Retorna el valor en formato 24 horas (0-23).
+/// Maneja correctamente valores negativos y cruces de medianoche.
 int calculateRelativeHour(int currentHour, int delta) {
-  return ((currentHour + delta) % 24).clamp(0, 23);
+  int result = (currentHour + delta) % 24;
+  // En Dart, el módulo de números negativos devuelve valores negativos
+  // Ej: -1 % 24 = -1, no 23. Necesitamos corregir esto.
+  if (result < 0) {
+    result += 24;
+  }
+  return result;
 }
 
 /// Helper combinado: calcula hora relativa y la formatea.
@@ -175,6 +183,9 @@ Future<void> pumpScreen(
 }) async {
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('es', 'ES'),
       home: screen,
     ),
   );
@@ -197,6 +208,9 @@ Future<void> testCancelNavigation(
 }) async {
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('es', 'ES'),
       home: Scaffold(
         body: Builder(
           builder: (context) => Center(

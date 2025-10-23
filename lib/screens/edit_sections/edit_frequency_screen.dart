@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:medicapp/l10n/app_localizations.dart';
 import '../../models/medication.dart';
 import '../../models/treatment_duration_type.dart';
 import '../../widgets/forms/frequency_option_card.dart';
@@ -83,6 +84,7 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
   }
 
   Future<void> _saveChanges() async {
+    final l10n = AppLocalizations.of(context)!;
     TreatmentDurationType durationType;
     List<String>? specificDates;
     List<int>? weeklyDays;
@@ -108,8 +110,8 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
         durationType = TreatmentDurationType.specificDates;
         if (_selectedDates == null || _selectedDates!.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Por favor, selecciona al menos una fecha'),
+            SnackBar(
+              content: Text(l10n.editFrequencySelectAtLeastOneDate),
               backgroundColor: Colors.red,
             ),
           );
@@ -124,8 +126,8 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
         durationType = TreatmentDurationType.weeklyPattern;
         if (_weeklyDays == null || _weeklyDays!.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Por favor, selecciona al menos un día de la semana'),
+            SnackBar(
+              content: Text(l10n.editFrequencySelectAtLeastOneDay),
               backgroundColor: Colors.red,
             ),
           );
@@ -148,8 +150,8 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
         final interval = int.tryParse(_intervalController.text);
         if (interval == null || interval < 2) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('El intervalo debe ser al menos 2 días'),
+            SnackBar(
+              content: Text(l10n.editFrequencyIntervalMin),
               backgroundColor: Colors.red,
             ),
           );
@@ -194,11 +196,11 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Frecuencia actualizada correctamente'),
+        SnackBar(
+          content: Text(l10n.editFrequencyUpdated),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
 
@@ -208,7 +210,7 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al guardar cambios: $e'),
+          content: Text(l10n.editFrequencyError(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -223,9 +225,10 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Frecuencia'),
+        title: Text(l10n.editFrequencyTitle),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -240,7 +243,7 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Patrón de frecuencia',
+                        l10n.editFrequencyPattern,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,
@@ -248,7 +251,7 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '¿Con qué frecuencia tomarás este medicamento?',
+                        l10n.editFrequencyQuestion,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                             ),
@@ -260,8 +263,8 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                         value: FrequencyMode.everyday,
                         selectedValue: _selectedMode,
                         icon: Icons.calendar_today,
-                        title: 'Todos los días',
-                        subtitle: 'Tomar el medicamento diariamente',
+                        title: l10n.editFrequencyEveryday,
+                        subtitle: l10n.editFrequencyEverydayDesc,
                         color: Colors.blue,
                         onTap: (value) => setState(() => _selectedMode = value),
                       ),
@@ -270,8 +273,8 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                         value: FrequencyMode.untilFinished,
                         selectedValue: _selectedMode,
                         icon: Icons.hourglass_bottom,
-                        title: 'Hasta acabar',
-                        subtitle: 'Hasta que se termine el medicamento',
+                        title: l10n.editFrequencyUntilFinished,
+                        subtitle: l10n.editFrequencyUntilFinishedDesc,
                         color: Colors.green,
                         onTap: (value) => setState(() => _selectedMode = value),
                       ),
@@ -280,8 +283,8 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                         value: FrequencyMode.specificDates,
                         selectedValue: _selectedMode,
                         icon: Icons.event,
-                        title: 'Fechas específicas',
-                        subtitle: 'Seleccionar fechas concretas',
+                        title: l10n.editFrequencySpecificDates,
+                        subtitle: l10n.editFrequencySpecificDatesDesc,
                         color: Colors.purple,
                         onTap: (value) => setState(() => _selectedMode = value),
                       ),
@@ -290,8 +293,8 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                         value: FrequencyMode.weeklyPattern,
                         selectedValue: _selectedMode,
                         icon: Icons.view_week,
-                        title: 'Días de la semana',
-                        subtitle: 'Seleccionar días específicos cada semana',
+                        title: l10n.editFrequencyWeeklyDays,
+                        subtitle: l10n.editFrequencyWeeklyDaysDesc,
                         color: Colors.indigo,
                         onTap: (value) => setState(() => _selectedMode = value),
                       ),
@@ -300,8 +303,8 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                         value: FrequencyMode.alternateDays,
                         selectedValue: _selectedMode,
                         icon: Icons.repeat,
-                        title: 'Días alternos',
-                        subtitle: 'Cada 2 días desde el inicio del tratamiento',
+                        title: l10n.editFrequencyAlternateDays,
+                        subtitle: l10n.editFrequencyAlternateDaysDesc,
                         color: Colors.orange,
                         onTap: (value) => setState(() => _selectedMode = value),
                       ),
@@ -310,8 +313,8 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                         value: FrequencyMode.customInterval,
                         selectedValue: _selectedMode,
                         icon: Icons.timeline,
-                        title: 'Intervalo personalizado',
-                        subtitle: 'Cada N días desde el inicio',
+                        title: l10n.editFrequencyCustomInterval,
+                        subtitle: l10n.editFrequencyCustomIntervalDesc,
                         color: Colors.teal,
                         onTap: (value) => setState(() => _selectedMode = value),
                       ),
@@ -330,7 +333,7 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Fechas seleccionadas',
+                          l10n.editFrequencySelectedDates,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                               ),
@@ -338,8 +341,8 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                         const SizedBox(height: 8),
                         Text(
                           _selectedDates != null && _selectedDates!.isNotEmpty
-                              ? '${_selectedDates!.length} fechas seleccionadas'
-                              : 'Ninguna fecha seleccionada',
+                              ? l10n.editFrequencyDatesCount(_selectedDates!.length)
+                              : l10n.editFrequencyNoDatesSelected,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 12),
@@ -360,7 +363,7 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                             }
                           },
                           icon: const Icon(Icons.event),
-                          label: const Text('Seleccionar fechas'),
+                          label: Text(l10n.editFrequencySelectDatesButton),
                         ),
                       ],
                     ),
@@ -377,7 +380,7 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Días de la semana',
+                          l10n.editFrequencyWeeklyDaysLabel,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                               ),
@@ -385,8 +388,8 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                         const SizedBox(height: 8),
                         Text(
                           _weeklyDays != null && _weeklyDays!.isNotEmpty
-                              ? '${_weeklyDays!.length} días seleccionados'
-                              : 'Ningún día seleccionado',
+                              ? l10n.editFrequencyWeeklyDaysCount(_weeklyDays!.length)
+                              : l10n.editFrequencyNoDaysSelected,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 12),
@@ -407,7 +410,7 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                             }
                           },
                           icon: const Icon(Icons.view_week),
-                          label: const Text('Seleccionar días'),
+                          label: Text(l10n.editFrequencySelectDaysButton),
                         ),
                       ],
                     ),
@@ -424,7 +427,7 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Intervalo de días',
+                          l10n.editFrequencyIntervalLabel,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                               ),
@@ -433,11 +436,11 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                         TextFormField(
                           controller: _intervalController,
                           decoration: InputDecoration(
-                            labelText: 'Cada cuántos días',
-                            hintText: 'Ej: 3',
+                            labelText: l10n.editFrequencyIntervalField,
+                            hintText: l10n.editFrequencyIntervalHint,
                             prefixIcon: const Icon(Icons.timeline),
-                            suffixText: 'días',
-                            helperText: 'Debe ser al menos 2 días',
+                            suffixText: l10n.pillOrganizerDays,
+                            helperText: l10n.editFrequencyIntervalHelp,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -466,7 +469,7 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                         ),
                       )
                     : const Icon(Icons.check),
-                label: Text(_isSaving ? 'Guardando...' : 'Guardar Cambios'),
+                label: Text(_isSaving ? l10n.savingButton : l10n.editBasicInfoSaveChanges),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -475,7 +478,7 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
               OutlinedButton.icon(
                 onPressed: _isSaving ? null : () => Navigator.pop(context),
                 icon: const Icon(Icons.cancel),
-                label: const Text('Cancelar'),
+                label: Text(l10n.btnCancel),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),

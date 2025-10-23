@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/dose_history_entry.dart';
 import '../models/medication.dart';
 import '../database/database_helper.dart';
@@ -73,10 +74,12 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
   }
 
   void _showFilterDialog() {
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filtrar historial'),
+        title: Text(l10n.doseHistoryFilterTitle),
         content: StatefulBuilder(
           builder: (context, setDialogState) {
             return SingleChildScrollView(
@@ -85,7 +88,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Medication filter
-                  const Text('Medicamento:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(l10n.doseHistoryMedicationLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String?>(
                     value: _selectedMedicationId,
@@ -94,9 +97,9 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
                     items: [
-                      const DropdownMenuItem<String?>(
+                      DropdownMenuItem<String?>(
                         value: null,
-                        child: Text('Todos los medicamentos'),
+                        child: Text(l10n.doseHistoryAllMedications),
                       ),
                       ..._medications.map((med) => DropdownMenuItem<String?>(
                             value: med.id,
@@ -111,7 +114,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                   ),
                   const SizedBox(height: 16),
                   // Date range filter
-                  const Text('Rango de fechas:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(l10n.doseHistoryDateRangeLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -134,7 +137,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                           label: Text(
                             _startDate != null
                                 ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
-                                : 'Desde',
+                                : l10n.dateFromLabel,
                             style: const TextStyle(fontSize: 12),
                           ),
                         ),
@@ -159,7 +162,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                           label: Text(
                             _endDate != null
                                 ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
-                                : 'Hasta',
+                                : l10n.dateToLabel,
                             style: const TextStyle(fontSize: 12),
                           ),
                         ),
@@ -177,7 +180,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                           });
                         },
                         icon: const Icon(Icons.clear, size: 18),
-                        label: const Text('Limpiar fechas'),
+                        label: Text(l10n.doseHistoryClearDates),
                       ),
                     ),
                   ],
@@ -189,14 +192,14 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(l10n.btnCancel),
           ),
           FilledButton(
             onPressed: () {
               Navigator.pop(context);
               _loadData();
             },
-            child: const Text('Aplicar'),
+            child: Text(l10n.doseHistoryApply),
           ),
         ],
       ),
@@ -214,17 +217,22 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final hasFilters = _selectedMedicationId != null || _startDate != null || _endDate != null;
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop(_hasChanges);
-          },
-        ),
-        title: const Text('Historial de Tomas'),
+        // Only show back button if there's a previous route in the navigation stack
+        // When accessed via BottomNavigationBar, there's no previous route
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop(_hasChanges);
+                },
+              )
+            : null,
+        title: Text(l10n.doseHistoryTitle),
         actions: [
           IconButton(
             onPressed: _showFilterDialog,
@@ -249,7 +257,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Estadísticas',
+                          l10n.statisticsTitle,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -260,7 +268,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                             Expanded(
                               child: _StatCard(
                                 icon: Icons.medication,
-                                label: 'Total',
+                                label: l10n.doseHistoryTotal,
                                 value: '${_statistics['total']}',
                                 color: Colors.blue,
                               ),
@@ -269,7 +277,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                             Expanded(
                               child: _StatCard(
                                 icon: Icons.check_circle,
-                                label: 'Tomadas',
+                                label: l10n.doseHistoryTaken,
                                 value: '${_statistics['taken']}',
                                 color: Colors.green,
                               ),
@@ -278,7 +286,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                             Expanded(
                               child: _StatCard(
                                 icon: Icons.cancel,
-                                label: 'Omitidas',
+                                label: l10n.doseHistorySkipped,
                                 value: '${_statistics['skipped']}',
                                 color: Colors.orange,
                               ),
@@ -293,9 +301,9 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  'Adherencia',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                Text(
+                                  l10n.adherenceLabel,
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                                 ),
                                 Text(
                                   '${_statistics['adherence'].toStringAsFixed(1)}%',
@@ -336,14 +344,14 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            _getFilterDescription(),
+                            _getFilterDescription(l10n),
                             style: const TextStyle(fontSize: 12),
                           ),
                         ),
                         TextButton.icon(
                           onPressed: _clearFilters,
                           icon: const Icon(Icons.clear, size: 16),
-                          label: const Text('Limpiar'),
+                          label: Text(l10n.doseHistoryClear),
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                           ),
@@ -367,8 +375,8 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                               const SizedBox(height: 16),
                               Text(
                                 hasFilters
-                                    ? 'No hay tomas con estos filtros'
-                                    : 'No hay tomas registradas',
+                                    ? l10n.emptyDosesWithFilters
+                                    : l10n.emptyDoses,
                                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
@@ -394,6 +402,8 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
   }
 
   void _showEditEntryDialog(DoseHistoryEntry entry) {
+    final l10n = AppLocalizations.of(context)!;
+
     // Check if entry is from today (allows deletion)
     final now = DateTime.now();
     final isToday = entry.scheduledDateTime.year == now.year &&
@@ -403,31 +413,31 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Editar registro de ${entry.medicationName}'),
+        title: Text(l10n.doseHistoryEditEntry(entry.medicationName)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Fecha: ${entry.scheduledDateFormatted}',
+              '${l10n.dateLabel} ${entry.scheduledDateFormatted}',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 4),
             Text(
-              'Hora programada: ${entry.scheduledTimeFormatted}',
+              '${l10n.scheduledTimeLabel} ${entry.scheduledTimeFormatted}',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
             Text(
-              'Estado actual: ${entry.status.displayName}',
+              '${l10n.currentStatusLabel} ${entry.status.displayName}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              '¿Cambiar estado a:',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+            Text(
+              l10n.changeStatusToQuestion,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
@@ -441,7 +451,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                 _confirmDeleteEntry(entry);
               },
               icon: const Icon(Icons.delete_outline),
-              label: const Text('Eliminar'),
+              label: Text(l10n.btnDelete),
               style: TextButton.styleFrom(
                 foregroundColor: Colors.red,
               ),
@@ -451,7 +461,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
             const SizedBox(width: 8),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(l10n.btnCancel),
           ),
           if (entry.status == DoseStatus.taken)
             FilledButton.icon(
@@ -460,7 +470,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                 _changeEntryStatus(entry, DoseStatus.skipped);
               },
               icon: const Icon(Icons.cancel),
-              label: const Text('Marcar como Omitida'),
+              label: Text(l10n.doseHistoryMarkAsSkipped),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.orange,
               ),
@@ -472,7 +482,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
                 _changeEntryStatus(entry, DoseStatus.taken);
               },
               icon: const Icon(Icons.check_circle),
-              label: const Text('Marcar como Tomada'),
+              label: Text(l10n.doseHistoryMarkAsTaken),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
@@ -483,6 +493,8 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
   }
 
   Future<void> _changeEntryStatus(DoseHistoryEntry entry, DoseStatus newStatus) async {
+    final l10n = AppLocalizations.of(context)!;
+
     // Create updated entry
     final updatedEntry = entry.copyWith(
       status: newStatus,
@@ -501,7 +513,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Estado actualizado a: ${newStatus.displayName}',
+          l10n.statusUpdatedTo(newStatus.displayName),
         ),
         duration: const Duration(seconds: 2),
       ),
@@ -509,18 +521,18 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
   }
 
   void _confirmDeleteEntry(DoseHistoryEntry entry) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmar eliminación'),
+        title: Text(l10n.doseHistoryConfirmDelete),
         content: Text(
-          '¿Eliminar el registro de ${entry.medicationName} del ${entry.scheduledTimeFormatted}?\n\n'
-          'La dosis volverá a estar disponible para registrar.',
+          l10n.doseHistoryConfirmDeleteMessage,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(l10n.btnCancel),
           ),
           FilledButton(
             onPressed: () {
@@ -530,7 +542,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Eliminar'),
+            child: Text(l10n.btnDelete),
           ),
         ],
       ),
@@ -538,12 +550,13 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
   }
 
   Future<void> _deleteHistoryEntry(DoseHistoryEntry entry) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       // Get the medication
       final medication = await DatabaseHelper.instance.getMedication(entry.medicationId);
 
       if (medication == null) {
-        throw Exception('Medicamento no encontrado');
+        throw Exception(l10n.doseActionMedicationNotFound);
       }
 
       // Check if entry is from today
@@ -603,9 +616,9 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
 
       // Show confirmation
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registro eliminado correctamente'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.doseHistoryRecordDeleted),
+          duration: const Duration(seconds: 2),
         ),
       );
     } catch (e) {
@@ -613,7 +626,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al eliminar: $e'),
+          content: Text(l10n.doseHistoryDeleteError(e.toString())),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
@@ -621,7 +634,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
     }
   }
 
-  String _getFilterDescription() {
+  String _getFilterDescription(AppLocalizations l10n) {
     final parts = <String>[];
 
     if (_selectedMedicationId != null) {
@@ -632,9 +645,9 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
     if (_startDate != null && _endDate != null) {
       parts.add('${_startDate!.day}/${_startDate!.month} - ${_endDate!.day}/${_endDate!.month}');
     } else if (_startDate != null) {
-      parts.add('Desde ${_startDate!.day}/${_startDate!.month}/${_startDate!.year}');
+      parts.add(l10n.filterFrom('${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'));
     } else if (_endDate != null) {
-      parts.add('Hasta ${_endDate!.day}/${_endDate!.month}/${_endDate!.year}');
+      parts.add(l10n.filterTo('${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'));
     }
 
     return parts.join(' • ');
@@ -705,6 +718,7 @@ class _DoseHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isTaken = entry.status == DoseStatus.taken;
     final statusColor = isTaken ? Colors.green : Colors.orange;
 
@@ -798,7 +812,7 @@ class _DoseHistoryCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Registrada a las ${entry.registeredTimeFormatted}',
+                        l10n.doseRegisteredAt(entry.registeredTimeFormatted),
                         style: TextStyle(
                           fontSize: 11,
                           color: statusColor.withOpacity(0.8),

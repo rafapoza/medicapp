@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/medication.dart';
 import '../models/treatment_duration_type.dart';
 import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
 import 'edit_medication_menu_screen.dart';
+import 'medication_info_screen.dart';
 
 class MedicineCabinetScreen extends StatefulWidget {
   const MedicineCabinetScreen({super.key});
@@ -57,13 +59,29 @@ class _MedicineCabinetScreenState extends State<MedicineCabinetScreen> {
     });
   }
 
+  void _navigateToAddMedication() async {
+    final newMedication = await Navigator.push<Medication>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MedicationInfoScreen(
+          existingMedications: _allMedications,
+        ),
+      ),
+    );
+
+    if (newMedication != null) {
+      // Reload medications after adding a new one
+      await _loadMedications();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Botiquín'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        title: Text(l10n.medicineCabinetTitle),
       ),
       body: Column(
         children: [
@@ -73,7 +91,7 @@ class _MedicineCabinetScreenState extends State<MedicineCabinetScreen> {
               padding: const EdgeInsets.all(16),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: 'Buscar medicamento...',
+                  hintText: l10n.medicineCabinetSearchHint,
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
@@ -120,21 +138,21 @@ class _MedicineCabinetScreenState extends State<MedicineCabinetScreen> {
                                       ),
                                       const SizedBox(height: 16),
                                       Text(
-                                        'No hay medicamentos registrados',
+                                        l10n.medicineCabinetEmptyTitle,
                                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             ),
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        'Añade medicamentos para ver tu botiquín',
+                                        l10n.medicineCabinetEmptySubtitle,
                                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             ),
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        'Arrastra hacia abajo para recargar',
+                                        l10n.medicineCabinetPullToRefresh,
                                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                               color: Theme.of(context)
                                                   .colorScheme
@@ -165,14 +183,14 @@ class _MedicineCabinetScreenState extends State<MedicineCabinetScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'No se encontraron medicamentos',
+                                  l10n.medicineCabinetNoResults,
                                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Prueba con otro término de búsqueda',
+                                  l10n.medicineCabinetNoResultsHint,
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
@@ -197,6 +215,10 @@ class _MedicineCabinetScreenState extends State<MedicineCabinetScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _navigateToAddMedication,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
@@ -216,6 +238,7 @@ class _MedicationCard extends StatefulWidget {
 
 class _MedicationCardState extends State<_MedicationCard> {
   void _showMedicationModal() {
+    final l10n = AppLocalizations.of(context)!;
     final isAsNeeded = widget.medication.durationType == TreatmentDurationType.asNeeded;
 
     showModalBottomSheet(
@@ -272,7 +295,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Stock: ${widget.medication.stockDisplayText}',
+                          '${l10n.medicineCabinetStock} ${widget.medication.stockDisplayText}',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
@@ -293,7 +316,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                       _resumeMedication();
                     },
                     icon: const Icon(Icons.play_arrow, size: 18),
-                    label: const Text('Reanudar medicación'),
+                    label: Text(l10n.medicineCabinetResumeMedication),
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
@@ -312,7 +335,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                       _registerManualDose();
                     },
                     icon: const Icon(Icons.medication, size: 18),
-                    label: const Text('Registrar toma'),
+                    label: Text(l10n.medicineCabinetRegisterDose),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
@@ -328,7 +351,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                     _refillMedication();
                   },
                   icon: const Icon(Icons.add_circle_outline, size: 18),
-                  label: const Text('Recargar medicamento'),
+                  label: Text(l10n.medicineCabinetRefillMedication),
                   style: FilledButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
                     foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
@@ -345,7 +368,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                     _editMedication();
                   },
                   icon: const Icon(Icons.edit_outlined, size: 18),
-                  label: const Text('Editar medicamento'),
+                  label: Text(l10n.medicineCabinetEditMedication),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
@@ -360,7 +383,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                     _deleteMedication();
                   },
                   icon: const Icon(Icons.delete_outline, size: 18),
-                  label: const Text('Eliminar medicamento'),
+                  label: Text(l10n.medicineCabinetDeleteMedication),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,
                     side: const BorderSide(color: Colors.red),
@@ -374,7 +397,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                 child: OutlinedButton.icon(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.close, size: 18),
-                  label: const Text('Cerrar'),
+                  label: Text(l10n.btnClose),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
@@ -388,6 +411,7 @@ class _MedicationCardState extends State<_MedicationCard> {
   }
 
   void _refillMedication() async {
+    final l10n = AppLocalizations.of(context)!;
     // Controller for the refill amount
     final refillController = TextEditingController(
       text: widget.medication.lastRefillAmount?.toString() ?? '',
@@ -397,14 +421,14 @@ class _MedicationCardState extends State<_MedicationCard> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text('Recargar ${widget.medication.name}'),
+          title: Text(l10n.medicineCabinetRefillTitle(widget.medication.name)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Stock actual: ${widget.medication.stockDisplayText}',
+                  '${l10n.medicineCabinetCurrentStock} ${widget.medication.stockDisplayText}',
                   style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -418,7 +442,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                       const Icon(Icons.add_box, size: 18),
                       const SizedBox(width: 8),
                       Text(
-                        'Cantidad a agregar',
+                        l10n.medicineCabinetAddQuantityLabel,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -442,10 +466,10 @@ class _MedicationCardState extends State<_MedicationCard> {
                   controller: refillController,
                   decoration: InputDecoration(
                     hintText: widget.medication.lastRefillAmount != null
-                        ? 'Ej: ${widget.medication.lastRefillAmount}'
-                        : 'Ej: 30',
+                        ? '${l10n.medicineCabinetExample} ${widget.medication.lastRefillAmount}'
+                        : '${l10n.medicineCabinetExample} 30',
                     helperText: widget.medication.lastRefillAmount != null
-                        ? 'Última recarga: ${widget.medication.lastRefillAmount} ${widget.medication.type.stockUnit}'
+                        ? '${l10n.medicineCabinetLastRefill} ${widget.medication.lastRefillAmount} ${widget.medication.type.stockUnit}'
                         : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -465,7 +489,7 @@ class _MedicationCardState extends State<_MedicationCard> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, null),
-              child: const Text('Cancelar'),
+              child: Text(l10n.btnCancel),
             ),
             FilledButton(
               onPressed: () {
@@ -474,7 +498,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                   Navigator.pop(dialogContext, amount);
                 }
               },
-              child: const Text('Recargar'),
+              child: Text(l10n.medicineCabinetRefillButton),
             ),
           ],
         );
@@ -526,9 +550,12 @@ class _MedicationCardState extends State<_MedicationCard> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Stock de ${widget.medication.name} recargado\n'
-            'Agregado: $refillAmount ${widget.medication.type.stockUnit}\n'
-            'Nuevo stock: ${updatedMedication.stockDisplayText}',
+            l10n.medicineCabinetRefillSuccess(
+              widget.medication.name,
+              refillAmount.toString(),
+              widget.medication.type.stockUnit,
+              updatedMedication.stockDisplayText,
+            ),
           ),
           duration: const Duration(seconds: 3),
         ),
@@ -537,12 +564,13 @@ class _MedicationCardState extends State<_MedicationCard> {
   }
 
   void _registerManualDose() async {
+    final l10n = AppLocalizations.of(context)!;
     // Check if there's any stock available
     if (widget.medication.stockQuantity <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No hay stock disponible de este medicamento'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.medicineCabinetNoStockAvailable),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -555,14 +583,14 @@ class _MedicationCardState extends State<_MedicationCard> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text('Registrar toma de ${widget.medication.name}'),
+          title: Text(l10n.medicineCabinetRegisterDoseTitle(widget.medication.name)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Stock disponible: ${widget.medication.stockDisplayText}',
+                  '${l10n.medicineCabinetAvailableStock} ${widget.medication.stockDisplayText}',
                   style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -571,8 +599,8 @@ class _MedicationCardState extends State<_MedicationCard> {
                 TextField(
                   controller: doseController,
                   decoration: InputDecoration(
-                    labelText: 'Cantidad tomada',
-                    hintText: 'Ej: 1',
+                    labelText: l10n.medicineCabinetDoseTaken,
+                    hintText: '${l10n.medicineCabinetExample} 1',
                     suffixText: widget.medication.type.stockUnit,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -589,7 +617,7 @@ class _MedicationCardState extends State<_MedicationCard> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, null),
-              child: const Text('Cancelar'),
+              child: Text(l10n.btnCancel),
             ),
             FilledButton(
               onPressed: () {
@@ -598,7 +626,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                   Navigator.pop(dialogContext, quantity);
                 }
               },
-              child: const Text('Registrar'),
+              child: Text(l10n.medicineCabinetRegisterButton),
             ),
           ],
         );
@@ -616,9 +644,11 @@ class _MedicationCardState extends State<_MedicationCard> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Stock insuficiente para esta toma\n'
-              'Necesitas: $doseQuantity ${widget.medication.type.stockUnit}\n'
-              'Disponible: ${widget.medication.stockDisplayText}'
+              l10n.medicineCabinetInsufficientStock(
+                doseQuantity.toString(),
+                widget.medication.type.stockUnit,
+                widget.medication.stockDisplayText,
+              ),
             ),
             duration: const Duration(seconds: 3),
           ),
@@ -708,13 +738,16 @@ class _MedicationCardState extends State<_MedicationCard> {
       if (!mounted) return;
 
       // Show confirmation
-      final confirmationMessage = 'Toma de ${widget.medication.name} registrada\n'
-          'Cantidad: $doseQuantity ${widget.medication.type.stockUnit}\n'
-          'Stock restante: ${updatedMedication.stockDisplayText}';
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(confirmationMessage),
+          content: Text(
+            l10n.medicineCabinetDoseRegistered(
+              widget.medication.name,
+              doseQuantity.toString(),
+              widget.medication.type.stockUnit,
+              updatedMedication.stockDisplayText,
+            ),
+          ),
           duration: const Duration(seconds: 3),
         ),
       );
@@ -722,20 +755,20 @@ class _MedicationCardState extends State<_MedicationCard> {
   }
 
   void _deleteMedication() async {
+    final l10n = AppLocalizations.of(context)!;
     // Show confirmation dialog
     final confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Eliminar medicamento'),
+          title: Text(l10n.medicineCabinetDeleteConfirmTitle),
           content: Text(
-            '¿Estás seguro de que deseas eliminar "${widget.medication.name}"?\n\n'
-            'Esta acción no se puede deshacer y se perderá todo el historial de este medicamento.',
+            l10n.medicineCabinetDeleteConfirmMessage(widget.medication.name),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Cancelar'),
+              child: Text(l10n.btnCancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(dialogContext, true),
@@ -743,7 +776,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Eliminar'),
+              child: Text(l10n.btnDelete),
             ),
           ],
         );
@@ -765,7 +798,7 @@ class _MedicationCardState extends State<_MedicationCard> {
       // Show confirmation
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${widget.medication.name} eliminado correctamente'),
+          content: Text(l10n.medicineCabinetDeleteSuccess(widget.medication.name)),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -792,6 +825,7 @@ class _MedicationCardState extends State<_MedicationCard> {
   }
 
   void _resumeMedication() async {
+    final l10n = AppLocalizations.of(context)!;
     // Resume medication (set isSuspended to false)
     final updatedMedication = Medication(
       id: widget.medication.id,
@@ -833,7 +867,7 @@ class _MedicationCardState extends State<_MedicationCard> {
     // Show confirmation
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${widget.medication.name} reanudado correctamente\nNotificaciones reprogramadas'),
+        content: Text(l10n.medicineCabinetResumeSuccess(widget.medication.name)),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -841,6 +875,7 @@ class _MedicationCardState extends State<_MedicationCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final stockColor = widget.medication.isStockEmpty
         ? Colors.red
         : widget.medication.isStockLow
@@ -895,7 +930,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Suspendido',
+                        l10n.medicineCabinetSuspended,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -939,7 +974,7 @@ class _MedicationCardState extends State<_MedicationCard> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Toca para registrar',
+                        l10n.medicineCabinetTapToRegister,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,

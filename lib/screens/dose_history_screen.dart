@@ -223,7 +223,7 @@ class _DoseHistoryScreenState extends State<DoseHistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         // Only show back button if there's a previous route in the navigation stack
-        // When accessed via BottomNavigationBar, there's no previous route
+        // When accessed via NavigationRail, there's no previous route
         leading: Navigator.canPop(context)
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),

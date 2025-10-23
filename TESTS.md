@@ -31,8 +31,9 @@ flutter test
   - Integración con base de datos SQLite
   - Verificación de persistencia de `lastRefillAmount`
   - Tests de actualización y compatibilidad
-- **test/widget_test.dart**: Suite completa de tests de widgets e integración (43 tests)
+- **test/widget_test.dart**: Suite completa de tests de widgets e integración (45 tests)
   - Tests de navegación y flujo de usuario
+  - Tests de navegación adaptativa (NavigationBar en móviles, NavigationRail en tablets/landscape)
   - Tests de formularios de añadir/editar medicamentos
   - Tests de validación de inputs
   - Tests de funcionalidad del botiquín
@@ -109,7 +110,7 @@ flutter test
   - **Cobertura**: edit_duration_screen.dart: 0% → 82.7%
   - **Nota**: Requiere pasar explícitamente `startDate` y `endDate` a `createTestMedication()` cuando se necesiten valores específicos (no hay default)
 
-**Total**: 305 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock, pantallas de edición y widgets de integración
+**Total**: 307 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock, pantallas de edición y widgets de integración
 
 **Cobertura global**: 45.7% (2710 de 5927 líneas)
 
@@ -181,3 +182,16 @@ flutter test
     - SnackBars que desaparecen al navegar
   - **Resultado**: 100% de cobertura de i18n en tests de widgets y pantallas actualizadas
   - **Compatibilidad**: Tests verifican correctamente tanto versión ES como EN
+
+#### Navegación adaptativa (enero 2025)
+- **Implementación de navegación responsiva** en `main_screen.dart`:
+  - **NavigationBar** (inferior) para móviles en vertical (≤600px)
+  - **NavigationRail** (lateral) para tablets (>600px) o modo horizontal
+  - Transición automática basada en `MediaQuery` (tamaño y orientación)
+  - Sigue las guías de Material Design para navegación adaptativa
+- **Tests de navegación adaptativa** (3 nuevos tests en widget_test.dart):
+  - Test con tamaño móvil (400x800) verifica NavigationBar
+  - Test con tamaño tablet (800x1200) verifica NavigationRail
+  - Test con orientación horizontal (800x400) verifica NavigationRail
+  - Uso de `tester.view.physicalSize` para forzar tamaños específicos
+  - Total de tests: 305 → 307

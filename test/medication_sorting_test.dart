@@ -184,14 +184,14 @@ void main() {
     });
 
     test('should handle medications with multiple doses (find next available)', () {
-      final now = DateTime.now();
-      final currentHour = now.hour;
+      // Use a fixed time (10:00 AM) to ensure predictable results
+      final now = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 10, 0);
       final today = getTodayString();
 
-      // Calculate times: 4 hours ago (taken), current hour (pending), 2 hours ahead (future)
-      final fourHoursAgo = formatRelativeTime(currentHour, -4);
-      final currentHourTime = formatTime(currentHour);
-      final twoHoursAhead = formatRelativeTime(currentHour, 2);
+      // Calculate times relative to 10:00 AM: 4 hours ago (taken), current hour (pending), 2 hours ahead (future)
+      final fourHoursAgo = '06:00';     // 4 hours ago (taken)
+      final currentHourTime = '10:00';  // Current hour (pending, just passed)
+      final twoHoursAhead = '12:00';    // 2 hours ahead
 
       // Medication A: has doses at multiple times, one already taken
       final medA = MedicationBuilder()
@@ -207,7 +207,7 @@ void main() {
           .build();
 
       // Medication B: has dose 1 hour ahead
-      final oneHourAhead = formatRelativeTime(currentHour, 1);
+      final oneHourAhead = '11:00';  // 1 hour ahead
       final medB = MedicationBuilder()
           .withId('med_b')
           .withName('Medication B')
@@ -219,7 +219,7 @@ void main() {
       final medications = [medB, medA];
       MedicationSorter.sortByNextDose(medications, currentTime: now);
 
-      // A (pending at current hour) should be first
+      // A (pending at current hour 10:00) should be first
       expect(medications[0].id, 'med_a');
       expect(medications[1].id, 'med_b');
     });

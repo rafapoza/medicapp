@@ -5,7 +5,8 @@ import 'medication_stock_screen.dart';
 import 'medicine_cabinet_screen.dart';
 import 'dose_history_screen.dart';
 
-/// Main screen with bottom navigation bar
+/// Main screen with adaptive navigation
+/// Uses NavigationBar (bottom) on mobile/portrait and NavigationRail (side) on tablets/landscape
 /// Provides navigation between the main sections of the app:
 /// - Medications: Main list of medications with today's doses
 /// - Pill organizer: Weekly medication schedule view
@@ -48,7 +49,53 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
+    // Use NavigationRail for tablets (>600px) or landscape mode
+    final useNavigationRail = screenWidth > 600 || isLandscape;
+
+    if (useNavigationRail) {
+      return Scaffold(
+        body: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: _onItemTapped,
+              labelType: NavigationRailLabelType.all,
+              destinations: [
+                NavigationRailDestination(
+                  icon: const Icon(Icons.medical_services_outlined),
+                  selectedIcon: const Icon(Icons.medical_services),
+                  label: Text(l10n.navMedication),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.inventory_2_outlined),
+                  selectedIcon: const Icon(Icons.inventory_2),
+                  label: Text(l10n.navPillOrganizer),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.medical_information_outlined),
+                  selectedIcon: const Icon(Icons.medical_information),
+                  label: Text(l10n.navMedicineCabinet),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.history_outlined),
+                  selectedIcon: const Icon(Icons.history),
+                  label: Text(l10n.navHistory),
+                ),
+              ],
+            ),
+            const VerticalDivider(thickness: 1, width: 1),
+            Expanded(
+              child: _getCurrentScreen(),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Use NavigationBar for mobile/portrait
     return Scaffold(
       body: _getCurrentScreen(),
       bottomNavigationBar: NavigationBar(

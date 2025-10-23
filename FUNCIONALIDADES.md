@@ -175,10 +175,15 @@
   - Valida frecuencias de tomas que dividan 24 horas exactamente
   - Previene horarios duplicados con alertas visuales
   - Valida que las cantidades de stock sean no negativas
-- **Interfaz responsiva**:
+- **Interfaz responsiva y adaptativa**:
   - Diseño moderno con Material Design 3
   - Layout adaptable que muestra 3 tipos de medicamento por fila en todos los dispositivos
   - Scroll optimizado para pantallas pequeñas
+  - **Navegación adaptativa**:
+    - **Móviles en vertical (≤600px)**: NavigationBar inferior con 4 secciones
+    - **Tablets (>600px)**: NavigationRail lateral para mejor aprovechamiento del espacio
+    - **Modo horizontal**: NavigationRail lateral en cualquier dispositivo
+    - Transición automática según el tamaño de pantalla y orientación
   - **Pull-to-refresh**: Arrastra hacia abajo para recargar manualmente la pantalla principal y el Pastillero
 - **Visualización detallada**: Cada medicamento muestra su tipo, nombre, duración del tratamiento y próxima toma
 - **Indicadores visuales de stock**: Alertas en pantalla principal para medicamentos con problemas de stock

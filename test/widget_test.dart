@@ -1049,19 +1049,67 @@ void main() {
     expect(find.text(getL10n(tester).mainScreenTitle), findsWidgets);
   });
 
-  testWidgets('Should show BottomNavigationBar with all sections', (WidgetTester tester) async {
+  testWidgets('Should show NavigationBar on mobile screens', (WidgetTester tester) async {
+    // Force mobile screen size (portrait)
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     // Build our app
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Verify the bottom navigation bar is present with all 4 sections
+    // Verify the navigation sections are present
     expect(find.text(getL10n(tester).navMedication), findsWidgets);
     expect(find.text(getL10n(tester).pillOrganizerTitle), findsWidgets);
     expect(find.text(getL10n(tester).medicineCabinetTitle), findsWidgets);
     expect(find.text(getL10n(tester).navHistory), findsWidgets);
 
-    // Verify the navigation bar is displayed using NavigationBar widget
+    // Verify NavigationBar is used (bottom navigation)
     expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(NavigationRail), findsNothing);
+  });
+
+  testWidgets('Should show NavigationRail on tablet screens', (WidgetTester tester) async {
+    // Force tablet screen size
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Verify the navigation sections are present
+    expect(find.text(getL10n(tester).navMedication), findsWidgets);
+    expect(find.text(getL10n(tester).pillOrganizerTitle), findsWidgets);
+    expect(find.text(getL10n(tester).medicineCabinetTitle), findsWidgets);
+    expect(find.text(getL10n(tester).navHistory), findsWidgets);
+
+    // Verify NavigationRail is used (side navigation)
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+  });
+
+  testWidgets('Should show NavigationRail in landscape mode', (WidgetTester tester) async {
+    // Force landscape orientation (even on mobile size)
+    tester.view.physicalSize = const Size(800, 400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    // Build our app
+    await tester.pumpWidget(const MedicApp());
+    await waitForDatabase(tester);
+
+    // Verify the navigation sections are present
+    expect(find.text(getL10n(tester).navMedication), findsWidgets);
+    expect(find.text(getL10n(tester).pillOrganizerTitle), findsWidgets);
+    expect(find.text(getL10n(tester).medicineCabinetTitle), findsWidgets);
+    expect(find.text(getL10n(tester).navHistory), findsWidgets);
+
+    // Verify NavigationRail is used in landscape
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
   });
 
   testWidgets('Debug menu should be hidden by default', (WidgetTester tester) async {

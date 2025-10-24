@@ -1431,6 +1431,65 @@ class NotificationService {
     print('Successfully scheduled dynamic fasting notification');
   }
 
+  /// Cancel today's fasting notification for a "before" fasting type medication
+  /// This should be called when a dose is registered to prevent the fasting notification from firing
+  Future<void> cancelTodaysFastingNotification({
+    required Medication medication,
+    required String doseTime,
+  }) async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    // Only cancel "before" fasting notifications (static scheduled ones)
+    // "after" fasting notifications are dynamic and don't need cancellation
+    if (medication.fastingType != 'before') {
+      return;
+    }
+
+    // Check if medication requires fasting
+    if (!medication.requiresFasting || !medication.notifyFasting) {
+      return;
+    }
+
+    if (medication.fastingDurationMinutes == null || medication.fastingDurationMinutes! <= 0) {
+      return;
+    }
+
+    print('Cancelling today\'s fasting notification for ${medication.name} at $doseTime');
+
+    // Parse dose time
+    final parts = doseTime.split(':');
+    final hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+
+    // Calculate the dose datetime for today
+    final now = DateTime.now();
+    final doseDateTime = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
+
+    // Calculate when the fasting notification was scheduled (dose time - fasting duration)
+    final fastingStartTime = doseDateTime.subtract(
+      Duration(minutes: medication.fastingDurationMinutes!),
+    );
+
+    // Generate the notification ID using the same method used when scheduling
+    final notificationId = _generateFastingNotificationId(
+      medication.id,
+      fastingStartTime,
+      true, // isBefore = true
+    );
+
+    // Cancel the notification
+    await _notificationsPlugin.cancel(notificationId);
+    print('Cancelled fasting notification ID $notificationId for ${medication.name}');
+  }
+
   /// Generate a unique notification ID for dynamic fasting reminders
   /// Uses a different range (6000000+) to avoid conflicts with scheduled fasting notifications
   int _generateDynamicFastingNotificationId(String medicationId, DateTime actualDoseTime) {

@@ -714,6 +714,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         doseTime: selectedDoseTime,
       );
 
+      // Cancel today's fasting notification if it's a "before" fasting type
+      await NotificationService.instance.cancelTodaysFastingNotification(
+        medication: updatedMedication,
+        doseTime: selectedDoseTime,
+      );
+
       // Schedule dynamic fasting notification if medication requires fasting after dose
       if (updatedMedication.requiresFasting &&
           updatedMedication.fastingType == 'after' &&

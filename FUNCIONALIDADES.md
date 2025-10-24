@@ -130,8 +130,10 @@
   - **Duración personalizable**: Define la duración del ayuno en horas y minutos (ej: 2 horas, 1 hora 30 minutos)
   - **Notificaciones de ayuno inteligentes**:
     - **Ayuno antes**: Notificación programada automáticamente para dejar de comer antes de la toma programada
+      - Se cancela automáticamente cuando registras la toma (incluso si la tomas antes de la hora programada)
     - **Ayuno después**: Notificación dinámica que solo se programa cuando **realmente tomas** el medicamento, usando la hora real de la toma (no la programada)
-    - Esto evita notificaciones innecesarias de "ya puedes comer" cuando no has tomado el medicamento
+      - Si tomas el medicamento a las 8:00 (programado para 8:15) con 30 min de ayuno posterior, la notificación se programa para las 8:30 (no 8:45)
+      - Esto evita notificaciones innecesarias de "ya puedes comer" cuando no has tomado el medicamento
   - **Gestión de solapamientos**: El sistema fusiona períodos de ayuno solapados automáticamente, usando las restricciones más estrictas
   - **Edición flexible**: Modifica la configuración de ayuno en cualquier momento desde el menú de edición
   - **Persistencia**: La configuración de ayuno se guarda junto con cada medicamento

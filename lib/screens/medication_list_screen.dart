@@ -1549,6 +1549,19 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                     final tomorrow = now.add(const Duration(days: 1));
                     scheduledDate = 'Mañana ${tomorrow.day}/${tomorrow.month}/${tomorrow.year}';
                   }
+                } else {
+                  // Default case: assume it's for today or tomorrow based on time
+                  final currentMinutes = now.hour * 60 + now.minute;
+                  final scheduledMinutes = schedHour * 60 + schedMin;
+
+                  if (scheduledMinutes > currentMinutes) {
+                    scheduledDate = 'Hoy ${now.day}/${now.month}/${now.year}';
+                    isPastDue = false;
+                  } else {
+                    final tomorrow = now.add(const Duration(days: 1));
+                    scheduledDate = 'Mañana ${tomorrow.day}/${tomorrow.month}/${tomorrow.year}';
+                    isPastDue = false;
+                  }
                 }
               }
             }

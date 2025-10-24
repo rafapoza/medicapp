@@ -1,0 +1,839 @@
+{
+  "@@locale": "ca",
+
+  "@_NAVIGATION": {},
+  "appTitle": "MedicApp",
+  "navMedication": "Medicació",
+  "navPillOrganizer": "Pastiller",
+  "navMedicineCabinet": "Farmaciola",
+  "navHistory": "Historial",
+
+  "@_COMMON_BUTTONS": {},
+  "btnContinue": "Continuar",
+  "btnBack": "Enrere",
+  "btnSave": "Desar",
+  "btnCancel": "Cancel·lar",
+  "btnDelete": "Eliminar",
+  "btnEdit": "Editar",
+  "btnClose": "Tancar",
+  "btnConfirm": "Confirmar",
+  "btnAccept": "Acceptar",
+
+  "@_MEDICATION_TYPES": {},
+  "medicationTypePill": "Pastilla",
+  "medicationTypeCapsule": "Càpsula",
+  "medicationTypeTablet": "Comprimit",
+  "medicationTypeSyrup": "Xarop",
+  "medicationTypeDrops": "Gotes",
+  "medicationTypeInjection": "Injecció",
+  "medicationTypePatch": "Pegat",
+  "medicationTypeInhaler": "Inhalador",
+  "medicationTypeCream": "Crema",
+  "medicationTypeOther": "Altre",
+
+  "@_DOSE_STATUS": {},
+  "doseStatusTaken": "Presa",
+  "doseStatusSkipped": "Omesa",
+  "doseStatusPending": "Pendent",
+
+  "@_TREATMENT_DURATION": {},
+  "durationContinuous": "Continu",
+  "durationSpecificDates": "Dates específiques",
+  "durationAsNeeded": "Segons necessitat",
+
+  "@_MAIN_SCREEN": {},
+  "mainScreenTitle": "Els meus medicaments",
+  "mainScreenEmptyTitle": "No hi ha medicaments registrats",
+  "mainScreenEmptySubtitle": "Afegeix medicaments utilitzant el botó +",
+  "mainScreenTodayDoses": "Preses d'avui",
+  "mainScreenNoMedications": "No tens medicaments actius",
+
+  "@_COMMON_MESSAGES": {},
+  "msgMedicationAdded": "Medicament afegit correctament",
+  "msgMedicationUpdated": "Medicament actualitzat correctament",
+  "msgMedicationDeleted": "{name} eliminat correctament",
+  "@msgMedicationDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "@_VALIDATION": {},
+  "validationRequired": "Aquest camp és obligatori",
+  "validationDuplicateMedication": "Aquest medicament ja existeix a la teva llista",
+  "validationInvalidNumber": "Introdueix un número vàlid",
+  "validationMinValue": "El valor ha de ser major que {min}",
+  "@validationMinValue": {
+    "placeholders": {
+      "min": {
+        "type": "num"
+      }
+    }
+  },
+
+  "@_PILL_ORGANIZER_SCREEN": {},
+  "pillOrganizerTitle": "Pastiller",
+  "pillOrganizerTotal": "Total",
+  "pillOrganizerLowStock": "Estoc baix",
+  "pillOrganizerNoStock": "Sense estoc",
+  "pillOrganizerAvailableStock": "Estoc disponible",
+  "pillOrganizerMedicationsTitle": "Medicaments",
+  "pillOrganizerEmptyTitle": "No hi ha medicaments registrats",
+  "pillOrganizerEmptySubtitle": "Afegeix medicaments per veure el teu pastiller",
+  "pillOrganizerCurrentStock": "Estoc actual",
+  "pillOrganizerEstimatedDuration": "Durada estimada",
+  "pillOrganizerDays": "dies",
+
+  "@_MEDICINE_CABINET_SCREEN": {},
+  "medicineCabinetTitle": "Farmaciola",
+  "medicineCabinetSearchHint": "Buscar medicament...",
+  "medicineCabinetEmptyTitle": "No hi ha medicaments registrats",
+  "medicineCabinetEmptySubtitle": "Afegeix medicaments per veure la teva farmaciola",
+  "medicineCabinetPullToRefresh": "Arrossega cap avall per recarregar",
+  "medicineCabinetNoResults": "No s'han trobat medicaments",
+  "medicineCabinetNoResultsHint": "Prova amb un altre terme de cerca",
+  "medicineCabinetStock": "Estoc:",
+  "medicineCabinetSuspended": "Suspès",
+  "medicineCabinetTapToRegister": "Toca per registrar",
+  "medicineCabinetResumeMedication": "Reprendre medicació",
+  "medicineCabinetRegisterDose": "Registrar presa",
+  "medicineCabinetRefillMedication": "Recarregar medicament",
+  "medicineCabinetEditMedication": "Editar medicament",
+  "medicineCabinetDeleteMedication": "Eliminar medicament",
+  "medicineCabinetRefillTitle": "Recarregar {name}",
+  "@medicineCabinetRefillTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetRegisterDoseTitle": "Registrar presa de {name}",
+  "@medicineCabinetRegisterDoseTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetCurrentStock": "Estoc actual:",
+  "medicineCabinetAddQuantity": "Quantitat a afegir:",
+  "medicineCabinetAddQuantityLabel": "Quantitat a agregar",
+  "medicineCabinetExample": "Ex:",
+  "medicineCabinetLastRefill": "Última recàrrega:",
+  "medicineCabinetRefillButton": "Recarregar",
+  "medicineCabinetAvailableStock": "Estoc disponible:",
+  "medicineCabinetDoseTaken": "Quantitat presa",
+  "medicineCabinetRegisterButton": "Registrar",
+  "medicineCabinetNewStock": "Nou estoc:",
+  "medicineCabinetDeleteConfirmTitle": "Eliminar medicament",
+  "medicineCabinetDeleteConfirmMessage": "Estàs segur que vols eliminar \"{name}\"?\n\nAquesta acció no es pot desfer i es perdrà tot l'historial d'aquest medicament.",
+  "@medicineCabinetDeleteConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetNoStockAvailable": "No hi ha estoc disponible d'aquest medicament",
+  "medicineCabinetInsufficientStock": "Estoc insuficient per aquesta presa\nNecessites: {needed} {unit}\nDisponible: {available}",
+  "@medicineCabinetInsufficientStock": {
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "available": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetRefillSuccess": "Estoc de {name} recarregat\nAfegit: {amount} {unit}\nNou estoc: {newStock}",
+  "@medicineCabinetRefillSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "newStock": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetDoseRegistered": "Presa de {name} registrada\nQuantitat: {amount} {unit}\nEstoc restant: {remaining}",
+  "@medicineCabinetDoseRegistered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetDeleteSuccess": "{name} eliminat correctament",
+  "@medicineCabinetDeleteSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetResumeSuccess": "{name} reprès correctament\nNotificacions reprogramades",
+  "@medicineCabinetResumeSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "@_DOSE_HISTORY_SCREEN": {},
+  "doseHistoryTitle": "Historial de preses",
+  "doseHistoryFilterTitle": "Filtrar historial",
+  "doseHistoryMedicationLabel": "Medicament:",
+  "doseHistoryAllMedications": "Tots els medicaments",
+  "doseHistoryDateRangeLabel": "Rang de dates:",
+  "doseHistoryClearDates": "Netejar dates",
+  "doseHistoryApply": "Aplicar",
+  "doseHistoryTotal": "Total",
+  "doseHistoryTaken": "Preses",
+  "doseHistorySkipped": "Omeses",
+  "doseHistoryClear": "Netejar",
+  "doseHistoryEditEntry": "Editar registre de {name}",
+  "@doseHistoryEditEntry": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "doseHistoryScheduledTime": "Hora programada:",
+  "doseHistoryActualTime": "Hora real:",
+  "doseHistoryStatus": "Estat:",
+  "doseHistoryMarkAsSkipped": "Marcar com a omesa",
+  "doseHistoryMarkAsTaken": "Marcar com a presa",
+  "doseHistoryConfirmDelete": "Confirmar eliminació",
+  "doseHistoryConfirmDeleteMessage": "Estàs segur que vols eliminar aquest registre?",
+  "doseHistoryRecordDeleted": "Registre eliminat correctament",
+  "doseHistoryDeleteError": "Error en eliminar: {error}",
+  "@doseHistoryDeleteError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "addMedicationTitle": "Afegir medicament",
+  "stepIndicator": "Pas {current} de {total}",
+  "@stepIndicator": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+
+  "medicationInfoTitle": "Informació del medicament",
+  "medicationInfoSubtitle": "Comença proporcionant el nom i tipus de medicament",
+  "medicationNameLabel": "Nom del medicament",
+  "medicationNameHint": "Ex: Paracetamol",
+  "medicationTypeLabel": "Tipus de medicament",
+  "validationMedicationName": "Si us plau, introdueix el nom del medicament",
+
+  "medicationDurationTitle": "Tipus de tractament",
+  "medicationDurationSubtitle": "Com prendràs aquest medicament?",
+  "durationContinuousTitle": "Tractament continu",
+  "durationContinuousDesc": "Tots els dies, amb patró regular",
+  "durationUntilEmptyTitle": "Fins acabar medicació",
+  "durationUntilEmptyDesc": "Acaba quan s'acabi l'estoc",
+  "durationSpecificDatesTitle": "Dates específiques",
+  "durationSpecificDatesDesc": "Només dies concrets seleccionats",
+  "durationAsNeededTitle": "Medicament ocasional",
+  "durationAsNeededDesc": "Només quan sigui necessari, sense horaris",
+  "selectDatesButton": "Seleccionar dates",
+  "selectDatesTitle": "Selecciona les dates",
+  "selectDatesSubtitle": "Tria els dies exactes en què prendràs el medicament",
+  "dateSelected": "{count, plural, =1{1 data seleccionada} other{{count} dates seleccionades}}",
+  "@dateSelected": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "validationSelectDates": "Si us plau, selecciona almenys una data",
+
+  "medicationDatesTitle": "Dates del tractament",
+  "medicationDatesSubtitle": "Quan començaràs i acabaràs aquest tractament?",
+  "medicationDatesHelp": "Ambdues dates són opcionals. Si no les estableixes, el tractament començarà avui i no tindrà data límit.",
+  "startDateLabel": "Data d'inici",
+  "startDateOptional": "Opcional",
+  "startDateDefault": "Comença avui",
+  "endDateLabel": "Data de fi",
+  "endDateDefault": "Sense data límit",
+  "startDatePickerTitle": "Data d'inici del tractament",
+  "endDatePickerTitle": "Data de fi del tractament",
+  "startTodayButton": "Començar avui",
+  "noEndDateButton": "Sense data límit",
+  "treatmentDuration": "Tractament de {days} dies",
+  "@treatmentDuration": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+
+  "medicationFrequencyTitle": "Freqüència de medicació",
+  "medicationFrequencySubtitle": "Cada quants dies has de prendre aquest medicament",
+  "frequencyDailyTitle": "Tots els dies",
+  "frequencyDailyDesc": "Medicació diària contínua",
+  "frequencyAlternateTitle": "Dies alternats",
+  "frequencyAlternateDesc": "Cada 2 dies des de l'inici del tractament",
+  "frequencyWeeklyTitle": "Dies de la setmana específics",
+  "frequencyWeeklyDesc": "Selecciona quins dies prendre el medicament",
+  "selectWeeklyDaysButton": "Seleccionar dies",
+  "selectWeeklyDaysTitle": "Dies de la setmana",
+  "selectWeeklyDaysSubtitle": "Selecciona els dies específics en què prendràs el medicament",
+  "daySelected": "{count, plural, =1{1 dia seleccionat} other{{count} dies seleccionats}}",
+  "@daySelected": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "validationSelectWeekdays": "Si us plau, selecciona els dies de la setmana",
+
+  "medicationDosageTitle": "Configuració de dosis",
+  "medicationDosageSubtitle": "Com prefereixes configurar les dosis diàries?",
+  "dosageFixedTitle": "Tots els dies igual",
+  "dosageFixedDesc": "Especifica cada quantes hores prendre el medicament",
+  "dosageCustomTitle": "Personalitzat",
+  "dosageCustomDesc": "Defineix el nombre de preses per dia",
+  "dosageIntervalLabel": "Interval entre preses",
+  "dosageIntervalHelp": "L'interval ha de dividir 24 exactament",
+  "dosageIntervalFieldLabel": "Cada quantes hores",
+  "dosageIntervalHint": "Ex: 8",
+  "dosageIntervalUnit": "hores",
+  "dosageIntervalValidValues": "Valors vàlids: 1, 2, 3, 4, 6, 8, 12, 24",
+  "dosageTimesLabel": "Nombre de preses al dia",
+  "dosageTimesHelp": "Defineix quantes vegades al dia prendràs el medicament",
+  "dosageTimesFieldLabel": "Preses per dia",
+  "dosageTimesHint": "Ex: 3",
+  "dosageTimesUnit": "preses",
+  "dosageTimesDescription": "Nombre total de preses diàries",
+  "dosesPerDay": "Preses per dia",
+  "doseCount": "{count, plural, =1{1 presa} other{{count} preses}}",
+  "@doseCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "validationInvalidInterval": "Si us plau, introdueix un interval vàlid",
+  "validationIntervalTooLarge": "L'interval no pot ser major a 24 hores",
+  "validationIntervalNotDivisor": "L'interval ha de dividir 24 exactament (1, 2, 3, 4, 6, 8, 12, 24)",
+  "validationInvalidDoseCount": "Si us plau, introdueix un nombre de preses vàlid",
+  "validationTooManyDoses": "No pots prendre més de 24 dosis al dia",
+
+  "medicationTimesTitle": "Horari de preses",
+  "dosesPerDayLabel": "Preses al dia: {count}",
+  "@dosesPerDayLabel": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "frequencyEveryHours": "Freqüència: Cada {hours} hores",
+  "@frequencyEveryHours": {
+    "placeholders": {
+      "hours": {"type": "int"}
+    }
+  },
+  "selectTimeAndAmount": "Selecciona l'hora i quantitat de cada presa",
+  "doseNumber": "Presa {number}",
+  "@doseNumber": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "selectTimeButton": "Seleccionar hora",
+  "amountPerDose": "Quantitat per presa",
+  "amountHint": "Ex: 1, 0.5, 2",
+  "removeDoseButton": "Eliminar presa",
+  "validationSelectAllTimes": "Si us plau, selecciona totes les hores de les preses",
+  "validationEnterValidAmounts": "Si us plau, introdueix quantitats vàlides (majors a 0)",
+  "validationDuplicateTimes": "Les hores de les preses no poden repetir-se",
+  "validationAtLeastOneDose": "Ha d'haver-hi almenys una presa al dia",
+
+  "medicationFastingTitle": "Configuració de dejuni",
+  "fastingLabel": "Dejuni",
+  "fastingHelp": "Alguns medicaments requereixen dejuni abans o després de la presa",
+  "requiresFastingQuestion": "Aquest medicament requereix dejuni?",
+  "fastingNo": "No",
+  "fastingYes": "Sí",
+  "fastingWhenQuestion": "Quan és el dejuni?",
+  "fastingBefore": "Abans de la presa",
+  "fastingAfter": "Després de la presa",
+  "fastingDurationQuestion": "Quant temps de dejuni?",
+  "fastingHours": "Hores",
+  "fastingMinutes": "Minuts",
+  "fastingNotificationsQuestion": "Vols rebre notificacions de dejuni?",
+  "fastingNotificationBeforeHelp": "Et notificarem quan hagis de deixar de menjar abans de la presa",
+  "fastingNotificationAfterHelp": "Et notificarem quan puguis tornar a menjar després de la presa",
+  "fastingNotificationsOn": "Notificacions activades",
+  "fastingNotificationsOff": "Notificacions desactivades",
+  "validationCompleteAllFields": "Si us plau, completa tots els camps",
+  "validationSelectFastingWhen": "Si us plau, selecciona quan és el dejuni",
+  "validationFastingDuration": "La durada del dejuni ha de ser almenys 1 minut",
+
+  "medicationQuantityTitle": "Quantitat de medicament",
+  "medicationQuantitySubtitle": "Estableix la quantitat disponible i quan vols rebre alertes",
+  "availableQuantityLabel": "Quantitat disponible",
+  "availableQuantityHint": "Ex: 30",
+  "availableQuantityHelp": "Quantitat de {unit} que tens actualment",
+  "@availableQuantityHelp": {
+    "placeholders": {
+      "unit": {"type": "String"}
+    }
+  },
+  "lowStockAlertLabel": "Avisar quan en quedin",
+  "lowStockAlertHint": "Ex: 3",
+  "lowStockAlertUnit": "dies",
+  "lowStockAlertHelp": "Dies d'antelació per rebre l'alerta d'estoc baix",
+  "validationEnterQuantity": "Si us plau, introdueix la quantitat disponible",
+  "validationQuantityNonNegative": "La quantitat ha de ser major o igual a 0",
+  "validationEnterAlertDays": "Si us plau, introdueix els dies d'antelació",
+  "validationAlertMinDays": "Ha de ser almenys 1 dia",
+  "validationAlertMaxDays": "No pot ser major a 30 dies",
+  "summaryTitle": "Resum",
+  "summaryMedication": "Medicament",
+  "summaryType": "Tipus",
+  "summaryDosesPerDay": "Preses al dia",
+  "summarySchedules": "Horaris",
+  "summaryFrequency": "Freqüència",
+  "summaryFrequencyDaily": "Tots els dies",
+  "summaryFrequencyUntilEmpty": "Fins acabar medicació",
+  "summaryFrequencySpecificDates": "{count} dates específiques",
+  "@summaryFrequencySpecificDates": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "summaryFrequencyWeekdays": "{count} dies de la setmana",
+  "@summaryFrequencyWeekdays": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "summaryFrequencyEveryNDays": "Cada {days} dies",
+  "@summaryFrequencyEveryNDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "summaryFrequencyAsNeeded": "Segons necessitat",
+  "msgMedicationAddedSuccess": "{name} afegit correctament",
+  "@msgMedicationAddedSuccess": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "msgMedicationAddError": "Error en desar el medicament: {error}",
+  "@msgMedicationAddError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "saveMedicationButton": "Desar medicament",
+  "savingButton": "Desant...",
+
+  "@_DOSE_ACTION_SCREEN": {},
+  "doseActionTitle": "Acció de presa",
+  "doseActionLoading": "Carregant...",
+  "doseActionError": "Error",
+  "doseActionMedicationNotFound": "Medicament no trobat",
+  "doseActionBack": "Tornar",
+  "doseActionScheduledTime": "Hora programada: {time}",
+  "@doseActionScheduledTime": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "doseActionThisDoseQuantity": "Quantitat d'aquesta presa",
+  "doseActionWhatToDo": "Què vols fer?",
+  "doseActionRegisterTaken": "Registrar presa",
+  "doseActionWillDeductStock": "Descomptarà de l'estoc",
+  "doseActionMarkAsNotTaken": "Marcar com a no presa",
+  "doseActionWillNotDeductStock": "No descomptarà de l'estoc",
+  "doseActionPostpone15Min": "Posposar 15 minuts",
+  "doseActionQuickReminder": "Recordatori ràpid",
+  "doseActionPostponeCustom": "Posposar (triar hora)",
+  "doseActionInsufficientStock": "Estoc insuficient per aquesta presa\nNecessites: {needed} {unit}\nDisponible: {available}",
+  "@doseActionInsufficientStock": {
+    "placeholders": {
+      "needed": {"type": "String"},
+      "unit": {"type": "String"},
+      "available": {"type": "String"}
+    }
+  },
+  "doseActionTakenRegistered": "Presa de {name} registrada a les {time}\nEstoc restant: {stock}",
+  "@doseActionTakenRegistered": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"},
+      "stock": {"type": "String"}
+    }
+  },
+  "doseActionSkippedRegistered": "Presa de {name} marcada com a no presa a les {time}\nEstoc: {stock} (sense canvis)",
+  "@doseActionSkippedRegistered": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"},
+      "stock": {"type": "String"}
+    }
+  },
+  "doseActionPostponed": "Presa de {name} posposada\nNova hora: {time}",
+  "@doseActionPostponed": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+  "doseActionPostponed15": "Presa de {name} posposada 15 minuts\nNova hora: {time}",
+  "@doseActionPostponed15": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_MEDICATION_MENU": {},
+  "editMedicationMenuTitle": "Editar medicament",
+  "editMedicationMenuWhatToEdit": "Què vols editar?",
+  "editMedicationMenuSelectSection": "Selecciona la secció que vols modificar",
+  "editMedicationMenuBasicInfo": "Informació bàsica",
+  "editMedicationMenuBasicInfoDesc": "Nom i tipus de medicament",
+  "editMedicationMenuDuration": "Durada del tractament",
+  "editMedicationMenuFrequency": "Freqüència",
+  "editMedicationMenuSchedules": "Horaris i quantitats",
+  "editMedicationMenuSchedulesDesc": "{count} preses al dia",
+  "@editMedicationMenuSchedulesDesc": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFasting": "Configuració de dejuni",
+  "editMedicationMenuQuantity": "Quantitat disponible",
+  "editMedicationMenuQuantityDesc": "{quantity} {unit}",
+  "@editMedicationMenuQuantityDesc": {
+    "placeholders": {
+      "quantity": {"type": "String"},
+      "unit": {"type": "String"}
+    }
+  },
+  "editMedicationMenuFreqEveryday": "Tots els dies",
+  "editMedicationMenuFreqUntilFinished": "Fins acabar medicació",
+  "editMedicationMenuFreqSpecificDates": "{count} dates específiques",
+  "@editMedicationMenuFreqSpecificDates": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFreqWeeklyDays": "{count} dies de la setmana",
+  "@editMedicationMenuFreqWeeklyDays": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFreqInterval": "Cada {interval} dies",
+  "@editMedicationMenuFreqInterval": {
+    "placeholders": {
+      "interval": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFreqNotDefined": "Freqüència no definida",
+  "editMedicationMenuFastingNone": "Sense dejuni",
+  "editMedicationMenuFastingDuration": "Dejuni {duration} {type}",
+  "@editMedicationMenuFastingDuration": {
+    "placeholders": {
+      "duration": {"type": "String"},
+      "type": {"type": "String"}
+    }
+  },
+  "editMedicationMenuFastingBefore": "abans",
+  "editMedicationMenuFastingAfter": "després",
+
+  "@_EDIT_BASIC_INFO": {},
+  "editBasicInfoTitle": "Editar informació bàsica",
+  "editBasicInfoUpdated": "Informació actualitzada correctament",
+  "editBasicInfoSaving": "Desant...",
+  "editBasicInfoSaveChanges": "Desar canvis",
+  "editBasicInfoError": "Error en desar canvis: {error}",
+  "@editBasicInfoError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_DURATION": {},
+  "editDurationTitle": "Editar durada",
+  "editDurationTypeLabel": "Tipus de durada",
+  "editDurationCurrentType": "Tipus actual: {type}",
+  "@editDurationCurrentType": {
+    "placeholders": {
+      "type": {"type": "String"}
+    }
+  },
+  "editDurationChangeTypeInfo": "Per canviar el tipus de durada, edita la secció de \"Freqüència\"",
+  "editDurationTreatmentDates": "Dates del tractament",
+  "editDurationStartDate": "Data d'inici",
+  "editDurationEndDate": "Data de fi",
+  "editDurationNotSelected": "No seleccionada",
+  "editDurationDays": "Durada: {days} dies",
+  "@editDurationDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "editDurationSelectDates": "Si us plau, selecciona les dates d'inici i fi",
+  "editDurationUpdated": "Durada actualitzada correctament",
+  "editDurationError": "Error en desar canvis: {error}",
+  "@editDurationError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_FASTING": {},
+  "editFastingTitle": "Editar configuració de dejuni",
+  "editFastingCompleteFields": "Si us plau, completa tots els camps",
+  "editFastingSelectWhen": "Si us plau, selecciona quan és el dejuni",
+  "editFastingMinDuration": "La durada del dejuni ha de ser almenys 1 minut",
+  "editFastingUpdated": "Configuració de dejuni actualitzada correctament",
+  "editFastingError": "Error en desar canvis: {error}",
+  "@editFastingError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_FREQUENCY": {},
+  "editFrequencyTitle": "Editar freqüència",
+  "editFrequencyPattern": "Patró de freqüència",
+  "editFrequencyQuestion": "Amb quina freqüència prendràs aquest medicament?",
+  "editFrequencyEveryday": "Tots els dies",
+  "editFrequencyEverydayDesc": "Prendre el medicament diàriament",
+  "editFrequencyUntilFinished": "Fins acabar",
+  "editFrequencyUntilFinishedDesc": "Fins que s'acabi el medicament",
+  "editFrequencySpecificDates": "Dates específiques",
+  "editFrequencySpecificDatesDesc": "Seleccionar dates concretes",
+  "editFrequencyWeeklyDays": "Dies de la setmana",
+  "editFrequencyWeeklyDaysDesc": "Seleccionar dies específics cada setmana",
+  "editFrequencyAlternateDays": "Dies alternats",
+  "editFrequencyAlternateDaysDesc": "Cada 2 dies des de l'inici del tractament",
+  "editFrequencyCustomInterval": "Interval personalitzat",
+  "editFrequencyCustomIntervalDesc": "Cada N dies des de l'inici",
+  "editFrequencySelectedDates": "Dates seleccionades",
+  "editFrequencyDatesCount": "{count} dates seleccionades",
+  "@editFrequencyDatesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editFrequencyNoDatesSelected": "Cap data seleccionada",
+  "editFrequencySelectDatesButton": "Seleccionar dates",
+  "editFrequencyWeeklyDaysLabel": "Dies de la setmana",
+  "editFrequencyWeeklyDaysCount": "{count} dies seleccionats",
+  "@editFrequencyWeeklyDaysCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editFrequencyNoDaysSelected": "Cap dia seleccionat",
+  "editFrequencySelectDaysButton": "Seleccionar dies",
+  "editFrequencyIntervalLabel": "Interval de dies",
+  "editFrequencyIntervalField": "Cada quants dies",
+  "editFrequencyIntervalHint": "Ex: 3",
+  "editFrequencyIntervalHelp": "Ha de ser almenys 2 dies",
+  "editFrequencySelectAtLeastOneDate": "Si us plau, selecciona almenys una data",
+  "editFrequencySelectAtLeastOneDay": "Si us plau, selecciona almenys un dia de la setmana",
+  "editFrequencyIntervalMin": "L'interval ha de ser almenys 2 dies",
+  "editFrequencyUpdated": "Freqüència actualitzada correctament",
+  "editFrequencyError": "Error en desar canvis: {error}",
+  "@editFrequencyError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_QUANTITY": {},
+  "editQuantityTitle": "Editar quantitat",
+  "editQuantityMedicationLabel": "Quantitat de medicament",
+  "editQuantityDescription": "Estableix la quantitat disponible i quan vols rebre alertes",
+  "editQuantityAvailableLabel": "Quantitat disponible",
+  "editQuantityAvailableHelp": "Quantitat de {unit} que tens actualment",
+  "@editQuantityAvailableHelp": {
+    "placeholders": {
+      "unit": {"type": "String"}
+    }
+  },
+  "editQuantityValidationRequired": "Si us plau, introdueix la quantitat disponible",
+  "editQuantityValidationMin": "La quantitat ha de ser major o igual a 0",
+  "editQuantityThresholdLabel": "Avisar quan en quedin",
+  "editQuantityThresholdHelp": "Dies d'antelació per rebre l'alerta d'estoc baix",
+  "editQuantityThresholdValidationRequired": "Si us plau, introdueix els dies d'antelació",
+  "editQuantityThresholdValidationMin": "Ha de ser almenys 1 dia",
+  "editQuantityThresholdValidationMax": "No pot ser major a 30 dies",
+  "editQuantityUpdated": "Quantitat actualitzada correctament",
+  "editQuantityError": "Error en desar canvis: {error}",
+  "@editQuantityError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_SCHEDULE": {},
+  "editScheduleTitle": "Editar horaris",
+  "editScheduleAddDose": "Afegir presa",
+  "editScheduleValidationQuantities": "Si us plau, introdueix quantitats vàlides (majors a 0)",
+  "editScheduleValidationDuplicates": "Les hores de les preses no poden repetir-se",
+  "editScheduleUpdated": "Horaris actualitzats correctament",
+  "editScheduleError": "Error en desar canvis: {error}",
+  "@editScheduleError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "editScheduleDosesPerDay": "Preses al dia: {count}",
+  "@editScheduleDosesPerDay": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editScheduleAdjustTimeAndQuantity": "Ajusta l'hora i quantitat de cada presa",
+
+  "@_SPECIFIC_DATES_SELECTOR": {},
+  "specificDatesSelectorTitle": "Dates específiques",
+  "specificDatesSelectorSelectDates": "Selecciona dates",
+  "specificDatesSelectorDescription": "Tria les dates específiques en què prendràs aquest medicament",
+  "specificDatesSelectorAddDate": "Afegir data",
+  "specificDatesSelectorSelectedDates": "Dates seleccionades ({count})",
+  "@specificDatesSelectorSelectedDates": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "specificDatesSelectorToday": "AVUI",
+  "specificDatesSelectorContinue": "Continuar",
+  "specificDatesSelectorAlreadySelected": "Aquesta data ja està seleccionada",
+  "specificDatesSelectorSelectAtLeastOne": "Selecciona almenys una data",
+  "specificDatesSelectorPickerHelp": "Selecciona una data",
+  "specificDatesSelectorPickerCancel": "Cancel·lar",
+  "specificDatesSelectorPickerConfirm": "Acceptar",
+
+  "@_WEEKLY_DAYS_SELECTOR": {},
+  "weeklyDaysSelectorTitle": "Dies de la setmana",
+  "weeklyDaysSelectorSelectDays": "Selecciona els dies",
+  "weeklyDaysSelectorDescription": "Tria quins dies de la setmana prendràs aquest medicament",
+  "weeklyDaysSelectorSelectedCount": "{count} dia{plural} seleccionat{plural}",
+  "@weeklyDaysSelectorSelectedCount": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "plural": {"type": "String"}
+    }
+  },
+  "weeklyDaysSelectorContinue": "Continuar",
+  "weeklyDaysSelectorSelectAtLeastOne": "Selecciona almenys un dia de la setmana",
+  "weeklyDayMonday": "Dilluns",
+  "weeklyDayTuesday": "Dimarts",
+  "weeklyDayWednesday": "Dimecres",
+  "weeklyDayThursday": "Dijous",
+  "weeklyDayFriday": "Divendres",
+  "weeklyDaySaturday": "Dissabte",
+  "weeklyDaySunday": "Diumenge",
+
+  "@_ADDITIONAL_LABELS": {},
+  "dateFromLabel": "Des de",
+  "dateToLabel": "Fins a",
+  "statisticsTitle": "Estadístiques",
+  "adherenceLabel": "Adherència",
+  "emptyDosesWithFilters": "No hi ha preses amb aquests filtres",
+  "emptyDoses": "No hi ha preses registrades",
+  "permissionRequired": "Permís necessari",
+  "notNowButton": "Ara no",
+  "openSettingsButton": "Obrir configuració",
+  "medicationUpdatedMsg": "{name} actualitzat",
+  "@medicationUpdatedMsg": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noScheduledTimes": "Aquest medicament no té horaris configurats",
+  "allDosesTakenToday": "Ja has pres totes les dosis d'avui",
+  "registerDoseOfMedication": "Registrar presa de {name}",
+  "@registerDoseOfMedication": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "refillMedicationTitle": "Recarregar {name}",
+  "@refillMedicationTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "doseRegisteredAt": "Registrada a les {time}",
+  "@doseRegisteredAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "statusUpdatedTo": "Estat actualitzat a: {status}",
+  "@statusUpdatedTo": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "dateLabel": "Data:",
+  "scheduledTimeLabel": "Hora programada:",
+  "currentStatusLabel": "Estat actual:",
+  "changeStatusToQuestion": "Canviar estat a:",
+  "filterApplied": "Filtre aplicat",
+  "filterFrom": "Des de {date}",
+  "@filterFrom": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "filterTo": "Fins a {date}",
+  "@filterTo": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "insufficientStockForDose": "No hi ha prou estoc per marcar com a presa"
+}

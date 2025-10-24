@@ -1,0 +1,839 @@
+{
+  "@@locale": "eu",
+
+  "@_NAVIGATION": {},
+  "appTitle": "MedicApp",
+  "navMedication": "Medikuntza",
+  "navPillOrganizer": "Pilula-kutxa",
+  "navMedicineCabinet": "Botikina",
+  "navHistory": "Historia",
+
+  "@_COMMON_BUTTONS": {},
+  "btnContinue": "Jarraitu",
+  "btnBack": "Atzera",
+  "btnSave": "Gorde",
+  "btnCancel": "Ezeztatu",
+  "btnDelete": "Ezabatu",
+  "btnEdit": "Editatu",
+  "btnClose": "Itxi",
+  "btnConfirm": "Baieztatu",
+  "btnAccept": "Onartu",
+
+  "@_MEDICATION_TYPES": {},
+  "medicationTypePill": "Pilula",
+  "medicationTypeCapsule": "Kapsula",
+  "medicationTypeTablet": "Comprimido",
+  "medicationTypeSyrup": "Xarabe",
+  "medicationTypeDrops": "Tantak",
+  "medicationTypeInjection": "Injekzioa",
+  "medicationTypePatch": "Parche",
+  "medicationTypeInhaler": "Inhaladorea",
+  "medicationTypeCream": "Krema",
+  "medicationTypeOther": "Beste bat",
+
+  "@_DOSE_STATUS": {},
+  "doseStatusTaken": "Hartua",
+  "doseStatusSkipped": "Omitua",
+  "doseStatusPending": "Zain",
+
+  "@_TREATMENT_DURATION": {},
+  "durationEtengabeaus": "Etengabea",
+  "durationSpecificDates": "Fechas zehatzak",
+  "durationAsNeeded": "Según beharren arabera",
+
+  "@_MAIN_SCREEN": {},
+  "mainScreenTitle": "Nire medikamentuak",
+  "mainScreenEmptyTitle": "Ez dago medikamenturik registrados",
+  "mainScreenEmptySubtitle": "Gehitu medikamentuak usando el botón +",
+  "mainScreenTodayDoses": "Gaurko hartzeak",
+  "mainScreenNoMedications": "No tienes medicamentos activos",
+
+  "@_COMMON_MESSAGES": {},
+  "msgMedicationAdded": "Medicamento ongi gehitu da",
+  "msgMedicationUpdated": "Medicamento actualizado correctamente",
+  "msgMedicationDeleted": "{name} ongi ezabatu da",
+  "@msgMedicationDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "@_VALIDATION": {},
+  "validationRequired": "Eremu hau nahitaezkoa da",
+  "validationDuplicateMedication": "Este medicamento dagoeneko zure zerrendan dago",
+  "validationInvalidNumber": "Sartu zenbaki baliozkoa",
+  "validationMinValue": "El valor debe ser mayor que {min}",
+  "@validationMinValue": {
+    "placeholders": {
+      "min": {
+        "type": "num"
+      }
+    }
+  },
+
+  "@_PILL_ORGANIZER_SCREEN": {},
+  "pillOrganizerTitle": "Pilula-kutxa",
+  "pillOrganizerTotal": "Total",
+  "pillOrganizerLowStock": "Stock baxua",
+  "pillOrganizerNoStock": "Stockik gabe",
+  "pillOrganizerAvailableStock": "Stock disponible",
+  "pillOrganizerMedicationsTitle": "Medicamentos",
+  "pillOrganizerEmptyTitle": "Ez dago medikamenturik registrados",
+  "pillOrganizerEmptySubtitle": "Gehitu medikamentuak para ver tu pastillero",
+  "pillOrganizerCurrentStock": "Stock actual",
+  "pillOrganizerEstimatedDuration": "Duración estimada",
+  "pillOrganizerDays": "egun",
+
+  "@_MEDICINE_CABINET_SCREEN": {},
+  "medicineCabinetTitle": "Botikina",
+  "medicineCabinetSearchHint": "Bilatu medikamentua...",
+  "medicineCabinetEmptyTitle": "Ez dago medikamenturik registrados",
+  "medicineCabinetEmptySubtitle": "Gehitu medikamentuak para ver tu botiquín",
+  "medicineCabinetPullToRefresh": "Arrastra hacia abajo para recargar",
+  "medicineCabinetNoResults": "No se encontraron medicamentos",
+  "medicineCabinetNoResultsHint": "Prueba con otro término de búsqueda",
+  "medicineCabinetStock": "Stock:",
+  "medicineCabinetSuspended": "Suspendido",
+  "medicineCabinetTapToRegister": "Toca para registrar",
+  "medicineCabinetResumeMedication": "Berriz hasi medikuntza",
+  "medicineCabinetRegisterDose": "Erregistratu hartzea",
+  "medicineCabinetRefillMedication": "Kargatu medikamentua",
+  "medicineCabinetEditMedication": "Editatu medicamento",
+  "medicineCabinetDeleteMedication": "Ezabatu medicamento",
+  "medicineCabinetRefillTitle": "Recargar {name}",
+  "@medicineCabinetRefillTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetRegisterDoseTitle": "Erregistratu hartzea de {name}",
+  "@medicineCabinetRegisterDoseTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetCurrentStock": "Stock actual:",
+  "medicineCabinetAddQuantity": "Kantitatea a añadir:",
+  "medicineCabinetAddQuantityLabel": "Kantitatea a agregar",
+  "medicineCabinetExample": "Ej:",
+  "medicineCabinetLastRefill": "Última recarga:",
+  "medicineCabinetRefillButton": "Recargar",
+  "medicineCabinetAvailableStock": "Stock disponible:",
+  "medicineCabinetDoseTaken": "Kantitatea tomada",
+  "medicineCabinetRegisterButton": "Registrar",
+  "medicineCabinetNewStock": "Nuevo stock:",
+  "medicineCabinetDeleteConfirmTitle": "Ezabatu medicamento",
+  "medicineCabinetDeleteConfirmMessage": "¿Estás seguro de que deseas eliminar \"{name}\"?\n\nEsta acción no se puede deshacer y se perderá todo el historial de este medicamento.",
+  "@medicineCabinetDeleteConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetNoStockAvailable": "No hay stock disponible de este medicamento",
+  "medicineCabinetInsufficientStock": "Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}",
+  "@medicineCabinetInsufficientStock": {
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "available": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetRefillSuccess": "Stock de {name} recargado\nAgregado: {amount} {unit}\nNuevo stock: {newStock}",
+  "@medicineCabinetRefillSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "newStock": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetDoseRegistered": "Toma de {name} registrada\nKantitatea: {amount} {unit}\nStock restante: {remaining}",
+  "@medicineCabinetDoseRegistered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetDeleteSuccess": "{name} ongi ezabatu da",
+  "@medicineCabinetDeleteSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicineCabinetResumeSuccess": "{name} reanudado correctamente\nNotificaciones reprogramadas",
+  "@medicineCabinetResumeSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "@_DOSE_HISTORY_SCREEN": {},
+  "doseHistoryTitle": "Historia de Tomas",
+  "doseHistoryFilterTitle": "Filtrar historial",
+  "doseHistoryMedicationLabel": "Medicamento:",
+  "doseHistoryAllMedications": "Todos los medicamentos",
+  "doseHistoryDateRangeLabel": "Rango de fechas:",
+  "doseHistoryClearDates": "Limpiar fechas",
+  "doseHistoryApply": "Aplicar",
+  "doseHistoryTotal": "Total",
+  "doseHistoryTaken": "Hartuas",
+  "doseHistorySkipped": "Omituas",
+  "doseHistoryClear": "Limpiar",
+  "doseHistoryEditEntry": "Editatu registro de {name}",
+  "@doseHistoryEditEntry": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "doseHistoryScheduledTime": "Ordua programada:",
+  "doseHistoryActualTime": "Ordua real:",
+  "doseHistoryStatus": "Estado:",
+  "doseHistoryMarkAsSkipped": "Marcar como Omitua",
+  "doseHistoryMarkAsTaken": "Marcar como Hartua",
+  "doseHistoryConfirmDelete": "Baieztatu eliminación",
+  "doseHistoryConfirmDeleteMessage": "¿Estás seguro de que quieres eliminar este registro?",
+  "doseHistoryRecordDeleted": "Registro ongi ezabatu da",
+  "doseHistoryDeleteErrorea": "Errorea al eliminar: {error}",
+  "@doseHistoryDeleteErrorea": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "addMedicationTitle": "Añadir Medicamento",
+  "stepIndicator": "Paso {current} de {total}",
+  "@stepIndicator": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+
+  "medicationInfoTitle": "Informazioa del medicamento",
+  "medicationInfoSubtitle": "Comienza proporcionando el nombre y tipo de medicamento",
+  "medicationNameLabel": "Izena del medicamento",
+  "medicationNameHint": "Ej: Paracetamol",
+  "medicationTypeLabel": "Mota de medicamento",
+  "validationMedicationName": "Por favor, introduce el nombre del medicamento",
+
+  "medicationDurationTitle": "Mota de Tratamendua",
+  "medicationDurationSubtitle": "¿Cómo vas a tomar este medicamento?",
+  "durationEtengabeausTitle": "Tratamendua continuo",
+  "durationEtengabeausDesc": "Todos los egun, con patrón regular",
+  "durationUntilEmptyTitle": "Hasta acabar medicación",
+  "durationUntilEmptyDesc": "Termina cuando se acabe el stock",
+  "durationSpecificDatesTitle": "Fechas zehatzak",
+  "durationSpecificDatesDesc": "Solo egun concretos seleccionados",
+  "durationAsNeededTitle": "Medicamento ocasional",
+  "durationAsNeededDesc": "Solo cuando sea necesario, sin horarios",
+  "selectDatesButton": "Seleccionar fechas",
+  "selectDatesTitle": "Selecciona las fechas",
+  "selectDatesSubtitle": "Elige los egun exactos en los que tomarás el medicamento",
+  "dateSelected": "{count, plural, =1{1 fecha seleccionada} other{{count} fechas seleccionadas}}",
+  "@dateSelected": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "validationSelectDates": "Por favor, selecciona al menos una fecha",
+
+  "medicationDatesTitle": "Fechas del Tratamendua",
+  "medicationDatesSubtitle": "¿Cuándo comenzarás y terminarás este tratamiento?",
+  "medicationDatesHelp": "Ambas fechas son opcionales. Si no las estableces, el tratamiento comenzará hoy y no tendrá fecha límite.",
+  "startDateLabel": "Fecha de inicio",
+  "startDateOptional": "Opcional",
+  "startDateDefault": "Empieza hoy",
+  "endDateLabel": "Fecha de fin",
+  "endDateDefault": "Sin fecha límite",
+  "startDatePickerTitle": "Fecha de inicio del tratamiento",
+  "endDatePickerTitle": "Fecha de fin del tratamiento",
+  "startTodayButton": "Empezar hoy",
+  "noEndDateButton": "Sin fecha límite",
+  "treatmentDuration": "Tratamendua de {days} egun",
+  "@treatmentDuration": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+
+  "medicationFrequencyTitle": "Maiztasuna de Medikuntza",
+  "medicationFrequencySubtitle": "Cada cuántos egun debes tomar este medicamento",
+  "frequencyDailyTitle": "Todos los egun",
+  "frequencyDailyDesc": "Medikuntza diaria continua",
+  "frequencyAlternateTitle": "Días alternos",
+  "frequencyAlternateDesc": "Cada 2 egun desde el inicio del tratamiento",
+  "frequencyWeeklyTitle": "Días de la semana específicos",
+  "frequencyWeeklyDesc": "Selecciona qué egun tomar el medicamento",
+  "selectWeeklyDaysButton": "Seleccionar egun",
+  "selectWeeklyDaysTitle": "Días de la semana",
+  "selectWeeklyDaysSubtitle": "Selecciona los egun específicos en los que tomarás el medicamento",
+  "daySelected": "{count, plural, =1{1 día seleccionado} other{{count} egun seleccionados}}",
+  "@daySelected": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "validationSelectWeekdays": "Por favor, selecciona los egun de la semana",
+
+  "medicationDosageTitle": "Configuración de Dosis",
+  "medicationDosageSubtitle": "¿Cómo prefieres configurar las dosis diarias?",
+  "dosageFixedTitle": "Todos los egun igual",
+  "dosageFixedDesc": "Especifica cada cuántas ordu tomar el medicamento",
+  "dosageCustomTitle": "Personalizado",
+  "dosageCustomDesc": "Define el número de tomas por día",
+  "dosageIntervalLabel": "Intervalo entre tomas",
+  "dosageIntervalHelp": "El intervalo debe dividir 24 exactamente",
+  "dosageIntervalFieldLabel": "Cada cuántas ordu",
+  "dosageIntervalHint": "Ej: 8",
+  "dosageIntervalUnit": "ordu",
+  "dosageIntervalValidValues": "Valores válidos: 1, 2, 3, 4, 6, 8, 12, 24",
+  "dosageTimesLabel": "Número de tomas al día",
+  "dosageTimesHelp": "Define cuántas veces al día tomarás el medicamento",
+  "dosageTimesFieldLabel": "Tomas por día",
+  "dosageTimesHint": "Ej: 3",
+  "dosageTimesUnit": "tomas",
+  "dosageTimesDescription": "Número total de tomas diarias",
+  "dosesPerDay": "Tomas por día",
+  "doseCount": "{count, plural, =1{1 toma} other{{count} tomas}}",
+  "@doseCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "validationInvalidInterval": "Por favor, introduce un intervalo válido",
+  "validationIntervalTooLarge": "El intervalo no puede ser mayor a 24 ordu",
+  "validationIntervalNotDivisor": "El intervalo debe dividir 24 exactamente (1, 2, 3, 4, 6, 8, 12, 24)",
+  "validationInvalidDoseCount": "Por favor, introduce un número de tomas válido",
+  "validationTooManyDoses": "No puedes tomar más de 24 dosis al día",
+
+  "medicationTimesTitle": "Orduario de Tomas",
+  "dosesPerDayLabel": "Tomas al día: {count}",
+  "@dosesPerDayLabel": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "frequencyEveryHours": "Maiztasuna: Cada {hours} ordu",
+  "@frequencyEveryHours": {
+    "placeholders": {
+      "hours": {"type": "int"}
+    }
+  },
+  "selectTimeAndAmount": "Selecciona la hora y cantidad de cada toma",
+  "doseNumber": "Toma {number}",
+  "@doseNumber": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "selectTimeButton": "Seleccionar hora",
+  "amountPerDose": "Kantitatea por toma",
+  "amountHint": "Ej: 1, 0.5, 2",
+  "removeDoseButton": "Ezabatu toma",
+  "validationSelectAllTimes": "Por favor, selecciona todas las ordu de las tomas",
+  "validationEnterValidAmounts": "Por favor, ingresa cantidades válidas (mayores a 0)",
+  "validationDuplicateTimes": "Las ordu de las tomas no pueden repetirse",
+  "validationAtLeastOneDose": "Debe haber al menos una toma al día",
+
+  "medicationFastingTitle": "Configuración de Baraualdi",
+  "fastingLabel": "Baraualdi",
+  "fastingHelp": "Algunos medicamentos requieren baraualdi antes o después de la toma",
+  "requiresFastingQuestion": "¿Este medicamento requiere baraualdi?",
+  "fastingNo": "No",
+  "fastingYes": "Sí",
+  "fastingWhenQuestion": "¿Cuándo es el baraualdi?",
+  "fastingBefore": "Antes de la toma",
+  "fastingAfter": "Después de la toma",
+  "fastingDurationQuestion": "¿Cuánto tiempo de baraualdi?",
+  "fastingHours": "Orduas",
+  "fastingMinutes": "Minutos",
+  "fastingNotificationsQuestion": "¿Deseas recibir notificaciones de baraualdi?",
+  "fastingNotificationBeforeHelp": "Te notificaremos cuándo debes dejar de comer antes de la toma",
+  "fastingNotificationAfterHelp": "Te notificaremos cuándo puedes volver a comer después de la toma",
+  "fastingNotificationsOn": "Notificaciones activadas",
+  "fastingNotificationsOff": "Notificaciones desactivadas",
+  "validationCompleteAllFields": "Por favor, completa todos los campos",
+  "validationSelectFastingWhen": "Por favor, selecciona cuándo es el baraualdi",
+  "validationFastingDuration": "La duración del baraualdi debe ser al menos 1 minuto",
+
+  "medicationQuantityTitle": "Kantitatea de Medicamento",
+  "medicationQuantitySubtitle": "Establece la cantidad disponible y cuándo deseas recibir alertas",
+  "availableQuantityLabel": "Kantitatea disponible",
+  "availableQuantityHint": "Ej: 30",
+  "availableQuantityHelp": "Kantitatea de {unit} que tienes actualmente",
+  "@availableQuantityHelp": {
+    "placeholders": {
+      "unit": {"type": "String"}
+    }
+  },
+  "lowStockAlertLabel": "Avisar cuando queden",
+  "lowStockAlertHint": "Ej: 3",
+  "lowStockAlertUnit": "egun",
+  "lowStockAlertHelp": "Días de antelación para recibir la alerta de bajo stock",
+  "validationEnterQuantity": "Por favor, introduce la cantidad disponible",
+  "validationQuantityNonNegative": "La cantidad debe ser mayor o igual a 0",
+  "validationEnterAlertDays": "Por favor, introduce los egun de antelación",
+  "validationAlertMinDays": "Debe ser al menos 1 día",
+  "validationAlertMaxDays": "No puede ser mayor a 30 egun",
+  "summaryTitle": "Resumen",
+  "summaryMedication": "Medicamento",
+  "summaryType": "Mota",
+  "summaryDosesPerDay": "Tomas al día",
+  "summarySchedules": "Orduarios",
+  "summaryFrequency": "Maiztasuna",
+  "summaryFrequencyDaily": "Todos los egun",
+  "summaryFrequencyUntilEmpty": "Hasta acabar medicación",
+  "summaryFrequencySpecificDates": "{count} fechas zehatzak",
+  "@summaryFrequencySpecificDates": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "summaryFrequencyWeekdays": "{count} egun de la semana",
+  "@summaryFrequencyWeekdays": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "summaryFrequencyEveryNDays": "Cada {days} egun",
+  "@summaryFrequencyEveryNDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "summaryFrequencyAsNeeded": "Según beharren arabera",
+  "msgMedicationAddedSuccess": "{name} ongi gehitu da",
+  "@msgMedicationAddedSuccess": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "msgMedicationAddErrorea": "Errorea al guardar el medicamento: {error}",
+  "@msgMedicationAddErrorea": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "saveMedicationButton": "Gorde Medicamento",
+  "savingButton": "Guardando...",
+
+  "@_DOSE_ACTION_SCREEN": {},
+  "doseActionTitle": "Acción de Toma",
+  "doseActionLoading": "Cargando...",
+  "doseActionErrorea": "Errorea",
+  "doseActionMedicationNotFound": "Medicamento no encontrado",
+  "doseActionBack": "Volver",
+  "doseActionScheduledTime": "Ordua programada: {time}",
+  "@doseActionScheduledTime": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "doseActionThisDoseQuantity": "Kantitatea de esta toma",
+  "doseActionWhatToDo": "¿Qué deseas hacer?",
+  "doseActionRegisterTaken": "Erregistratu hartzea",
+  "doseActionWillDeductStock": "Descontará del stock",
+  "doseActionMarkAsNotTaken": "Marcar como no tomada",
+  "doseActionWillNotDeductStock": "No descontará del stock",
+  "doseActionPostpone15Min": "Posponer 15 minutos",
+  "doseActionQuickReminder": "Recordatorio rápido",
+  "doseActionPostponeCustom": "Posponer (elegir hora)",
+  "doseActionInsufficientStock": "Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}",
+  "@doseActionInsufficientStock": {
+    "placeholders": {
+      "needed": {"type": "String"},
+      "unit": {"type": "String"},
+      "available": {"type": "String"}
+    }
+  },
+  "doseActionTakenRegistered": "Toma de {name} registrada a las {time}\nStock restante: {stock}",
+  "@doseActionTakenRegistered": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"},
+      "stock": {"type": "String"}
+    }
+  },
+  "doseActionSkippedRegistered": "Toma de {name} marcada como no tomada a las {time}\nStock: {stock} (sin cambios)",
+  "@doseActionSkippedRegistered": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"},
+      "stock": {"type": "String"}
+    }
+  },
+  "doseActionPostponed": "Toma de {name} pospuesta\nNueva hora: {time}",
+  "@doseActionPostponed": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+  "doseActionPostponed15": "Toma de {name} pospuesta 15 minutos\nNueva hora: {time}",
+  "@doseActionPostponed15": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_MEDICATION_MENU": {},
+  "editMedicationMenuTitle": "Editatu Medicamento",
+  "editMedicationMenuWhatToEdit": "¿Qué deseas editar?",
+  "editMedicationMenuSelectSection": "Selecciona la sección que deseas modificar",
+  "editMedicationMenuBasicInfo": "Informazioa Básica",
+  "editMedicationMenuBasicInfoDesc": "Izena y tipo de medicamento",
+  "editMedicationMenuDuration": "Duración del Tratamendua",
+  "editMedicationMenuFrequency": "Maiztasuna",
+  "editMedicationMenuSchedules": "Orduarios y Kantitateaes",
+  "editMedicationMenuSchedulesDesc": "{count} tomas al día",
+  "@editMedicationMenuSchedulesDesc": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFasting": "Configuración de Baraualdi",
+  "editMedicationMenuQuantity": "Kantitatea Disponible",
+  "editMedicationMenuQuantityDesc": "{quantity} {unit}",
+  "@editMedicationMenuQuantityDesc": {
+    "placeholders": {
+      "quantity": {"type": "String"},
+      "unit": {"type": "String"}
+    }
+  },
+  "editMedicationMenuFreqEveryday": "Todos los egun",
+  "editMedicationMenuFreqUntilFinished": "Hasta acabar medicación",
+  "editMedicationMenuFreqSpecificDates": "{count} fechas zehatzak",
+  "@editMedicationMenuFreqSpecificDates": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFreqWeeklyDays": "{count} egun de la semana",
+  "@editMedicationMenuFreqWeeklyDays": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFreqInterval": "Cada {interval} egun",
+  "@editMedicationMenuFreqInterval": {
+    "placeholders": {
+      "interval": {"type": "int"}
+    }
+  },
+  "editMedicationMenuFreqNotDefined": "Maiztasuna no definida",
+  "editMedicationMenuFastingNone": "Sin baraualdi",
+  "editMedicationMenuFastingDuration": "Baraualdi {duration} {type}",
+  "@editMedicationMenuFastingDuration": {
+    "placeholders": {
+      "duration": {"type": "String"},
+      "type": {"type": "String"}
+    }
+  },
+  "editMedicationMenuFastingBefore": "antes",
+  "editMedicationMenuFastingAfter": "después",
+
+  "@_EDIT_BASIC_INFO": {},
+  "editBasicInfoTitle": "Editatu Informazioa Básica",
+  "editBasicInfoUpdated": "Informazioa actualizada correctamente",
+  "editBasicInfoSaving": "Guardando...",
+  "editBasicInfoSaveChanges": "Gorde Cambios",
+  "editBasicInfoErrorea": "Errorea al guardar cambios: {error}",
+  "@editBasicInfoErrorea": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_DURATION": {},
+  "editDurationTitle": "Editatu Duración",
+  "editDurationTypeLabel": "Mota de duración",
+  "editDurationCurrentType": "Mota actual: {type}",
+  "@editDurationCurrentType": {
+    "placeholders": {
+      "type": {"type": "String"}
+    }
+  },
+  "editDurationChangeTypeInfo": "Para cambiar el tipo de duración, edita la sección de \"Maiztasuna\"",
+  "editDurationTreatmentDates": "Fechas del tratamiento",
+  "editDurationStartDate": "Fecha de inicio",
+  "editDurationEndDate": "Fecha de fin",
+  "editDurationNotSelected": "No seleccionada",
+  "editDurationDays": "Duración: {days} egun",
+  "@editDurationDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "editDurationSelectDates": "Por favor, selecciona las fechas de inicio y fin",
+  "editDurationUpdated": "Duración actualizada correctamente",
+  "editDurationErrorea": "Errorea al guardar cambios: {error}",
+  "@editDurationErrorea": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_FASTING": {},
+  "editFastingTitle": "Editatu Configuración de Baraualdi",
+  "editFastingCompleteFields": "Por favor, completa todos los campos",
+  "editFastingSelectWhen": "Por favor, selecciona cuándo es el baraualdi",
+  "editFastingMinDuration": "La duración del baraualdi debe ser al menos 1 minuto",
+  "editFastingUpdated": "Configuración de baraualdi actualizada correctamente",
+  "editFastingErrorea": "Errorea al guardar cambios: {error}",
+  "@editFastingErrorea": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_FREQUENCY": {},
+  "editFrequencyTitle": "Editatu Maiztasuna",
+  "editFrequencyPattern": "Patrón de frecuencia",
+  "editFrequencyQuestion": "¿Con qué frecuencia tomarás este medicamento?",
+  "editFrequencyEveryday": "Todos los egun",
+  "editFrequencyEverydayDesc": "Tomar el medicamento diariamente",
+  "editFrequencyUntilFinished": "Hasta acabar",
+  "editFrequencyUntilFinishedDesc": "Hasta que se termine el medicamento",
+  "editFrequencySpecificDates": "Fechas zehatzak",
+  "editFrequencySpecificDatesDesc": "Seleccionar fechas concretas",
+  "editFrequencyWeeklyDays": "Días de la semana",
+  "editFrequencyWeeklyDaysDesc": "Seleccionar egun específicos cada semana",
+  "editFrequencyAlternateDays": "Días alternos",
+  "editFrequencyAlternateDaysDesc": "Cada 2 egun desde el inicio del tratamiento",
+  "editFrequencyCustomInterval": "Intervalo personalizado",
+  "editFrequencyCustomIntervalDesc": "Cada N egun desde el inicio",
+  "editFrequencySelectedDates": "Fechas seleccionadas",
+  "editFrequencyDatesCount": "{count} fechas seleccionadas",
+  "@editFrequencyDatesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editFrequencyNoDatesSelected": "Ninguna fecha seleccionada",
+  "editFrequencySelectDatesButton": "Seleccionar fechas",
+  "editFrequencyWeeklyDaysLabel": "Días de la semana",
+  "editFrequencyWeeklyDaysCount": "{count} egun seleccionados",
+  "@editFrequencyWeeklyDaysCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editFrequencyNoDaysSelected": "Ningún día seleccionado",
+  "editFrequencySelectDaysButton": "Seleccionar egun",
+  "editFrequencyIntervalLabel": "Intervalo de egun",
+  "editFrequencyIntervalField": "Cada cuántos egun",
+  "editFrequencyIntervalHint": "Ej: 3",
+  "editFrequencyIntervalHelp": "Debe ser al menos 2 egun",
+  "editFrequencySelectAtLeastOneDate": "Por favor, selecciona al menos una fecha",
+  "editFrequencySelectAtLeastOneDay": "Por favor, selecciona al menos un día de la semana",
+  "editFrequencyIntervalMin": "El intervalo debe ser al menos 2 egun",
+  "editFrequencyUpdated": "Maiztasuna actualizada correctamente",
+  "editFrequencyErrorea": "Errorea al guardar cambios: {error}",
+  "@editFrequencyErrorea": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_QUANTITY": {},
+  "editQuantityTitle": "Editatu Kantitatea",
+  "editQuantityMedicationLabel": "Kantitatea de medicamento",
+  "editQuantityDescription": "Establece la cantidad disponible y cuándo deseas recibir alertas",
+  "editQuantityAvailableLabel": "Kantitatea disponible",
+  "editQuantityAvailableHelp": "Kantitatea de {unit} que tienes actualmente",
+  "@editQuantityAvailableHelp": {
+    "placeholders": {
+      "unit": {"type": "String"}
+    }
+  },
+  "editQuantityValidationRequired": "Por favor, introduce la cantidad disponible",
+  "editQuantityValidationMin": "La cantidad debe ser mayor o igual a 0",
+  "editQuantityThresholdLabel": "Avisar cuando queden",
+  "editQuantityThresholdHelp": "Días de antelación para recibir la alerta de bajo stock",
+  "editQuantityThresholdValidationRequired": "Por favor, introduce los egun de antelación",
+  "editQuantityThresholdValidationMin": "Debe ser al menos 1 día",
+  "editQuantityThresholdValidationMax": "No puede ser mayor a 30 egun",
+  "editQuantityUpdated": "Kantitatea actualizada correctamente",
+  "editQuantityErrorea": "Errorea al guardar cambios: {error}",
+  "@editQuantityErrorea": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "@_EDIT_SCHEDULE": {},
+  "editScheduleTitle": "Editatu Orduarios",
+  "editScheduleAddDose": "Añadir toma",
+  "editScheduleValidationQuantities": "Por favor, ingresa cantidades válidas (mayores a 0)",
+  "editScheduleValidationDuplicates": "Las ordu de las tomas no pueden repetirse",
+  "editScheduleUpdated": "Orduarios actualizados correctamente",
+  "editScheduleErrorea": "Errorea al guardar cambios: {error}",
+  "@editScheduleErrorea": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "editScheduleDosesPerDay": "Tomas al día: {count}",
+  "@editScheduleDosesPerDay": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "editScheduleAdjustTimeAndQuantity": "Ajusta la hora y cantidad de cada toma",
+
+  "@_SPECIFIC_DATES_SELECTOR": {},
+  "specificDatesSelectorTitle": "Fechas zehatzak",
+  "specificDatesSelectorSelectDates": "Selecciona fechas",
+  "specificDatesSelectorDescription": "Elige las fechas zehatzak en las que tomarás este medicamento",
+  "specificDatesSelectorAddDate": "Añadir fecha",
+  "specificDatesSelectorSelectedDates": "Fechas seleccionadas ({count})",
+  "@specificDatesSelectorSelectedDates": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "specificDatesSelectorToday": "HOY",
+  "specificDatesSelectorContinue": "Jarraitu",
+  "specificDatesSelectorAlreadySelected": "Esta fecha ya está seleccionada",
+  "specificDatesSelectorSelectAtLeastOne": "Selecciona al menos una fecha",
+  "specificDatesSelectorPickerHelp": "Selecciona una fecha",
+  "specificDatesSelectorPickerCancel": "Ezeztatu",
+  "specificDatesSelectorPickerConfirm": "Onartu",
+
+  "@_WEEKLY_DAYS_SELECTOR": {},
+  "weeklyDaysSelectorTitle": "Días de la semana",
+  "weeklyDaysSelectorSelectDays": "Selecciona los egun",
+  "weeklyDaysSelectorDescription": "Elige qué egun de la semana tomarás este medicamento",
+  "weeklyDaysSelectorSelectedCount": "{count} día{plural} seleccionado{plural}",
+  "@weeklyDaysSelectorSelectedCount": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "plural": {"type": "String"}
+    }
+  },
+  "weeklyDaysSelectorContinue": "Jarraitu",
+  "weeklyDaysSelectorSelectAtLeastOne": "Selecciona al menos un día de la semana",
+  "weeklyDayMonday": "Astelehena",
+  "weeklyDayTuesday": "Asteartea",
+  "weeklyDayWednesday": "Asteazkena",
+  "weeklyDayThursday": "Osteguna",
+  "weeklyDayFriday": "Ostirala",
+  "weeklyDaySaturday": "Larunbata",
+  "weeklyDaySunday": "Igandea",
+
+  "@_ADDITIONAL_LABELS": {},
+  "dateFromLabel": "Desde",
+  "dateToLabel": "Hasta",
+  "statisticsTitle": "Estadísticas",
+  "adherenceLabel": "Adherencia",
+  "emptyDosesWithFilters": "No hay tomas con estos filtros",
+  "emptyDoses": "No hay tomas registradas",
+  "permissionRequired": "Permiso necesario",
+  "notNowButton": "Ahora no",
+  "openSettingsButton": "Abrir ajustes",
+  "medicationUpdatedMsg": "{name} actualizado",
+  "@medicationUpdatedMsg": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noScheduledTimes": "Este medicamento no tiene horarios configurados",
+  "allDosesTakenToday": "Ya has tomado todas las dosis de hoy",
+  "registerDoseOfMedication": "Erregistratu hartzea de {name}",
+  "@registerDoseOfMedication": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "refillMedicationTitle": "Recargar {name}",
+  "@refillMedicationTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "doseRegisteredAt": "Registrada a las {time}",
+  "@doseRegisteredAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "statusUpdatedTo": "Estado actualizado a: {status}",
+  "@statusUpdatedTo": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "dateLabel": "Fecha:",
+  "scheduledTimeLabel": "Ordua programada:",
+  "currentStatusLabel": "Estado actual:",
+  "changeStatusToQuestion": "¿Cambiar estado a:",
+  "filterApplied": "Filtro aplicado",
+  "filterFrom": "Desde {date}",
+  "@filterFrom": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "filterTo": "Hasta {date}",
+  "@filterTo": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "insufficientStockForDose": "No hay suficiente stock para marcar como tomada"
+}

@@ -4,9 +4,9 @@ import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
-/// The translations for Spanish Castilian (`es`).
-class AppLocalizationsEs extends AppLocalizations {
-  AppLocalizationsEs([String locale = 'es']) : super(locale);
+/// The translations for Galician (`gl`).
+class AppLocalizationsGl extends AppLocalizations {
+  AppLocalizationsGl([String locale = 'gl']) : super(locale);
 
   @override
   String get appTitle => 'MedicApp';
@@ -15,7 +15,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get navMedication => 'Medicación';
 
   @override
-  String get navPillOrganizer => 'Pastillero';
+  String get navPillOrganizer => 'Pastilleiro';
 
   @override
   String get navMedicineCabinet => 'Botiquín';
@@ -30,7 +30,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get btnBack => 'Atrás';
 
   @override
-  String get btnSave => 'Guardar';
+  String get btnSave => 'Gardar';
 
   @override
   String get btnCancel => 'Cancelar';
@@ -42,7 +42,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get btnEdit => 'Editar';
 
   @override
-  String get btnClose => 'Cerrar';
+  String get btnClose => 'Pechar';
 
   @override
   String get btnConfirm => 'Confirmar';
@@ -93,25 +93,25 @@ class AppLocalizationsEs extends AppLocalizations {
   String get durationContinuous => 'Continuo';
 
   @override
-  String get durationSpecificDates => 'Fechas específicas';
+  String get durationSpecificDates => 'Datas específicas';
 
   @override
-  String get durationAsNeeded => 'Según necesidad';
+  String get durationAsNeeded => 'Segundo necesidade';
 
   @override
-  String get mainScreenTitle => 'Mis Medicamentos';
+  String get mainScreenTitle => 'Os meus medicamentos';
 
   @override
-  String get mainScreenEmptyTitle => 'No hay medicamentos registrados';
+  String get mainScreenEmptyTitle => 'Non hai medicamentos rexistrados';
 
   @override
   String get mainScreenEmptySubtitle => 'Añade medicamentos usando el botón +';
 
   @override
-  String get mainScreenTodayDoses => 'Tomas de hoy';
+  String get mainScreenTodayDoses => 'Tomas de hoxe';
 
   @override
-  String get mainScreenNoMedications => 'No tienes medicamentos activos';
+  String get mainScreenNoMedications => 'Non tes medicamentos activos';
 
   @override
   String get msgMedicationAdded => 'Medicamento añadido correctamente';
@@ -125,7 +125,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get validationRequired => 'Este campo es obligatorio';
+  String get validationRequired => 'Este campo é obrigatorio';
 
   @override
   String get validationDuplicateMedication => 'Este medicamento ya existe en tu lista';
@@ -139,16 +139,16 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get pillOrganizerTitle => 'Pastillero';
+  String get pillOrganizerTitle => 'Pastilleiro';
 
   @override
   String get pillOrganizerTotal => 'Total';
 
   @override
-  String get pillOrganizerLowStock => 'Stock bajo';
+  String get pillOrganizerLowStock => 'Stock baixo';
 
   @override
-  String get pillOrganizerNoStock => 'Sin stock';
+  String get pillOrganizerNoStock => 'Sen stock';
 
   @override
   String get pillOrganizerAvailableStock => 'Stock disponible';
@@ -157,7 +157,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pillOrganizerMedicationsTitle => 'Medicamentos';
 
   @override
-  String get pillOrganizerEmptyTitle => 'No hay medicamentos registrados';
+  String get pillOrganizerEmptyTitle => 'Non hai medicamentos rexistrados';
 
   @override
   String get pillOrganizerEmptySubtitle => 'Añade medicamentos para ver tu pastillero';
@@ -178,7 +178,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get medicineCabinetSearchHint => 'Buscar medicamento...';
 
   @override
-  String get medicineCabinetEmptyTitle => 'No hay medicamentos registrados';
+  String get medicineCabinetEmptyTitle => 'Non hai medicamentos rexistrados';
 
   @override
   String get medicineCabinetEmptySubtitle => 'Añade medicamentos para ver tu botiquín';
@@ -187,7 +187,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get medicineCabinetPullToRefresh => 'Arrastra hacia abajo para recargar';
 
   @override
-  String get medicineCabinetNoResults => 'No se encontraron medicamentos';
+  String get medicineCabinetNoResults => 'Non se atoparon medicamentos';
 
   @override
   String get medicineCabinetNoResultsHint => 'Prueba con otro término de búsqueda';
@@ -205,7 +205,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get medicineCabinetResumeMedication => 'Reanudar medicación';
 
   @override
-  String get medicineCabinetRegisterDose => 'Registrar toma';
+  String get medicineCabinetRegisterDose => 'Rexistrar toma';
 
   @override
   String get medicineCabinetRefillMedication => 'Recargar medicamento';
@@ -293,7 +293,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get doseHistoryTitle => 'Historial de Tomas';
+  String get doseHistoryTitle => 'Historial de tomas';
 
   @override
   String get doseHistoryFilterTitle => 'Filtrar historial';
@@ -302,13 +302,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get doseHistoryMedicationLabel => 'Medicamento:';
 
   @override
-  String get doseHistoryAllMedications => 'Todos los medicamentos';
+  String get doseHistoryAllMedications => 'Todos os medicamentos';
 
   @override
   String get doseHistoryDateRangeLabel => 'Rango de fechas:';
 
   @override
-  String get doseHistoryClearDates => 'Limpiar fechas';
+  String get doseHistoryClearDates => 'Limpar datas';
 
   @override
   String get doseHistoryApply => 'Aplicar';
@@ -368,13 +368,13 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get medicationInfoTitle => 'Información del medicamento';
+  String get medicationInfoTitle => 'Información do medicamento';
 
   @override
   String get medicationInfoSubtitle => 'Comienza proporcionando el nombre y tipo de medicamento';
 
   @override
-  String get medicationNameLabel => 'Nombre del medicamento';
+  String get medicationNameLabel => 'Nome do medicamento';
 
   @override
   String get medicationNameHint => 'Ej: Paracetamol';
@@ -392,19 +392,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get medicationDurationSubtitle => '¿Cómo vas a tomar este medicamento?';
 
   @override
-  String get durationContinuousTitle => 'Tratamiento continuo';
+  String get durationContinuousTitle => 'Tratamento continuo';
 
   @override
   String get durationContinuousDesc => 'Todos los días, con patrón regular';
 
   @override
-  String get durationUntilEmptyTitle => 'Hasta acabar medicación';
+  String get durationUntilEmptyTitle => 'Ata acabar medicación';
 
   @override
   String get durationUntilEmptyDesc => 'Termina cuando se acabe el stock';
 
   @override
-  String get durationSpecificDatesTitle => 'Fechas específicas';
+  String get durationSpecificDatesTitle => 'Datas específicas';
 
   @override
   String get durationSpecificDatesDesc => 'Solo días concretos seleccionados';
@@ -480,13 +480,13 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get medicationFrequencyTitle => 'Frecuencia de Medicación';
+  String get medicationFrequencyTitle => 'Frecuencia de medicación';
 
   @override
   String get medicationFrequencySubtitle => 'Cada cuántos días debes tomar este medicamento';
 
   @override
-  String get frequencyDailyTitle => 'Todos los días';
+  String get frequencyDailyTitle => 'Todos os días';
 
   @override
   String get frequencyDailyDesc => 'Medicación diaria continua';
@@ -507,7 +507,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get selectWeeklyDaysButton => 'Seleccionar días';
 
   @override
-  String get selectWeeklyDaysTitle => 'Días de la semana';
+  String get selectWeeklyDaysTitle => 'Días da semana';
 
   @override
   String get selectWeeklyDaysSubtitle => 'Selecciona los días específicos en los que tomarás el medicamento';
@@ -610,7 +610,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get validationTooManyDoses => 'No puedes tomar más de 24 dosis al día';
 
   @override
-  String get medicationTimesTitle => 'Horario de Tomas';
+  String get medicationTimesTitle => 'Horario de tomas';
 
   @override
   String dosesPerDayLabel(int count) {
@@ -655,10 +655,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get validationAtLeastOneDose => 'Debe haber al menos una toma al día';
 
   @override
-  String get medicationFastingTitle => 'Configuración de Ayuno';
+  String get medicationFastingTitle => 'Configuración de xaxún';
 
   @override
-  String get fastingLabel => 'Ayuno';
+  String get fastingLabel => 'Xaxún';
 
   @override
   String get fastingHelp => 'Algunos medicamentos requieren ayuno antes o después de la toma';
@@ -721,7 +721,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get medicationQuantitySubtitle => 'Establece la cantidad disponible y cuándo deseas recibir alertas';
 
   @override
-  String get availableQuantityLabel => 'Cantidad disponible';
+  String get availableQuantityLabel => 'Cantidade dispoñible';
 
   @override
   String get availableQuantityHint => 'Ej: 30';
@@ -732,7 +732,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get lowStockAlertLabel => 'Avisar cuando queden';
+  String get lowStockAlertLabel => 'Avisar cando queden';
 
   @override
   String get lowStockAlertHint => 'Ej: 3';
@@ -777,10 +777,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get summaryFrequency => 'Frecuencia';
 
   @override
-  String get summaryFrequencyDaily => 'Todos los días';
+  String get summaryFrequencyDaily => 'Todos os días';
 
   @override
-  String get summaryFrequencyUntilEmpty => 'Hasta acabar medicación';
+  String get summaryFrequencyUntilEmpty => 'Ata acabar medicación';
 
   @override
   String summaryFrequencySpecificDates(int count) {
@@ -798,7 +798,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get summaryFrequencyAsNeeded => 'Según necesidad';
+  String get summaryFrequencyAsNeeded => 'Segundo necesidade';
 
   @override
   String msgMedicationAddedSuccess(String name) {
@@ -817,7 +817,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get savingButton => 'Guardando...';
 
   @override
-  String get doseActionTitle => 'Acción de Toma';
+  String get doseActionTitle => 'Acción de toma';
 
   @override
   String get doseActionLoading => 'Cargando...';
@@ -843,7 +843,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get doseActionWhatToDo => '¿Qué deseas hacer?';
 
   @override
-  String get doseActionRegisterTaken => 'Registrar toma';
+  String get doseActionRegisterTaken => 'Rexistrar toma';
 
   @override
   String get doseActionWillDeductStock => 'Descontará del stock';
@@ -898,19 +898,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get editMedicationMenuSelectSection => 'Selecciona la sección que deseas modificar';
 
   @override
-  String get editMedicationMenuBasicInfo => 'Información Básica';
+  String get editMedicationMenuBasicInfo => 'Información básica';
 
   @override
   String get editMedicationMenuBasicInfoDesc => 'Nombre y tipo de medicamento';
 
   @override
-  String get editMedicationMenuDuration => 'Duración del Tratamiento';
+  String get editMedicationMenuDuration => 'Duración do tratamento';
 
   @override
   String get editMedicationMenuFrequency => 'Frecuencia';
 
   @override
-  String get editMedicationMenuSchedules => 'Horarios y Cantidades';
+  String get editMedicationMenuSchedules => 'Horarios e cantidades';
 
   @override
   String editMedicationMenuSchedulesDesc(int count) {
@@ -918,7 +918,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get editMedicationMenuFasting => 'Configuración de Ayuno';
+  String get editMedicationMenuFasting => 'Configuración de xaxún';
 
   @override
   String get editMedicationMenuQuantity => 'Cantidad Disponible';
@@ -929,10 +929,10 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get editMedicationMenuFreqEveryday => 'Todos los días';
+  String get editMedicationMenuFreqEveryday => 'Todos os días';
 
   @override
-  String get editMedicationMenuFreqUntilFinished => 'Hasta acabar medicación';
+  String get editMedicationMenuFreqUntilFinished => 'Ata acabar medicación';
 
   @override
   String editMedicationMenuFreqSpecificDates(int count) {
@@ -976,7 +976,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get editBasicInfoSaving => 'Guardando...';
 
   @override
-  String get editBasicInfoSaveChanges => 'Guardar Cambios';
+  String get editBasicInfoSaveChanges => 'Gardar cambios';
 
   @override
   String editBasicInfoError(String error) {
@@ -1055,7 +1055,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get editFrequencyQuestion => '¿Con qué frecuencia tomarás este medicamento?';
 
   @override
-  String get editFrequencyEveryday => 'Todos los días';
+  String get editFrequencyEveryday => 'Todos os días';
 
   @override
   String get editFrequencyEverydayDesc => 'Tomar el medicamento diariamente';
@@ -1067,13 +1067,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get editFrequencyUntilFinishedDesc => 'Hasta que se termine el medicamento';
 
   @override
-  String get editFrequencySpecificDates => 'Fechas específicas';
+  String get editFrequencySpecificDates => 'Datas específicas';
 
   @override
   String get editFrequencySpecificDatesDesc => 'Seleccionar fechas concretas';
 
   @override
-  String get editFrequencyWeeklyDays => 'Días de la semana';
+  String get editFrequencyWeeklyDays => 'Días da semana';
 
   @override
   String get editFrequencyWeeklyDaysDesc => 'Seleccionar días específicos cada semana';
@@ -1105,7 +1105,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get editFrequencySelectDatesButton => 'Seleccionar fechas';
 
   @override
-  String get editFrequencyWeeklyDaysLabel => 'Días de la semana';
+  String get editFrequencyWeeklyDaysLabel => 'Días da semana';
 
   @override
   String editFrequencyWeeklyDaysCount(int count) {
@@ -1157,7 +1157,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get editQuantityDescription => 'Establece la cantidad disponible y cuándo deseas recibir alertas';
 
   @override
-  String get editQuantityAvailableLabel => 'Cantidad disponible';
+  String get editQuantityAvailableLabel => 'Cantidade dispoñible';
 
   @override
   String editQuantityAvailableHelp(String unit) {
@@ -1171,7 +1171,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get editQuantityValidationMin => 'La cantidad debe ser mayor o igual a 0';
 
   @override
-  String get editQuantityThresholdLabel => 'Avisar cuando queden';
+  String get editQuantityThresholdLabel => 'Avisar cando queden';
 
   @override
   String get editQuantityThresholdHelp => 'Días de antelación para recibir la alerta de bajo stock';
@@ -1222,7 +1222,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get editScheduleAdjustTimeAndQuantity => 'Ajusta la hora y cantidad de cada toma';
 
   @override
-  String get specificDatesSelectorTitle => 'Fechas específicas';
+  String get specificDatesSelectorTitle => 'Datas específicas';
 
   @override
   String get specificDatesSelectorSelectDates => 'Selecciona fechas';
@@ -1260,7 +1260,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get specificDatesSelectorPickerConfirm => 'Aceptar';
 
   @override
-  String get weeklyDaysSelectorTitle => 'Días de la semana';
+  String get weeklyDaysSelectorTitle => 'Días da semana';
 
   @override
   String get weeklyDaysSelectorSelectDays => 'Selecciona los días';
@@ -1280,19 +1280,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get weeklyDaysSelectorSelectAtLeastOne => 'Selecciona al menos un día de la semana';
 
   @override
-  String get weeklyDayMonday => 'Lunes';
+  String get weeklyDayMonday => 'Luns';
 
   @override
   String get weeklyDayTuesday => 'Martes';
 
   @override
-  String get weeklyDayWednesday => 'Miércoles';
+  String get weeklyDayWednesday => 'Mércores';
 
   @override
-  String get weeklyDayThursday => 'Jueves';
+  String get weeklyDayThursday => 'Xoves';
 
   @override
-  String get weeklyDayFriday => 'Viernes';
+  String get weeklyDayFriday => 'Venres';
 
   @override
   String get weeklyDaySaturday => 'Sábado';
@@ -1304,7 +1304,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dateFromLabel => 'Desde';
 
   @override
-  String get dateToLabel => 'Hasta';
+  String get dateToLabel => 'Ata';
 
   @override
   String get statisticsTitle => 'Estadísticas';
@@ -1322,10 +1322,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get permissionRequired => 'Permiso necesario';
 
   @override
-  String get notNowButton => 'Ahora no';
+  String get notNowButton => 'Agora non';
 
   @override
-  String get openSettingsButton => 'Abrir ajustes';
+  String get openSettingsButton => 'Abrir axustes';
 
   @override
   String medicationUpdatedMsg(String name) {

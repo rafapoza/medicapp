@@ -193,7 +193,9 @@
   - Icono naranja de advertencia cuando el stock es bajo (según el umbral configurado para cada medicamento)
   - Sin indicador cuando el stock es suficiente
   - Toca el indicador para ver detalles: cantidad exacta y duración estimada en días
-- **Soporte multiidioma**: Interfaz internacionalizada con soporte para español e inglés
+- **Soporte multiidioma**: Interfaz internacionalizada con soporte para 5 idiomas
+  - **Idiomas disponibles**: Español, Inglés, Catalán, Gallego y Euskera
   - Cambio automático según la configuración del dispositivo
   - Traducciones completas de todas las pantallas principales (Medicación, Pastillero, Botiquín, Historial)
   - Sistema extensible mediante archivos ARB para añadir nuevos idiomas fácilmente
+  - La app detecta el idioma del sistema y se adapta automáticamente

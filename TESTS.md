@@ -73,6 +73,14 @@ flutter test
   - Múltiples dosis y duraciones diferentes
   - Casos edge: ayuno que se solapa, reprogramación
   - Usa hora real de toma, no hora programada
+- **test/early_dose_with_fasting_test.dart**: Tests de toma temprana con notificaciones de ayuno (8 tests)
+  - Verifica cancelación correcta de notificaciones cuando se toma antes de la hora programada
+  - Valida que las notificaciones de ayuno "after" usen la hora real de toma, no la programada
+  - Escenarios: toma temprana, exacta, tardía con diferentes duraciones de ayuno
+  - Cancelación de notificaciones de ayuno "before" cuando se registra la toma
+  - Manejo correcto de medicamentos con múltiples dosis
+  - Tests con duraciones muy cortas (5 min) y muy largas (4 horas)
+  - Validación de que ayuno "before" no programa notificaciones dinámicas
 - **test/medication_sorting_test.dart**: Tests de ordenamiento de medicamentos (6 tests)
   - Sistema de priorización de medicamentos:
     - Ordenamiento por urgencia (dosis pendientes primero)
@@ -110,7 +118,7 @@ flutter test
   - **Cobertura**: edit_duration_screen.dart: 0% → 82.7%
   - **Nota**: Requiere pasar explícitamente `startDate` y `endDate` a `createTestMedication()` cuando se necesiten valores específicos (no hay default)
 
-**Total**: 307 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock, pantallas de edición y widgets de integración
+**Total**: 315 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock, pantallas de edición y widgets de integración
 
 **Cobertura global**: 45.7% (2710 de 5927 líneas)
 
@@ -194,4 +202,5 @@ flutter test
   - Test con tamaño tablet (800x1200) verifica NavigationRail
   - Test con orientación horizontal (800x400) verifica NavigationRail
   - Uso de `tester.view.physicalSize` para forzar tamaños específicos
-  - Total de tests: 305 → 307
+  - Total de tests tras navegación adaptativa: 305 → 307
+  - Total de tests tras toma temprana con ayuno: 307 → 315

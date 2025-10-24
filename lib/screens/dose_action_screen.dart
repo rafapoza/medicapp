@@ -130,6 +130,12 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
       doseTime: widget.doseTime,
     );
 
+    // Cancel today's fasting notification if it's a "before" fasting type
+    await NotificationService.instance.cancelTodaysFastingNotification(
+      medication: updatedMedication,
+      doseTime: widget.doseTime,
+    );
+
     // Schedule dynamic fasting notification if medication requires fasting after dose
     // This uses the ACTUAL time the dose was taken (DateTime.now()), not the scheduled time
     if (updatedMedication.requiresFasting &&

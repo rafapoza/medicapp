@@ -1100,11 +1100,16 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Verify the navigation sections are present with full labels
-    expect(find.text(getL10n(tester).navMedication), findsWidgets);
-    expect(find.text(getL10n(tester).navInventory), findsWidgets);
-    expect(find.text(getL10n(tester).navHistory), findsWidgets);
-    expect(find.text(getL10n(tester).navSettings), findsWidgets);
+    // Additional pumps to ensure full rendering after async queries
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
+
+    // Verify the navigation sections are present (now using short labels in both views)
+    expect(find.text(getL10n(tester).navMedicationShort), findsWidgets);
+    expect(find.text(getL10n(tester).navInventoryShort), findsWidgets);
+    expect(find.text(getL10n(tester).navHistoryShort), findsWidgets);
+    expect(find.text(getL10n(tester).navSettingsShort), findsWidgets);
 
     // Verify NavigationRail is used (side navigation)
     expect(find.byType(NavigationRail), findsOneWidget);
@@ -1121,11 +1126,16 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Verify the navigation sections are present with full labels
-    expect(find.text(getL10n(tester).navMedication), findsWidgets);
-    expect(find.text(getL10n(tester).navInventory), findsWidgets);
-    expect(find.text(getL10n(tester).navHistory), findsWidgets);
-    expect(find.text(getL10n(tester).navSettings), findsWidgets);
+    // Additional pumps to ensure full rendering after async queries
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
+
+    // Verify the navigation sections are present (now using short labels in both views)
+    expect(find.text(getL10n(tester).navMedicationShort), findsWidgets);
+    expect(find.text(getL10n(tester).navInventoryShort), findsWidgets);
+    expect(find.text(getL10n(tester).navHistoryShort), findsWidgets);
+    expect(find.text(getL10n(tester).navSettingsShort), findsWidgets);
 
     // Verify NavigationRail is used in landscape
     expect(find.byType(NavigationRail), findsOneWidget);

@@ -8,11 +8,13 @@
   "navMedicineCabinet": "Farmaciola",
   "navHistory": "Historial",
   "navSettings": "Configuració",
+  "navInventory": "Inventari",
   "navMedicationShort": "Inici",
   "navPillOrganizerShort": "Estoc",
   "navMedicineCabinetShort": "Farmaciola",
   "navHistoryShort": "Historial",
   "navSettingsShort": "Ajustos",
+  "navInventoryShort": "Medicines",
 
   "@_COMMON_BUTTONS": {},
   "btnContinue": "Continuar",

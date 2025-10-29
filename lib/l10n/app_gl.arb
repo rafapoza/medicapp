@@ -8,11 +8,13 @@
   "navMedicineCabinet": "Botiquín",
   "navHistory": "Historial",
   "navSettings": "Configuración",
+  "navInventory": "Inventario",
   "navMedicationShort": "Inicio",
   "navPillOrganizerShort": "Stock",
   "navMedicineCabinetShort": "Botiquín",
   "navHistoryShort": "Historial",
   "navSettingsShort": "Axustes",
+  "navInventoryShort": "Medicinas",
 
   "@_COMMON_BUTTONS": {},
   "btnContinue": "Continuar",

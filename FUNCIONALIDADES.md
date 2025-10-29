@@ -186,10 +186,19 @@
   - Diseño moderno con Material Design 3
   - Layout adaptable que muestra 3 tipos de medicamento por fila en todos los dispositivos
   - Scroll optimizado para pantallas pequeñas
-  - **Navegación adaptativa**:
-    - **Móviles en vertical (≤600px)**: NavigationBar inferior con 4 secciones
-    - **Tablets (>600px)**: NavigationRail lateral para mejor aprovechamiento del espacio
-    - **Modo horizontal**: NavigationRail lateral en cualquier dispositivo
+  - **Navegación adaptativa y simplificada**:
+    - **4 secciones principales**: Inicio, Medicinas, Historial y Ajustes
+    - **Navegación unificada de inventario**: La sección "Medicinas" combina Pastillero y Botiquín en una sola vista con pestañas Material 3
+      - Pestaña "Pastillero": Vista de stock y gestión de inventario
+      - Pestaña "Botiquín": Lista completa de todos los medicamentos
+      - Navegación fluida con animaciones entre pestañas
+    - **Etiquetas adaptativas según dispositivo**:
+      - **Móviles en vertical**: Etiquetas cortas optimizadas para personas mayores ("Inicio", "Medicinas", "Historial", "Ajustes")
+      - **Tablets y modo horizontal**: Etiquetas completas descriptivas ("Medicación", "Inventario", "Historial", "Ajustes")
+    - **Modo de navegación según pantalla**:
+      - **Móviles en vertical (≤600px)**: NavigationBar inferior para fácil acceso con el pulgar
+      - **Tablets (>600px)**: NavigationRail lateral para mejor aprovechamiento del espacio
+      - **Modo horizontal**: NavigationRail lateral en cualquier dispositivo
     - Transición automática según el tamaño de pantalla y orientación
   - **Pull-to-refresh**: Arrastra hacia abajo para recargar manualmente la pantalla principal y el Pastillero
 - **Visualización detallada**: Cada medicamento muestra su tipo, nombre, duración del tratamiento y próxima toma

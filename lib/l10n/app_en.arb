@@ -8,11 +8,13 @@
   "navMedicineCabinet": "Medicine Cabinet",
   "navHistory": "History",
   "navSettings": "Settings",
+  "navInventory": "Inventory",
   "navMedicationShort": "Home",
   "navPillOrganizerShort": "Stock",
   "navMedicineCabinetShort": "Cabinet",
   "navHistoryShort": "History",
   "navSettingsShort": "Settings",
+  "navInventoryShort": "Meds",
 
   "@_COMMON_BUTTONS": {},
   "btnContinue": "Continue",

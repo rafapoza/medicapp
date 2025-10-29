@@ -8,11 +8,13 @@
   "navMedicineCabinet": "Botikina",
   "navHistory": "Historia",
   "navSettings": "Ezarpenak",
+  "navInventory": "Inbentarioa",
   "navMedicationShort": "Hasiera",
   "navPillOrganizerShort": "Stock",
   "navMedicineCabinetShort": "Botikina",
   "navHistoryShort": "Historia",
   "navSettingsShort": "Ezarpenak",
+  "navInventoryShort": "Botikak",
 
   "@_COMMON_BUTTONS": {},
   "btnContinue": "Jarraitu",

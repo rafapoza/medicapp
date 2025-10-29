@@ -140,6 +140,12 @@ abstract class AppLocalizations {
   /// **'Configuración'**
   String get navSettings;
 
+  /// No description provided for @navInventory.
+  ///
+  /// In es, this message translates to:
+  /// **'Inventario'**
+  String get navInventory;
+
   /// No description provided for @navMedicationShort.
   ///
   /// In es, this message translates to:
@@ -169,6 +175,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ajustes'**
   String get navSettingsShort;
+
+  /// No description provided for @navInventoryShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Medicinas'**
+  String get navInventoryShort;
 
   /// No description provided for @btnContinue.
   ///

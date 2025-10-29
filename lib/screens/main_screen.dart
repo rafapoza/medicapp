@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart';
 import 'medication_list_screen.dart';
-import 'medication_stock_screen.dart';
-import 'medicine_cabinet_screen.dart';
+import 'medication_inventory_screen.dart';
 import 'dose_history_screen.dart';
 import 'settings_screen.dart';
 
@@ -11,9 +10,9 @@ import 'settings_screen.dart';
 /// Uses NavigationBar (bottom) on mobile/portrait and NavigationRail (side) on tablets/landscape
 /// Provides navigation between the main sections of the app:
 /// - Medications: Main list of medications with today's doses
-/// - Pill organizer: Weekly medication schedule view
-/// - Medicine cabinet: Inventory view of all medications
+/// - Inventory: Unified view with tabs for Pill Organizer and Medicine Cabinet
 /// - History: Complete dose history
+/// - Settings: App configuration and backup/restore
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -47,12 +46,10 @@ class _MainScreenState extends State<MainScreen> {
       case 0:
         return const MedicationListScreen();
       case 1:
-        return const MedicationStockScreen();
+        return const MedicationInventoryScreen();
       case 2:
-        return const MedicineCabinetScreen();
-      case 3:
         return const DoseHistoryScreen();
-      case 4:
+      case 3:
         return const SettingsScreen();
       default:
         return const MedicationListScreen();
@@ -85,12 +82,7 @@ class _MainScreenState extends State<MainScreen> {
                 NavigationRailDestination(
                   icon: const Icon(Icons.inventory_2_outlined),
                   selectedIcon: const Icon(Icons.inventory_2),
-                  label: Text(l10n.navPillOrganizer),
-                ),
-                NavigationRailDestination(
-                  icon: const Icon(Icons.medical_information_outlined),
-                  selectedIcon: const Icon(Icons.medical_information),
-                  label: Text(l10n.navMedicineCabinet),
+                  label: Text(l10n.navInventory),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(Icons.history_outlined),
@@ -128,12 +120,7 @@ class _MainScreenState extends State<MainScreen> {
           NavigationDestination(
             icon: const Icon(Icons.inventory_2_outlined),
             selectedIcon: const Icon(Icons.inventory_2),
-            label: l10n.navPillOrganizerShort,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.medical_information_outlined),
-            selectedIcon: const Icon(Icons.medical_information),
-            label: l10n.navMedicineCabinetShort,
+            label: l10n.navInventoryShort,
           ),
           NavigationDestination(
             icon: const Icon(Icons.history_outlined),

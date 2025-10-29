@@ -27,6 +27,9 @@ class AppLocalizationsEu extends AppLocalizations {
   String get navSettings => 'Ezarpenak';
 
   @override
+  String get navInventory => 'Inbentarioa';
+
+  @override
   String get navMedicationShort => 'Hasiera';
 
   @override
@@ -40,6 +43,9 @@ class AppLocalizationsEu extends AppLocalizations {
 
   @override
   String get navSettingsShort => 'Ezarpenak';
+
+  @override
+  String get navInventoryShort => 'Botikak';
 
   @override
   String get btnContinue => 'Jarraitu';

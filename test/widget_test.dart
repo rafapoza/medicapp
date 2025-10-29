@@ -1061,8 +1061,7 @@ void main() {
 
     // Verify the navigation sections are present with short labels
     expect(find.text(getL10n(tester).navMedicationShort), findsWidgets);
-    expect(find.text(getL10n(tester).navPillOrganizerShort), findsWidgets);
-    expect(find.text(getL10n(tester).navMedicineCabinetShort), findsWidgets);
+    expect(find.text(getL10n(tester).navInventoryShort), findsWidgets);
     expect(find.text(getL10n(tester).navHistoryShort), findsWidgets);
     expect(find.text(getL10n(tester).navSettingsShort), findsWidgets);
 
@@ -1083,8 +1082,7 @@ void main() {
 
     // Verify the navigation sections are present with full labels
     expect(find.text(getL10n(tester).navMedication), findsWidgets);
-    expect(find.text(getL10n(tester).navPillOrganizer), findsWidgets);
-    expect(find.text(getL10n(tester).navMedicineCabinet), findsWidgets);
+    expect(find.text(getL10n(tester).navInventory), findsWidgets);
     expect(find.text(getL10n(tester).navHistory), findsWidgets);
     expect(find.text(getL10n(tester).navSettings), findsWidgets);
 
@@ -1105,8 +1103,7 @@ void main() {
 
     // Verify the navigation sections are present with full labels
     expect(find.text(getL10n(tester).navMedication), findsWidgets);
-    expect(find.text(getL10n(tester).navPillOrganizer), findsWidgets);
-    expect(find.text(getL10n(tester).navMedicineCabinet), findsWidgets);
+    expect(find.text(getL10n(tester).navInventory), findsWidgets);
     expect(find.text(getL10n(tester).navHistory), findsWidgets);
     expect(find.text(getL10n(tester).navSettings), findsWidgets);
 

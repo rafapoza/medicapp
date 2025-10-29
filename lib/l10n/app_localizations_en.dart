@@ -27,6 +27,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSettings => 'Settings';
 
   @override
+  String get navInventory => 'Inventory';
+
+  @override
   String get navMedicationShort => 'Home';
 
   @override
@@ -40,6 +43,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navSettingsShort => 'Settings';
+
+  @override
+  String get navInventoryShort => 'Meds';
 
   @override
   String get btnContinue => 'Continue';

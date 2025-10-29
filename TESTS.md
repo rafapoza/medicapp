@@ -31,14 +31,24 @@ flutter test
   - Integración con base de datos SQLite
   - Verificación de persistencia de `lastRefillAmount`
   - Tests de actualización y compatibilidad
-- **test/widget_test.dart**: Suite completa de tests de widgets e integración (45 tests)
-  - Tests de navegación y flujo de usuario
-  - Tests de navegación adaptativa (NavigationBar en móviles, NavigationRail en tablets/landscape)
-  - Tests de formularios de añadir/editar medicamentos
-  - Tests de validación de inputs
-  - Tests de funcionalidad del botiquín
-  - Tests de eliminación y edición de medicamentos
-  - **Todos los tests usan internacionalización (i18n)** mediante helper `getL10n(tester)`
+- **test/integration/**: Suite modular de tests de widgets e integración (45 tests)
+  - **app_startup_test.dart** (1 test): Verificación de carga inicial de la aplicación
+  - **navigation_test.dart** (7 tests): Tests de navegación y flujo de usuario, navegación adaptativa (NavigationBar/NavigationRail)
+  - **add_medication_test.dart** (5 tests): Tests de formularios de añadir medicamentos y validación de duplicados
+  - **edit_medication_test.dart** (10 tests): Tests de edición de medicamentos (nombre, tipo, frecuencia, validación)
+  - **delete_medication_test.dart** (3 tests): Tests de eliminación de medicamentos y confirmación
+  - **medication_modal_test.dart** (2 tests): Tests del modal de acciones de medicamentos
+  - **dose_registration_test.dart** (9 tests): Tests de registro de dosis (simple, múltiple, stock, filtrado)
+  - **stock_management_test.dart** (4 tests): Tests de gestión y alertas de stock (bajo, sin stock, suficiente)
+  - **debug_menu_test.dart** (4 tests): Tests del menú de depuración oculto
+  - **Todos los tests usan internacionalización (i18n)** mediante helpers de `test/helpers/widget_test_helpers.dart`
+- **test/helpers/widget_test_helpers.dart**: Funciones auxiliares compartidas para tests de integración
+  - `getL10n()`: Acceso a cadenas localizadas en tests
+  - `waitForDatabase()`: Espera operaciones de base de datos
+  - `scrollToWidget()`: Desplazamiento a widgets fuera de pantalla
+  - `openEditMenuAndSelectSection()`: Navegación por menús de edición
+  - `addMedicationWithDuration()`: Flujo completo de añadir medicamentos
+  - `tapTextMultipleTimes()`: Múltiples taps para activar funciones ocultas
 - **test/dose_management_test.dart**: Tests del sistema de historial de dosis (11 tests)
   - Tests de eliminación de entradas de historial
   - Tests de cambio de estado (tomada/omitida)

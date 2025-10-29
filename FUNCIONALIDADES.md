@@ -123,6 +123,10 @@
     - **Registrar toma**: Marca la toma como tomada y descuenta del stock
     - **Marcar como no tomada**: Registra que no tomaste la dosis sin descontar stock
     - **Posponer toma**: Programa una notificación única para más tarde sin alterar el horario habitual
+  - **Navegación robusta desde notificaciones**: Sistema de reintentos inteligente que garantiza que la pantalla de acciones siempre se abre al tocar una notificación
+    - Reintentos automáticos con backoff exponencial si la app está iniciándose
+    - Sistema de notificaciones pendientes para procesar cuando la app esté lista
+    - Funciona correctamente incluso si la app estaba completamente cerrada
   - **Actualización automática**: La pantalla principal se recarga automáticamente cuando vuelves a la app después de registrar una dosis desde una notificación
 - **Configuración de ayuno**: Sistema completo para gestionar períodos de ayuno asociados a medicamentos
   - **Configuración por medicamento**: Define si un medicamento requiere ayuno durante el flujo de añadir/editar
@@ -162,6 +166,7 @@
   - **Configuración de ayuno**: Modifica los parámetros de ayuno (tipo, duración, notificaciones)
   - **Cantidad disponible**: Actualiza el stock y el umbral de alerta
   - Cada sección se edita de forma independiente y se guarda inmediatamente
+  - **Preservación de datos**: El sistema garantiza que todos los campos del medicamento se preservan correctamente al editar cualquier sección, incluyendo configuración de ayuno, estado de suspensión y consumo diario
 - **Suspensión de medicamentos**: Gestión temporal de tratamientos
   - **Suspender medicamento**: Pausa temporalmente las notificaciones de un medicamento
   - **Visibilidad selectiva**:

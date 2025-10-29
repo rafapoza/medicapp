@@ -1542,4 +1542,450 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsRestartDialogButton => 'OK';
+
+  @override
+  String get notificationsWillNotWork =>
+      'Notifications will NOT work without this permission.';
+
+  @override
+  String get debugMenuActivated => 'Debug menu activated';
+
+  @override
+  String get debugMenuDeactivated => 'Debug menu deactivated';
+
+  @override
+  String nextDoseAt(String time) {
+    return 'Next dose: $time';
+  }
+
+  @override
+  String pendingDose(String time) {
+    return '⚠️ Pending dose: $time';
+  }
+
+  @override
+  String nextDoseTomorrow(String time) {
+    return 'Next dose: tomorrow at $time';
+  }
+
+  @override
+  String nextDoseOnDay(String dayName, int day, int month, String time) {
+    return 'Next dose: $dayName $day/$month at $time';
+  }
+
+  @override
+  String get dayNameMon => 'Mon';
+
+  @override
+  String get dayNameTue => 'Tue';
+
+  @override
+  String get dayNameWed => 'Wed';
+
+  @override
+  String get dayNameThu => 'Thu';
+
+  @override
+  String get dayNameFri => 'Fri';
+
+  @override
+  String get dayNameSat => 'Sat';
+
+  @override
+  String get dayNameSun => 'Sun';
+
+  @override
+  String get whichDoseDidYouTake => 'Which dose did you take?';
+
+  @override
+  String insufficientStockForThisDose(
+    String needed,
+    String unit,
+    String available,
+  ) {
+    return 'Insufficient stock for this dose\nNeeded: $needed $unit\nAvailable: $available';
+  }
+
+  @override
+  String doseRegisteredAtTime(String name, String time, String stock) {
+    return 'Dose of $name registered at $time\nRemaining stock: $stock';
+  }
+
+  @override
+  String get allDosesCompletedToday => '✓ All doses for today completed';
+
+  @override
+  String remainingDosesToday(int count) {
+    return 'Remaining doses today: $count';
+  }
+
+  @override
+  String manualDoseRegistered(
+    String name,
+    String quantity,
+    String unit,
+    String stock,
+  ) {
+    return 'Manual dose of $name registered\nQuantity: $quantity $unit\nRemaining stock: $stock';
+  }
+
+  @override
+  String medicationSuspended(String name) {
+    return '$name suspended\nNo more notifications will be scheduled';
+  }
+
+  @override
+  String medicationReactivated(String name) {
+    return '$name reactivated\nNotifications rescheduled';
+  }
+
+  @override
+  String currentStock(String stock) {
+    return 'Current stock: $stock';
+  }
+
+  @override
+  String get quantityToAdd => 'Quantity to add';
+
+  @override
+  String example(String example) {
+    return 'E.g.: $example';
+  }
+
+  @override
+  String lastRefill(String amount, String unit) {
+    return 'Last refill: $amount $unit';
+  }
+
+  @override
+  String get refillButton => 'Refill';
+
+  @override
+  String stockRefilled(
+    String name,
+    String amount,
+    String unit,
+    String newStock,
+  ) {
+    return 'Stock of $name refilled\nAdded: $amount $unit\nNew stock: $newStock';
+  }
+
+  @override
+  String availableStock(String stock) {
+    return 'Available stock: $stock';
+  }
+
+  @override
+  String get quantityTaken => 'Quantity taken';
+
+  @override
+  String get registerButton => 'Register';
+
+  @override
+  String get registerManualDose => 'Register manual dose';
+
+  @override
+  String get refillMedication => 'Refill medication';
+
+  @override
+  String get resumeMedication => 'Resume medication';
+
+  @override
+  String get suspendMedication => 'Suspend medication';
+
+  @override
+  String get editMedicationButton => 'Edit medication';
+
+  @override
+  String get deleteMedicationButton => 'Delete medication';
+
+  @override
+  String medicationDeletedShort(String name) {
+    return '$name deleted';
+  }
+
+  @override
+  String get noMedicationsRegistered => 'No medications registered';
+
+  @override
+  String get addMedicationHint => 'Press the + button to add one';
+
+  @override
+  String get pullToRefresh => 'Pull down to refresh';
+
+  @override
+  String get batteryOptimizationWarning =>
+      'For notifications to work, disable battery restrictions:';
+
+  @override
+  String get batteryOptimizationInstructions =>
+      'Settings → Apps → MedicApp → Battery → \"Unrestricted\"';
+
+  @override
+  String get openSettings => 'Open settings';
+
+  @override
+  String get todayDosesLabel => 'Today\'s doses:';
+
+  @override
+  String doseOfMedicationAt(String name, String time) {
+    return 'Dose of $name at $time';
+  }
+
+  @override
+  String currentStatus(String status) {
+    return 'Current status: $status';
+  }
+
+  @override
+  String get whatDoYouWantToDo => 'What do you want to do?';
+
+  @override
+  String get deleteButton => 'Delete';
+
+  @override
+  String get markAsSkipped => 'Mark as Skipped';
+
+  @override
+  String get markAsTaken => 'Mark as Taken';
+
+  @override
+  String doseDeletedAt(String time) {
+    return 'Dose at $time deleted';
+  }
+
+  @override
+  String errorDeleting(String error) {
+    return 'Error deleting: $error';
+  }
+
+  @override
+  String doseMarkedAs(String time, String status) {
+    return 'Dose at $time marked as $status';
+  }
+
+  @override
+  String errorChangingStatus(String error) {
+    return 'Error changing status: $error';
+  }
+
+  @override
+  String medicationUpdatedShort(String name) {
+    return '$name updated';
+  }
+
+  @override
+  String get activateAlarmsPermission => 'Activate \"Alarms & reminders\"';
+
+  @override
+  String get alarmsPermissionDescription =>
+      'This permission allows notifications to trigger exactly at the scheduled time.';
+
+  @override
+  String get notificationDebugTitle => 'Notification Debug';
+
+  @override
+  String notificationPermissions(String enabled) {
+    return '✓ Notification permissions: $enabled';
+  }
+
+  @override
+  String exactAlarmsAndroid12(String enabled) {
+    return '⏰ Exact alarms (Android 12+): $enabled';
+  }
+
+  @override
+  String get importantWarning => '⚠️ IMPORTANT';
+
+  @override
+  String get withoutPermissionNoNotifications =>
+      'Without this permission notifications will NOT trigger.';
+
+  @override
+  String get alarmsSettings =>
+      'Settings → Apps → MedicApp → Alarms & reminders';
+
+  @override
+  String pendingNotificationsCount(int count) {
+    return '📊 Pending notifications: $count';
+  }
+
+  @override
+  String medicationsWithSchedules(int withSchedules, int total) {
+    return '💊 Medications with schedules: $withSchedules/$total';
+  }
+
+  @override
+  String get scheduledNotifications => 'Scheduled notifications:';
+
+  @override
+  String get noScheduledNotifications => '⚠️ No scheduled notifications';
+
+  @override
+  String get noTitle => 'No title';
+
+  @override
+  String get medicationsAndSchedules => 'Medications and schedules:';
+
+  @override
+  String get noSchedulesConfigured => '⚠️ No schedules configured';
+
+  @override
+  String get closeButton => 'Close';
+
+  @override
+  String get testNotification => 'Test notification';
+
+  @override
+  String get testNotificationSent => 'Test notification sent';
+
+  @override
+  String get testScheduledNotification => 'Test scheduled (1 min)';
+
+  @override
+  String get scheduledNotificationInOneMin =>
+      'Notification scheduled for 1 minute';
+
+  @override
+  String get rescheduleNotifications => 'Reschedule notifications';
+
+  @override
+  String get notificationsInfo => 'Notification info';
+
+  @override
+  String notificationsRescheduled(int count) {
+    return 'Notifications rescheduled: $count';
+  }
+
+  @override
+  String get yesText => 'Yes';
+
+  @override
+  String get noText => 'No';
+
+  @override
+  String get notificationTypeDynamicFasting => 'Dynamic fasting';
+
+  @override
+  String get notificationTypeScheduledFasting => 'Scheduled fasting';
+
+  @override
+  String get notificationTypeWeeklyPattern => 'Weekly pattern';
+
+  @override
+  String get notificationTypeSpecificDate => 'Specific date';
+
+  @override
+  String get notificationTypePostponed => 'Postponed';
+
+  @override
+  String get notificationTypeDailyRecurring => 'Daily recurring';
+
+  @override
+  String get beforeTaking => 'Before taking';
+
+  @override
+  String get afterTaking => 'After taking';
+
+  @override
+  String get basedOnActualDose => 'Based on actual dose';
+
+  @override
+  String get basedOnSchedule => 'Based on schedule';
+
+  @override
+  String today(int day, int month, int year) {
+    return 'Today $day/$month/$year';
+  }
+
+  @override
+  String tomorrow(int day, int month, int year) {
+    return 'Tomorrow $day/$month/$year';
+  }
+
+  @override
+  String get todayOrLater => 'Today or later';
+
+  @override
+  String get pastDueWarning => '⚠️ PAST DUE';
+
+  @override
+  String get batteryOptimizationMenu => '⚙️ Battery optimization';
+
+  @override
+  String get alarmsAndReminders => '⚙️ Alarms & reminders';
+
+  @override
+  String get notificationTypeScheduledFastingShort => 'Scheduled fasting';
+
+  @override
+  String get basedOnActualDoseShort => 'Based on actual dose';
+
+  @override
+  String get basedOnScheduleShort => 'Based on schedule';
+
+  @override
+  String pendingNotifications(int count) {
+    return '📊 Pending notifications: $count';
+  }
+
+  @override
+  String medicationsWithSchedulesInfo(int withSchedules, int total) {
+    return '💊 Medications with schedules: $withSchedules/$total';
+  }
+
+  @override
+  String get noSchedulesConfiguredWarning => '⚠️ No schedules configured';
+
+  @override
+  String medicationInfo(String name) {
+    return '💊 $name';
+  }
+
+  @override
+  String notificationType(String type) {
+    return '📋 Type: $type';
+  }
+
+  @override
+  String scheduleDate(String date) {
+    return '📅 Date: $date';
+  }
+
+  @override
+  String scheduleTime(String time) {
+    return '⏰ Time: $time';
+  }
+
+  @override
+  String notificationId(int id) {
+    return 'ID: $id';
+  }
+
+  @override
+  String get takenStatus => 'Taken';
+
+  @override
+  String get skippedStatus => 'Skipped';
+
+  @override
+  String durationEstimate(String name, String stock, int days) {
+    return '$name\nStock: $stock\nEstimated duration: $days days';
+  }
+
+  @override
+  String errorChanging(String error) {
+    return 'Error changing status: $error';
+  }
+
+  @override
+  String get testScheduled1Min => 'Test scheduled (1 min)';
+
+  @override
+  String get alarmsAndRemindersMenu => '⚙️ Alarms & reminders';
+
+  @override
+  String medicationStockInfo(String name, String stock) {
+    return '$name\nStock: $stock';
+  }
 }

@@ -77,22 +77,22 @@ class _MainScreenState extends State<MainScreen> {
                 NavigationRailDestination(
                   icon: const Icon(Icons.medical_services_outlined),
                   selectedIcon: const Icon(Icons.medical_services),
-                  label: Text(l10n.navMedication),
+                  label: Text(l10n.navMedicationShort),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(Icons.inventory_2_outlined),
                   selectedIcon: const Icon(Icons.inventory_2),
-                  label: Text(l10n.navInventory),
+                  label: Text(l10n.navInventoryShort),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(Icons.history_outlined),
                   selectedIcon: const Icon(Icons.history),
-                  label: Text(l10n.navHistory),
+                  label: Text(l10n.navHistoryShort),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(Icons.settings_outlined),
                   selectedIcon: const Icon(Icons.settings),
-                  label: Text(l10n.navSettings),
+                  label: Text(l10n.navSettingsShort),
                 ),
               ],
             ),

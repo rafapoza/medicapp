@@ -132,7 +132,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Las notificaciones NO funcionarán sin este permiso.',
+                l10n.notificationsWillNotWork,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               SizedBox(height: 12),
@@ -152,7 +152,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Activar "Alarmas y recordatorios"',
+                            l10n.activateAlarmsPermission,
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                           ),
                         ),
@@ -160,7 +160,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                     ),
                     SizedBox(height: 6),
                     Text(
-                      'Este permiso permite que las notificaciones salten exactamente a la hora configurada.',
+                      l10n.alarmsPermissionDescription,
                       style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                     ),
                   ],
@@ -217,8 +217,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(_debugMenuVisible
-              ? 'Menú de depuración activado'
-              : 'Menú de depuración desactivado'),
+              ? l10n.debugMenuActivated
+              : l10n.debugMenuDeactivated),
           duration: const Duration(seconds: 1),
         ),
       );
@@ -372,7 +372,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         // Show confirmation message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${updatedMedication.name} actualizado'),
+            content: Text(l10n.medicationUpdatedShort(updatedMedication.name)),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -560,9 +560,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     }
   }
 
-  String _formatNextDose(Map<String, dynamic>? nextDoseInfo) {
+  String _formatNextDose(Map<String, dynamic>? nextDoseInfo, BuildContext context) {
     if (nextDoseInfo == null) return '';
 
+    final l10n = AppLocalizations.of(context)!;
     final date = nextDoseInfo['date'] as DateTime;
     final time = nextDoseInfo['time'] as String;
     final isToday = nextDoseInfo['isToday'] as bool;
@@ -570,9 +571,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
     if (isToday) {
       if (isPending) {
-        return '⚠️ Dosis pendiente: $time';
+        return l10n.pendingDose(time);
       } else {
-        return 'Próxima toma: $time';
+        return l10n.nextDoseAt(time);
       }
     } else {
       // Format date
@@ -581,12 +582,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       final dateOnly = DateTime(date.year, date.month, date.day);
 
       if (dateOnly == DateTime(tomorrow.year, tomorrow.month, tomorrow.day)) {
-        return 'Próxima toma: mañana a las $time';
+        return l10n.nextDoseTomorrow(time);
       } else {
         // Show day name
-        const dayNames = ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+        final dayNames = ['', l10n.dayNameMon, l10n.dayNameTue, l10n.dayNameWed, l10n.dayNameThu, l10n.dayNameFri, l10n.dayNameSat, l10n.dayNameSun];
         final dayName = dayNames[date.weekday];
-        return 'Próxima toma: $dayName ${date.day}/${date.month} a las $time';
+        return l10n.nextDoseOnDay(dayName, date.day, date.month, time);
       }
     }
   }
@@ -657,13 +658,13 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Registrar toma de ${medication.name}'),
+            title: Text(l10n.registerDoseOfMedication(medication.name)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '¿Qué toma has tomado?',
+                  l10n.whichDoseDidYouTake,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 16),
@@ -686,7 +687,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
+                child: Text(l10n.btnCancel),
               ),
             ],
           );
@@ -703,9 +704,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Stock insuficiente para esta toma\n'
-              'Necesitas: $doseQuantity ${medication.type.stockUnit}\n'
-              'Disponible: ${medication.stockDisplayText}'
+              l10n.insufficientStockForThisDose(
+                doseQuantity.toString(),
+                medication.type.stockUnit,
+                medication.stockDisplayText,
+              )
             ),
             duration: const Duration(seconds: 3),
           ),
@@ -820,12 +823,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       // Show confirmation
       final remainingDoses = updatedMedication.getAvailableDosesToday();
       final confirmationMessage = remainingDoses.isEmpty
-          ? 'Toma de ${medication.name} registrada a las $selectedDoseTime\n'
-              'Stock restante: ${updatedMedication.stockDisplayText}\n'
-              '✓ Todas las tomas de hoy completadas'
-          : 'Toma de ${medication.name} registrada a las $selectedDoseTime\n'
-              'Stock restante: ${updatedMedication.stockDisplayText}\n'
-              'Tomas restantes hoy: ${remainingDoses.length}';
+          ? '${l10n.doseRegisteredAtTime(medication.name, selectedDoseTime, updatedMedication.stockDisplayText)}\n${l10n.allDosesCompletedToday}'
+          : '${l10n.doseRegisteredAtTime(medication.name, selectedDoseTime, updatedMedication.stockDisplayText)}\n${l10n.remainingDosesToday(remainingDoses.length)}';
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -859,14 +858,14 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text('Registrar toma de ${medication.name}'),
+          title: Text(l10n.registerDoseOfMedication(medication.name)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Stock disponible: ${medication.stockDisplayText}',
+                  l10n.availableStock(medication.stockDisplayText),
                   style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -880,7 +879,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                       const Icon(Icons.medication, size: 18),
                       const SizedBox(width: 8),
                       Text(
-                        'Cantidad tomada',
+                        l10n.quantityTaken,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -903,7 +902,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                 TextField(
                   controller: doseController,
                   decoration: InputDecoration(
-                    hintText: 'Ej: 1',
+                    hintText: l10n.example('1'),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -922,7 +921,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, null),
-              child: const Text('Cancelar'),
+              child: Text(l10n.btnCancel),
             ),
             FilledButton(
               onPressed: () {
@@ -931,7 +930,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   Navigator.pop(dialogContext, quantity);
                 }
               },
-              child: const Text('Registrar'),
+              child: Text(l10n.registerButton),
             ),
           ],
         );
@@ -1060,9 +1059,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       if (!mounted) return;
 
       // Show confirmation
-      final confirmationMessage = 'Toma manual de ${medication.name} registrada\n'
-          'Cantidad: $doseQuantity ${medication.type.stockUnit}\n'
-          'Stock restante: ${updatedMedication.stockDisplayText}';
+      final confirmationMessage = l10n.manualDoseRegistered(
+        medication.name,
+        doseQuantity.toString(),
+        medication.type.stockUnit,
+        updatedMedication.stockDisplayText,
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1127,8 +1129,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       SnackBar(
         content: Text(
           updatedMedication.isSuspended
-              ? '${medication.name} suspendido\nNo se programarán más notificaciones'
-              : '${medication.name} reactivado\nNotificaciones reprogramadas',
+              ? l10n.medicationSuspended(medication.name)
+              : l10n.medicationReactivated(medication.name),
         ),
         duration: const Duration(seconds: 3),
       ),
@@ -1149,14 +1151,14 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text('Recargar ${medication.name}'),
+          title: Text(l10n.refillMedicationTitle(medication.name)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Stock actual: ${medication.stockDisplayText}',
+                  l10n.currentStock(medication.stockDisplayText),
                   style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -1170,7 +1172,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                       const Icon(Icons.add_box, size: 18),
                       const SizedBox(width: 8),
                       Text(
-                        'Cantidad a agregar',
+                        l10n.quantityToAdd,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1194,10 +1196,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   controller: refillController,
                   decoration: InputDecoration(
                     hintText: medication.lastRefillAmount != null
-                        ? 'Ej: ${medication.lastRefillAmount}'
-                        : 'Ej: 30',
+                        ? l10n.example(medication.lastRefillAmount.toString())
+                        : l10n.example('30'),
                     helperText: medication.lastRefillAmount != null
-                        ? 'Última recarga: ${medication.lastRefillAmount} ${medication.type.stockUnit}'
+                        ? l10n.lastRefill(medication.lastRefillAmount.toString(), medication.type.stockUnit)
                         : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1217,7 +1219,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, null),
-              child: const Text('Cancelar'),
+              child: Text(l10n.btnCancel),
             ),
             FilledButton(
               onPressed: () {
@@ -1226,7 +1228,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   Navigator.pop(dialogContext, amount);
                 }
               },
-              child: Text(l10n.medicineCabinetRefillButton),
+              child: Text(l10n.refillButton),
             ),
           ],
         );
@@ -1279,9 +1281,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Stock de ${medication.name} recargado\n'
-            'Agregado: $refillAmount ${medication.type.stockUnit}\n'
-            'Nuevo stock: ${updatedMedication.stockDisplayText}',
+            l10n.stockRefilled(
+              medication.name,
+              refillAmount.toString(),
+              medication.type.stockUnit,
+              updatedMedication.stockDisplayText,
+            ),
           ),
           duration: const Duration(seconds: 3),
         ),
@@ -1382,7 +1387,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                       child: FilledButton.icon(
                         onPressed: () => _registerManualDose(medication),
                         icon: const Icon(Icons.medication, size: 18),
-                        label: const Text('Registrar toma manual'),
+                        label: Text(l10n.registerManualDose),
                         style: FilledButton.styleFrom(
                           backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
                           foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
@@ -1410,7 +1415,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                     child: FilledButton.tonalIcon(
                       onPressed: () => _refillMedication(medication),
                       icon: const Icon(Icons.add_box, size: 18),
-                      label: const Text('Recargar medicamento'),
+                      label: Text(l10n.refillMedication),
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
@@ -1425,7 +1430,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                         medication.isSuspended ? Icons.play_arrow : Icons.pause,
                         size: 18,
                       ),
-                      label: Text(medication.isSuspended ? 'Reactivar medicamento' : 'Suspender medicamento'),
+                      label: Text(medication.isSuspended ? l10n.resumeMedication : l10n.suspendMedication),
                       style: FilledButton.styleFrom(
                         backgroundColor: medication.isSuspended
                             ? Theme.of(context).colorScheme.primaryContainer
@@ -1443,7 +1448,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                     child: FilledButton.tonalIcon(
                       onPressed: () => _navigateToEditMedication(medication),
                       icon: const Icon(Icons.edit, size: 18),
-                      label: const Text('Editar medicamento'),
+                      label: Text(l10n.editMedicationButton),
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
@@ -1466,13 +1471,13 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('${medication.name} eliminado'),
+                            content: Text(l10n.medicationDeletedShort(medication.name)),
                             duration: const Duration(seconds: 2),
                           ),
                         );
                       },
                       icon: const Icon(Icons.delete, size: 18),
-                      label: const Text('Eliminar medicamento'),
+                      label: Text(l10n.deleteMedicationButton),
                       style: FilledButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.errorContainer,
                         foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
@@ -1485,7 +1490,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                     width: double.infinity,
                     child: TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancelar'),
+                      child: Text(l10n.btnCancel),
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
@@ -1522,17 +1527,17 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       // Determine notification type based on ID range
       final id = notification.id;
       if (id >= 6000000) {
-        notificationType = 'Ayuno dinámico';
+        notificationType = l10n.notificationTypeDynamicFasting;
       } else if (id >= 5000000) {
-        notificationType = 'Ayuno programado';
+        notificationType = l10n.notificationTypeScheduledFasting;
       } else if (id >= 4000000) {
-        notificationType = 'Patrón semanal';
+        notificationType = l10n.notificationTypeWeeklyPattern;
       } else if (id >= 3000000) {
-        notificationType = 'Fecha específica';
+        notificationType = l10n.notificationTypeSpecificDate;
       } else if (id >= 2000000) {
-        notificationType = 'Pospuesta';
+        notificationType = l10n.notificationTypePostponed;
       } else {
-        notificationType = 'Diaria recurrente';
+        notificationType = l10n.notificationTypeDailyRecurring;
       }
 
       // Try to parse payload to get medication info
@@ -1552,11 +1557,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
             if (parts.length > 1 && (parts[1].contains('fasting'))) {
               // This is a fasting notification
               final isDynamic = parts[1].contains('dynamic');
-              final fastingType = medication.fastingType == 'before' ? 'Antes de tomar' : 'Después de tomar';
+              final fastingType = medication.fastingType == 'before' ? l10n.beforeTaking : l10n.afterTaking;
               final duration = medication.fastingDurationMinutes ?? 0;
 
               scheduledTime = '$fastingType ($duration min)';
-              scheduledDate = isDynamic ? 'Basado en toma real' : 'Basado en horario';
+              scheduledDate = isDynamic ? l10n.basedOnActualDose : l10n.basedOnSchedule;
             } else if (parts.length > 1) {
               // Regular dose notification
               final doseIndexOrTime = parts[1];
@@ -1578,20 +1583,20 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                 final schedHour = int.parse(timeParts[0]);
                 final schedMin = int.parse(timeParts[1]);
 
-                if (notificationType == 'Diaria recurrente') {
+                if (notificationType == l10n.notificationTypeDailyRecurring) {
                   // Check if it's for today or tomorrow
                   final currentMinutes = now.hour * 60 + now.minute;
                   final scheduledMinutes = schedHour * 60 + schedMin;
 
                   if (scheduledMinutes > currentMinutes) {
-                    scheduledDate = 'Hoy ${now.day}/${now.month}/${now.year}';
+                    scheduledDate = l10n.today(now.day, now.month, now.year);
                     isPastDue = false;
                   } else {
                     final tomorrow = now.add(const Duration(days: 1));
-                    scheduledDate = 'Mañana ${tomorrow.day}/${tomorrow.month}/${tomorrow.year}';
+                    scheduledDate = l10n.tomorrow(tomorrow.day, tomorrow.month, tomorrow.year);
                     isPastDue = false; // Not past due if it's scheduled for tomorrow
                   }
-                } else if (notificationType == 'Fecha específica' || notificationType == 'Patrón semanal') {
+                } else if (notificationType == l10n.notificationTypeSpecificDate || notificationType == l10n.notificationTypeWeeklyPattern) {
                   // Try to find the next date from medication schedule
                   if (medication.selectedDates != null && medication.selectedDates!.isNotEmpty) {
                     // For specific dates
@@ -1633,18 +1638,18 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                       }
                     }
                   } else {
-                    scheduledDate = 'Hoy o posterior';
+                    scheduledDate = l10n.todayOrLater;
                   }
-                } else if (notificationType == 'Pospuesta') {
+                } else if (notificationType == l10n.notificationTypePostponed) {
                   // Postponed notifications are usually for today or tomorrow
                   final currentMinutes = now.hour * 60 + now.minute;
                   final scheduledMinutes = schedHour * 60 + schedMin;
 
                   if (scheduledMinutes > currentMinutes) {
-                    scheduledDate = 'Hoy ${now.day}/${now.month}/${now.year}';
+                    scheduledDate = l10n.today(now.day, now.month, now.year);
                   } else {
                     final tomorrow = now.add(const Duration(days: 1));
-                    scheduledDate = 'Mañana ${tomorrow.day}/${tomorrow.month}/${tomorrow.year}';
+                    scheduledDate = l10n.tomorrow(tomorrow.day, tomorrow.month, tomorrow.year);
                   }
                 } else {
                   // Default case: assume it's for today or tomorrow based on time
@@ -1652,11 +1657,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   final scheduledMinutes = schedHour * 60 + schedMin;
 
                   if (scheduledMinutes > currentMinutes) {
-                    scheduledDate = 'Hoy ${now.day}/${now.month}/${now.year}';
+                    scheduledDate = l10n.today(now.day, now.month, now.year);
                     isPastDue = false;
                   } else {
                     final tomorrow = now.add(const Duration(days: 1));
-                    scheduledDate = 'Mañana ${tomorrow.day}/${tomorrow.month}/${tomorrow.year}';
+                    scheduledDate = l10n.tomorrow(tomorrow.day, tomorrow.month, tomorrow.year);
                     isPastDue = false;
                   }
                 }
@@ -1679,13 +1684,13 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Debug de Notificaciones'),
+        title: Text(l10n.notificationDebugTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('✓ Permisos de notificaciones: ${notificationsEnabled ? "Sí" : "No"}',
+              Text(l10n.notificationPermissions(notificationsEnabled ? l10n.yesText : l10n.noText),
                 style: TextStyle(fontSize: 13),
               ),
               const SizedBox(height: 8),
@@ -1693,7 +1698,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                 children: [
                   Flexible(
                     child: Text(
-                      '⏰ Alarmas exactas (Android 12+): ${canScheduleExact ? "Sí" : "NO"}',
+                      l10n.exactAlarmsAndroid12(canScheduleExact ? l10n.yesText : l10n.noText),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -1715,8 +1720,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        '⚠️ IMPORTANTE',
+                      Text(
+                        l10n.importantWarning,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.orange,
@@ -1724,13 +1729,13 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                         ),
                       ),
                       const SizedBox(height: 3),
-                      const Text(
-                        'Sin este permiso las notificaciones NO saltarán.',
+                      Text(
+                        l10n.withoutPermissionNoNotifications,
                         style: TextStyle(fontSize: 10),
                       ),
                       const SizedBox(height: 3),
-                      const Text(
-                        'Ajustes → Aplicaciones → MedicApp → Alarmas y recordatorios',
+                      Text(
+                        l10n.alarmsSettings,
                         style: TextStyle(fontSize: 9, fontStyle: FontStyle.italic),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -1740,14 +1745,14 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                 ),
               ],
               const SizedBox(height: 8),
-              Text('📊 Notificaciones pendientes: ${pendingNotifications.length}'),
+              Text(l10n.pendingNotificationsCount(pendingNotifications.length)),
               const SizedBox(height: 8),
-              Text('💊 Medicamentos con horarios: ${_medications.where((m) => m.doseTimes.isNotEmpty).length}/${_medications.length}'),
+              Text(l10n.medicationsWithSchedules(_medications.where((m) => m.doseTimes.isNotEmpty).length, _medications.length)),
               const SizedBox(height: 16),
-              const Text('Notificaciones programadas:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(l10n.scheduledNotifications, style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               if (pendingNotifications.isEmpty)
-                const Text('⚠️ No hay notificaciones programadas', style: TextStyle(color: Colors.orange))
+                Text(l10n.noScheduledNotifications, style: TextStyle(color: Colors.orange))
               else
                 ...notificationInfoList.map((info) {
                   final notification = info['notification'];
@@ -1785,8 +1790,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                               ),
                               if (isPastDue) ...[
                                 const SizedBox(width: 8),
-                                const Text(
-                                  '⚠️ PASADA',
+                                Text(
+                                  l10n.pastDueWarning,
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
@@ -1799,14 +1804,14 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                           if (medicationName != null) ...[
                             const SizedBox(height: 4),
                             Text(
-                              '💊 $medicationName',
+                              l10n.medicationInfo(medicationName),
                               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                             ),
                           ],
                           if (notificationType != null) ...[
                             const SizedBox(height: 2),
                             Text(
-                              '📋 Tipo: $notificationType',
+                              l10n.notificationType(notificationType),
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey.shade700,
@@ -1817,7 +1822,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                           if (scheduledDate != null) ...[
                             const SizedBox(height: 4),
                             Text(
-                              '📅 Fecha: $scheduledDate',
+                              l10n.scheduleDate(scheduledDate),
                               style: TextStyle(
                                 fontSize: 14,
                                 color: isPastDue ? Colors.red.shade700 : Colors.green.shade700,
@@ -1828,7 +1833,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                           if (scheduledTime != null) ...[
                             const SizedBox(height: 2),
                             Text(
-                              '⏰ Hora: $scheduledTime',
+                              l10n.scheduleTime(scheduledTime),
                               style: TextStyle(
                                 fontSize: 14,
                                 color: isPastDue ? Colors.red.shade700 : Colors.blue.shade700,
@@ -1838,7 +1843,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                           ],
                           const SizedBox(height: 4),
                           Text(
-                            notification.title ?? "Sin título",
+                            notification.title ?? l10n.noTitle,
                             style: const TextStyle(fontSize: 15),
                           ),
                           if (notification.body != null)
@@ -1852,7 +1857,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                   );
                 }),
               const SizedBox(height: 16),
-              const Text('Medicamentos y horarios:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(l10n.medicationsAndSchedules, style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               ..._medications.map((medication) {
                 return Padding(
@@ -1865,7 +1870,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                         style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                       if (medication.doseTimes.isEmpty)
-                        const Text('  ⚠️ Sin horarios configurados', style: TextStyle(fontSize: 14, color: Colors.orange))
+                        Text(l10n.noSchedulesConfiguredWarning, style: TextStyle(fontSize: 14, color: Colors.orange))
                       else
                         ...medication.doseTimes.map((time) => Text('  • $time', style: const TextStyle(fontSize: 14))),
                     ],
@@ -1878,7 +1883,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
+            child: Text(l10n.closeButton),
           ),
         ],
       ),
@@ -1890,8 +1895,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Notificación de prueba enviada'),
+      SnackBar(
+        content: Text(l10n.testNotificationSent),
         duration: Duration(seconds: 2),
       ),
     );
@@ -1902,8 +1907,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Notificación programada para 1 minuto'),
+      SnackBar(
+        content: Text(l10n.scheduledNotificationInOneMin),
         duration: Duration(seconds: 3),
       ),
     );
@@ -1924,7 +1929,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Notificaciones reprogramadas: ${pending.length}'),
+        content: Text(l10n.notificationsRescheduled(pending.length)),
         duration: const Duration(seconds: 3),
       ),
     );
@@ -1943,7 +1948,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         children: [
           const Divider(height: 16),
           Text(
-            'Tomas de hoy:',
+            l10n.todayDosesLabel,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -2004,20 +2009,20 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Toma de ${medication.name} a las $doseTime'),
+        title: Text(l10n.doseOfMedicationAt(medication.name, doseTime)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Estado actual: ${isTaken ? "Tomada" : "Omitida"}',
+              l10n.currentStatus(isTaken ? l10n.takenStatus : l10n.skippedStatus),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              '¿Qué deseas hacer?',
+            Text(
+              l10n.whatDoYouWantToDo,
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
@@ -2026,7 +2031,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
           TextButton.icon(
             onPressed: () => Navigator.pop(context, 'delete'),
             icon: const Icon(Icons.delete_outline),
-            label: const Text('Eliminar'),
+            label: Text(l10n.deleteButton),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
@@ -2034,12 +2039,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
           const SizedBox(width: 8),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(l10n.btnCancel),
           ),
           FilledButton.icon(
             onPressed: () => Navigator.pop(context, 'toggle'),
             icon: Icon(isTaken ? Icons.cancel : Icons.check_circle),
-            label: Text(isTaken ? 'Marcar Omitida' : 'Marcar Tomada'),
+            label: Text(isTaken ? l10n.markAsSkipped : l10n.markAsTaken),
             style: FilledButton.styleFrom(
               backgroundColor: isTaken ? Colors.orange : Colors.green,
             ),
@@ -2126,7 +2131,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Toma de las $doseTime eliminada'),
+          content: Text(l10n.doseDeletedAt(doseTime)),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -2135,7 +2140,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al eliminar: $e'),
+          content: Text(l10n.errorDeleting(e.toString())),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
@@ -2233,7 +2238,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Toma de las $doseTime marcada como ${wasTaken ? "Omitida" : "Tomada"}'),
+          content: Text(l10n.doseMarkedAs(doseTime, wasTaken ? l10n.skippedStatus : l10n.takenStatus)),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -2242,7 +2247,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al cambiar estado: $e'),
+          content: Text(l10n.errorChangingStatus(e.toString())),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
@@ -2279,65 +2284,65 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'test',
                 child: Row(
                   children: [
                     Icon(Icons.notifications_active),
                     SizedBox(width: 8),
-                    Text('Probar notificación'),
+                    Text(l10n.testNotification),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'test_scheduled',
                 child: Row(
                   children: [
                     Icon(Icons.alarm_add),
                     SizedBox(width: 8),
-                    Text('Probar programada (1 min)'),
+                    Text(l10n.testScheduled1Min),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'reschedule',
                 child: Row(
                   children: [
                     Icon(Icons.refresh),
                     SizedBox(width: 8),
-                    Text('Reprogramar notificaciones'),
+                    Text(l10n.rescheduleNotifications),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'debug',
                 child: Row(
                   children: [
                     Icon(Icons.info_outline),
                     SizedBox(width: 8),
-                    Text('Info de notificaciones'),
+                    Text(l10n.notificationsInfo),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'open_alarms',
                 child: Row(
                   children: [
                     Icon(Icons.alarm),
                     SizedBox(width: 8),
-                    Text('⚙️ Alarmas y recordatorios'),
+                    Text(l10n.alarmsAndReminders),
                   ],
                 ),
               ),
               // Battery optimization is only available on Android
               if (Platform.isAndroid)
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'open_battery',
                   child: Row(
                     children: [
                       Icon(Icons.battery_full),
                       SizedBox(width: 8),
-                      Text('⚙️ Optimización de batería'),
+                      Text(l10n.batteryOptimizationMenu),
                     ],
                   ),
                 ),
@@ -2370,21 +2375,21 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'No hay medicamentos registrados',
+                              l10n.noMedicationsRegistered,
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Pulsa el botón + para añadir uno',
+                              l10n.addMedicationHint,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Arrastra hacia abajo para recargar',
+                              l10n.pullToRefresh,
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
                                   ),
@@ -2414,7 +2419,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Para que las notificaciones funcionen, desactiva las restricciones de batería:',
+                                l10n.batteryOptimizationWarning,
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.grey.shade800,
@@ -2427,7 +2432,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                         Padding(
                           padding: const EdgeInsets.only(left: 26),
                           child: Text(
-                            'Ajustes → Aplicaciones → MedicApp → Batería → "Sin restricciones"',
+                            l10n.batteryOptimizationInstructions,
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade700,
@@ -2464,7 +2469,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
-                                        'Abrir ajustes',
+                                        l10n.openSettings,
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.amber.shade800,
@@ -2657,7 +2662,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                                         const SizedBox(width: 4),
                                         Flexible(
                                           child: Text(
-                                            _formatNextDose(doseInfo),
+                                            _formatNextDose(doseInfo, context),
                                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                   color: textColor,
                                                   fontWeight: FontWeight.w600,
@@ -2725,8 +2730,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                                   : 0;
 
                               final message = medication.isStockEmpty
-                                  ? '${medication.name}\nStock: ${medication.stockDisplayText}'
-                                  : '${medication.name}\nStock: ${medication.stockDisplayText}\nDuración estimada: $daysLeft días';
+                                  ? l10n.medicationStockInfo(medication.name, medication.stockDisplayText)
+                                  : l10n.durationEstimate(medication.name, medication.stockDisplayText, daysLeft);
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(

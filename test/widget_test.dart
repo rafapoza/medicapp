@@ -1508,8 +1508,24 @@ void main() {
     await tester.tap(find.text(getL10n(tester).summaryMedication));
     await tester.pump();
     await tester.pump();
-    await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
+
+    // Find and scroll to register button within the modal
+    final registerButton = find.text(getL10n(tester).medicineCabinetRegisterDose);
+    final modalScroll = find.byType(SingleChildScrollView).last;
+
+    // Drag modal down to reveal button if needed
+    try {
+      await tester.dragUntilVisible(
+        registerButton,
+        modalScroll,
+        const Offset(0, -100),
+      );
+    } catch (e) {
+      // Button might already be visible
+    }
+
+    await tester.pump();
+    await tester.tap(registerButton);
 
     // Wait for dialog to open
     await tester.pump(); // Start opening dialog
@@ -1538,8 +1554,24 @@ void main() {
     await tester.tap(find.text(getL10n(tester).summaryMedication));
     await tester.pump();
     await tester.pump();
-    await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
+
+    // Find and scroll to register button within the modal
+    final registerButton2 = find.text(getL10n(tester).medicineCabinetRegisterDose);
+    final modalScroll2 = find.byType(SingleChildScrollView).last;
+
+    // Drag modal down to reveal button if needed
+    try {
+      await tester.dragUntilVisible(
+        registerButton2,
+        modalScroll2,
+        const Offset(0, -100),
+      );
+    } catch (e) {
+      // Button might already be visible
+    }
+
+    await tester.pump();
+    await tester.tap(registerButton2);
 
     // Wait for dialog to open
     await tester.pump(); // Start opening dialog

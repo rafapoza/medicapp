@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:medicapp/l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
 import 'medication_frequency_screen.dart';
+import 'medication_dates/widgets/date_selector_card.dart';
+import 'medication_dates/widgets/clear_date_button.dart';
+import 'medication_dates/widgets/duration_summary.dart';
+import 'medication_dates/widgets/dates_help_info.dart';
+import 'medication_frequency/widgets/continue_back_buttons.dart';
 
 /// Pantalla 3: Fechas de inicio y fin del tratamiento (opcional)
 class MedicationDatesScreen extends StatefulWidget {
@@ -123,7 +127,6 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final dateFormat = DateFormat('dd/MM/yyyy');
     final currentStep = widget.durationType == TreatmentDurationType.specificDates ? 3 : 3;
     final totalSteps = widget.durationType == TreatmentDurationType.specificDates ? 6 : 7;
     final progressValue = widget.durationType == TreatmentDurationType.specificDates ? 3 / 6 : 3 / 7;
@@ -181,244 +184,62 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
                             ),
                       ),
                       const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Colors.blue.shade700,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                l10n.medicationDatesHelp,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.blue.shade700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      DatesHelpInfo(message: l10n.medicationDatesHelp),
                       const SizedBox(height: 24),
 
                       // Fecha de inicio
-                      InkWell(
+                      DateSelectorCard(
+                        selectedDate: _startDate,
                         onTap: _selectStartDate,
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: _startDate != null
-                                  ? Colors.green
-                                  : Theme.of(context).colorScheme.outline,
-                              width: _startDate != null ? 2 : 1,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.play_arrow,
-                                color: _startDate != null
-                                    ? Colors.green
-                                    : Theme.of(context).colorScheme.primary,
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          l10n.startDateLabel,
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                                              ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.withOpacity(0.2),
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                          child: Text(
-                                            l10n.startDateOptional,
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                  fontSize: 10,
-                                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _startDate != null ? dateFormat.format(_startDate!) : l10n.startDateDefault,
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: _startDate != null ? Colors.green : null,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Icon(
-                                Icons.calendar_today,
-                                color: _startDate != null
-                                    ? Colors.green
-                                    : Theme.of(context).colorScheme.primary,
-                              ),
-                            ],
-                          ),
-                        ),
+                        icon: Icons.play_arrow,
+                        label: l10n.startDateLabel,
+                        optionalLabel: l10n.startDateOptional,
+                        defaultText: l10n.startDateDefault,
+                        selectedColor: Colors.green,
                       ),
 
                       // Botón para limpiar fecha de inicio
                       if (_startDate != null) ...[
                         const SizedBox(height: 8),
-                        TextButton.icon(
+                        ClearDateButton(
                           onPressed: () {
                             setState(() {
                               _startDate = null;
-                              _endDate = null; // También limpiar fin si había
+                              _endDate = null;
                             });
                           },
-                          icon: const Icon(Icons.clear, size: 18),
-                          label: Text(l10n.startTodayButton),
+                          label: l10n.startTodayButton,
                         ),
                       ],
 
                       const SizedBox(height: 16),
 
                       // Fecha de fin (opcional)
-                      InkWell(
+                      DateSelectorCard(
+                        selectedDate: _endDate,
                         onTap: _selectEndDate,
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: _endDate != null
-                                  ? Colors.deepOrange
-                                  : Theme.of(context).colorScheme.outline,
-                              width: _endDate != null ? 2 : 1,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.stop,
-                                color: _endDate != null
-                                    ? Colors.deepOrange
-                                    : Theme.of(context).colorScheme.secondary,
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          l10n.endDateLabel,
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                                              ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.withOpacity(0.2),
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                          child: Text(
-                                            l10n.startDateOptional,
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                  fontSize: 10,
-                                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _endDate != null ? dateFormat.format(_endDate!) : l10n.endDateDefault,
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: _endDate != null ? Colors.deepOrange : null,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Icon(
-                                Icons.calendar_today,
-                                color: _endDate != null
-                                    ? Colors.deepOrange
-                                    : Theme.of(context).colorScheme.secondary,
-                              ),
-                            ],
-                          ),
-                        ),
+                        icon: Icons.stop,
+                        label: l10n.endDateLabel,
+                        optionalLabel: l10n.startDateOptional,
+                        defaultText: l10n.endDateDefault,
+                        selectedColor: Colors.deepOrange,
                       ),
 
                       // Botón para limpiar fecha de fin
                       if (_endDate != null) ...[
                         const SizedBox(height: 8),
-                        TextButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              _endDate = null;
-                            });
-                          },
-                          icon: const Icon(Icons.clear, size: 18),
-                          label: Text(l10n.noEndDateButton),
+                        ClearDateButton(
+                          onPressed: () => setState(() => _endDate = null),
+                          label: l10n.noEndDateButton,
                         ),
                       ],
 
                       // Resumen de duración si ambas fechas están seleccionadas
                       if (_startDate != null && _endDate != null) ...[
                         const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  l10n.treatmentDuration(_endDate!.difference(_startDate!).inDays + 1),
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        DurationSummary(
+                          startDate: _startDate!,
+                          endDate: _endDate!,
                         ),
                       ],
                     ],
@@ -428,25 +249,9 @@ class _MedicationDatesScreenState extends State<MedicationDatesScreen> {
 
               const SizedBox(height: 24),
 
-              // Botón continuar
-              FilledButton.icon(
-                onPressed: _continueToNextStep,
-                icon: const Icon(Icons.arrow_forward),
-                label: Text(l10n.btnContinue),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Botón atrás
-              OutlinedButton.icon(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back),
-                label: Text(l10n.btnBack),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+              ContinueBackButtons(
+                onContinue: _continueToNextStep,
+                onBack: () => Navigator.pop(context),
               ),
             ],
           ),

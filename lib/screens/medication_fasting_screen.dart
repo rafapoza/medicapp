@@ -4,6 +4,7 @@ import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
 import '../widgets/forms/fasting_configuration_form.dart';
 import 'medication_quantity_screen.dart';
+import 'medication_frequency/widgets/continue_back_buttons.dart';
 
 /// Pantalla 6: Configuración de ayuno (opcional)
 class MedicationFastingScreen extends StatefulWidget {
@@ -192,26 +193,9 @@ class _MedicationFastingScreenState extends State<MedicationFastingScreen> {
               ),
 
               const SizedBox(height: 24),
-
-              // Botón continuar
-              FilledButton.icon(
-                onPressed: _continueToNextStep,
-                icon: const Icon(Icons.arrow_forward),
-                label: Text(l10n.btnContinue),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Botón atrás
-              OutlinedButton.icon(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back),
-                label: Text(l10n.btnBack),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+              ContinueBackButtons(
+                onContinue: _continueToNextStep,
+                onBack: () => Navigator.pop(context),
               ),
             ],
           ),

@@ -5,6 +5,8 @@ import '../models/treatment_duration_type.dart';
 import '../widgets/forms/frequency_option_card.dart';
 import 'weekly_days_selector_screen.dart';
 import 'medication_dosage_screen.dart';
+import 'medication_frequency/widgets/weekly_days_selector_card.dart';
+import 'medication_frequency/widgets/continue_back_buttons.dart';
 
 /// Pantalla 3: Frecuencia (cada cuántos días tomar el medicamento)
 /// Se salta si se seleccionaron fechas específicas
@@ -259,65 +261,16 @@ class _MedicationFrequencyScreenState extends State<MedicationFrequencyScreen> {
               // Selector de días si se eligió "weeklyDays"
               if (_selectedMode == FrequencyMode.weeklyDays) ...[
                 const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          l10n.selectWeeklyDaysTitle,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.selectWeeklyDaysSubtitle,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                              ),
-                        ),
-                        const SizedBox(height: 16),
-                        FilledButton.icon(
-                          onPressed: _selectWeeklyDays,
-                          icon: const Icon(Icons.date_range),
-                          label: Text(_weeklyDays == null || _weeklyDays!.isEmpty
-                              ? l10n.selectWeeklyDaysButton
-                              : l10n.daySelected(_weeklyDays!.length)),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: Colors.teal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                WeeklyDaysSelectorCard(
+                  weeklyDays: _weeklyDays,
+                  onSelectDays: _selectWeeklyDays,
                 ),
               ],
 
               const SizedBox(height: 24),
-
-              // Botón continuar
-              FilledButton.icon(
-                onPressed: _continueToNextStep,
-                icon: const Icon(Icons.arrow_forward),
-                label: Text(l10n.btnContinue),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Botón atrás
-              OutlinedButton.icon(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back),
-                label: Text(l10n.btnBack),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+              ContinueBackButtons(
+                onContinue: _continueToNextStep,
+                onBack: () => Navigator.pop(context),
               ),
             ],
           ),

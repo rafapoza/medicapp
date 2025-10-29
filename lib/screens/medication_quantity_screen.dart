@@ -5,6 +5,9 @@ import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
+import 'medication_quantity/widgets/stock_input_card.dart';
+import 'medication_quantity/widgets/medication_summary_card.dart';
+import 'medication_quantity/widgets/save_buttons.dart';
 
 /// Pantalla 7: Cantidad de medicamentos (última pantalla del flujo)
 class MedicationQuantityScreen extends StatefulWidget {
@@ -177,227 +180,31 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
                 const SizedBox(height: 24),
 
                 // Card con información
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.inventory_2,
-                              size: 32,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                l10n.medicationQuantityTitle,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      color: Theme.of(context).colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.medicationQuantitySubtitle,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                              ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Stock quantity label
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4, bottom: 8),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.inventory_2, size: 18),
-                              const SizedBox(width: 8),
-                              Text(
-                                l10n.availableQuantityLabel,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '(${widget.medicationType.stockUnit})',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Stock quantity field
-                        TextFormField(
-                          controller: _stockController,
-                          decoration: InputDecoration(
-                            hintText: l10n.availableQuantityHint,
-                            helperText: l10n.availableQuantityHelp(widget.medicationType.stockUnit),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
-                          ),
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return l10n.validationEnterQuantity;
-                            }
-
-                            final quantity = double.tryParse(value.trim());
-                            if (quantity == null || quantity < 0) {
-                              return l10n.validationQuantityNonNegative;
-                            }
-
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Low stock threshold
-                        TextFormField(
-                          controller: _lowStockThresholdController,
-                          decoration: InputDecoration(
-                            labelText: l10n.lowStockAlertLabel,
-                            hintText: l10n.lowStockAlertHint,
-                            prefixIcon: const Icon(Icons.notifications_active),
-                            suffixText: l10n.lowStockAlertUnit,
-                            helperText: l10n.lowStockAlertHelp,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return l10n.validationEnterAlertDays;
-                            }
-
-                            final days = int.tryParse(value.trim());
-                            if (days == null || days < 1) {
-                              return l10n.validationAlertMinDays;
-                            }
-
-                            if (days > 30) {
-                              return l10n.validationAlertMaxDays;
-                            }
-
-                            return null;
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                StockInputCard(
+                  stockController: _stockController,
+                  lowStockController: _lowStockThresholdController,
+                  medicationType: widget.medicationType,
                 ),
 
                 const SizedBox(height: 16),
 
                 // Resumen del medicamento
-                Card(
-                  color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.check_circle,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              l10n.summaryTitle,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        _buildSummaryRow(
-                          Icons.medication,
-                          l10n.summaryMedication,
-                          widget.medicationName,
-                        ),
-                        _buildSummaryRow(
-                          widget.medicationType.icon,
-                          l10n.summaryType,
-                          widget.medicationType.displayName,
-                        ),
-                        if (widget.doseSchedule.isNotEmpty) ...[
-                          _buildSummaryRow(
-                            Icons.access_time,
-                            l10n.summaryDosesPerDay,
-                            '${widget.doseSchedule.length}',
-                          ),
-                          _buildSummaryRow(
-                            Icons.schedule,
-                            l10n.summarySchedules,
-                            widget.doseSchedule.keys.join(', '),
-                          ),
-                        ],
-                        _buildSummaryRow(
-                          Icons.calendar_today,
-                          l10n.summaryFrequency,
-                          _getFrequencyDescription(),
-                        ),
-                      ],
-                    ),
-                  ),
+                MedicationSummaryCard(
+                  medicationName: widget.medicationName,
+                  medicationType: widget.medicationType,
+                  durationType: widget.durationType,
+                  doseSchedule: widget.doseSchedule,
+                  specificDates: widget.specificDates,
+                  weeklyDays: widget.weeklyDays,
+                  dayInterval: widget.dayInterval,
                 ),
 
                 const SizedBox(height: 24),
 
-                // Botón guardar
-                FilledButton.icon(
-                  onPressed: _isSaving ? null : _saveMedication,
-                  icon: _isSaving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Icon(Icons.check),
-                  label: Text(_isSaving ? l10n.savingButton : l10n.saveMedicationButton),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.green,
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Botón atrás
-                OutlinedButton.icon(
-                  onPressed: _isSaving ? null : () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back),
-                  label: Text(l10n.btnBack),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
+                SaveButtons(
+                  isSaving: _isSaving,
+                  onSave: _saveMedication,
+                  onBack: () => Navigator.pop(context),
                 ),
               ],
             ),
@@ -405,61 +212,5 @@ class _MedicationQuantityScreenState extends State<MedicationQuantityScreen> {
         ),
       ),
     );
-  }
-
-  Widget _buildSummaryRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            size: 20,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                      ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getFrequencyDescription() {
-    final l10n = AppLocalizations.of(context)!;
-    switch (widget.durationType) {
-      case TreatmentDurationType.everyday:
-        return l10n.summaryFrequencyDaily;
-      case TreatmentDurationType.untilFinished:
-        return l10n.summaryFrequencyUntilEmpty;
-      case TreatmentDurationType.specificDates:
-        return l10n.summaryFrequencySpecificDates(widget.specificDates?.length ?? 0);
-      case TreatmentDurationType.weeklyPattern:
-        return l10n.summaryFrequencyWeekdays(widget.weeklyDays?.length ?? 0);
-      case TreatmentDurationType.intervalDays:
-        final interval = widget.dayInterval ?? 2;
-        return l10n.summaryFrequencyEveryNDays(interval);
-      case TreatmentDurationType.asNeeded:
-        return l10n.summaryFrequencyAsNeeded;
-    }
   }
 }

@@ -5,6 +5,8 @@ import '../models/treatment_duration_type.dart';
 import 'specific_dates_selector_screen.dart';
 import 'medication_dates_screen.dart';
 import 'medication_quantity_screen.dart';
+import 'medication_duration/widgets/duration_option_card.dart';
+import 'medication_duration/widgets/specific_dates_selector_card.dart';
 
 /// Pantalla 2: Tipo de duración del tratamiento
 class MedicationDurationScreen extends StatefulWidget {
@@ -176,28 +178,52 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
                       const SizedBox(height: 24),
 
                       // Opciones de tipo de duración
-                      _buildDurationOption(
-                        TreatmentDurationType.everyday,
-                        l10n.durationContinuousTitle,
-                        l10n.durationContinuousDesc,
+                      DurationOptionCard(
+                        type: TreatmentDurationType.everyday,
+                        title: l10n.durationContinuousTitle,
+                        subtitle: l10n.durationContinuousDesc,
+                        isSelected: _selectedDurationType == TreatmentDurationType.everyday,
+                        onTap: () {
+                          setState(() {
+                            _selectedDurationType = TreatmentDurationType.everyday;
+                          });
+                        },
                       ),
                       const SizedBox(height: 12),
-                      _buildDurationOption(
-                        TreatmentDurationType.untilFinished,
-                        l10n.durationUntilEmptyTitle,
-                        l10n.durationUntilEmptyDesc,
+                      DurationOptionCard(
+                        type: TreatmentDurationType.untilFinished,
+                        title: l10n.durationUntilEmptyTitle,
+                        subtitle: l10n.durationUntilEmptyDesc,
+                        isSelected: _selectedDurationType == TreatmentDurationType.untilFinished,
+                        onTap: () {
+                          setState(() {
+                            _selectedDurationType = TreatmentDurationType.untilFinished;
+                          });
+                        },
                       ),
                       const SizedBox(height: 12),
-                      _buildDurationOption(
-                        TreatmentDurationType.specificDates,
-                        l10n.durationSpecificDatesTitle,
-                        l10n.durationSpecificDatesDesc,
+                      DurationOptionCard(
+                        type: TreatmentDurationType.specificDates,
+                        title: l10n.durationSpecificDatesTitle,
+                        subtitle: l10n.durationSpecificDatesDesc,
+                        isSelected: _selectedDurationType == TreatmentDurationType.specificDates,
+                        onTap: () {
+                          setState(() {
+                            _selectedDurationType = TreatmentDurationType.specificDates;
+                          });
+                        },
                       ),
                       const SizedBox(height: 12),
-                      _buildDurationOption(
-                        TreatmentDurationType.asNeeded,
-                        l10n.durationAsNeededTitle,
-                        l10n.durationAsNeededDesc,
+                      DurationOptionCard(
+                        type: TreatmentDurationType.asNeeded,
+                        title: l10n.durationAsNeededTitle,
+                        subtitle: l10n.durationAsNeededDesc,
+                        isSelected: _selectedDurationType == TreatmentDurationType.asNeeded,
+                        onTap: () {
+                          setState(() {
+                            _selectedDurationType = TreatmentDurationType.asNeeded;
+                          });
+                        },
                       ),
                     ],
                   ),
@@ -207,41 +233,9 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
               // Selector de fechas específicas si está seleccionado
               if (_selectedDurationType == TreatmentDurationType.specificDates) ...[
                 const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          l10n.selectDatesTitle,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.selectDatesSubtitle,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                              ),
-                        ),
-                        const SizedBox(height: 16),
-                        FilledButton.icon(
-                          onPressed: _selectSpecificDates,
-                          icon: const Icon(Icons.event),
-                          label: Text(_specificDates == null || _specificDates!.isEmpty
-                              ? l10n.selectDatesButton
-                              : l10n.dateSelected(_specificDates!.length)),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: Colors.purple,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                SpecificDatesSelectorCard(
+                  specificDates: _specificDates,
+                  onSelectDates: _selectSpecificDates,
                 ),
               ],
 
@@ -269,74 +263,6 @@ class _MedicationDurationScreenState extends State<MedicationDurationScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDurationOption(
-    TreatmentDurationType type,
-    String title,
-    String subtitle,
-  ) {
-    final isSelected = _selectedDurationType == type;
-    final color = type.getColor(context);
-
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedDurationType = type;
-        });
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.transparent,
-          border: Border.all(
-            color: isSelected ? color : Theme.of(context).dividerColor,
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              type.icon,
-              color: isSelected ? color : Theme.of(context).colorScheme.onSurface,
-              size: 28,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: isSelected ? color : Theme.of(context).colorScheme.onSurface,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: isSelected
-                              ? color.withOpacity(0.8)
-                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                        ),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              Icon(
-                Icons.check_circle,
-                color: color,
-                size: 28,
-              ),
-          ],
         ),
       ),
     );

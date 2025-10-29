@@ -4,6 +4,7 @@ import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
 import '../widgets/forms/dose_schedule_editor.dart';
 import 'medication_fasting_screen.dart';
+import 'medication_frequency/widgets/continue_back_buttons.dart';
 
 /// Pantalla 5: Horas de las dosis (establecer el horario de cada dosis)
 class MedicationTimesScreen extends StatefulWidget {
@@ -155,27 +156,9 @@ class _MedicationTimesScreenState extends State<MedicationTimesScreen> {
           // Botones de navegación
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                FilledButton.icon(
-                  onPressed: _continueToNextStep,
-                  icon: const Icon(Icons.arrow_forward),
-                  label: Text(l10n.btnContinue),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back),
-                  label: Text(l10n.btnBack),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ],
+            child: ContinueBackButtons(
+              onContinue: _continueToNextStep,
+              onBack: () => Navigator.pop(context),
             ),
           ),
         ],

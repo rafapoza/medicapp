@@ -5,6 +5,7 @@ import '../../models/medication_type.dart';
 import '../../widgets/forms/medication_info_form.dart';
 import '../../database/database_helper.dart';
 import '../../services/notification_service.dart';
+import 'edit_duration/widgets/save_cancel_buttons.dart';
 
 /// Pantalla para editar información básica del medicamento (nombre y tipo)
 class EditBasicInfoScreen extends StatefulWidget {
@@ -149,31 +150,10 @@ class _EditBasicInfoScreenState extends State<EditBasicInfoScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                FilledButton.icon(
-                  onPressed: _isSaving ? null : _saveChanges,
-                  icon: _isSaving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Icon(Icons.check),
-                  label: Text(_isSaving ? l10n.editBasicInfoSaving : l10n.editBasicInfoSaveChanges),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: _isSaving ? null : () => Navigator.pop(context),
-                  icon: const Icon(Icons.cancel),
-                  label: Text(l10n.btnCancel),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
+                SaveCancelButtons(
+                  isSaving: _isSaving,
+                  onSave: _saveChanges,
+                  onCancel: () => Navigator.pop(context),
                 ),
               ],
             ),

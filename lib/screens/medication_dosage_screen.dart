@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:medicapp/l10n/app_localizations.dart';
 import '../models/medication_type.dart';
 import '../models/treatment_duration_type.dart';
 import 'medication_times_screen.dart';
+import 'medication_dosage/widgets/dosage_mode_option_card.dart';
+import 'medication_dosage/widgets/interval_input_card.dart';
+import 'medication_dosage/widgets/custom_doses_input_card.dart';
+import 'medication_dosage/widgets/dose_summary_info.dart';
+import 'medication_frequency/widgets/continue_back_buttons.dart';
 
 /// Pantalla 4: Dosis (todos los días igual o cada día diferente)
 class MedicationDosageScreen extends StatefulWidget {
@@ -224,20 +228,24 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                       const SizedBox(height: 24),
 
                       // Opciones de modo
-                      _buildDosageModeOption(
-                        DosageMode.sameEveryDay,
-                        Icons.schedule,
-                        l10n.dosageFixedTitle,
-                        l10n.dosageFixedDesc,
-                        Colors.blue,
+                      DosageModeOptionCard(
+                        mode: DosageMode.sameEveryDay,
+                        selectedMode: _selectedMode,
+                        icon: Icons.schedule,
+                        title: l10n.dosageFixedTitle,
+                        subtitle: l10n.dosageFixedDesc,
+                        color: Colors.blue,
+                        onTap: (mode) => setState(() => _selectedMode = mode),
                       ),
                       const SizedBox(height: 12),
-                      _buildDosageModeOption(
-                        DosageMode.custom,
-                        Icons.tune,
-                        l10n.dosageCustomTitle,
-                        l10n.dosageCustomDesc,
-                        Colors.purple,
+                      DosageModeOptionCard(
+                        mode: DosageMode.custom,
+                        selectedMode: _selectedMode,
+                        icon: Icons.tune,
+                        title: l10n.dosageCustomTitle,
+                        subtitle: l10n.dosageCustomDesc,
+                        color: Colors.purple,
+                        onTap: (mode) => setState(() => _selectedMode = mode),
                       ),
                     ],
                   ),
@@ -253,121 +261,20 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (_selectedMode == DosageMode.sameEveryDay) ...[
-                        Text(
-                          l10n.dosageIntervalLabel,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.dosageIntervalHelp,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                              ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
+                        IntervalInputCard(
                           controller: _intervalController,
-                          decoration: InputDecoration(
-                            labelText: l10n.dosageIntervalFieldLabel,
-                            hintText: l10n.dosageIntervalHint,
-                            prefixIcon: const Icon(Icons.access_time),
-                            suffixText: l10n.dosageIntervalUnit,
-                            helperText: l10n.dosageIntervalValidValues,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
-                          ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          onChanged: (value) {
-                            setState(() {}); // Actualizar el contador de dosis
-                          },
+                          onChanged: () => setState(() {}),
                         ),
                       ] else ...[
-                        Text(
-                          l10n.dosageTimesLabel,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.dosageTimesHelp,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                              ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
+                        CustomDosesInputCard(
                           controller: _customDosesController,
-                          decoration: InputDecoration(
-                            labelText: l10n.dosageTimesFieldLabel,
-                            hintText: l10n.dosageTimesHint,
-                            prefixIcon: const Icon(Icons.medication),
-                            suffixText: l10n.dosageTimesUnit,
-                            helperText: l10n.dosageTimesDescription,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
-                          ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          onChanged: (value) {
-                            setState(() {}); // Actualizar el contador de dosis
-                          },
+                          onChanged: () => setState(() {}),
                         ),
                       ],
 
                       // Resumen de dosis
                       const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l10n.dosesPerDay,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                                        ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    l10n.doseCount(dosesPerDay),
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                          color: Theme.of(context).colorScheme.primary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      DoseSummaryInfo(dosesPerDay: dosesPerDay),
                     ],
                   ),
                 ),
@@ -375,97 +282,12 @@ class _MedicationDosageScreenState extends State<MedicationDosageScreen> {
 
               const SizedBox(height: 24),
 
-              // Botón continuar
-              FilledButton.icon(
-                onPressed: _continueToNextStep,
-                icon: const Icon(Icons.arrow_forward),
-                label: Text(l10n.btnContinue),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Botón atrás
-              OutlinedButton.icon(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back),
-                label: Text(l10n.btnBack),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+              ContinueBackButtons(
+                onContinue: _continueToNextStep,
+                onBack: () => Navigator.pop(context),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDosageModeOption(
-    DosageMode mode,
-    IconData icon,
-    String title,
-    String subtitle,
-    Color color,
-  ) {
-    final isSelected = _selectedMode == mode;
-
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedMode = mode;
-        });
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.transparent,
-          border: Border.all(
-            color: isSelected ? color : Theme.of(context).dividerColor,
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? color : Theme.of(context).colorScheme.onSurface,
-              size: 28,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: isSelected ? color : Theme.of(context).colorScheme.onSurface,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: isSelected
-                              ? color.withOpacity(0.8)
-                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                        ),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              Icon(
-                Icons.check_circle,
-                color: color,
-                size: 28,
-              ),
-          ],
         ),
       ),
     );

@@ -269,7 +269,10 @@ Future<void> tapTextMultipleTimes(
     await tester.tap(finder);
     await tester.pump();
   }
-  await tester.pumpAndSettle();
+  // Wait for any async operations to complete
+  await waitForDatabase(tester);
+  await tester.pump();
+  await tester.pump();
 }
 
 void main() {

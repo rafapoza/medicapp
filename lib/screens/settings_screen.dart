@@ -3,6 +3,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import 'settings/widgets/setting_option_card.dart';
+import 'settings/widgets/info_card.dart';
 
 /// Settings screen with backup/restore functionality
 class SettingsScreen extends StatefulWidget {
@@ -189,87 +191,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
 
           // Export Database Card
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: ListTile(
-              leading: Icon(
-                Icons.upload_file,
-                color: theme.colorScheme.primary,
-              ),
-              title: Text(l10n.settingsExportTitle),
-              subtitle: Text(l10n.settingsExportSubtitle),
-              trailing: _isExporting
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.chevron_right),
-              enabled: !_isExporting && !_isImporting,
-              onTap: _exportDatabase,
-            ),
+          SettingOptionCard(
+            icon: Icons.upload_file,
+            iconColor: theme.colorScheme.primary,
+            title: l10n.settingsExportTitle,
+            subtitle: l10n.settingsExportSubtitle,
+            isLoading: _isExporting,
+            enabled: !_isExporting && !_isImporting,
+            onTap: _exportDatabase,
           ),
 
           // Import Database Card
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: ListTile(
-              leading: Icon(
-                Icons.download_for_offline,
-                color: theme.colorScheme.secondary,
-              ),
-              title: Text(l10n.settingsImportTitle),
-              subtitle: Text(l10n.settingsImportSubtitle),
-              trailing: _isImporting
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.chevron_right),
-              enabled: !_isExporting && !_isImporting,
-              onTap: _importDatabase,
-            ),
+          SettingOptionCard(
+            icon: Icons.download_for_offline,
+            iconColor: theme.colorScheme.secondary,
+            title: l10n.settingsImportTitle,
+            subtitle: l10n.settingsImportSubtitle,
+            isLoading: _isImporting,
+            enabled: !_isExporting && !_isImporting,
+            onTap: _importDatabase,
           ),
 
           // Info Section
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Card(
-              color: theme.colorScheme.primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: theme.colorScheme.onPrimaryContainer,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.settingsInfoTitle,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: theme.colorScheme.onPrimaryContainer,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      l10n.settingsInfoContent,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          const InfoCard(),
         ],
       ),
     );

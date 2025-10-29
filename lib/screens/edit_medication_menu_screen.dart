@@ -8,6 +8,8 @@ import 'edit_sections/edit_frequency_screen.dart';
 import 'edit_sections/edit_schedule_screen.dart';
 import 'edit_sections/edit_quantity_screen.dart';
 import 'edit_sections/edit_fasting_screen.dart';
+import 'edit_medication_menu/widgets/medication_header_card.dart';
+import 'edit_medication_menu/widgets/edit_menu_option.dart';
 
 /// Pantalla de menú para editar diferentes aspectos de un medicamento
 class EditMedicationMenuScreen extends StatelessWidget {
@@ -35,43 +37,7 @@ class EditMedicationMenuScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Header con información del medicamento
-              Card(
-                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            medication.type.icon,
-                            size: 32,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              medication.name,
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        medication.type.displayName,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              MedicationHeaderCard(medication: medication),
               const SizedBox(height: 24),
 
               // Descripción
@@ -92,8 +58,7 @@ class EditMedicationMenuScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               // Opciones de edición
-              _buildEditOption(
-                context,
+              EditMenuOption(
                 icon: Icons.medication,
                 title: l10n.editMedicationMenuBasicInfo,
                 subtitle: l10n.editMedicationMenuBasicInfoDesc,
@@ -115,8 +80,7 @@ class EditMedicationMenuScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              _buildEditOption(
-                context,
+              EditMenuOption(
                 icon: Icons.calendar_today,
                 title: l10n.editMedicationMenuDuration,
                 subtitle: medication.durationDisplayText,
@@ -137,8 +101,7 @@ class EditMedicationMenuScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              _buildEditOption(
-                context,
+              EditMenuOption(
                 icon: Icons.repeat,
                 title: l10n.editMedicationMenuFrequency,
                 subtitle: _getFrequencyDescription(context),
@@ -159,8 +122,7 @@ class EditMedicationMenuScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              _buildEditOption(
-                context,
+              EditMenuOption(
                 icon: Icons.access_time,
                 title: l10n.editMedicationMenuSchedules,
                 subtitle: l10n.editMedicationMenuSchedulesDesc(medication.doseSchedule.length),
@@ -181,8 +143,7 @@ class EditMedicationMenuScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              _buildEditOption(
-                context,
+              EditMenuOption(
                 icon: Icons.restaurant_outlined,
                 title: l10n.editMedicationMenuFasting,
                 subtitle: _getFastingDescription(context),
@@ -203,8 +164,7 @@ class EditMedicationMenuScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              _buildEditOption(
-                context,
+              EditMenuOption(
                 icon: Icons.inventory_2,
                 title: l10n.editMedicationMenuQuantity,
                 subtitle: l10n.editMedicationMenuQuantityDesc(
@@ -225,67 +185,6 @@ class EditMedicationMenuScreen extends StatelessWidget {
                     Navigator.pop(context, result);
                   }
                 },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEditOption(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
               ),
             ],
           ),

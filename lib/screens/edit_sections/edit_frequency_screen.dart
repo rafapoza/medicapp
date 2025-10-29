@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:medicapp/l10n/app_localizations.dart';
 import '../../models/medication.dart';
 import '../../models/treatment_duration_type.dart';
-import '../../widgets/forms/frequency_option_card.dart';
 import '../../database/database_helper.dart';
 import '../../services/notification_service.dart';
-import '../specific_dates_selector_screen.dart';
-import '../weekly_days_selector_screen.dart';
+import 'edit_frequency/widgets/frequency_options_list.dart';
+import 'edit_frequency/widgets/specific_dates_config_card.dart';
+import 'edit_frequency/widgets/weekly_pattern_config_card.dart';
+import 'edit_frequency/widgets/custom_interval_config_card.dart';
+import 'edit_duration/widgets/save_cancel_buttons.dart';
 
 /// Pantalla para editar la frecuencia del medicamento
 class EditFrequencyScreen extends StatefulWidget {
@@ -265,64 +266,9 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
                       const SizedBox(height: 16),
 
                       // Frequency options
-                      FrequencyOptionCard<FrequencyMode>(
-                        value: FrequencyMode.everyday,
-                        selectedValue: _selectedMode,
-                        icon: Icons.calendar_today,
-                        title: l10n.editFrequencyEveryday,
-                        subtitle: l10n.editFrequencyEverydayDesc,
-                        color: Colors.blue,
-                        onTap: (value) => setState(() => _selectedMode = value),
-                      ),
-                      const SizedBox(height: 12),
-                      FrequencyOptionCard<FrequencyMode>(
-                        value: FrequencyMode.untilFinished,
-                        selectedValue: _selectedMode,
-                        icon: Icons.hourglass_bottom,
-                        title: l10n.editFrequencyUntilFinished,
-                        subtitle: l10n.editFrequencyUntilFinishedDesc,
-                        color: Colors.green,
-                        onTap: (value) => setState(() => _selectedMode = value),
-                      ),
-                      const SizedBox(height: 12),
-                      FrequencyOptionCard<FrequencyMode>(
-                        value: FrequencyMode.specificDates,
-                        selectedValue: _selectedMode,
-                        icon: Icons.event,
-                        title: l10n.editFrequencySpecificDates,
-                        subtitle: l10n.editFrequencySpecificDatesDesc,
-                        color: Colors.purple,
-                        onTap: (value) => setState(() => _selectedMode = value),
-                      ),
-                      const SizedBox(height: 12),
-                      FrequencyOptionCard<FrequencyMode>(
-                        value: FrequencyMode.weeklyPattern,
-                        selectedValue: _selectedMode,
-                        icon: Icons.view_week,
-                        title: l10n.editFrequencyWeeklyDays,
-                        subtitle: l10n.editFrequencyWeeklyDaysDesc,
-                        color: Colors.indigo,
-                        onTap: (value) => setState(() => _selectedMode = value),
-                      ),
-                      const SizedBox(height: 12),
-                      FrequencyOptionCard<FrequencyMode>(
-                        value: FrequencyMode.alternateDays,
-                        selectedValue: _selectedMode,
-                        icon: Icons.repeat,
-                        title: l10n.editFrequencyAlternateDays,
-                        subtitle: l10n.editFrequencyAlternateDaysDesc,
-                        color: Colors.orange,
-                        onTap: (value) => setState(() => _selectedMode = value),
-                      ),
-                      const SizedBox(height: 12),
-                      FrequencyOptionCard<FrequencyMode>(
-                        value: FrequencyMode.customInterval,
-                        selectedValue: _selectedMode,
-                        icon: Icons.timeline,
-                        title: l10n.editFrequencyCustomInterval,
-                        subtitle: l10n.editFrequencyCustomIntervalDesc,
-                        color: Colors.teal,
-                        onTap: (value) => setState(() => _selectedMode = value),
+                      FrequencyOptionsList(
+                        selectedMode: _selectedMode,
+                        onModeChanged: (value) => setState(() => _selectedMode = value),
                       ),
                     ],
                   ),
@@ -332,162 +278,32 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
               // Show additional controls based on selected mode
               if (_selectedMode == FrequencyMode.specificDates) ...[
                 const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.editFrequencySelectedDates,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _selectedDates != null && _selectedDates!.isNotEmpty
-                              ? l10n.editFrequencyDatesCount(_selectedDates!.length)
-                              : l10n.editFrequencyNoDatesSelected,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 12),
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            final result = await Navigator.push<List<String>>(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SpecificDatesSelectorScreen(
-                                  initialSelectedDates: _selectedDates ?? [],
-                                ),
-                              ),
-                            );
-                            if (result != null) {
-                              setState(() {
-                                _selectedDates = result;
-                              });
-                            }
-                          },
-                          icon: const Icon(Icons.event),
-                          label: Text(l10n.editFrequencySelectDatesButton),
-                        ),
-                      ],
-                    ),
-                  ),
+                SpecificDatesConfigCard(
+                  selectedDates: _selectedDates,
+                  onDatesChanged: (dates) => setState(() => _selectedDates = dates),
                 ),
               ],
 
               if (_selectedMode == FrequencyMode.weeklyPattern) ...[
                 const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.editFrequencyWeeklyDaysLabel,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _weeklyDays != null && _weeklyDays!.isNotEmpty
-                              ? l10n.editFrequencyWeeklyDaysCount(_weeklyDays!.length)
-                              : l10n.editFrequencyNoDaysSelected,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 12),
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            final result = await Navigator.push<List<int>>(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => WeeklyDaysSelectorScreen(
-                                  initialSelectedDays: _weeklyDays ?? [],
-                                ),
-                              ),
-                            );
-                            if (result != null) {
-                              setState(() {
-                                _weeklyDays = result;
-                              });
-                            }
-                          },
-                          icon: const Icon(Icons.view_week),
-                          label: Text(l10n.editFrequencySelectDaysButton),
-                        ),
-                      ],
-                    ),
-                  ),
+                WeeklyPatternConfigCard(
+                  weeklyDays: _weeklyDays,
+                  onDaysChanged: (days) => setState(() => _weeklyDays = days),
                 ),
               ],
 
               if (_selectedMode == FrequencyMode.customInterval) ...[
                 const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.editFrequencyIntervalLabel,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _intervalController,
-                          decoration: InputDecoration(
-                            labelText: l10n.editFrequencyIntervalField,
-                            hintText: l10n.editFrequencyIntervalHint,
-                            prefixIcon: const Icon(Icons.timeline),
-                            suffixText: l10n.pillOrganizerDays,
-                            helperText: l10n.editFrequencyIntervalHelp,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                CustomIntervalConfigCard(
+                  intervalController: _intervalController,
                 ),
               ],
 
               const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: _isSaving ? null : _saveChanges,
-                icon: _isSaving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Icon(Icons.check),
-                label: Text(_isSaving ? l10n.savingButton : l10n.editBasicInfoSaveChanges),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: _isSaving ? null : () => Navigator.pop(context),
-                icon: const Icon(Icons.cancel),
-                label: Text(l10n.btnCancel),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+              SaveCancelButtons(
+                isSaving: _isSaving,
+                onSave: _saveChanges,
+                onCancel: () => Navigator.pop(context),
               ),
             ],
           ),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:medicapp/l10n/app_localizations.dart';
+import 'weekly_days_selector/widgets/day_selection_tile.dart';
+import 'weekly_days_selector/widgets/selection_count_info.dart';
+import 'specific_dates_selector/widgets/continue_cancel_buttons.dart';
 
 class WeeklyDaysSelectorScreen extends StatefulWidget {
   final List<int>? initialSelectedDays;
@@ -111,117 +114,26 @@ class _WeeklyDaysSelectorScreenState extends State<WeeklyDaysSelectorScreen> {
                         final day = index + 1;
                         final isSelected = _selectedDays.contains(day);
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: InkWell(
-                            onTap: () => _toggleDay(day),
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? Colors.teal.withOpacity(0.2)
-                                    : Colors.transparent,
-                                border: Border.all(
-                                  color: isSelected
-                                      ? Colors.teal
-                                      : Theme.of(context).dividerColor,
-                                  width: isSelected ? 2 : 1,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 48,
-                                    height: 48,
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? Colors.teal
-                                          : Theme.of(context).colorScheme.surfaceVariant,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        _dayAbbreviations[day]!,
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: isSelected
-                                              ? Colors.white
-                                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Text(
-                                      dayNames[day]!,
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                            color: isSelected
-                                                ? Colors.teal
-                                                : Theme.of(context).colorScheme.onSurface,
-                                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                          ),
-                                    ),
-                                  ),
-                                  if (isSelected)
-                                    const Icon(
-                                      Icons.check_circle,
-                                      color: Colors.teal,
-                                      size: 28,
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
+                        return DaySelectionTile(
+                          day: day,
+                          dayName: dayNames[day]!,
+                          dayAbbreviation: _dayAbbreviations[day]!,
+                          isSelected: isSelected,
+                          onTap: () => _toggleDay(day),
                         );
                       }),
                       if (_selectedDays.isNotEmpty) ...[
                         const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.teal.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.info_outline,
-                                color: Colors.teal,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  l10n.weeklyDaysSelectorSelectedCount(_selectedDays.length, _selectedDays.length != 1 ? 's' : ''),
-                                  style: const TextStyle(
-                                    color: Colors.teal,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        SelectionCountInfo(selectedCount: _selectedDays.length),
                       ],
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed: _continue,
-                icon: const Icon(Icons.arrow_forward),
-                label: Text(l10n.weeklyDaysSelectorContinue),
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.cancel),
-                label: Text(l10n.btnCancel),
+              ContinueCancelButtons(
+                onContinue: _continue,
+                onCancel: () => Navigator.pop(context),
               ),
             ],
           ),

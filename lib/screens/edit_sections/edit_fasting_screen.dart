@@ -5,6 +5,7 @@ import '../../models/medication.dart';
 import '../../widgets/forms/fasting_configuration_form.dart';
 import '../../database/database_helper.dart';
 import '../../services/notification_service.dart';
+import 'edit_duration/widgets/save_cancel_buttons.dart';
 
 /// Pantalla para editar la configuración de ayuno
 class EditFastingScreen extends StatefulWidget {
@@ -200,31 +201,10 @@ class _EditFastingScreenState extends State<EditFastingScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: _isSaving ? null : _saveChanges,
-                icon: _isSaving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Icon(Icons.check),
-                label: Text(_isSaving ? 'Guardando...' : 'Guardar Cambios'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: _isSaving ? null : () => Navigator.pop(context),
-                icon: const Icon(Icons.cancel),
-                label: const Text('Cancelar'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+              SaveCancelButtons(
+                isSaving: _isSaving,
+                onSave: _saveChanges,
+                onCancel: () => Navigator.pop(context),
               ),
             ],
           ),

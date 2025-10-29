@@ -4,6 +4,7 @@ import '../models/medication.dart';
 import '../models/medication_type.dart';
 import '../widgets/forms/medication_info_form.dart';
 import 'medication_duration_screen.dart';
+import 'specific_dates_selector/widgets/continue_cancel_buttons.dart';
 
 /// Pantalla 1: Información básica del medicamento (nombre y tipo)
 class MedicationInfoScreen extends StatefulWidget {
@@ -105,25 +106,10 @@ class _MedicationInfoScreenState extends State<MedicationInfoScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Botón continuar
-                FilledButton.icon(
-                  onPressed: _continueToNextStep,
-                  icon: const Icon(Icons.arrow_forward),
-                  label: Text(l10n.btnContinue),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Botón cancelar
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.cancel),
-                  label: Text(l10n.btnCancel),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
+                // Botones de navegación
+                ContinueCancelButtons(
+                  onContinue: _continueToNextStep,
+                  onCancel: () => Navigator.pop(context),
                 ),
               ],
             ),

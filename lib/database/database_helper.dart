@@ -466,6 +466,31 @@ class DatabaseHelper {
     );
   }
 
+  // Read - Get medication IDs that have doses registered today
+  /// Returns a Set of medication IDs that have at least one dose taken today
+  /// based on the registeredDateTime (when the dose was actually taken)
+  Future<Set<String>> getMedicationIdsWithDosesToday() async {
+    final db = await database;
+
+    // Get today's date range (from 00:00:00 to 23:59:59)
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    final result = await db.query(
+      'dose_history',
+      columns: ['DISTINCT medicationId'],
+      where: 'registeredDateTime >= ? AND registeredDateTime <= ? AND status = ?',
+      whereArgs: [
+        todayStart.toIso8601String(),
+        todayEnd.toIso8601String(),
+        'taken', // Only include taken doses, not skipped
+      ],
+    );
+
+    return result.map((row) => row['medicationId'] as String).toSet();
+  }
+
   // Delete all dose history (useful for testing)
   Future<int> deleteAllDoseHistory() async {
     final db = await database;

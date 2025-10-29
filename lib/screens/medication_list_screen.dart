@@ -25,6 +25,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   int _titleTapCount = 0;
   DateTime? _lastTapTime;
   bool _batteryBannerDismissed = false;
+  // Cache for "as needed" medication doses taken today
+  final Map<String, Map<String, dynamic>> _asNeededDosesInfo = {};
 
   @override
   void initState() {
@@ -228,15 +230,40 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     final allMedications = await DatabaseHelper.instance.getAllMedications();
     print('Loaded ${allMedications.length} medications');
 
-    // Filter out "as needed" medications and suspended medications - they only appear in Botiquín
-    final medications = allMedications.where((m) =>
-      m.durationType != TreatmentDurationType.asNeeded &&
-      !m.isSuspended
-    ).toList();
-    print('Filtered to ${medications.length} medications (excluded ${allMedications.length - medications.length} "as needed" or suspended)');
+    // Get medication IDs that have doses registered today
+    final medicationIdsWithDosesToday = await DatabaseHelper.instance.getMedicationIdsWithDosesToday();
+    print('Found ${medicationIdsWithDosesToday.length} medications with doses taken today');
+
+    // Filter medications for display:
+    // - Exclude suspended medications (they only appear in Botiquín)
+    // - Include programmed medications (not "as needed")
+    // - Include "as needed" medications that have been taken today
+    final medications = allMedications.where((m) {
+      // Always exclude suspended medications
+      if (m.isSuspended) return false;
+
+      // Include if it's a programmed medication (not "as needed")
+      if (m.durationType != TreatmentDurationType.asNeeded) return true;
+
+      // Include "as needed" medications that have doses registered today
+      return medicationIdsWithDosesToday.contains(m.id);
+    }).toList();
+
+    print('Filtered to ${medications.length} medications (excluded ${allMedications.length - medications.length} suspended or "as needed" without doses today)');
 
     for (var med in medications) {
       print('- ${med.name}: ${med.doseTimes.length} dose times');
+    }
+
+    // Load "as needed" doses information for medications that have been taken today
+    _asNeededDosesInfo.clear();
+    for (final med in medications) {
+      if (med.durationType == TreatmentDurationType.asNeeded) {
+        final dosesInfo = await _getAsNeededDosesInfo(med);
+        if (dosesInfo != null) {
+          _asNeededDosesInfo[med.id] = dosesInfo;
+        }
+      }
     }
 
     // Sort medications by next dose proximity
@@ -361,6 +388,46 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         }
       });
     }
+  }
+
+  /// Get information about doses taken today for "as needed" medications
+  Future<Map<String, dynamic>?> _getAsNeededDosesInfo(Medication medication) async {
+    if (medication.durationType != TreatmentDurationType.asNeeded) return null;
+
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    final doses = await DatabaseHelper.instance.getDoseHistoryForDateRange(
+      startDate: todayStart,
+      endDate: todayEnd,
+      medicationId: medication.id,
+    );
+
+    // Filter to only taken doses (not skipped) registered today
+    final takenDosesToday = doses.where((dose) =>
+      dose.status == DoseStatus.taken &&
+      dose.registeredDateTime.year == now.year &&
+      dose.registeredDateTime.month == now.month &&
+      dose.registeredDateTime.day == now.day
+    ).toList();
+
+    if (takenDosesToday.isEmpty) return null;
+
+    // Sort by registered time (most recent first)
+    takenDosesToday.sort((a, b) => b.registeredDateTime.compareTo(a.registeredDateTime));
+
+    final totalQuantity = takenDosesToday.fold<double>(
+      0.0,
+      (sum, dose) => sum + dose.quantity,
+    );
+
+    return {
+      'count': takenDosesToday.length,
+      'totalQuantity': totalQuantity,
+      'lastDoseTime': takenDosesToday.first.registeredDateTime,
+      'unit': medication.type.stockUnit,
+    };
   }
 
   Map<String, dynamic>? _getNextDoseInfo(Medication medication) {
@@ -2566,6 +2633,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                               ),
+                              // Show next dose info for programmed medications
                               if (_getNextDoseInfo(medication) != null) ...[
                                 const SizedBox(height: 4),
                                 Builder(
@@ -2592,6 +2660,49 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                                             _formatNextDose(doseInfo),
                                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                   color: textColor,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ]
+                              // Show "taken today" info for "as needed" medications
+                              else if (_asNeededDosesInfo.containsKey(medication.id)) ...[
+                                const SizedBox(height: 4),
+                                Builder(
+                                  builder: (context) {
+                                    final dosesInfo = _asNeededDosesInfo[medication.id]!;
+                                    final count = dosesInfo['count'] as int;
+                                    final totalQuantity = dosesInfo['totalQuantity'] as double;
+                                    final lastDoseTime = dosesInfo['lastDoseTime'] as DateTime;
+                                    final unit = dosesInfo['unit'] as String;
+
+                                    final lastDoseTimeStr = '${lastDoseTime.hour.toString().padLeft(2, '0')}:${lastDoseTime.minute.toString().padLeft(2, '0')}';
+                                    final quantityStr = totalQuantity % 1 == 0
+                                        ? totalQuantity.toInt().toString()
+                                        : totalQuantity.toString();
+
+                                    final text = count == 1
+                                        ? 'Tomado hoy: $quantityStr $unit a las $lastDoseTimeStr'
+                                        : 'Tomado hoy: $count veces ($quantityStr $unit)';
+
+                                    return Row(
+                                      children: [
+                                        Icon(
+                                          Icons.check_circle,
+                                          size: 18,
+                                          color: Colors.green.shade700,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            text,
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                  color: Colors.green.shade700,
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                             overflow: TextOverflow.ellipsis,

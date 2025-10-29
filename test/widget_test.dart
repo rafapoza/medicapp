@@ -34,8 +34,8 @@ AppLocalizations getL10n(WidgetTester tester) {
 Future<void> waitForDatabase(WidgetTester tester) async {
   // Use runAsync to allow async operations to complete
   await tester.runAsync(() async {
-    // Give time for database operations
-    await Future.delayed(const Duration(milliseconds: 100));
+    // Give time for database operations (increased for additional async queries)
+    await Future.delayed(const Duration(milliseconds: 2000));
   });
 
   // Pump frames to rebuild UI after async operations
@@ -315,6 +315,16 @@ void main() {
 
     // Wait for database operations and async timers to complete
     await waitForDatabase(tester);
+
+    // Additional wait for the new getMedicationIdsWithDosesToday query
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 1000));
+    });
+
+    // Pump to rebuild UI after all database operations
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
 
     // Verify that the app shows the correct title.
     expect(find.text(getL10n(tester).mainScreenTitle), findsWidgets);
@@ -1043,7 +1053,14 @@ void main() {
 
     // Navigate back
     await tester.tap(find.byIcon(Icons.arrow_back));
-    await tester.pumpAndSettle();
+    await tester.pump(); // Start navigation
+
+    // Wait for database operations to complete after navigation
+    await waitForDatabase(tester);
+
+    // Additional pumps to finish any remaining animations
+    await tester.pump();
+    await tester.pump();
 
     // Verify we're back on the main screen
     expect(find.text(getL10n(tester).mainScreenTitle), findsWidgets);
@@ -1500,22 +1517,20 @@ void main() {
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 500));
     });
-    await tester.pumpAndSettle();
+    await tester.pump(); // Start dose registration
 
     // Wait for database to complete the update and reload
     await waitForDatabase(tester);
-
-    // Extra wait to ensure the medication list has fully reloaded after dose registration
-    await tester.runAsync(() async {
-      await Future.delayed(const Duration(milliseconds: 300));
-    });
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
 
     // Try to register another dose immediately
     await tester.tap(find.text(getL10n(tester).summaryMedication));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
 
     // Verify the dialog is shown
     expect(find.text('Registrar toma de Medicamento'), findsOneWidget);
@@ -1570,7 +1585,20 @@ void main() {
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 500));
     });
-    await tester.pumpAndSettle();
+    await tester.pump(); // Start dose registration
+
+    // Wait for database reload after dose registration
+    await waitForDatabase(tester);
+
+    // Wait for all async operations and animations to complete
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 2000));
+    });
+
+    // Pump multiple times to ensure UI updates
+    for (int i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
     // Verify the dialog was NOT shown (because only 1 dose was left)
     expect(find.text('¿Qué toma has tomado?'), findsNothing);

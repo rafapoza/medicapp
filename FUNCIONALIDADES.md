@@ -15,7 +15,7 @@
     - **Paso 2**: Seleccionar "Medicamento ocasional" → salta directamente al paso de cantidad
     - Perfecto para analgésicos, antiácidos, o cualquier medicamento que se tome solo cuando sea necesario
     - No requiere configurar horarios, frecuencias ni fechas
-    - **No aparecen en la pantalla principal** (solo en Botiquín)
+    - **Aparecen automáticamente en la pantalla principal cuando se toman**, mostrando hora y cantidad
     - Se registran tocando el medicamento en el Botiquín
 - **Tipos de medicamento**: Elige entre diferentes tipos de medicamento, cada uno con su unidad de medida específica:
   - Pastilla, Inyección, Óvulo, Aplicación, Gota, Gramo, Mililitro
@@ -92,8 +92,13 @@
     - Unidades específicas según el tipo de medicamento
     - Actualización inmediata del stock y confirmación visual
   - **Registro de medicamentos ocasionales**:
-    - Los medicamentos "según necesidad" solo aparecen en el Botiquín (no en pantalla principal)
-    - Muestra indicador visual "Toca para registrar" en medicamentos ocasionales activos
+    - Los medicamentos "según necesidad" aparecen en el Botiquín para registro manual
+    - **Aparición automática en pantalla principal**: Cuando tomas un medicamento ocasional, aparece automáticamente en la pantalla principal ese día
+      - Muestra indicador verde con texto "Tomado hoy" y la hora de la última toma
+      - Si se toma múltiples veces, indica "Tomado hoy: X veces" con el total
+      - Permite tener una vista completa de todos los medicamentos tomados en el día
+      - Se actualiza automáticamente al registrar nuevas tomas
+    - Muestra indicador visual "Toca para registrar" en medicamentos ocasionales activos en el Botiquín
     - Toca la tarjeta para abrir el modal con las opciones disponibles
     - Diálogo para introducir la cantidad exacta tomada
     - Registro automático en el historial con hora actual

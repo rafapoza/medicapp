@@ -204,3 +204,17 @@
   - Traducciones completas de todas las pantallas principales (Medicación, Pastillero, Botiquín, Historial)
   - Sistema extensible mediante archivos ARB para añadir nuevos idiomas fácilmente
   - La app detecta el idioma del sistema y se adapta automáticamente
+- **Exportación e importación de base de datos**: Sistema completo de backup y restauración
+  - **Exportar base de datos**: Crea una copia de seguridad completa de todos tus datos
+    - Exporta todos los medicamentos, configuraciones, historial de dosis y ajustes
+    - Genera archivo con timestamp en el nombre para fácil identificación
+    - Opción de compartir el archivo mediante cualquier app (correo, Drive, etc.)
+    - Perfecto para hacer copias de seguridad antes de cambiar de dispositivo
+  - **Importar base de datos**: Restaura tus datos desde una copia de seguridad
+    - Selecciona un archivo de backup previamente exportado
+    - **Backup automático**: Crea una copia de seguridad de tus datos actuales antes de importar
+    - **Validación de integridad**: Verifica que el archivo sea una base de datos válida
+    - **Restauración automática**: Si la importación falla, restaura automáticamente el backup de seguridad
+    - Reemplaza completamente la base de datos actual con los datos importados
+  - **Seguridad**: Sistema robusto con validaciones y respaldos automáticos
+  - **Accesible desde**: Pantalla de ajustes/configuración

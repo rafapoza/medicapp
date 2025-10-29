@@ -194,6 +194,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   void _onTitleTap() {
+    final l10n = AppLocalizations.of(context)!;
     final now = DateTime.now();
 
     // Reset counter if more than 2 seconds have passed since last tap
@@ -370,6 +371,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         });
 
         // Show confirmation message
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.medicationUpdatedShort(updatedMedication.name)),
@@ -948,9 +950,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Stock insuficiente para esta toma\n'
-              'Necesitas: $doseQuantity ${medication.type.stockUnit}\n'
-              'Disponible: ${medication.stockDisplayText}'
+              l10n.insufficientStockForThisDose(
+                doseQuantity.toString(),
+                medication.type.stockUnit,
+                medication.stockDisplayText,
+              ),
             ),
             duration: const Duration(seconds: 3),
           ),
@@ -1125,6 +1129,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     if (!mounted) return;
 
     // Show confirmation
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -1513,6 +1518,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
     if (!mounted) return;
 
+    final l10n = AppLocalizations.of(context)!;
+
     // Build notification info with medication data
     final notificationInfoList = <Map<String, dynamic>>[];
     final now = DateTime.now();
@@ -1894,6 +1901,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     await NotificationService.instance.showTestNotification();
     if (!mounted) return;
 
+    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.testNotificationSent),
@@ -1904,8 +1913,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
   void _testScheduledNotification() async {
     await NotificationService.instance.scheduleTestNotification();
+    final l10n = AppLocalizations.of(context)!;
     if (!mounted) return;
 
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.scheduledNotificationInOneMin),
@@ -1927,6 +1938,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
     final pending = await NotificationService.instance.getPendingNotifications();
 
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.notificationsRescheduled(pending.length)),
@@ -1936,6 +1948,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   Widget _buildTodayDosesSection(Medication medication) {
+    final l10n = AppLocalizations.of(context)!;
     final allDoses = [
       ...medication.takenDosesToday.map((time) => {'time': time, 'status': 'taken'}),
       ...medication.skippedDosesToday.map((time) => {'time': time, 'status': 'skipped'}),
@@ -2006,6 +2019,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   Future<void> _showEditTodayDoseDialog(Medication medication, String doseTime, bool isTaken) async {
+    final l10n = AppLocalizations.of(context)!;
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
@@ -2061,6 +2075,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   }
 
   Future<void> _deleteTodayDose(Medication medication, String doseTime, bool wasTaken) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       // Remove from taken or skipped doses
       List<String> takenDoses = List.from(medication.takenDosesToday);
@@ -2509,7 +2524,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
-                                        'Hecho',
+                                        l10n.done,
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.green.shade700,
@@ -2601,7 +2616,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'Suspendido',
+                                      l10n.suspended,
                                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                             color: Colors.grey.shade600,
                                             fontWeight: FontWeight.w600,
@@ -2691,9 +2706,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                                         ? totalQuantity.toInt().toString()
                                         : totalQuantity.toString();
 
+                                    final l10n = AppLocalizations.of(context)!;
                                     final text = count == 1
-                                        ? 'Tomado hoy: $quantityStr $unit a las $lastDoseTimeStr'
-                                        : 'Tomado hoy: $count veces ($quantityStr $unit)';
+                                        ? l10n.takenTodaySingle(quantityStr, unit, lastDoseTimeStr)
+                                        : l10n.takenTodayMultiple(count, quantityStr, unit);
 
                                     return Row(
                                       children: [

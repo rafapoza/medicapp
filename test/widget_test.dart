@@ -1565,25 +1565,27 @@ void main() {
 
     // Register first dose
     await tester.tap(find.text('MedDual'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
+    await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
     await tester.tap(find.text('08:00'));
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 500));
     });
-    await tester.pumpAndSettle();
+    await tester.pump(); // Start dose registration
     await waitForDatabase(tester);
-
-    // Extra wait to ensure the medication list has fully reloaded after dose registration
-    await tester.runAsync(() async {
-      await Future.delayed(const Duration(milliseconds: 300));
-    });
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
 
     // Register second dose - should be automatic since only one remains
     await tester.tap(find.text('MedDual'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
+    await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 500));
@@ -1624,27 +1626,37 @@ void main() {
 
     // Register first dose
     await tester.tap(find.text('MedCompleto'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
+    await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
     await tester.tap(find.text('08:00'));
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 500));
     });
-    await tester.pumpAndSettle();
+    await tester.pump(); // Start dose registration
     await waitForDatabase(tester);
+    await tester.pump();
+    await tester.pump();
 
     // Register second and last dose (should be automatic since only one remains)
     await tester.tap(find.text('MedCompleto'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
+    await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
 
     // Wait for automatic registration to complete
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 800));
     });
-    await tester.pumpAndSettle();
+    await tester.pump(); // Start dose registration
     await waitForDatabase(tester);
+    await tester.pump();
+    await tester.pump();
 
     // Verify the medication is still in the list (operations completed successfully)
     expect(find.text('MedCompleto'), findsOneWidget);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import '../services/notification_service.dart';
 import 'medication_list_screen.dart';
 import 'medication_stock_screen.dart';
 import 'medicine_cabinet_screen.dart';
@@ -21,6 +22,15 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Process any pending notifications after the first frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationService.instance.processPendingNotification();
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {

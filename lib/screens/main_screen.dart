@@ -5,6 +5,7 @@ import 'medication_list_screen.dart';
 import 'medication_stock_screen.dart';
 import 'medicine_cabinet_screen.dart';
 import 'dose_history_screen.dart';
+import 'settings_screen.dart';
 
 /// Main screen with adaptive navigation
 /// Uses NavigationBar (bottom) on mobile/portrait and NavigationRail (side) on tablets/landscape
@@ -51,6 +52,8 @@ class _MainScreenState extends State<MainScreen> {
         return const MedicineCabinetScreen();
       case 3:
         return const DoseHistoryScreen();
+      case 4:
+        return const SettingsScreen();
       default:
         return const MedicationListScreen();
     }
@@ -94,6 +97,11 @@ class _MainScreenState extends State<MainScreen> {
                   selectedIcon: const Icon(Icons.history),
                   label: Text(l10n.navHistory),
                 ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.settings_outlined),
+                  selectedIcon: const Icon(Icons.settings),
+                  label: const Text('Configuración'),
+                ),
               ],
             ),
             const VerticalDivider(thickness: 1, width: 1),
@@ -131,6 +139,11 @@ class _MainScreenState extends State<MainScreen> {
             icon: const Icon(Icons.history_outlined),
             selectedIcon: const Icon(Icons.history),
             label: l10n.navHistory,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: 'Configuración',
           ),
         ],
       ),

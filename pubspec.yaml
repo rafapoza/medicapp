@@ -54,6 +54,15 @@ dependencies:
   # Local key-value storage
   shared_preferences: ^2.2.2
 
+  # File picker for importing database
+  file_picker: ^8.0.0+1
+
+  # Share files for exporting database
+  share_plus: ^10.1.4
+
+  # Path provider for accessing directories
+  path_provider: ^2.1.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

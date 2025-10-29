@@ -680,6 +680,19 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         takenDosesToday: updatedTakenDoses,
         skippedDosesToday: updatedSkippedDoses,
         takenDosesDate: todayString,
+        lastRefillAmount: medication.lastRefillAmount,
+        lowStockThresholdDays: medication.lowStockThresholdDays,
+        selectedDates: medication.selectedDates,
+        weeklyDays: medication.weeklyDays,
+        dayInterval: medication.dayInterval,
+        startDate: medication.startDate,
+        endDate: medication.endDate,
+        requiresFasting: medication.requiresFasting,
+        fastingType: medication.fastingType,
+        fastingDurationMinutes: medication.fastingDurationMinutes,
+        notifyFasting: medication.notifyFasting,
+        isSuspended: medication.isSuspended,
+        lastDailyConsumption: medication.lastDailyConsumption,
       );
 
       // Update in database
@@ -1168,6 +1181,18 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         skippedDosesToday: medication.skippedDosesToday,
         takenDosesDate: medication.takenDosesDate,
         lastRefillAmount: refillAmount, // Save for future suggestions
+        lowStockThresholdDays: medication.lowStockThresholdDays,
+        selectedDates: medication.selectedDates,
+        weeklyDays: medication.weeklyDays,
+        dayInterval: medication.dayInterval,
+        startDate: medication.startDate,
+        endDate: medication.endDate,
+        requiresFasting: medication.requiresFasting,
+        fastingType: medication.fastingType,
+        fastingDurationMinutes: medication.fastingDurationMinutes,
+        notifyFasting: medication.notifyFasting,
+        isSuspended: medication.isSuspended,
+        lastDailyConsumption: medication.lastDailyConsumption,
       );
 
       // Update in database

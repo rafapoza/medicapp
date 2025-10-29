@@ -108,6 +108,12 @@ class _EditDurationScreenState extends State<EditDurationScreen> {
         lowStockThresholdDays: widget.medication.lowStockThresholdDays,
         startDate: _startDate,
         endDate: _endDate,
+        requiresFasting: widget.medication.requiresFasting,
+        fastingType: widget.medication.fastingType,
+        fastingDurationMinutes: widget.medication.fastingDurationMinutes,
+        notifyFasting: widget.medication.notifyFasting,
+        isSuspended: widget.medication.isSuspended,
+        lastDailyConsumption: widget.medication.lastDailyConsumption,
       );
 
       await DatabaseHelper.instance.updateMedication(updatedMedication);

@@ -186,6 +186,12 @@ class _EditFrequencyScreenState extends State<EditFrequencyScreen> {
         lowStockThresholdDays: widget.medication.lowStockThresholdDays,
         startDate: widget.medication.startDate,
         endDate: widget.medication.endDate,
+        requiresFasting: widget.medication.requiresFasting,
+        fastingType: widget.medication.fastingType,
+        fastingDurationMinutes: widget.medication.fastingDurationMinutes,
+        notifyFasting: widget.medication.notifyFasting,
+        isSuspended: widget.medication.isSuspended,
+        lastDailyConsumption: widget.medication.lastDailyConsumption,
       );
 
       await DatabaseHelper.instance.updateMedication(updatedMedication);

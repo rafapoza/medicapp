@@ -1059,11 +1059,12 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Verify the navigation sections are present
-    expect(find.text(getL10n(tester).navMedication), findsWidgets);
-    expect(find.text(getL10n(tester).pillOrganizerTitle), findsWidgets);
-    expect(find.text(getL10n(tester).medicineCabinetTitle), findsWidgets);
-    expect(find.text(getL10n(tester).navHistory), findsWidgets);
+    // Verify the navigation sections are present with short labels
+    expect(find.text(getL10n(tester).navMedicationShort), findsWidgets);
+    expect(find.text(getL10n(tester).navPillOrganizerShort), findsWidgets);
+    expect(find.text(getL10n(tester).navMedicineCabinetShort), findsWidgets);
+    expect(find.text(getL10n(tester).navHistoryShort), findsWidgets);
+    expect(find.text(getL10n(tester).navSettingsShort), findsWidgets);
 
     // Verify NavigationBar is used (bottom navigation)
     expect(find.byType(NavigationBar), findsOneWidget);
@@ -1080,11 +1081,12 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Verify the navigation sections are present
+    // Verify the navigation sections are present with full labels
     expect(find.text(getL10n(tester).navMedication), findsWidgets);
-    expect(find.text(getL10n(tester).pillOrganizerTitle), findsWidgets);
-    expect(find.text(getL10n(tester).medicineCabinetTitle), findsWidgets);
+    expect(find.text(getL10n(tester).navPillOrganizer), findsWidgets);
+    expect(find.text(getL10n(tester).navMedicineCabinet), findsWidgets);
     expect(find.text(getL10n(tester).navHistory), findsWidgets);
+    expect(find.text(getL10n(tester).navSettings), findsWidgets);
 
     // Verify NavigationRail is used (side navigation)
     expect(find.byType(NavigationRail), findsOneWidget);
@@ -1101,11 +1103,12 @@ void main() {
     await tester.pumpWidget(const MedicApp());
     await waitForDatabase(tester);
 
-    // Verify the navigation sections are present
+    // Verify the navigation sections are present with full labels
     expect(find.text(getL10n(tester).navMedication), findsWidgets);
-    expect(find.text(getL10n(tester).pillOrganizerTitle), findsWidgets);
-    expect(find.text(getL10n(tester).medicineCabinetTitle), findsWidgets);
+    expect(find.text(getL10n(tester).navPillOrganizer), findsWidgets);
+    expect(find.text(getL10n(tester).navMedicineCabinet), findsWidgets);
     expect(find.text(getL10n(tester).navHistory), findsWidgets);
+    expect(find.text(getL10n(tester).navSettings), findsWidgets);
 
     // Verify NavigationRail is used in landscape
     expect(find.byType(NavigationRail), findsOneWidget);

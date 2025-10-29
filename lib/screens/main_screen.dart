@@ -100,7 +100,7 @@ class _MainScreenState extends State<MainScreen> {
                 NavigationRailDestination(
                   icon: const Icon(Icons.settings_outlined),
                   selectedIcon: const Icon(Icons.settings),
-                  label: const Text('Configuración'),
+                  label: Text(l10n.navSettings),
                 ),
               ],
             ),
@@ -113,7 +113,7 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
-    // Use NavigationBar for mobile/portrait
+    // Use NavigationBar for mobile/portrait with short labels
     return Scaffold(
       body: _getCurrentScreen(),
       bottomNavigationBar: NavigationBar(
@@ -123,27 +123,27 @@ class _MainScreenState extends State<MainScreen> {
           NavigationDestination(
             icon: const Icon(Icons.medical_services_outlined),
             selectedIcon: const Icon(Icons.medical_services),
-            label: l10n.navMedication,
+            label: l10n.navMedicationShort,
           ),
           NavigationDestination(
             icon: const Icon(Icons.inventory_2_outlined),
             selectedIcon: const Icon(Icons.inventory_2),
-            label: l10n.navPillOrganizer,
+            label: l10n.navPillOrganizerShort,
           ),
           NavigationDestination(
             icon: const Icon(Icons.medical_information_outlined),
             selectedIcon: const Icon(Icons.medical_information),
-            label: l10n.navMedicineCabinet,
+            label: l10n.navMedicineCabinetShort,
           ),
           NavigationDestination(
             icon: const Icon(Icons.history_outlined),
             selectedIcon: const Icon(Icons.history),
-            label: l10n.navHistory,
+            label: l10n.navHistoryShort,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),
             selectedIcon: const Icon(Icons.settings),
-            label: 'Configuración',
+            label: l10n.navSettingsShort,
           ),
         ],
       ),

@@ -7,6 +7,12 @@
   "navPillOrganizer": "Pastilleiro",
   "navMedicineCabinet": "Botiquín",
   "navHistory": "Historial",
+  "navSettings": "Configuración",
+  "navMedicationShort": "Inicio",
+  "navPillOrganizerShort": "Stock",
+  "navMedicineCabinetShort": "Botiquín",
+  "navHistoryShort": "Historial",
+  "navSettingsShort": "Axustes",
 
   "@_COMMON_BUTTONS": {},
   "btnContinue": "Continuar",
@@ -835,5 +841,26 @@
       }
     }
   },
-  "insufficientStockForDose": "No hay suficiente stock para marcar como tomada"
+  "insufficientStockForDose": "No hay suficiente stock para marcar como tomada",
+
+  "@_SETTINGS_SCREEN": {},
+  "settingsTitle": "Configuración",
+  "settingsBackupSection": "Copia de Seguridade",
+  "settingsExportTitle": "Exportar Base de Datos",
+  "settingsExportSubtitle": "Garda unha copia de todos os teus medicamentos e historial",
+  "settingsImportTitle": "Importar Base de Datos",
+  "settingsImportSubtitle": "Restaura unha copia de seguridade previamente exportada",
+  "settingsInfoTitle": "Información",
+  "settingsInfoContent": "• Ao exportar, crearase un arquivo de copia de seguridade que poderás gardar no teu dispositivo ou compartir.\n\n• Ao importar, todos os datos actuais serán substituídos polos do arquivo seleccionado.\n\n• Recoméndase facer copias de seguridade regularmente.",
+  "settingsShareText": "Copia de seguridade de MedicApp",
+  "settingsExportSuccess": "Base de datos exportada correctamente",
+  "settingsImportSuccess": "Base de datos importada correctamente",
+  "settingsExportError": "Erro ao exportar: {error}",
+  "settingsImportError": "Erro ao importar: {error}",
+  "settingsFilePathError": "Non se puido obter a ruta do arquivo",
+  "settingsImportDialogTitle": "Importar Base de Datos",
+  "settingsImportDialogMessage": "Esta acción substituirá todos os teus datos actuais cos datos do arquivo importado.\n\nEstás seguro de continuar?",
+  "settingsRestartDialogTitle": "Importación Completada",
+  "settingsRestartDialogMessage": "A base de datos foi importada correctamente.\n\nPor favor, reinicia a aplicación para ver os cambios.",
+  "settingsRestartDialogButton": "Entendido"
 }

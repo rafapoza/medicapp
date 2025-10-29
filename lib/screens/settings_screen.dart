@@ -18,6 +18,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// Export the database and share it
   Future<void> _exportDatabase() async {
+    final l10n = AppLocalizations.of(context)!;
+
     setState(() {
       _isExporting = true;
     });
@@ -31,17 +33,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Share the file
       final result = await Share.shareXFiles(
         [XFile(exportPath)],
-        text: 'MedicApp Database Backup',
+        text: l10n.settingsShareText,
       );
 
       if (!mounted) return;
 
       if (result.status == ShareResultStatus.success) {
-        _showSnackBar('Base de datos exportada correctamente', isError: false);
+        _showSnackBar(l10n.settingsExportSuccess, isError: false);
       }
     } catch (e) {
       if (!mounted) return;
-      _showSnackBar('Error al exportar: $e', isError: true);
+      _showSnackBar(l10n.settingsExportError(e.toString()), isError: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -53,10 +55,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// Import a database from a file
   Future<void> _importDatabase() async {
+    final l10n = AppLocalizations.of(context)!;
+
     // Show confirmation dialog first
     final confirm = await _showConfirmDialog(
-      'Importar Base de Datos',
-      'Esta acción reemplazará todos tus datos actuales con los datos del archivo importado.\n\n¿Estás seguro de continuar?',
+      l10n.settingsImportDialogTitle,
+      l10n.settingsImportDialogMessage,
     );
 
     if (confirm != true) return;
@@ -82,7 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       final filePath = result.files.first.path;
       if (filePath == null) {
-        throw Exception('No se pudo obtener la ruta del archivo');
+        throw Exception(l10n.settingsFilePathError);
       }
 
       // Import the database
@@ -90,13 +94,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       if (!mounted) return;
 
-      _showSnackBar('Base de datos importada correctamente', isError: false);
+      _showSnackBar(l10n.settingsImportSuccess, isError: false);
 
       // Show restart dialog
       _showRestartDialog();
     } catch (e) {
       if (!mounted) return;
-      _showSnackBar('Error al importar: $e', isError: true);
+      _showSnackBar(l10n.settingsImportError(e.toString()), isError: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -108,6 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// Show a confirmation dialog
   Future<bool?> _showConfirmDialog(String title, String message) {
+    final l10n = AppLocalizations.of(context)!;
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -116,11 +121,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(l10n.btnCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Continuar'),
+            child: Text(l10n.btnContinue),
           ),
         ],
       ),
@@ -129,22 +134,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// Show restart dialog after import
   void _showRestartDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Importación Completada'),
-        content: const Text(
-          'La base de datos se ha importado correctamente.\n\n'
-          'Por favor, reinicia la aplicación para ver los cambios.',
-        ),
+        title: Text(l10n.settingsRestartDialogTitle),
+        content: Text(l10n.settingsRestartDialogMessage),
         actions: [
           FilledButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context); // Return to main screen
             },
-            child: const Text('Entendido'),
+            child: Text(l10n.settingsRestartDialogButton),
           ),
         ],
       ),
@@ -165,10 +168,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configuración'),
+        title: Text(l10n.settingsTitle),
       ),
       body: ListView(
         children: [
@@ -176,7 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Copia de Seguridad',
+              l10n.settingsBackupSection,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: theme.colorScheme.primary,
                 fontWeight: FontWeight.bold,
@@ -192,10 +196,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Icons.upload_file,
                 color: theme.colorScheme.primary,
               ),
-              title: const Text('Exportar Base de Datos'),
-              subtitle: const Text(
-                'Guarda una copia de todos tus medicamentos e historial',
-              ),
+              title: Text(l10n.settingsExportTitle),
+              subtitle: Text(l10n.settingsExportSubtitle),
               trailing: _isExporting
                   ? const SizedBox(
                       width: 24,
@@ -216,10 +218,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Icons.download_for_offline,
                 color: theme.colorScheme.secondary,
               ),
-              title: const Text('Importar Base de Datos'),
-              subtitle: const Text(
-                'Restaura una copia de seguridad previamente exportada',
-              ),
+              title: Text(l10n.settingsImportTitle),
+              subtitle: Text(l10n.settingsImportSubtitle),
               trailing: _isImporting
                   ? const SizedBox(
                       width: 24,
@@ -250,7 +250,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Información',
+                          l10n.settingsInfoTitle,
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: theme.colorScheme.onPrimaryContainer,
                             fontWeight: FontWeight.bold,
@@ -260,9 +260,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '• Al exportar, se creará un archivo de copia de seguridad que podrás guardar en tu dispositivo o compartir.\n\n'
-                      '• Al importar, todos los datos actuales serán reemplazados por los del archivo seleccionado.\n\n'
-                      '• Se recomienda hacer copias de seguridad regularmente.',
+                      l10n.settingsInfoContent,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onPrimaryContainer,
                       ),

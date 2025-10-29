@@ -65,7 +65,8 @@ import 'app_localizations_gl.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -73,7 +74,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -85,12 +87,13 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -98,7 +101,7 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('es'),
     Locale('eu'),
-    Locale('gl')
+    Locale('gl'),
   ];
 
   /// No description provided for @appTitle.
@@ -130,6 +133,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Historial'**
   String get navHistory;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración'**
+  String get navSettings;
+
+  /// No description provided for @navMedicationShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio'**
+  String get navMedicationShort;
+
+  /// No description provided for @navPillOrganizerShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Stock'**
+  String get navPillOrganizerShort;
+
+  /// No description provided for @navMedicineCabinetShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Botiquín'**
+  String get navMedicineCabinetShort;
+
+  /// No description provided for @navHistoryShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial'**
+  String get navHistoryShort;
+
+  /// No description provided for @navSettingsShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustes'**
+  String get navSettingsShort;
 
   /// No description provided for @btnContinue.
   ///
@@ -603,19 +642,33 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}'**
-  String medicineCabinetInsufficientStock(String needed, String unit, String available);
+  String medicineCabinetInsufficientStock(
+    String needed,
+    String unit,
+    String available,
+  );
 
   /// No description provided for @medicineCabinetRefillSuccess.
   ///
   /// In es, this message translates to:
   /// **'Stock de {name} recargado\nAgregado: {amount} {unit}\nNuevo stock: {newStock}'**
-  String medicineCabinetRefillSuccess(String name, String amount, String unit, String newStock);
+  String medicineCabinetRefillSuccess(
+    String name,
+    String amount,
+    String unit,
+    String newStock,
+  );
 
   /// No description provided for @medicineCabinetDoseRegistered.
   ///
   /// In es, this message translates to:
   /// **'Toma de {name} registrada\nCantidad: {amount} {unit}\nStock restante: {remaining}'**
-  String medicineCabinetDoseRegistered(String name, String amount, String unit, String remaining);
+  String medicineCabinetDoseRegistered(
+    String name,
+    String amount,
+    String unit,
+    String remaining,
+  );
 
   /// No description provided for @medicineCabinetDeleteSuccess.
   ///
@@ -1671,7 +1724,11 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}'**
-  String doseActionInsufficientStock(String needed, String unit, String available);
+  String doseActionInsufficientStock(
+    String needed,
+    String unit,
+    String available,
+  );
 
   /// No description provided for @doseActionTakenRegistered.
   ///
@@ -2584,9 +2641,124 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No hay suficiente stock para marcar como tomada'**
   String get insufficientStockForDose;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsBackupSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Copia de Seguridad'**
+  String get settingsBackupSection;
+
+  /// No description provided for @settingsExportTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar Base de Datos'**
+  String get settingsExportTitle;
+
+  /// No description provided for @settingsExportSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Guarda una copia de todos tus medicamentos e historial'**
+  String get settingsExportSubtitle;
+
+  /// No description provided for @settingsImportTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Importar Base de Datos'**
+  String get settingsImportTitle;
+
+  /// No description provided for @settingsImportSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Restaura una copia de seguridad previamente exportada'**
+  String get settingsImportSubtitle;
+
+  /// No description provided for @settingsInfoTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Información'**
+  String get settingsInfoTitle;
+
+  /// No description provided for @settingsInfoContent.
+  ///
+  /// In es, this message translates to:
+  /// **'• Al exportar, se creará un archivo de copia de seguridad que podrás guardar en tu dispositivo o compartir.\n\n• Al importar, todos los datos actuales serán reemplazados por los del archivo seleccionado.\n\n• Se recomienda hacer copias de seguridad regularmente.'**
+  String get settingsInfoContent;
+
+  /// No description provided for @settingsShareText.
+  ///
+  /// In es, this message translates to:
+  /// **'Copia de seguridad de MedicApp'**
+  String get settingsShareText;
+
+  /// No description provided for @settingsExportSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Base de datos exportada correctamente'**
+  String get settingsExportSuccess;
+
+  /// No description provided for @settingsImportSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Base de datos importada correctamente'**
+  String get settingsImportSuccess;
+
+  /// No description provided for @settingsExportError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al exportar: {error}'**
+  String settingsExportError(String error);
+
+  /// No description provided for @settingsImportError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al importar: {error}'**
+  String settingsImportError(String error);
+
+  /// No description provided for @settingsFilePathError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo obtener la ruta del archivo'**
+  String get settingsFilePathError;
+
+  /// No description provided for @settingsImportDialogTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Importar Base de Datos'**
+  String get settingsImportDialogTitle;
+
+  /// No description provided for @settingsImportDialogMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta acción reemplazará todos tus datos actuales con los datos del archivo importado.\n\n¿Estás seguro de continuar?'**
+  String get settingsImportDialogMessage;
+
+  /// No description provided for @settingsRestartDialogTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Importación Completada'**
+  String get settingsRestartDialogTitle;
+
+  /// No description provided for @settingsRestartDialogMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'La base de datos se ha importado correctamente.\n\nPor favor, reinicia la aplicación para ver los cambios.'**
+  String get settingsRestartDialogMessage;
+
+  /// No description provided for @settingsRestartDialogButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Entendido'**
+  String get settingsRestartDialogButton;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -2595,28 +2767,32 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['ca', 'en', 'es', 'eu', 'gl'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['ca', 'en', 'es', 'eu', 'gl'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'ca': return AppLocalizationsCa();
-    case 'en': return AppLocalizationsEn();
-    case 'es': return AppLocalizationsEs();
-    case 'eu': return AppLocalizationsEu();
-    case 'gl': return AppLocalizationsGl();
+    case 'ca':
+      return AppLocalizationsCa();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
+    case 'eu':
+      return AppLocalizationsEu();
+    case 'gl':
+      return AppLocalizationsGl();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

@@ -7,6 +7,12 @@
   "navPillOrganizer": "Pastiller",
   "navMedicineCabinet": "Farmaciola",
   "navHistory": "Historial",
+  "navSettings": "Configuració",
+  "navMedicationShort": "Inici",
+  "navPillOrganizerShort": "Estoc",
+  "navMedicineCabinetShort": "Farmaciola",
+  "navHistoryShort": "Historial",
+  "navSettingsShort": "Ajustos",
 
   "@_COMMON_BUTTONS": {},
   "btnContinue": "Continuar",
@@ -835,5 +841,26 @@
       }
     }
   },
-  "insufficientStockForDose": "No hi ha prou estoc per marcar com a presa"
+  "insufficientStockForDose": "No hi ha prou estoc per marcar com a presa",
+
+  "@_SETTINGS_SCREEN": {},
+  "settingsTitle": "Configuració",
+  "settingsBackupSection": "Còpia de Seguretat",
+  "settingsExportTitle": "Exportar Base de Dades",
+  "settingsExportSubtitle": "Desa una còpia de tots els teus medicaments i historial",
+  "settingsImportTitle": "Importar Base de Dades",
+  "settingsImportSubtitle": "Restaura una còpia de seguretat prèviament exportada",
+  "settingsInfoTitle": "Informació",
+  "settingsInfoContent": "• En exportar, es crearà un arxiu de còpia de seguretat que podràs desar al teu dispositiu o compartir.\n\n• En importar, totes les dades actuals seran reemplaçades per les de l'arxiu seleccionat.\n\n• Es recomana fer còpies de seguretat regularment.",
+  "settingsShareText": "Còpia de seguretat de MedicApp",
+  "settingsExportSuccess": "Base de dades exportada correctament",
+  "settingsImportSuccess": "Base de dades importada correctament",
+  "settingsExportError": "Error en exportar: {error}",
+  "settingsImportError": "Error en importar: {error}",
+  "settingsFilePathError": "No s'ha pogut obtenir la ruta de l'arxiu",
+  "settingsImportDialogTitle": "Importar Base de Dades",
+  "settingsImportDialogMessage": "Aquesta acció reemplaçarà totes les teves dades actuals amb les dades de l'arxiu importat.\n\nEstàs segur de continuar?",
+  "settingsRestartDialogTitle": "Importació Completada",
+  "settingsRestartDialogMessage": "La base de dades s'ha importat correctament.\n\nSi us plau, reinicia l'aplicació per veure els canvis.",
+  "settingsRestartDialogButton": "Entès"
 }

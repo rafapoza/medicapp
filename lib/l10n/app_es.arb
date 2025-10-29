@@ -7,6 +7,12 @@
   "navPillOrganizer": "Pastillero",
   "navMedicineCabinet": "Botiquín",
   "navHistory": "Historial",
+  "navSettings": "Configuración",
+  "navMedicationShort": "Inicio",
+  "navPillOrganizerShort": "Stock",
+  "navMedicineCabinetShort": "Botiquín",
+  "navHistoryShort": "Historial",
+  "navSettingsShort": "Ajustes",
 
   "@_COMMON_BUTTONS": {},
   "btnContinue": "Continuar",
@@ -835,5 +841,40 @@
       }
     }
   },
-  "insufficientStockForDose": "No hay suficiente stock para marcar como tomada"
+  "insufficientStockForDose": "No hay suficiente stock para marcar como tomada",
+
+  "@_SETTINGS_SCREEN": {},
+  "settingsTitle": "Configuración",
+  "settingsBackupSection": "Copia de Seguridad",
+  "settingsExportTitle": "Exportar Base de Datos",
+  "settingsExportSubtitle": "Guarda una copia de todos tus medicamentos e historial",
+  "settingsImportTitle": "Importar Base de Datos",
+  "settingsImportSubtitle": "Restaura una copia de seguridad previamente exportada",
+  "settingsInfoTitle": "Información",
+  "settingsInfoContent": "• Al exportar, se creará un archivo de copia de seguridad que podrás guardar en tu dispositivo o compartir.\n\n• Al importar, todos los datos actuales serán reemplazados por los del archivo seleccionado.\n\n• Se recomienda hacer copias de seguridad regularmente.",
+  "settingsShareText": "Copia de seguridad de MedicApp",
+  "settingsExportSuccess": "Base de datos exportada correctamente",
+  "settingsImportSuccess": "Base de datos importada correctamente",
+  "settingsExportError": "Error al exportar: {error}",
+  "@settingsExportError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsImportError": "Error al importar: {error}",
+  "@settingsImportError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFilePathError": "No se pudo obtener la ruta del archivo",
+  "settingsImportDialogTitle": "Importar Base de Datos",
+  "settingsImportDialogMessage": "Esta acción reemplazará todos tus datos actuales con los datos del archivo importado.\n\n¿Estás seguro de continuar?",
+  "settingsRestartDialogTitle": "Importación Completada",
+  "settingsRestartDialogMessage": "La base de datos se ha importado correctamente.\n\nPor favor, reinicia la aplicación para ver los cambios.",
+  "settingsRestartDialogButton": "Entendido"
 }

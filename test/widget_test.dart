@@ -1506,9 +1506,16 @@ void main() {
 
     // Register first dose
     await tester.tap(find.text(getL10n(tester).summaryMedication));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
+    await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.pumpAndSettle();
+
+    // Wait for dialog to open
+    await tester.pump(); // Start opening dialog
+    await tester.pump(const Duration(milliseconds: 100)); // Animation frame
+    await tester.pump(const Duration(milliseconds: 100)); // Complete animation
+    await tester.pump(); // Final frame
 
     // Verify all 3 doses are shown initially
     expect(find.text('08:00'), findsOneWidget);
@@ -1531,9 +1538,14 @@ void main() {
     await tester.tap(find.text(getL10n(tester).summaryMedication));
     await tester.pump();
     await tester.pump();
+    await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.pump();
-    await tester.pump();
+
+    // Wait for dialog to open
+    await tester.pump(); // Start opening dialog
+    await tester.pump(const Duration(milliseconds: 100)); // Animation frame
+    await tester.pump(const Duration(milliseconds: 100)); // Complete animation
+    await tester.pump(); // Final frame
 
     // Verify the dialog is shown
     expect(find.text('Registrar toma de Medicamento'), findsOneWidget);

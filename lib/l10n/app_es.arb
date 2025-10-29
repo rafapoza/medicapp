@@ -7,6 +7,14 @@
   "navPillOrganizer": "Pastillero",
   "navMedicineCabinet": "Botiquín",
   "navHistory": "Historial",
+  "navSettings": "Configuración",
+  "navInventory": "Inventario",
+  "navMedicationShort": "Inicio",
+  "navPillOrganizerShort": "Stock",
+  "navMedicineCabinetShort": "Botiquín",
+  "navHistoryShort": "Historial",
+  "navSettingsShort": "Ajustes",
+  "navInventoryShort": "Medicinas",
 
   "@_COMMON_BUTTONS": {},
   "btnContinue": "Continuar",
@@ -835,5 +843,542 @@
       }
     }
   },
-  "insufficientStockForDose": "No hay suficiente stock para marcar como tomada"
+  "insufficientStockForDose": "No hay suficiente stock para marcar como tomada",
+
+  "@_SETTINGS_SCREEN": {},
+  "settingsTitle": "Configuración",
+  "settingsBackupSection": "Copia de Seguridad",
+  "settingsExportTitle": "Exportar Base de Datos",
+  "settingsExportSubtitle": "Guarda una copia de todos tus medicamentos e historial",
+  "settingsImportTitle": "Importar Base de Datos",
+  "settingsImportSubtitle": "Restaura una copia de seguridad previamente exportada",
+  "settingsInfoTitle": "Información",
+  "settingsInfoContent": "• Al exportar, se creará un archivo de copia de seguridad que podrás guardar en tu dispositivo o compartir.\n\n• Al importar, todos los datos actuales serán reemplazados por los del archivo seleccionado.\n\n• Se recomienda hacer copias de seguridad regularmente.",
+  "settingsShareText": "Copia de seguridad de MedicApp",
+  "settingsExportSuccess": "Base de datos exportada correctamente",
+  "settingsImportSuccess": "Base de datos importada correctamente",
+  "settingsExportError": "Error al exportar: {error}",
+  "@settingsExportError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsImportError": "Error al importar: {error}",
+  "@settingsImportError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFilePathError": "No se pudo obtener la ruta del archivo",
+  "settingsImportDialogTitle": "Importar Base de Datos",
+  "settingsImportDialogMessage": "Esta acción reemplazará todos tus datos actuales con los datos del archivo importado.\n\n¿Estás seguro de continuar?",
+  "settingsRestartDialogTitle": "Importación Completada",
+  "settingsRestartDialogMessage": "La base de datos se ha importado correctamente.\n\nPor favor, reinicia la aplicación para ver los cambios.",
+  "settingsRestartDialogButton": "Entendido",
+
+  "@_MEDICATION_LIST_SCREEN": {},
+  "notificationsWillNotWork": "Las notificaciones NO funcionarán sin este permiso.",
+  "debugMenuActivated": "Menú de depuración activado",
+  "debugMenuDeactivated": "Menú de depuración desactivado",
+  "nextDoseAt": "Próxima toma: {time}",
+  "@nextDoseAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pendingDose": "⚠️ Dosis pendiente: {time}",
+  "@pendingDose": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "nextDoseTomorrow": "Próxima toma: mañana a las {time}",
+  "@nextDoseTomorrow": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "nextDoseOnDay": "Próxima toma: {dayName} {day}/{month} a las {time}",
+  "@nextDoseOnDay": {
+    "placeholders": {
+      "dayName": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dayNameMon": "Lun",
+  "dayNameTue": "Mar",
+  "dayNameWed": "Mié",
+  "dayNameThu": "Jue",
+  "dayNameFri": "Vie",
+  "dayNameSat": "Sáb",
+  "dayNameSun": "Dom",
+  "whichDoseDidYouTake": "¿Qué toma has tomado?",
+  "insufficientStockForThisDose": "Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}",
+  "@insufficientStockForThisDose": {
+    "placeholders": {
+      "needed": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "available": {
+        "type": "String"
+      }
+    }
+  },
+  "doseRegisteredAtTime": "Toma de {name} registrada a las {time}\nStock restante: {stock}",
+  "@doseRegisteredAtTime": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
+  "allDosesCompletedToday": "✓ Todas las tomas de hoy completadas",
+  "remainingDosesToday": "Tomas restantes hoy: {count}",
+  "@remainingDosesToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "manualDoseRegistered": "Toma manual de {name} registrada\nCantidad: {quantity} {unit}\nStock restante: {stock}",
+  "@manualDoseRegistered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
+  "medicationSuspended": "{name} suspendido\nNo se programarán más notificaciones",
+  "@medicationSuspended": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "medicationReactivated": "{name} reactivado\nNotificaciones reprogramadas",
+  "@medicationReactivated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "currentStock": "Stock actual: {stock}",
+  "@currentStock": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
+  "quantityToAdd": "Cantidad a agregar",
+  "example": "Ej: {example}",
+  "@example": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "lastRefill": "Última recarga: {amount} {unit}",
+  "@lastRefill": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "refillButton": "Recargar",
+  "stockRefilled": "Stock de {name} recargado\nAgregado: {amount} {unit}\nNuevo stock: {newStock}",
+  "@stockRefilled": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "newStock": {
+        "type": "String"
+      }
+    }
+  },
+  "availableStock": "Stock disponible: {stock}",
+  "@availableStock": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
+  "quantityTaken": "Cantidad tomada",
+  "registerButton": "Registrar",
+  "registerManualDose": "Registrar toma manual",
+  "refillMedication": "Recargar medicamento",
+  "resumeMedication": "Reactivar medicamento",
+  "suspendMedication": "Suspender medicamento",
+  "editMedicationButton": "Editar medicamento",
+  "deleteMedicationButton": "Eliminar medicamento",
+  "medicationDeletedShort": "{name} eliminado",
+  "@medicationDeletedShort": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noMedicationsRegistered": "No hay medicamentos registrados",
+  "addMedicationHint": "Pulsa el botón + para añadir uno",
+  "pullToRefresh": "Arrastra hacia abajo para recargar",
+  "batteryOptimizationWarning": "Para que las notificaciones funcionen, desactiva las restricciones de batería:",
+  "batteryOptimizationInstructions": "Ajustes → Aplicaciones → MedicApp → Batería → \"Sin restricciones\"",
+  "openSettings": "Abrir ajustes",
+  "todayDosesLabel": "Tomas de hoy:",
+  "doseOfMedicationAt": "Toma de {name} a las {time}",
+  "@doseOfMedicationAt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "currentStatus": "Estado actual: {status}",
+  "@currentStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "whatDoYouWantToDo": "¿Qué deseas hacer?",
+  "deleteButton": "Eliminar",
+  "markAsSkipped": "Marcar Omitida",
+  "markAsTaken": "Marcar Tomada",
+  "doseDeletedAt": "Toma de las {time} eliminada",
+  "@doseDeletedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "errorDeleting": "Error al eliminar: {error}",
+  "@errorDeleting": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "doseMarkedAs": "Toma de las {time} marcada como {status}",
+  "@doseMarkedAs": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "errorChangingStatus": "Error al cambiar estado: {error}",
+  "@errorChangingStatus": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "medicationUpdatedShort": "{name} actualizado",
+  "@medicationUpdatedShort": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "activateAlarmsPermission": "Activar \"Alarmas y recordatorios\"",
+  "alarmsPermissionDescription": "Este permiso permite que las notificaciones salten exactamente a la hora configurada.",
+  "notificationDebugTitle": "Debug de Notificaciones",
+  "notificationPermissions": "✓ Permisos de notificaciones: {enabled}",
+  "@notificationPermissions": {
+    "placeholders": {
+      "enabled": {
+        "type": "String"
+      }
+    }
+  },
+  "exactAlarmsAndroid12": "⏰ Alarmas exactas (Android 12+): {enabled}",
+  "@exactAlarmsAndroid12": {
+    "placeholders": {
+      "enabled": {
+        "type": "String"
+      }
+    }
+  },
+  "importantWarning": "⚠️ IMPORTANTE",
+  "withoutPermissionNoNotifications": "Sin este permiso las notificaciones NO saltarán.",
+  "alarmsSettings": "Ajustes → Aplicaciones → MedicApp → Alarmas y recordatorios",
+  "pendingNotificationsCount": "📊 Notificaciones pendientes: {count}",
+  "@pendingNotificationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationsWithSchedules": "💊 Medicamentos con horarios: {withSchedules}/{total}",
+  "@medicationsWithSchedules": {
+    "placeholders": {
+      "withSchedules": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "scheduledNotifications": "Notificaciones programadas:",
+  "noScheduledNotifications": "⚠️ No hay notificaciones programadas",
+  "noTitle": "Sin título",
+  "medicationsAndSchedules": "Medicamentos y horarios:",
+  "noSchedulesConfigured": "⚠️ Sin horarios configurados",
+  "closeButton": "Cerrar",
+  "testNotification": "Probar notificación",
+  "testNotificationSent": "Notificación de prueba enviada",
+  "testScheduledNotification": "Probar programada (1 min)",
+  "scheduledNotificationInOneMin": "Notificación programada para 1 minuto",
+  "rescheduleNotifications": "Reprogramar notificaciones",
+  "notificationsInfo": "Info de notificaciones",
+  "notificationsRescheduled": "Notificaciones reprogramadas: {count}",
+  "@notificationsRescheduled": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yesText": "Sí",
+  "noText": "No",
+  "notificationTypeDynamicFasting": "Ayuno dinámico",
+  "notificationTypeScheduledFasting": "Ayuno programado",
+  "notificationTypeWeeklyPattern": "Patrón semanal",
+  "notificationTypeSpecificDate": "Fecha específica",
+  "notificationTypePostponed": "Pospuesta",
+  "notificationTypeDailyRecurring": "Diaria recurrente",
+  "beforeTaking": "Antes de tomar",
+  "afterTaking": "Después de tomar",
+  "basedOnActualDose": "Basado en toma real",
+  "basedOnSchedule": "Basado en horario",
+  "today": "Hoy {day}/{month}/{year}",
+  "@today": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      },
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "tomorrow": "Mañana {day}/{month}/{year}",
+  "@tomorrow": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      },
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "todayOrLater": "Hoy o posterior",
+  "pastDueWarning": "⚠️ PASADA",
+  "batteryOptimizationMenu": "⚙️ Optimización de batería",
+  "alarmsAndReminders": "⚙️ Alarmas y recordatorios",
+  "notificationTypeScheduledFastingShort": "Ayuno programado",
+  "basedOnActualDoseShort": "Basado en toma real",
+  "basedOnScheduleShort": "Basado en horario",
+  "pendingNotifications": "📊 Notificaciones pendientes: {count}",
+  "@pendingNotifications": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "medicationsWithSchedulesInfo": "💊 Medicamentos con horarios: {withSchedules}/{total}",
+  "@medicationsWithSchedulesInfo": {
+    "placeholders": {
+      "withSchedules": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "noSchedulesConfiguredWarning": "⚠️ Sin horarios configurados",
+  "medicationInfo": "💊 {name}",
+  "@medicationInfo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationType": "📋 Tipo: {type}",
+  "@notificationType": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleDate": "📅 Fecha: {date}",
+  "@scheduleDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleTime": "⏰ Hora: {time}",
+  "@scheduleTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationId": "ID: {id}",
+  "@notificationId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "takenStatus": "Tomada",
+  "skippedStatus": "Omitida",
+  "durationEstimate": "{name}\nStock: {stock}\nDuración estimada: {days} días",
+  "@durationEstimate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "errorChanging": "Error al cambiar estado: {error}",
+  "@errorChanging": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "testScheduled1Min": "Probar programada (1 min)",
+  "alarmsAndRemindersMenu": "⚙️ Alarmas y recordatorios",
+  "medicationStockInfo": "{name}\nStock: {stock}",
+  "@medicationStockInfo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
+  "takenTodaySingle": "Tomado hoy: {quantity} {unit} a las {time}",
+  "@takenTodaySingle": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "takenTodayMultiple": "Tomado hoy: {count} veces ({quantity} {unit})",
+  "@takenTodayMultiple": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "done": "Hecho",
+  "suspended": "Suspendido"
 }

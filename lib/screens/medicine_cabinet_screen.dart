@@ -9,7 +9,9 @@ import 'edit_medication_menu_screen.dart';
 import 'medication_info_screen.dart';
 
 class MedicineCabinetScreen extends StatefulWidget {
-  const MedicineCabinetScreen({super.key});
+  final bool showAppBar;
+
+  const MedicineCabinetScreen({super.key, this.showAppBar = true});
 
   @override
   State<MedicineCabinetScreen> createState() => _MedicineCabinetScreenState();
@@ -80,9 +82,11 @@ class _MedicineCabinetScreenState extends State<MedicineCabinetScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.medicineCabinetTitle),
-      ),
+      appBar: widget.showAppBar
+          ? AppBar(
+              title: Text(l10n.medicineCabinetTitle),
+            )
+          : null,
       body: Column(
         children: [
           // Search bar

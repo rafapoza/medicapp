@@ -65,7 +65,8 @@ import 'app_localizations_gl.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -73,7 +74,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -85,12 +87,13 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -98,7 +101,7 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('es'),
     Locale('eu'),
-    Locale('gl')
+    Locale('gl'),
   ];
 
   /// No description provided for @appTitle.
@@ -130,6 +133,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Historial'**
   String get navHistory;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración'**
+  String get navSettings;
+
+  /// No description provided for @navInventory.
+  ///
+  /// In es, this message translates to:
+  /// **'Inventario'**
+  String get navInventory;
+
+  /// No description provided for @navMedicationShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio'**
+  String get navMedicationShort;
+
+  /// No description provided for @navPillOrganizerShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Stock'**
+  String get navPillOrganizerShort;
+
+  /// No description provided for @navMedicineCabinetShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Botiquín'**
+  String get navMedicineCabinetShort;
+
+  /// No description provided for @navHistoryShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial'**
+  String get navHistoryShort;
+
+  /// No description provided for @navSettingsShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustes'**
+  String get navSettingsShort;
+
+  /// No description provided for @navInventoryShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Medicinas'**
+  String get navInventoryShort;
 
   /// No description provided for @btnContinue.
   ///
@@ -603,19 +654,33 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}'**
-  String medicineCabinetInsufficientStock(String needed, String unit, String available);
+  String medicineCabinetInsufficientStock(
+    String needed,
+    String unit,
+    String available,
+  );
 
   /// No description provided for @medicineCabinetRefillSuccess.
   ///
   /// In es, this message translates to:
   /// **'Stock de {name} recargado\nAgregado: {amount} {unit}\nNuevo stock: {newStock}'**
-  String medicineCabinetRefillSuccess(String name, String amount, String unit, String newStock);
+  String medicineCabinetRefillSuccess(
+    String name,
+    String amount,
+    String unit,
+    String newStock,
+  );
 
   /// No description provided for @medicineCabinetDoseRegistered.
   ///
   /// In es, this message translates to:
   /// **'Toma de {name} registrada\nCantidad: {amount} {unit}\nStock restante: {remaining}'**
-  String medicineCabinetDoseRegistered(String name, String amount, String unit, String remaining);
+  String medicineCabinetDoseRegistered(
+    String name,
+    String amount,
+    String unit,
+    String remaining,
+  );
 
   /// No description provided for @medicineCabinetDeleteSuccess.
   ///
@@ -1671,7 +1736,11 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}'**
-  String doseActionInsufficientStock(String needed, String unit, String available);
+  String doseActionInsufficientStock(
+    String needed,
+    String unit,
+    String available,
+  );
 
   /// No description provided for @doseActionTakenRegistered.
   ///
@@ -2584,9 +2653,852 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No hay suficiente stock para marcar como tomada'**
   String get insufficientStockForDose;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsBackupSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Copia de Seguridad'**
+  String get settingsBackupSection;
+
+  /// No description provided for @settingsExportTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar Base de Datos'**
+  String get settingsExportTitle;
+
+  /// No description provided for @settingsExportSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Guarda una copia de todos tus medicamentos e historial'**
+  String get settingsExportSubtitle;
+
+  /// No description provided for @settingsImportTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Importar Base de Datos'**
+  String get settingsImportTitle;
+
+  /// No description provided for @settingsImportSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Restaura una copia de seguridad previamente exportada'**
+  String get settingsImportSubtitle;
+
+  /// No description provided for @settingsInfoTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Información'**
+  String get settingsInfoTitle;
+
+  /// No description provided for @settingsInfoContent.
+  ///
+  /// In es, this message translates to:
+  /// **'• Al exportar, se creará un archivo de copia de seguridad que podrás guardar en tu dispositivo o compartir.\n\n• Al importar, todos los datos actuales serán reemplazados por los del archivo seleccionado.\n\n• Se recomienda hacer copias de seguridad regularmente.'**
+  String get settingsInfoContent;
+
+  /// No description provided for @settingsShareText.
+  ///
+  /// In es, this message translates to:
+  /// **'Copia de seguridad de MedicApp'**
+  String get settingsShareText;
+
+  /// No description provided for @settingsExportSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Base de datos exportada correctamente'**
+  String get settingsExportSuccess;
+
+  /// No description provided for @settingsImportSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Base de datos importada correctamente'**
+  String get settingsImportSuccess;
+
+  /// No description provided for @settingsExportError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al exportar: {error}'**
+  String settingsExportError(String error);
+
+  /// No description provided for @settingsImportError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al importar: {error}'**
+  String settingsImportError(String error);
+
+  /// No description provided for @settingsFilePathError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo obtener la ruta del archivo'**
+  String get settingsFilePathError;
+
+  /// No description provided for @settingsImportDialogTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Importar Base de Datos'**
+  String get settingsImportDialogTitle;
+
+  /// No description provided for @settingsImportDialogMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta acción reemplazará todos tus datos actuales con los datos del archivo importado.\n\n¿Estás seguro de continuar?'**
+  String get settingsImportDialogMessage;
+
+  /// No description provided for @settingsRestartDialogTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Importación Completada'**
+  String get settingsRestartDialogTitle;
+
+  /// No description provided for @settingsRestartDialogMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'La base de datos se ha importado correctamente.\n\nPor favor, reinicia la aplicación para ver los cambios.'**
+  String get settingsRestartDialogMessage;
+
+  /// No description provided for @settingsRestartDialogButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Entendido'**
+  String get settingsRestartDialogButton;
+
+  /// No description provided for @notificationsWillNotWork.
+  ///
+  /// In es, this message translates to:
+  /// **'Las notificaciones NO funcionarán sin este permiso.'**
+  String get notificationsWillNotWork;
+
+  /// No description provided for @debugMenuActivated.
+  ///
+  /// In es, this message translates to:
+  /// **'Menú de depuración activado'**
+  String get debugMenuActivated;
+
+  /// No description provided for @debugMenuDeactivated.
+  ///
+  /// In es, this message translates to:
+  /// **'Menú de depuración desactivado'**
+  String get debugMenuDeactivated;
+
+  /// No description provided for @nextDoseAt.
+  ///
+  /// In es, this message translates to:
+  /// **'Próxima toma: {time}'**
+  String nextDoseAt(String time);
+
+  /// No description provided for @pendingDose.
+  ///
+  /// In es, this message translates to:
+  /// **'⚠️ Dosis pendiente: {time}'**
+  String pendingDose(String time);
+
+  /// No description provided for @nextDoseTomorrow.
+  ///
+  /// In es, this message translates to:
+  /// **'Próxima toma: mañana a las {time}'**
+  String nextDoseTomorrow(String time);
+
+  /// No description provided for @nextDoseOnDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Próxima toma: {dayName} {day}/{month} a las {time}'**
+  String nextDoseOnDay(String dayName, int day, int month, String time);
+
+  /// No description provided for @dayNameMon.
+  ///
+  /// In es, this message translates to:
+  /// **'Lun'**
+  String get dayNameMon;
+
+  /// No description provided for @dayNameTue.
+  ///
+  /// In es, this message translates to:
+  /// **'Mar'**
+  String get dayNameTue;
+
+  /// No description provided for @dayNameWed.
+  ///
+  /// In es, this message translates to:
+  /// **'Mié'**
+  String get dayNameWed;
+
+  /// No description provided for @dayNameThu.
+  ///
+  /// In es, this message translates to:
+  /// **'Jue'**
+  String get dayNameThu;
+
+  /// No description provided for @dayNameFri.
+  ///
+  /// In es, this message translates to:
+  /// **'Vie'**
+  String get dayNameFri;
+
+  /// No description provided for @dayNameSat.
+  ///
+  /// In es, this message translates to:
+  /// **'Sáb'**
+  String get dayNameSat;
+
+  /// No description provided for @dayNameSun.
+  ///
+  /// In es, this message translates to:
+  /// **'Dom'**
+  String get dayNameSun;
+
+  /// No description provided for @whichDoseDidYouTake.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Qué toma has tomado?'**
+  String get whichDoseDidYouTake;
+
+  /// No description provided for @insufficientStockForThisDose.
+  ///
+  /// In es, this message translates to:
+  /// **'Stock insuficiente para esta toma\nNecesitas: {needed} {unit}\nDisponible: {available}'**
+  String insufficientStockForThisDose(
+    String needed,
+    String unit,
+    String available,
+  );
+
+  /// No description provided for @doseRegisteredAtTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Toma de {name} registrada a las {time}\nStock restante: {stock}'**
+  String doseRegisteredAtTime(String name, String time, String stock);
+
+  /// No description provided for @allDosesCompletedToday.
+  ///
+  /// In es, this message translates to:
+  /// **'✓ Todas las tomas de hoy completadas'**
+  String get allDosesCompletedToday;
+
+  /// No description provided for @remainingDosesToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Tomas restantes hoy: {count}'**
+  String remainingDosesToday(int count);
+
+  /// No description provided for @manualDoseRegistered.
+  ///
+  /// In es, this message translates to:
+  /// **'Toma manual de {name} registrada\nCantidad: {quantity} {unit}\nStock restante: {stock}'**
+  String manualDoseRegistered(
+    String name,
+    String quantity,
+    String unit,
+    String stock,
+  );
+
+  /// No description provided for @medicationSuspended.
+  ///
+  /// In es, this message translates to:
+  /// **'{name} suspendido\nNo se programarán más notificaciones'**
+  String medicationSuspended(String name);
+
+  /// No description provided for @medicationReactivated.
+  ///
+  /// In es, this message translates to:
+  /// **'{name} reactivado\nNotificaciones reprogramadas'**
+  String medicationReactivated(String name);
+
+  /// No description provided for @currentStock.
+  ///
+  /// In es, this message translates to:
+  /// **'Stock actual: {stock}'**
+  String currentStock(String stock);
+
+  /// No description provided for @quantityToAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad a agregar'**
+  String get quantityToAdd;
+
+  /// No description provided for @example.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: {example}'**
+  String example(String example);
+
+  /// No description provided for @lastRefill.
+  ///
+  /// In es, this message translates to:
+  /// **'Última recarga: {amount} {unit}'**
+  String lastRefill(String amount, String unit);
+
+  /// No description provided for @refillButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Recargar'**
+  String get refillButton;
+
+  /// No description provided for @stockRefilled.
+  ///
+  /// In es, this message translates to:
+  /// **'Stock de {name} recargado\nAgregado: {amount} {unit}\nNuevo stock: {newStock}'**
+  String stockRefilled(
+    String name,
+    String amount,
+    String unit,
+    String newStock,
+  );
+
+  /// No description provided for @availableStock.
+  ///
+  /// In es, this message translates to:
+  /// **'Stock disponible: {stock}'**
+  String availableStock(String stock);
+
+  /// No description provided for @quantityTaken.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad tomada'**
+  String get quantityTaken;
+
+  /// No description provided for @registerButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar'**
+  String get registerButton;
+
+  /// No description provided for @registerManualDose.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar toma manual'**
+  String get registerManualDose;
+
+  /// No description provided for @refillMedication.
+  ///
+  /// In es, this message translates to:
+  /// **'Recargar medicamento'**
+  String get refillMedication;
+
+  /// No description provided for @resumeMedication.
+  ///
+  /// In es, this message translates to:
+  /// **'Reactivar medicamento'**
+  String get resumeMedication;
+
+  /// No description provided for @suspendMedication.
+  ///
+  /// In es, this message translates to:
+  /// **'Suspender medicamento'**
+  String get suspendMedication;
+
+  /// No description provided for @editMedicationButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar medicamento'**
+  String get editMedicationButton;
+
+  /// No description provided for @deleteMedicationButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar medicamento'**
+  String get deleteMedicationButton;
+
+  /// No description provided for @medicationDeletedShort.
+  ///
+  /// In es, this message translates to:
+  /// **'{name} eliminado'**
+  String medicationDeletedShort(String name);
+
+  /// No description provided for @noMedicationsRegistered.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay medicamentos registrados'**
+  String get noMedicationsRegistered;
+
+  /// No description provided for @addMedicationHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Pulsa el botón + para añadir uno'**
+  String get addMedicationHint;
+
+  /// No description provided for @pullToRefresh.
+  ///
+  /// In es, this message translates to:
+  /// **'Arrastra hacia abajo para recargar'**
+  String get pullToRefresh;
+
+  /// No description provided for @batteryOptimizationWarning.
+  ///
+  /// In es, this message translates to:
+  /// **'Para que las notificaciones funcionen, desactiva las restricciones de batería:'**
+  String get batteryOptimizationWarning;
+
+  /// No description provided for @batteryOptimizationInstructions.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustes → Aplicaciones → MedicApp → Batería → \"Sin restricciones\"'**
+  String get batteryOptimizationInstructions;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir ajustes'**
+  String get openSettings;
+
+  /// No description provided for @todayDosesLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tomas de hoy:'**
+  String get todayDosesLabel;
+
+  /// No description provided for @doseOfMedicationAt.
+  ///
+  /// In es, this message translates to:
+  /// **'Toma de {name} a las {time}'**
+  String doseOfMedicationAt(String name, String time);
+
+  /// No description provided for @currentStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado actual: {status}'**
+  String currentStatus(String status);
+
+  /// No description provided for @whatDoYouWantToDo.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Qué deseas hacer?'**
+  String get whatDoYouWantToDo;
+
+  /// No description provided for @deleteButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get deleteButton;
+
+  /// No description provided for @markAsSkipped.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcar Omitida'**
+  String get markAsSkipped;
+
+  /// No description provided for @markAsTaken.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcar Tomada'**
+  String get markAsTaken;
+
+  /// No description provided for @doseDeletedAt.
+  ///
+  /// In es, this message translates to:
+  /// **'Toma de las {time} eliminada'**
+  String doseDeletedAt(String time);
+
+  /// No description provided for @errorDeleting.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al eliminar: {error}'**
+  String errorDeleting(String error);
+
+  /// No description provided for @doseMarkedAs.
+  ///
+  /// In es, this message translates to:
+  /// **'Toma de las {time} marcada como {status}'**
+  String doseMarkedAs(String time, String status);
+
+  /// No description provided for @errorChangingStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cambiar estado: {error}'**
+  String errorChangingStatus(String error);
+
+  /// No description provided for @medicationUpdatedShort.
+  ///
+  /// In es, this message translates to:
+  /// **'{name} actualizado'**
+  String medicationUpdatedShort(String name);
+
+  /// No description provided for @activateAlarmsPermission.
+  ///
+  /// In es, this message translates to:
+  /// **'Activar \"Alarmas y recordatorios\"'**
+  String get activateAlarmsPermission;
+
+  /// No description provided for @alarmsPermissionDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Este permiso permite que las notificaciones salten exactamente a la hora configurada.'**
+  String get alarmsPermissionDescription;
+
+  /// No description provided for @notificationDebugTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Debug de Notificaciones'**
+  String get notificationDebugTitle;
+
+  /// No description provided for @notificationPermissions.
+  ///
+  /// In es, this message translates to:
+  /// **'✓ Permisos de notificaciones: {enabled}'**
+  String notificationPermissions(String enabled);
+
+  /// No description provided for @exactAlarmsAndroid12.
+  ///
+  /// In es, this message translates to:
+  /// **'⏰ Alarmas exactas (Android 12+): {enabled}'**
+  String exactAlarmsAndroid12(String enabled);
+
+  /// No description provided for @importantWarning.
+  ///
+  /// In es, this message translates to:
+  /// **'⚠️ IMPORTANTE'**
+  String get importantWarning;
+
+  /// No description provided for @withoutPermissionNoNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin este permiso las notificaciones NO saltarán.'**
+  String get withoutPermissionNoNotifications;
+
+  /// No description provided for @alarmsSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustes → Aplicaciones → MedicApp → Alarmas y recordatorios'**
+  String get alarmsSettings;
+
+  /// No description provided for @pendingNotificationsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'📊 Notificaciones pendientes: {count}'**
+  String pendingNotificationsCount(int count);
+
+  /// No description provided for @medicationsWithSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'💊 Medicamentos con horarios: {withSchedules}/{total}'**
+  String medicationsWithSchedules(int withSchedules, int total);
+
+  /// No description provided for @scheduledNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones programadas:'**
+  String get scheduledNotifications;
+
+  /// No description provided for @noScheduledNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'⚠️ No hay notificaciones programadas'**
+  String get noScheduledNotifications;
+
+  /// No description provided for @noTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin título'**
+  String get noTitle;
+
+  /// No description provided for @medicationsAndSchedules.
+  ///
+  /// In es, this message translates to:
+  /// **'Medicamentos y horarios:'**
+  String get medicationsAndSchedules;
+
+  /// No description provided for @noSchedulesConfigured.
+  ///
+  /// In es, this message translates to:
+  /// **'⚠️ Sin horarios configurados'**
+  String get noSchedulesConfigured;
+
+  /// No description provided for @closeButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar'**
+  String get closeButton;
+
+  /// No description provided for @testNotification.
+  ///
+  /// In es, this message translates to:
+  /// **'Probar notificación'**
+  String get testNotification;
+
+  /// No description provided for @testNotificationSent.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificación de prueba enviada'**
+  String get testNotificationSent;
+
+  /// No description provided for @testScheduledNotification.
+  ///
+  /// In es, this message translates to:
+  /// **'Probar programada (1 min)'**
+  String get testScheduledNotification;
+
+  /// No description provided for @scheduledNotificationInOneMin.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificación programada para 1 minuto'**
+  String get scheduledNotificationInOneMin;
+
+  /// No description provided for @rescheduleNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Reprogramar notificaciones'**
+  String get rescheduleNotifications;
+
+  /// No description provided for @notificationsInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Info de notificaciones'**
+  String get notificationsInfo;
+
+  /// No description provided for @notificationsRescheduled.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones reprogramadas: {count}'**
+  String notificationsRescheduled(int count);
+
+  /// No description provided for @yesText.
+  ///
+  /// In es, this message translates to:
+  /// **'Sí'**
+  String get yesText;
+
+  /// No description provided for @noText.
+  ///
+  /// In es, this message translates to:
+  /// **'No'**
+  String get noText;
+
+  /// No description provided for @notificationTypeDynamicFasting.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayuno dinámico'**
+  String get notificationTypeDynamicFasting;
+
+  /// No description provided for @notificationTypeScheduledFasting.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayuno programado'**
+  String get notificationTypeScheduledFasting;
+
+  /// No description provided for @notificationTypeWeeklyPattern.
+  ///
+  /// In es, this message translates to:
+  /// **'Patrón semanal'**
+  String get notificationTypeWeeklyPattern;
+
+  /// No description provided for @notificationTypeSpecificDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha específica'**
+  String get notificationTypeSpecificDate;
+
+  /// No description provided for @notificationTypePostponed.
+  ///
+  /// In es, this message translates to:
+  /// **'Pospuesta'**
+  String get notificationTypePostponed;
+
+  /// No description provided for @notificationTypeDailyRecurring.
+  ///
+  /// In es, this message translates to:
+  /// **'Diaria recurrente'**
+  String get notificationTypeDailyRecurring;
+
+  /// No description provided for @beforeTaking.
+  ///
+  /// In es, this message translates to:
+  /// **'Antes de tomar'**
+  String get beforeTaking;
+
+  /// No description provided for @afterTaking.
+  ///
+  /// In es, this message translates to:
+  /// **'Después de tomar'**
+  String get afterTaking;
+
+  /// No description provided for @basedOnActualDose.
+  ///
+  /// In es, this message translates to:
+  /// **'Basado en toma real'**
+  String get basedOnActualDose;
+
+  /// No description provided for @basedOnSchedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Basado en horario'**
+  String get basedOnSchedule;
+
+  /// No description provided for @today.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy {day}/{month}/{year}'**
+  String today(int day, int month, int year);
+
+  /// No description provided for @tomorrow.
+  ///
+  /// In es, this message translates to:
+  /// **'Mañana {day}/{month}/{year}'**
+  String tomorrow(int day, int month, int year);
+
+  /// No description provided for @todayOrLater.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy o posterior'**
+  String get todayOrLater;
+
+  /// No description provided for @pastDueWarning.
+  ///
+  /// In es, this message translates to:
+  /// **'⚠️ PASADA'**
+  String get pastDueWarning;
+
+  /// No description provided for @batteryOptimizationMenu.
+  ///
+  /// In es, this message translates to:
+  /// **'⚙️ Optimización de batería'**
+  String get batteryOptimizationMenu;
+
+  /// No description provided for @alarmsAndReminders.
+  ///
+  /// In es, this message translates to:
+  /// **'⚙️ Alarmas y recordatorios'**
+  String get alarmsAndReminders;
+
+  /// No description provided for @notificationTypeScheduledFastingShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayuno programado'**
+  String get notificationTypeScheduledFastingShort;
+
+  /// No description provided for @basedOnActualDoseShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Basado en toma real'**
+  String get basedOnActualDoseShort;
+
+  /// No description provided for @basedOnScheduleShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Basado en horario'**
+  String get basedOnScheduleShort;
+
+  /// No description provided for @pendingNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'📊 Notificaciones pendientes: {count}'**
+  String pendingNotifications(int count);
+
+  /// No description provided for @medicationsWithSchedulesInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'💊 Medicamentos con horarios: {withSchedules}/{total}'**
+  String medicationsWithSchedulesInfo(int withSchedules, int total);
+
+  /// No description provided for @noSchedulesConfiguredWarning.
+  ///
+  /// In es, this message translates to:
+  /// **'⚠️ Sin horarios configurados'**
+  String get noSchedulesConfiguredWarning;
+
+  /// No description provided for @medicationInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'💊 {name}'**
+  String medicationInfo(String name);
+
+  /// No description provided for @notificationType.
+  ///
+  /// In es, this message translates to:
+  /// **'📋 Tipo: {type}'**
+  String notificationType(String type);
+
+  /// No description provided for @scheduleDate.
+  ///
+  /// In es, this message translates to:
+  /// **'📅 Fecha: {date}'**
+  String scheduleDate(String date);
+
+  /// No description provided for @scheduleTime.
+  ///
+  /// In es, this message translates to:
+  /// **'⏰ Hora: {time}'**
+  String scheduleTime(String time);
+
+  /// No description provided for @notificationId.
+  ///
+  /// In es, this message translates to:
+  /// **'ID: {id}'**
+  String notificationId(int id);
+
+  /// No description provided for @takenStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Tomada'**
+  String get takenStatus;
+
+  /// No description provided for @skippedStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Omitida'**
+  String get skippedStatus;
+
+  /// No description provided for @durationEstimate.
+  ///
+  /// In es, this message translates to:
+  /// **'{name}\nStock: {stock}\nDuración estimada: {days} días'**
+  String durationEstimate(String name, String stock, int days);
+
+  /// No description provided for @errorChanging.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al cambiar estado: {error}'**
+  String errorChanging(String error);
+
+  /// No description provided for @testScheduled1Min.
+  ///
+  /// In es, this message translates to:
+  /// **'Probar programada (1 min)'**
+  String get testScheduled1Min;
+
+  /// No description provided for @alarmsAndRemindersMenu.
+  ///
+  /// In es, this message translates to:
+  /// **'⚙️ Alarmas y recordatorios'**
+  String get alarmsAndRemindersMenu;
+
+  /// No description provided for @medicationStockInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'{name}\nStock: {stock}'**
+  String medicationStockInfo(String name, String stock);
+
+  /// No description provided for @takenTodaySingle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tomado hoy: {quantity} {unit} a las {time}'**
+  String takenTodaySingle(String quantity, String unit, String time);
+
+  /// No description provided for @takenTodayMultiple.
+  ///
+  /// In es, this message translates to:
+  /// **'Tomado hoy: {count} veces ({quantity} {unit})'**
+  String takenTodayMultiple(int count, String quantity, String unit);
+
+  /// No description provided for @done.
+  ///
+  /// In es, this message translates to:
+  /// **'Hecho'**
+  String get done;
+
+  /// No description provided for @suspended.
+  ///
+  /// In es, this message translates to:
+  /// **'Suspendido'**
+  String get suspended;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -2595,28 +3507,32 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['ca', 'en', 'es', 'eu', 'gl'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['ca', 'en', 'es', 'eu', 'gl'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'ca': return AppLocalizationsCa();
-    case 'en': return AppLocalizationsEn();
-    case 'es': return AppLocalizationsEs();
-    case 'eu': return AppLocalizationsEu();
-    case 'gl': return AppLocalizationsGl();
+    case 'ca':
+      return AppLocalizationsCa();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
+    case 'eu':
+      return AppLocalizationsEu();
+    case 'gl':
+      return AppLocalizationsGl();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

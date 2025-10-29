@@ -15,7 +15,7 @@
     - **Paso 2**: Seleccionar "Medicamento ocasional" → salta directamente al paso de cantidad
     - Perfecto para analgésicos, antiácidos, o cualquier medicamento que se tome solo cuando sea necesario
     - No requiere configurar horarios, frecuencias ni fechas
-    - **No aparecen en la pantalla principal** (solo en Botiquín)
+    - **Aparecen automáticamente en la pantalla principal cuando se toman**, mostrando hora y cantidad
     - Se registran tocando el medicamento en el Botiquín
 - **Tipos de medicamento**: Elige entre diferentes tipos de medicamento, cada uno con su unidad de medida específica:
   - Pastilla, Inyección, Óvulo, Aplicación, Gota, Gramo, Mililitro
@@ -92,8 +92,13 @@
     - Unidades específicas según el tipo de medicamento
     - Actualización inmediata del stock y confirmación visual
   - **Registro de medicamentos ocasionales**:
-    - Los medicamentos "según necesidad" solo aparecen en el Botiquín (no en pantalla principal)
-    - Muestra indicador visual "Toca para registrar" en medicamentos ocasionales activos
+    - Los medicamentos "según necesidad" aparecen en el Botiquín para registro manual
+    - **Aparición automática en pantalla principal**: Cuando tomas un medicamento ocasional, aparece automáticamente en la pantalla principal ese día
+      - Muestra indicador verde con texto "Tomado hoy" y la hora de la última toma
+      - Si se toma múltiples veces, indica "Tomado hoy: X veces" con el total
+      - Permite tener una vista completa de todos los medicamentos tomados en el día
+      - Se actualiza automáticamente al registrar nuevas tomas
+    - Muestra indicador visual "Toca para registrar" en medicamentos ocasionales activos en el Botiquín
     - Toca la tarjeta para abrir el modal con las opciones disponibles
     - Diálogo para introducir la cantidad exacta tomada
     - Registro automático en el historial con hora actual
@@ -123,6 +128,10 @@
     - **Registrar toma**: Marca la toma como tomada y descuenta del stock
     - **Marcar como no tomada**: Registra que no tomaste la dosis sin descontar stock
     - **Posponer toma**: Programa una notificación única para más tarde sin alterar el horario habitual
+  - **Navegación robusta desde notificaciones**: Sistema de reintentos inteligente que garantiza que la pantalla de acciones siempre se abre al tocar una notificación
+    - Reintentos automáticos con backoff exponencial si la app está iniciándose
+    - Sistema de notificaciones pendientes para procesar cuando la app esté lista
+    - Funciona correctamente incluso si la app estaba completamente cerrada
   - **Actualización automática**: La pantalla principal se recarga automáticamente cuando vuelves a la app después de registrar una dosis desde una notificación
 - **Configuración de ayuno**: Sistema completo para gestionar períodos de ayuno asociados a medicamentos
   - **Configuración por medicamento**: Define si un medicamento requiere ayuno durante el flujo de añadir/editar
@@ -162,6 +171,7 @@
   - **Configuración de ayuno**: Modifica los parámetros de ayuno (tipo, duración, notificaciones)
   - **Cantidad disponible**: Actualiza el stock y el umbral de alerta
   - Cada sección se edita de forma independiente y se guarda inmediatamente
+  - **Preservación de datos**: El sistema garantiza que todos los campos del medicamento se preservan correctamente al editar cualquier sección, incluyendo configuración de ayuno, estado de suspensión y consumo diario
 - **Suspensión de medicamentos**: Gestión temporal de tratamientos
   - **Suspender medicamento**: Pausa temporalmente las notificaciones de un medicamento
   - **Visibilidad selectiva**:
@@ -181,10 +191,19 @@
   - Diseño moderno con Material Design 3
   - Layout adaptable que muestra 3 tipos de medicamento por fila en todos los dispositivos
   - Scroll optimizado para pantallas pequeñas
-  - **Navegación adaptativa**:
-    - **Móviles en vertical (≤600px)**: NavigationBar inferior con 4 secciones
-    - **Tablets (>600px)**: NavigationRail lateral para mejor aprovechamiento del espacio
-    - **Modo horizontal**: NavigationRail lateral en cualquier dispositivo
+  - **Navegación adaptativa y simplificada**:
+    - **4 secciones principales**: Inicio, Medicinas, Historial y Ajustes
+    - **Navegación unificada de inventario**: La sección "Medicinas" combina Pastillero y Botiquín en una sola vista con pestañas Material 3
+      - Pestaña "Pastillero": Vista de stock y gestión de inventario
+      - Pestaña "Botiquín": Lista completa de todos los medicamentos
+      - Navegación fluida con animaciones entre pestañas
+    - **Etiquetas adaptativas según dispositivo**:
+      - **Móviles en vertical**: Etiquetas cortas optimizadas para personas mayores ("Inicio", "Medicinas", "Historial", "Ajustes")
+      - **Tablets y modo horizontal**: Etiquetas completas descriptivas ("Medicación", "Inventario", "Historial", "Ajustes")
+    - **Modo de navegación según pantalla**:
+      - **Móviles en vertical (≤600px)**: NavigationBar inferior para fácil acceso con el pulgar
+      - **Tablets (>600px)**: NavigationRail lateral para mejor aprovechamiento del espacio
+      - **Modo horizontal**: NavigationRail lateral en cualquier dispositivo
     - Transición automática según el tamaño de pantalla y orientación
   - **Pull-to-refresh**: Arrastra hacia abajo para recargar manualmente la pantalla principal y el Pastillero
 - **Visualización detallada**: Cada medicamento muestra su tipo, nombre, duración del tratamiento y próxima toma
@@ -199,3 +218,17 @@
   - Traducciones completas de todas las pantallas principales (Medicación, Pastillero, Botiquín, Historial)
   - Sistema extensible mediante archivos ARB para añadir nuevos idiomas fácilmente
   - La app detecta el idioma del sistema y se adapta automáticamente
+- **Exportación e importación de base de datos**: Sistema completo de backup y restauración
+  - **Exportar base de datos**: Crea una copia de seguridad completa de todos tus datos
+    - Exporta todos los medicamentos, configuraciones, historial de dosis y ajustes
+    - Genera archivo con timestamp en el nombre para fácil identificación
+    - Opción de compartir el archivo mediante cualquier app (correo, Drive, etc.)
+    - Perfecto para hacer copias de seguridad antes de cambiar de dispositivo
+  - **Importar base de datos**: Restaura tus datos desde una copia de seguridad
+    - Selecciona un archivo de backup previamente exportado
+    - **Backup automático**: Crea una copia de seguridad de tus datos actuales antes de importar
+    - **Validación de integridad**: Verifica que el archivo sea una base de datos válida
+    - **Restauración automática**: Si la importación falla, restaura automáticamente el backup de seguridad
+    - Reemplaza completamente la base de datos actual con los datos importados
+  - **Seguridad**: Sistema robusto con validaciones y respaldos automáticos
+  - **Accesible desde**: Pantalla de ajustes/configuración

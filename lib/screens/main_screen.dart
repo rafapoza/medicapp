@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import '../services/notification_service.dart';
 import 'medication_list_screen.dart';
-import 'medication_stock_screen.dart';
-import 'medicine_cabinet_screen.dart';
+import 'medication_inventory_screen.dart';
 import 'dose_history_screen.dart';
+import 'settings_screen.dart';
 
 /// Main screen with adaptive navigation
 /// Uses NavigationBar (bottom) on mobile/portrait and NavigationRail (side) on tablets/landscape
 /// Provides navigation between the main sections of the app:
 /// - Medications: Main list of medications with today's doses
-/// - Pill organizer: Weekly medication schedule view
-/// - Medicine cabinet: Inventory view of all medications
+/// - Inventory: Unified view with tabs for Pill Organizer and Medicine Cabinet
 /// - History: Complete dose history
+/// - Settings: App configuration and backup/restore
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -21,6 +22,15 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Process any pending notifications after the first frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationService.instance.processPendingNotification();
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -36,11 +46,11 @@ class _MainScreenState extends State<MainScreen> {
       case 0:
         return const MedicationListScreen();
       case 1:
-        return const MedicationStockScreen();
+        return const MedicationInventoryScreen();
       case 2:
-        return const MedicineCabinetScreen();
-      case 3:
         return const DoseHistoryScreen();
+      case 3:
+        return const SettingsScreen();
       default:
         return const MedicationListScreen();
     }
@@ -67,22 +77,22 @@ class _MainScreenState extends State<MainScreen> {
                 NavigationRailDestination(
                   icon: const Icon(Icons.medical_services_outlined),
                   selectedIcon: const Icon(Icons.medical_services),
-                  label: Text(l10n.navMedication),
+                  label: Text(l10n.navMedicationShort),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(Icons.inventory_2_outlined),
                   selectedIcon: const Icon(Icons.inventory_2),
-                  label: Text(l10n.navPillOrganizer),
-                ),
-                NavigationRailDestination(
-                  icon: const Icon(Icons.medical_information_outlined),
-                  selectedIcon: const Icon(Icons.medical_information),
-                  label: Text(l10n.navMedicineCabinet),
+                  label: Text(l10n.navInventoryShort),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(Icons.history_outlined),
                   selectedIcon: const Icon(Icons.history),
-                  label: Text(l10n.navHistory),
+                  label: Text(l10n.navHistoryShort),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.settings_outlined),
+                  selectedIcon: const Icon(Icons.settings),
+                  label: Text(l10n.navSettingsShort),
                 ),
               ],
             ),
@@ -95,7 +105,7 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
-    // Use NavigationBar for mobile/portrait
+    // Use NavigationBar for mobile/portrait with short labels
     return Scaffold(
       body: _getCurrentScreen(),
       bottomNavigationBar: NavigationBar(
@@ -105,22 +115,22 @@ class _MainScreenState extends State<MainScreen> {
           NavigationDestination(
             icon: const Icon(Icons.medical_services_outlined),
             selectedIcon: const Icon(Icons.medical_services),
-            label: l10n.navMedication,
+            label: l10n.navMedicationShort,
           ),
           NavigationDestination(
             icon: const Icon(Icons.inventory_2_outlined),
             selectedIcon: const Icon(Icons.inventory_2),
-            label: l10n.navPillOrganizer,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.medical_information_outlined),
-            selectedIcon: const Icon(Icons.medical_information),
-            label: l10n.navMedicineCabinet,
+            label: l10n.navInventoryShort,
           ),
           NavigationDestination(
             icon: const Icon(Icons.history_outlined),
             selectedIcon: const Icon(Icons.history),
-            label: l10n.navHistory,
+            label: l10n.navHistoryShort,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: l10n.navSettingsShort,
           ),
         ],
       ),

@@ -4,7 +4,9 @@ import '../models/medication.dart';
 import '../database/database_helper.dart';
 
 class MedicationStockScreen extends StatefulWidget {
-  const MedicationStockScreen({super.key});
+  final bool showAppBar;
+
+  const MedicationStockScreen({super.key, this.showAppBar = true});
 
   @override
   State<MedicationStockScreen> createState() => _MedicationStockScreenState();
@@ -68,9 +70,11 @@ class _MedicationStockScreenState extends State<MedicationStockScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.pillOrganizerTitle),
-      ),
+      appBar: widget.showAppBar
+          ? AppBar(
+              title: Text(l10n.pillOrganizerTitle),
+            )
+          : null,
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(),

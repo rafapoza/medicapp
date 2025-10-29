@@ -69,6 +69,12 @@ class _EditQuantityScreenState extends State<EditQuantityScreen> {
         lowStockThresholdDays: int.tryParse(_lowStockThresholdController.text) ?? 3,
         startDate: widget.medication.startDate,
         endDate: widget.medication.endDate,
+        requiresFasting: widget.medication.requiresFasting,
+        fastingType: widget.medication.fastingType,
+        fastingDurationMinutes: widget.medication.fastingDurationMinutes,
+        notifyFasting: widget.medication.notifyFasting,
+        isSuspended: widget.medication.isSuspended,
+        lastDailyConsumption: widget.medication.lastDailyConsumption,
       );
 
       await DatabaseHelper.instance.updateMedication(updatedMedication);

@@ -130,6 +130,10 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
       doseTime: widget.doseTime,
     );
 
+    // Reschedule medication notifications to restore future notifications
+    // This is needed because cancelTodaysDoseNotification may cancel recurring notifications
+    await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
+
     // Cancel today's fasting notification if it's a "before" fasting type
     await NotificationService.instance.cancelTodaysFastingNotification(
       medication: updatedMedication,
@@ -233,6 +237,10 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
       medication: updatedMedication,
       doseTime: widget.doseTime,
     );
+
+    // Reschedule medication notifications to restore future notifications
+    // This is needed because cancelTodaysDoseNotification may cancel recurring notifications
+    await NotificationService.instance.scheduleMedicationNotifications(updatedMedication);
 
     if (!mounted) return;
 

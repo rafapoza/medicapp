@@ -35,6 +35,10 @@ class NotificationService {
   // Flag to disable notifications during testing
   bool _isTestMode = false;
 
+  // Store pending notification data when context is not available
+  String? _pendingMedicationId;
+  String? _pendingDoseTime;
+
   NotificationService._init();
 
   /// Check if test mode is enabled
@@ -302,20 +306,84 @@ class NotificationService {
       }
     }
 
-    // Navigate to DoseActionScreen
+    // Try to navigate with retry logic
+    await _navigateWithRetry(medicationId, doseTime);
+  }
+
+  /// Navigate to DoseActionScreen with retry logic for when app is starting
+  Future<void> _navigateWithRetry(String medicationId, String doseTime, {int attempt = 1}) async {
+    print('Attempting navigation (attempt $attempt)...');
+
     final context = navigatorKey.currentContext;
-    if (context != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DoseActionScreen(
-            medicationId: medicationId,
-            doseTime: doseTime,
+    if (context != null && context.mounted) {
+      print('Context available, navigating to DoseActionScreen');
+      try {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DoseActionScreen(
+              medicationId: medicationId,
+              doseTime: doseTime,
+            ),
           ),
-        ),
-      );
+        );
+        // Clear pending notification since we successfully navigated
+        _pendingMedicationId = null;
+        _pendingDoseTime = null;
+        return;
+      } catch (e) {
+        print('Error navigating: $e');
+      }
+    }
+
+    // If context is not available, retry with exponential backoff
+    if (attempt <= 5) {
+      final delayMs = 100 * attempt; // 100ms, 200ms, 300ms, 400ms, 500ms
+      print('Context not available, retrying in ${delayMs}ms...');
+      await Future.delayed(Duration(milliseconds: delayMs));
+      await _navigateWithRetry(medicationId, doseTime, attempt: attempt + 1);
     } else {
-      print('Navigator context is null');
+      // After 5 attempts, store as pending notification
+      print('Failed to navigate after 5 attempts, storing as pending notification');
+      _pendingMedicationId = medicationId;
+      _pendingDoseTime = doseTime;
+    }
+  }
+
+  /// Process pending notification if any exists
+  /// Should be called after the app is fully initialized
+  Future<void> processPendingNotification() async {
+    if (_pendingMedicationId != null && _pendingDoseTime != null) {
+      print('Processing pending notification: $_pendingMedicationId | $_pendingDoseTime');
+
+      final medicationId = _pendingMedicationId!;
+      final doseTime = _pendingDoseTime!;
+
+      // Clear pending state before attempting navigation
+      _pendingMedicationId = null;
+      _pendingDoseTime = null;
+
+      // Wait a bit to ensure the app is fully ready
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      final context = navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        try {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DoseActionScreen(
+                medicationId: medicationId,
+                doseTime: doseTime,
+              ),
+            ),
+          );
+        } catch (e) {
+          print('Error processing pending notification: $e');
+        }
+      } else {
+        print('Context still not available for pending notification');
+      }
     }
   }
 

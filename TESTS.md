@@ -117,8 +117,25 @@ flutter test
   - Edge cases: diferentes tipos de duración, períodos largos
   - **Cobertura**: edit_duration_screen.dart: 0% → 82.7%
   - **Nota**: Requiere pasar explícitamente `startDate` y `endDate` a `createTestMedication()` cuando se necesiten valores específicos (no hay default)
+- **test/database_export_import_test.dart**: Tests de exportación e importación de base de datos (12 tests)
+  - Restricciones de base de datos en memoria (2 tests):
+    - Verifica que lance excepción al exportar desde base de datos en memoria
+    - Verifica que lance excepción al importar a base de datos en memoria
+  - Exportación de base de datos (3 tests):
+    - Exporta correctamente la base de datos a archivo temporal
+    - Maneja error cuando el archivo de base de datos no existe
+    - Crea archivo de exportación con timestamp en el nombre
+  - Importación de base de datos (5 tests):
+    - Importa y preserva todos los datos (medicaciones, dosis, ayunos, etc.)
+    - Lanza excepción cuando el archivo de importación no existe
+    - Crea backup automático antes de importar
+    - Restaura desde backup si la importación falla (archivo corrupto)
+    - Reemplaza correctamente la base de datos actual con la importada
+  - Integración de export/import (2 tests):
+    - Maneja múltiples ciclos de exportación/importación
+    - Preserva datos complejos con múltiples horarios, ayunos y configuraciones
 
-**Total**: 315 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock, pantallas de edición y widgets de integración
+**Total**: 327 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock, pantallas de edición, backup/restore y widgets de integración
 
 **Cobertura global**: 45.7% (2710 de 5927 líneas)
 

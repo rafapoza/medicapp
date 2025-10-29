@@ -7,6 +7,14 @@
   "navPillOrganizer": "Pilula-kutxa",
   "navMedicineCabinet": "Botikina",
   "navHistory": "Historia",
+  "navSettings": "Ezarpenak",
+  "navInventory": "Inbentarioa",
+  "navMedicationShort": "Hasiera",
+  "navPillOrganizerShort": "Stock",
+  "navMedicineCabinetShort": "Botikina",
+  "navHistoryShort": "Historia",
+  "navSettingsShort": "Ezarpenak",
+  "navInventoryShort": "Botikak",
 
   "@_COMMON_BUTTONS": {},
   "btnContinue": "Jarraitu",
@@ -835,5 +843,56 @@
       }
     }
   },
-  "insufficientStockForDose": "No hay suficiente stock para marcar como tomada"
+  "insufficientStockForDose": "No hay suficiente stock para marcar como tomada",
+
+  "@_SETTINGS_SCREEN": {},
+  "settingsTitle": "Ezarpenak",
+  "settingsBackupSection": "Segurtasun Kopia",
+  "settingsExportTitle": "Esportatu Datu Basea",
+  "settingsExportSubtitle": "Gorde zure botika eta historia guztien kopia bat",
+  "settingsImportTitle": "Inportatu Datu Basea",
+  "settingsImportSubtitle": "Lehenago esportatutako segurtasun kopia bat berreskuratu",
+  "settingsInfoTitle": "Informazioa",
+  "settingsInfoContent": "• Esportatzean, segurtasun kopia fitxategi bat sortuko da, zure gailuan gorde edo partekatu dezakezuna.\n\n• Inportatzean, zure datu guztiak hautatutako fitxategiko datuekin ordezkatuko dira.\n\n• Gomendagarria da aldizka segurtasun kopiak egitea.",
+  "settingsShareText": "MedicApp-eko segurtasun kopia",
+  "settingsExportSuccess": "Datu basea ondo esportatu da",
+  "settingsImportSuccess": "Datu basea ondo inportatu da",
+  "settingsExportError": "Errorea esportatzean: {error}",
+  "settingsImportError": "Errorea inportatzean: {error}",
+  "settingsFilePathError": "Ezin izan da fitxategiaren bidea lortu",
+  "settingsImportDialogTitle": "Inportatu Datu Basea",
+  "settingsImportDialogMessage": "Ekintza honek zure datu guztiak inportatutako fitxategiko datuekin ordezkatuko ditu.\n\nZiur zaude jarraitu nahi duzula?",
+  "settingsRestartDialogTitle": "Inportazioa Osatuta",
+  "settingsRestartDialogMessage": "Datu basea ondo inportatu da.\n\nMesedez, berrabiarazi aplikazioa aldaketak ikusteko.",
+  "settingsRestartDialogButton": "Ulertuta",
+  "takenTodaySingle": "Gaur hartua: {quantity} {unit} {time}(e)tan",
+  "@takenTodaySingle": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "takenTodayMultiple": "Gaur hartua: {count} aldiz ({quantity} {unit})",
+  "@takenTodayMultiple": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "done": "Eginda",
+  "suspended": "Etenda"
 }

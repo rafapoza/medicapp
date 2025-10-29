@@ -864,5 +864,35 @@
   "settingsImportDialogMessage": "Aquesta acció reemplaçarà totes les teves dades actuals amb les dades de l'arxiu importat.\n\nEstàs segur de continuar?",
   "settingsRestartDialogTitle": "Importació Completada",
   "settingsRestartDialogMessage": "La base de dades s'ha importat correctament.\n\nSi us plau, reinicia l'aplicació per veure els canvis.",
-  "settingsRestartDialogButton": "Entès"
+  "settingsRestartDialogButton": "Entès",
+  "takenTodaySingle": "Pres avui: {quantity} {unit} a les {time}",
+  "@takenTodaySingle": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "takenTodayMultiple": "Pres avui: {count} vegades ({quantity} {unit})",
+  "@takenTodayMultiple": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "done": "Fet",
+  "suspended": "Suspès"
 }

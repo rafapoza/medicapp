@@ -1902,7 +1902,6 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     if (!mounted) return;
 
     final l10n = AppLocalizations.of(context)!;
-    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.testNotificationSent),
@@ -1913,7 +1912,6 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
   void _testScheduledNotification() async {
     await NotificationService.instance.scheduleTestNotification();
-    final l10n = AppLocalizations.of(context)!;
     if (!mounted) return;
 
     final l10n = AppLocalizations.of(context)!;

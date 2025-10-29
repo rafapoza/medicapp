@@ -2012,4 +2012,20 @@ class AppLocalizationsEu extends AppLocalizations {
   String medicationStockInfo(String name, String stock) {
     return '$name\nStock: $stock';
   }
+
+  @override
+  String takenTodaySingle(String quantity, String unit, String time) {
+    return 'Gaur hartua: $quantity $unit $time(e)tan';
+  }
+
+  @override
+  String takenTodayMultiple(int count, String quantity, String unit) {
+    return 'Gaur hartua: $count aldiz ($quantity $unit)';
+  }
+
+  @override
+  String get done => 'Eginda';
+
+  @override
+  String get suspended => 'Etenda';
 }

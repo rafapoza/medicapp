@@ -864,5 +864,35 @@
   "settingsImportDialogMessage": "Esta acción substituirá todos os teus datos actuais cos datos do arquivo importado.\n\nEstás seguro de continuar?",
   "settingsRestartDialogTitle": "Importación Completada",
   "settingsRestartDialogMessage": "A base de datos foi importada correctamente.\n\nPor favor, reinicia a aplicación para ver os cambios.",
-  "settingsRestartDialogButton": "Entendido"
+  "settingsRestartDialogButton": "Entendido",
+  "takenTodaySingle": "Tomado hoxe: {quantity} {unit} ás {time}",
+  "@takenTodaySingle": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "takenTodayMultiple": "Tomado hoxe: {count} veces ({quantity} {unit})",
+  "@takenTodayMultiple": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "done": "Feito",
+  "suspended": "Suspendido"
 }

@@ -3471,6 +3471,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{name}\nStock: {stock}'**
   String medicationStockInfo(String name, String stock);
+
+  /// No description provided for @takenTodaySingle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tomado hoy: {quantity} {unit} a las {time}'**
+  String takenTodaySingle(String quantity, String unit, String time);
+
+  /// No description provided for @takenTodayMultiple.
+  ///
+  /// In es, this message translates to:
+  /// **'Tomado hoy: {count} veces ({quantity} {unit})'**
+  String takenTodayMultiple(int count, String quantity, String unit);
+
+  /// No description provided for @done.
+  ///
+  /// In es, this message translates to:
+  /// **'Hecho'**
+  String get done;
+
+  /// No description provided for @suspended.
+  ///
+  /// In es, this message translates to:
+  /// **'Suspendido'**
+  String get suspended;
 }
 
 class _AppLocalizationsDelegate

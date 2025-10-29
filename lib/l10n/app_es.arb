@@ -1350,5 +1350,35 @@
         "type": "String"
       }
     }
-  }
+  },
+  "takenTodaySingle": "Tomado hoy: {quantity} {unit} a las {time}",
+  "@takenTodaySingle": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "takenTodayMultiple": "Tomado hoy: {count} veces ({quantity} {unit})",
+  "@takenTodayMultiple": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "done": "Hecho",
+  "suspended": "Suspendido"
 }

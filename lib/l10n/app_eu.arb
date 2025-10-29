@@ -864,5 +864,35 @@
   "settingsImportDialogMessage": "Ekintza honek zure datu guztiak inportatutako fitxategiko datuekin ordezkatuko ditu.\n\nZiur zaude jarraitu nahi duzula?",
   "settingsRestartDialogTitle": "Inportazioa Osatuta",
   "settingsRestartDialogMessage": "Datu basea ondo inportatu da.\n\nMesedez, berrabiarazi aplikazioa aldaketak ikusteko.",
-  "settingsRestartDialogButton": "Ulertuta"
+  "settingsRestartDialogButton": "Ulertuta",
+  "takenTodaySingle": "Gaur hartua: {quantity} {unit} {time}(e)tan",
+  "@takenTodaySingle": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "takenTodayMultiple": "Gaur hartua: {count} aldiz ({quantity} {unit})",
+  "@takenTodayMultiple": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "done": "Eginda",
+  "suspended": "Etenda"
 }

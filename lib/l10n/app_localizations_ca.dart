@@ -2010,4 +2010,20 @@ class AppLocalizationsCa extends AppLocalizations {
   String medicationStockInfo(String name, String stock) {
     return '$name\nStock: $stock';
   }
+
+  @override
+  String takenTodaySingle(String quantity, String unit, String time) {
+    return 'Pres avui: $quantity $unit a les $time';
+  }
+
+  @override
+  String takenTodayMultiple(int count, String quantity, String unit) {
+    return 'Pres avui: $count vegades ($quantity $unit)';
+  }
+
+  @override
+  String get done => 'Fet';
+
+  @override
+  String get suspended => 'Suspès';
 }

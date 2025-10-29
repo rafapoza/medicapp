@@ -612,5 +612,9 @@
   "errorChanging": "Error changing status: {error}",
   "testScheduled1Min": "Test scheduled (1 min)",
   "alarmsAndRemindersMenu": "⚙️ Alarms & reminders",
-  "medicationStockInfo": "{name}\nStock: {stock}"
+  "medicationStockInfo": "{name}\nStock: {stock}",
+  "takenTodaySingle": "Taken today: {quantity} {unit} at {time}",
+  "takenTodayMultiple": "Taken today: {count} times ({quantity} {unit})",
+  "done": "Done",
+  "suspended": "Suspended"
 }

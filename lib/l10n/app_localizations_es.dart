@@ -2011,4 +2011,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String medicationStockInfo(String name, String stock) {
     return '$name\nStock: $stock';
   }
+
+  @override
+  String takenTodaySingle(String quantity, String unit, String time) {
+    return 'Tomado hoy: $quantity $unit a las $time';
+  }
+
+  @override
+  String takenTodayMultiple(int count, String quantity, String unit) {
+    return 'Tomado hoy: $count veces ($quantity $unit)';
+  }
+
+  @override
+  String get done => 'Hecho';
+
+  @override
+  String get suspended => 'Suspendido';
 }

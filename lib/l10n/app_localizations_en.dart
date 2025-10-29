@@ -1988,4 +1988,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String medicationStockInfo(String name, String stock) {
     return '$name\nStock: $stock';
   }
+
+  @override
+  String takenTodaySingle(String quantity, String unit, String time) {
+    return 'Taken today: $quantity $unit at $time';
+  }
+
+  @override
+  String takenTodayMultiple(int count, String quantity, String unit) {
+    return 'Taken today: $count times ($quantity $unit)';
+  }
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get suspended => 'Suspended';
 }

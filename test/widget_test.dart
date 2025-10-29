@@ -1282,7 +1282,10 @@ void main() {
 
     // Tap "Registrar toma"
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.pumpAndSettle();
+
+    // Wait for database query (getMedication) to complete before dialog opens
+    await waitForDatabase(tester);
+    await tester.pumpAndSettle(); // Wait for dialog animation to complete
 
     // Verify dose selection dialog IS shown (because there are multiple doses per day)
     expect(find.text('Registrar toma de Ibuprofeno'), findsOneWidget);
@@ -1311,7 +1314,10 @@ void main() {
 
     // Tap "Registrar toma"
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.pumpAndSettle();
+
+    // Wait for database query (getMedication) to complete before dialog opens
+    await waitForDatabase(tester);
+    await tester.pumpAndSettle(); // Wait for dialog animation to complete
 
     // Verify the dialog is shown (because there are 2 doses per day)
     expect(find.text('Registrar toma de Aspirina'), findsOneWidget);
@@ -1408,7 +1414,10 @@ void main() {
 
     // Tap "Registrar toma"
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.pumpAndSettle();
+
+    // Wait for database query (getMedication) to complete before dialog opens
+    await waitForDatabase(tester);
+    await tester.pumpAndSettle(); // Wait for dialog animation to complete
 
     // Verify dialog is shown
     expect(find.text('Registrar toma de Vitamina D'), findsOneWidget);
@@ -1516,32 +1525,16 @@ void main() {
 
     // Register first dose
     await tester.tap(find.text(getL10n(tester).summaryMedication));
+    await tester.pumpAndSettle(); // Wait for modal animation
+    await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
     await tester.pump();
-    await tester.pump();
+    await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
 
-    // Find and scroll to register button within the modal
-    final registerButton = find.text(getL10n(tester).medicineCabinetRegisterDose);
-    final modalScroll = find.byType(SingleChildScrollView).last;
-
-    // Drag modal down to reveal button if needed
-    try {
-      await tester.dragUntilVisible(
-        registerButton,
-        modalScroll,
-        const Offset(0, -100),
-      );
-    } catch (e) {
-      // Button might already be visible
-    }
-
-    await tester.pump();
-    await tester.tap(registerButton);
+    // Wait for database query (getMedication) to complete before dialog opens
+    await waitForDatabase(tester);
 
     // Wait for dialog to open
-    await tester.pump(); // Start opening dialog
-    await tester.pump(const Duration(milliseconds: 100)); // Animation frame
-    await tester.pump(const Duration(milliseconds: 100)); // Complete animation
-    await tester.pump(); // Final frame
+    await tester.pumpAndSettle(); // Wait for dialog animation to complete
 
     // Verify all 3 doses are shown initially
     expect(find.text('08:00'), findsOneWidget);
@@ -1557,37 +1550,30 @@ void main() {
 
     // Wait for database to complete the update and reload
     await waitForDatabase(tester);
-    await tester.pump();
-    await tester.pump();
+
+    // Extra wait for getMedicationIdsWithDosesToday() query and setState to complete
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 3000));
+    });
+
+    // Pump to process all pending updates
+    await tester.pumpAndSettle();
+
+    // Force many frame updates to ensure setState has executed
+    for (int i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
     // Try to register another dose immediately
     await tester.tap(find.text(getL10n(tester).summaryMedication));
+    await tester.pumpAndSettle(); // Wait for modal animation
+    await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
     await tester.pump();
-    await tester.pump();
+    await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
 
-    // Find and scroll to register button within the modal
-    final registerButton2 = find.text(getL10n(tester).medicineCabinetRegisterDose);
-    final modalScroll2 = find.byType(SingleChildScrollView).last;
-
-    // Drag modal down to reveal button if needed
-    try {
-      await tester.dragUntilVisible(
-        registerButton2,
-        modalScroll2,
-        const Offset(0, -100),
-      );
-    } catch (e) {
-      // Button might already be visible
-    }
-
-    await tester.pump();
-    await tester.tap(registerButton2);
-
-    // Wait for dialog to open
-    await tester.pump(); // Start opening dialog
-    await tester.pump(const Duration(milliseconds: 100)); // Animation frame
-    await tester.pump(const Duration(milliseconds: 100)); // Complete animation
-    await tester.pump(); // Final frame
+    // Wait for database query (getMedication) to complete before dialog opens
+    await waitForDatabase(tester);
+    await tester.pumpAndSettle(); // Wait for dialog animation to complete
 
     // Verify the dialog is shown
     expect(find.text('Registrar toma de Medicamento'), findsOneWidget);
@@ -1619,32 +1605,45 @@ void main() {
 
     // Register first dose
     await tester.tap(find.text('MedDual'));
-    await tester.pump();
-    await tester.pump();
+    await tester.pumpAndSettle(); // Wait for modal animation
     await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
+    await tester.pump();
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.pump();
-    await tester.pump();
-    await tester.pump();
+
+    // Wait for database query (getMedication) to complete before dialog opens
+    await waitForDatabase(tester);
+    await tester.pumpAndSettle(); // Wait for dialog animation to complete
+
     await tester.tap(find.text('08:00'));
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 500));
     });
     await tester.pump(); // Start dose registration
     await waitForDatabase(tester);
-    await tester.pump();
-    await tester.pump();
+
+    // Extra wait for getMedicationIdsWithDosesToday() query and setState to complete
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 3000));
+    });
+
+    // Pump to process all pending updates
+    await tester.pumpAndSettle();
+
+    // Force many frame updates to ensure setState has executed
+    for (int i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
     // Register second dose - should be automatic since only one remains
     await tester.tap(find.text('MedDual'));
-    await tester.pump();
-    await tester.pump();
+    await tester.pumpAndSettle(); // Wait for modal animation
     await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
+    await tester.pump();
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.runAsync(() async {
-      await Future.delayed(const Duration(milliseconds: 500));
-    });
-    await tester.pump(); // Start dose registration
+
+    // Wait for database query and automatic dose registration
+    await waitForDatabase(tester);
+    await tester.pumpAndSettle();
 
     // Wait for database reload after dose registration
     await waitForDatabase(tester);
@@ -1680,37 +1679,45 @@ void main() {
 
     // Register first dose
     await tester.tap(find.text('MedCompleto'));
-    await tester.pump();
-    await tester.pump();
+    await tester.pumpAndSettle(); // Wait for modal animation
     await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
+    await tester.pump();
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
-    await tester.pump();
-    await tester.pump();
-    await tester.pump();
+
+    // Wait for database query (getMedication) to complete before dialog opens
+    await waitForDatabase(tester);
+    await tester.pumpAndSettle(); // Wait for dialog animation to complete
+
     await tester.tap(find.text('08:00'));
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 500));
     });
     await tester.pump(); // Start dose registration
     await waitForDatabase(tester);
-    await tester.pump();
-    await tester.pump();
+
+    // Extra wait for getMedicationIdsWithDosesToday() query and setState to complete
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 3000));
+    });
+
+    // Pump to process all pending updates
+    await tester.pumpAndSettle();
+
+    // Force many frame updates to ensure setState has executed
+    for (int i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
     // Register second and last dose (should be automatic since only one remains)
     await tester.tap(find.text('MedCompleto'));
-    await tester.pump();
-    await tester.pump();
+    await tester.pumpAndSettle(); // Wait for modal animation
     await scrollToWidget(tester, find.text(getL10n(tester).medicineCabinetRegisterDose));
+    await tester.pump();
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
 
-    // Wait for automatic registration to complete
-    await tester.runAsync(() async {
-      await Future.delayed(const Duration(milliseconds: 800));
-    });
-    await tester.pump(); // Start dose registration
+    // Wait for database query and automatic dose registration
     await waitForDatabase(tester);
-    await tester.pump();
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     // Verify the medication is still in the list (operations completed successfully)
     expect(find.text('MedCompleto'), findsOneWidget);

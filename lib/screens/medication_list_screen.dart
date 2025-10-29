@@ -635,8 +635,22 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     // Close the modal after validation passes
     Navigator.pop(context);
 
+    // ALWAYS get the fresh medication from database to ensure we have the latest taken doses
+    final freshMedication = await DatabaseHelper.instance.getMedication(medication.id);
+
+    // If medication was deleted, show error and return
+    if (freshMedication == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.doseActionMedicationNotFound),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     // Get available doses (doses that haven't been taken today)
-    final availableDoses = medication.getAvailableDosesToday();
+    final availableDoses = freshMedication.getAvailableDosesToday();
 
     // Check if there are available doses
     if (availableDoses.isEmpty) {
@@ -660,7 +674,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text(l10n.registerDoseOfMedication(medication.name)),
+            title: Text(l10n.registerDoseOfMedication(freshMedication.name)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -699,17 +713,17 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
     if (selectedDoseTime != null) {
       // Get the dose quantity for this specific time
-      final doseQuantity = medication.getDoseQuantity(selectedDoseTime);
+      final doseQuantity = freshMedication.getDoseQuantity(selectedDoseTime);
 
       // Check if there's enough stock for this dose
-      if (medication.stockQuantity < doseQuantity) {
+      if (freshMedication.stockQuantity < doseQuantity) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               l10n.insufficientStockForThisDose(
                 doseQuantity.toString(),
-                medication.type.stockUnit,
-                medication.stockDisplayText,
+                freshMedication.type.stockUnit,
+                freshMedication.stockDisplayText,
               )
             ),
             duration: const Duration(seconds: 3),
@@ -726,11 +740,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       List<String> updatedTakenDoses;
       List<String> updatedSkippedDoses;
 
-      if (medication.takenDosesDate == todayString) {
+      if (freshMedication.takenDosesDate == todayString) {
         // Same day, add to existing list
-        updatedTakenDoses = List.from(medication.takenDosesToday);
+        updatedTakenDoses = List.from(freshMedication.takenDosesToday);
         updatedTakenDoses.add(selectedDoseTime);
-        updatedSkippedDoses = List.from(medication.skippedDosesToday);
+        updatedSkippedDoses = List.from(freshMedication.skippedDosesToday);
       } else {
         // New day, reset lists
         updatedTakenDoses = [selectedDoseTime];
@@ -739,29 +753,29 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
       // Decrease stock by the dose quantity and update taken doses
       final updatedMedication = Medication(
-        id: medication.id,
-        name: medication.name,
-        type: medication.type,
-        dosageIntervalHours: medication.dosageIntervalHours,
-        durationType: medication.durationType,
-        doseSchedule: medication.doseSchedule,
-        stockQuantity: medication.stockQuantity - doseQuantity,
+        id: freshMedication.id,
+        name: freshMedication.name,
+        type: freshMedication.type,
+        dosageIntervalHours: freshMedication.dosageIntervalHours,
+        durationType: freshMedication.durationType,
+        doseSchedule: freshMedication.doseSchedule,
+        stockQuantity: freshMedication.stockQuantity - doseQuantity,
         takenDosesToday: updatedTakenDoses,
         skippedDosesToday: updatedSkippedDoses,
         takenDosesDate: todayString,
-        lastRefillAmount: medication.lastRefillAmount,
-        lowStockThresholdDays: medication.lowStockThresholdDays,
-        selectedDates: medication.selectedDates,
-        weeklyDays: medication.weeklyDays,
-        dayInterval: medication.dayInterval,
-        startDate: medication.startDate,
-        endDate: medication.endDate,
-        requiresFasting: medication.requiresFasting,
-        fastingType: medication.fastingType,
-        fastingDurationMinutes: medication.fastingDurationMinutes,
-        notifyFasting: medication.notifyFasting,
-        isSuspended: medication.isSuspended,
-        lastDailyConsumption: medication.lastDailyConsumption,
+        lastRefillAmount: freshMedication.lastRefillAmount,
+        lowStockThresholdDays: freshMedication.lowStockThresholdDays,
+        selectedDates: freshMedication.selectedDates,
+        weeklyDays: freshMedication.weeklyDays,
+        dayInterval: freshMedication.dayInterval,
+        startDate: freshMedication.startDate,
+        endDate: freshMedication.endDate,
+        requiresFasting: freshMedication.requiresFasting,
+        fastingType: freshMedication.fastingType,
+        fastingDurationMinutes: freshMedication.fastingDurationMinutes,
+        notifyFasting: freshMedication.notifyFasting,
+        isSuspended: freshMedication.isSuspended,
+        lastDailyConsumption: freshMedication.lastDailyConsumption,
       );
 
       // Update in database
@@ -778,10 +792,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       );
 
       final historyEntry = DoseHistoryEntry(
-        id: '${medication.id}_${now.millisecondsSinceEpoch}',
-        medicationId: medication.id,
-        medicationName: medication.name,
-        medicationType: medication.type,
+        id: '${freshMedication.id}_${now.millisecondsSinceEpoch}',
+        medicationId: freshMedication.id,
+        medicationName: freshMedication.name,
+        medicationType: freshMedication.type,
         scheduledDateTime: scheduledDateTime,
         registeredDateTime: now,
         status: DoseStatus.taken,
@@ -825,8 +839,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       // Show confirmation
       final remainingDoses = updatedMedication.getAvailableDosesToday();
       final confirmationMessage = remainingDoses.isEmpty
-          ? '${l10n.doseRegisteredAtTime(medication.name, selectedDoseTime, updatedMedication.stockDisplayText)}\n${l10n.allDosesCompletedToday}'
-          : '${l10n.doseRegisteredAtTime(medication.name, selectedDoseTime, updatedMedication.stockDisplayText)}\n${l10n.remainingDosesToday(remainingDoses.length)}';
+          ? '${l10n.doseRegisteredAtTime(freshMedication.name, selectedDoseTime, updatedMedication.stockDisplayText)}\n${l10n.allDosesCompletedToday}'
+          : '${l10n.doseRegisteredAtTime(freshMedication.name, selectedDoseTime, updatedMedication.stockDisplayText)}\n${l10n.remainingDosesToday(remainingDoses.length)}';
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

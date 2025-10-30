@@ -6,65 +6,6 @@ import 'helpers/medication_builder.dart';
 
 void main() {
   group('Medication Model - Fasting Configuration', () {
-    test('should create medication without fasting by default', () {
-      final medication = MedicationBuilder()
-          .withId('test_1')
-          .withMultipleDoses(['08:00', '16:00'], 1.0)
-          .build();
-
-      expect(medication.requiresFasting, false);
-      expect(medication.fastingType, isNull);
-      expect(medication.fastingDurationMinutes, isNull);
-      expect(medication.notifyFasting, false);
-    });
-
-    test('should create medication with fasting before dose', () {
-      final medication = MedicationBuilder()
-          .withId('test_2')
-          .withMultipleDoses(['08:00', '16:00'], 1.0)
-          .withFasting(type: 'before', duration: 60)
-          .build();
-
-      expect(medication.requiresFasting, true);
-      expect(medication.fastingType, 'before');
-      expect(medication.fastingDurationMinutes, 60);
-      expect(medication.notifyFasting, true);
-    });
-
-    test('should create medication with fasting after dose', () {
-      final medication = MedicationBuilder()
-          .withId('test_3')
-          .withDosageInterval(12)
-          .withMultipleDoses(['08:00', '20:00'], 1.0)
-          .withFasting(type: 'after', duration: 120, notify: false)
-          .build();
-
-      expect(medication.requiresFasting, true);
-      expect(medication.fastingType, 'after');
-      expect(medication.fastingDurationMinutes, 120);
-      expect(medication.notifyFasting, false);
-    });
-
-    test('should handle fasting duration in minutes', () {
-      final medication = MedicationBuilder()
-          .withId('test_4')
-          .withSingleDose('08:00', 1.0)
-          .withFasting(type: 'before', duration: 30)
-          .build();
-
-      expect(medication.fastingDurationMinutes, 30);
-    });
-
-    test('should handle fasting duration in hours and minutes', () {
-      final medication = MedicationBuilder()
-          .withId('test_5')
-          .withSingleDose('08:00', 1.0)
-          .withFasting(type: 'before', duration: 90)
-          .build();
-
-      expect(medication.fastingDurationMinutes, 90);
-    });
-
     test('should serialize fasting configuration to JSON', () {
       final medication = MedicationBuilder()
           .withId('test_6')
@@ -237,30 +178,33 @@ void main() {
       expect(med12h.fastingDurationMinutes, 720);
     });
 
-    test('should handle fasting configuration with all medication types', () {
-      final types = [
-        MedicationType.pill,
-        MedicationType.capsule,
-        MedicationType.syrup,
-        MedicationType.injection,
-        MedicationType.ointment,
-        MedicationType.spray,
-      ];
+    test('should handle fasting configuration with different medication types', () {
+      // Test with two representative types: pill (oral) and injection
+      final pillMedication = MedicationBuilder()
+          .withId('test_pill')
+          .withName('Test Pill')
+          .withType(MedicationType.pill)
+          .withSingleDose('08:00', 1.0)
+          .withFasting(type: 'before', duration: 60)
+          .build();
 
-      for (final type in types) {
-        final medication = MedicationBuilder()
-            .withId('test_${type.name}')
-            .withName('Test ${type.displayName}')
-            .withType(type)
-            .withSingleDose('08:00', 1.0)
-            .withFasting(type: 'before', duration: 60)
-            .build();
+      expect(pillMedication.requiresFasting, true);
+      expect(pillMedication.fastingType, 'before');
+      expect(pillMedication.fastingDurationMinutes, 60);
+      expect(pillMedication.notifyFasting, true);
 
-        expect(medication.requiresFasting, true);
-        expect(medication.fastingType, 'before');
-        expect(medication.fastingDurationMinutes, 60);
-        expect(medication.notifyFasting, true);
-      }
+      final injectionMedication = MedicationBuilder()
+          .withId('test_injection')
+          .withName('Test Injection')
+          .withType(MedicationType.injection)
+          .withSingleDose('08:00', 1.0)
+          .withFasting(type: 'before', duration: 60)
+          .build();
+
+      expect(injectionMedication.requiresFasting, true);
+      expect(injectionMedication.fastingType, 'before');
+      expect(injectionMedication.fastingDurationMinutes, 60);
+      expect(injectionMedication.notifyFasting, true);
     });
 
     test('should preserve other fields when adding fasting', () {

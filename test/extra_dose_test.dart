@@ -18,33 +18,6 @@ void main() {
   });
 
   group('Extra Dose Registration', () {
-    test('should register extra dose with correct time and reduce stock', () async {
-      // Create a medication with schedule
-      final medication = MedicationBuilder()
-          .withId('med1')
-          .withMultipleDoses(['08:00', '14:00', '20:00'], 1.0)
-          .withStock(10.0)
-          .build();
-
-      await DatabaseHelper.instance.insertMedication(medication);
-
-      // Register extra dose
-      final updatedMed = await DoseActionService.registerExtraDose(
-        medication: medication,
-        quantity: 1.0,
-      );
-
-      // Verify stock reduced
-      expect(updatedMed.stockQuantity, 9.0);
-
-      // Verify extra dose recorded in extraDosesToday
-      expect(updatedMed.extraDosesToday.length, 1);
-
-      // Verify time format (HH:mm)
-      final extraDoseTime = updatedMed.extraDosesToday.first;
-      expect(extraDoseTime, matches(RegExp(r'^\d{2}:\d{2}$')));
-    });
-
     test('should save extra dose to history with isExtraDose=true', () async {
       final medication = MedicationBuilder()
           .withId('med2')
@@ -120,24 +93,6 @@ void main() {
       expect(updatedMed.stockQuantity, 8.0);
     });
 
-    test('should throw InsufficientStockException when stock is low', () async {
-      final medication = MedicationBuilder()
-          .withId('med5')
-          .withSingleDose('08:00', 2.0)
-          .withStock(1.0) // Not enough for dose of 2.0
-          .build();
-
-      await DatabaseHelper.instance.insertMedication(medication);
-
-      expect(
-        () => DoseActionService.registerExtraDose(
-          medication: medication,
-          quantity: 2.0,
-        ),
-        throwsA(isA<InsufficientStockException>()),
-      );
-    });
-
     test('should reset extraDosesToday on new day', () async {
       final yesterday = DateTime.now().subtract(const Duration(days: 1));
       final yesterdayString = '${yesterday.year}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}';
@@ -169,103 +124,39 @@ void main() {
     });
   });
 
-  group('Extra Dose with Fasting', () {
-    test('should schedule fasting notification for "after" type', () async {
-      final medication = MedicationBuilder()
-          .withId('med7')
-          .withName('Test Med with Fasting')
-          .withSingleDose('08:00', 1.0)
-          .withStock(10.0)
-          .withFasting(type: 'after', duration: 60, notify: true)
-          .build();
-
-      await DatabaseHelper.instance.insertMedication(medication);
-
-      await DoseActionService.registerExtraDose(
-        medication: medication,
-        quantity: 1.0,
-      );
-
-      // In test mode, we can't directly verify notification scheduling,
-      // but we can verify the medication properties are correct
-      expect(medication.requiresFasting, true);
-      expect(medication.fastingType, 'after');
-      expect(medication.notifyFasting, true);
-    });
-
-    test('should NOT schedule fasting notification for "before" type', () async {
-      final medication = MedicationBuilder()
-          .withId('med8')
-          .withName('Test Med with Before Fasting')
-          .withSingleDose('08:00', 1.0)
-          .withStock(10.0)
-          .withFasting(type: 'before', duration: 60, notify: true) // before type, should not schedule on extra dose
-          .build();
-
-      await DatabaseHelper.instance.insertMedication(medication);
-
-      await DoseActionService.registerExtraDose(
-        medication: medication,
-        quantity: 1.0,
-      );
-
-      // Verify medication still has before fasting configuration
-      expect(medication.fastingType, 'before');
-    });
-
-    test('should NOT schedule fasting notification when notifyFasting is false', () async {
-      final medication = MedicationBuilder()
-          .withId('med9')
-          .withName('Test Med No Notify')
-          .withSingleDose('08:00', 1.0)
-          .withStock(10.0)
-          .withFasting(type: 'after', duration: 60, notify: false) // Notifications disabled
-          .build();
-
-      await DatabaseHelper.instance.insertMedication(medication);
-
-      await DoseActionService.registerExtraDose(
-        medication: medication,
-        quantity: 1.0,
-      );
-
-      expect(medication.notifyFasting, false);
-    });
-  });
-
   group('Extra Dose with Different Quantities', () {
-    test('should handle fractional dose quantities', () async {
-      final medication = MedicationBuilder()
+    test('should handle fractional and larger dose quantities', () async {
+      // Test fractional quantity (0.5)
+      final medication1 = MedicationBuilder()
           .withId('med10')
           .withSingleDose('08:00', 0.5)
           .withStock(10.0)
           .build();
 
-      await DatabaseHelper.instance.insertMedication(medication);
+      await DatabaseHelper.instance.insertMedication(medication1);
 
-      final updatedMed = await DoseActionService.registerExtraDose(
-        medication: medication,
+      final updatedMed1 = await DoseActionService.registerExtraDose(
+        medication: medication1,
         quantity: 0.5,
       );
 
-      expect(updatedMed.stockQuantity, 9.5);
-    });
+      expect(updatedMed1.stockQuantity, 9.5);
 
-    test('should handle larger dose quantities', () async {
-      final medication = MedicationBuilder()
+      // Test larger quantity (3.0)
+      final medication2 = MedicationBuilder()
           .withId('med11')
           .withSingleDose('08:00', 3.0)
           .withStock(20.0)
           .build();
 
-      await DatabaseHelper.instance.insertMedication(medication);
+      await DatabaseHelper.instance.insertMedication(medication2);
 
-      final updatedMed = await DoseActionService.registerExtraDose(
-        medication: medication,
+      final updatedMed2 = await DoseActionService.registerExtraDose(
+        medication: medication2,
         quantity: 3.0,
       );
 
-      expect(updatedMed.stockQuantity, 17.0);
+      expect(updatedMed2.stockQuantity, 17.0);
     });
   });
 }

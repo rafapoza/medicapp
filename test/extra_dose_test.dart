@@ -149,19 +149,10 @@ void main() {
           .withTakenDoses(['08:00'], yesterdayString)
           .build();
 
-      // Create medication with extraDosesToday (not in builder)
-      final medication = Medication(
-        id: baseMed.id,
-        name: baseMed.name,
-        type: baseMed.type,
-        dosageIntervalHours: baseMed.dosageIntervalHours,
-        durationType: baseMed.durationType,
-        doseSchedule: baseMed.doseSchedule,
-        stockQuantity: baseMed.stockQuantity,
-        extraDosesToday: ['10:30', '15:45'],
-        takenDosesToday: baseMed.takenDosesToday,
-        takenDosesDate: yesterdayString, // Yesterday's date
-      );
+      // Create medication with extraDosesToday from yesterday
+      final medication = MedicationBuilder.from(baseMed)
+          .withExtraDoses(['10:30', '15:45'], yesterdayString)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 

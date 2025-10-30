@@ -161,15 +161,11 @@ void main() {
 
   group('DoseActionService - registerSkippedDose', () {
     test('should register skipped dose without reducing stock', () async {
-      final medication = Medication(
-        id: 'med8',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med8')
+          .withDoseSchedule({'08:00': 1.0, '16:00': 1.0})
+          .withStock(10.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 

@@ -22,6 +22,7 @@ class MedicationBuilder {
   double _stockQuantity = 10.0;
   List<String> _takenDosesToday = [];
   List<String> _skippedDosesToday = [];
+  List<String> _extraDosesToday = [];
   String? _takenDosesDate;
   double? _lastRefillAmount;
   int _lowStockThresholdDays = 3;
@@ -93,6 +94,12 @@ class MedicationBuilder {
 
   MedicationBuilder withSkippedDoses(List<String> doses, [String? date]) {
     _skippedDosesToday = doses;
+    _takenDosesDate = date ?? _getTodayString();
+    return this;
+  }
+
+  MedicationBuilder withExtraDoses(List<String> doses, [String? date]) {
+    _extraDosesToday = doses;
     _takenDosesDate = date ?? _getTodayString();
     return this;
   }
@@ -237,6 +244,7 @@ class MedicationBuilder {
       stockQuantity: _stockQuantity,
       takenDosesToday: _takenDosesToday,
       skippedDosesToday: _skippedDosesToday,
+      extraDosesToday: _extraDosesToday,
       takenDosesDate: _takenDosesDate,
       lastRefillAmount: _lastRefillAmount,
       lowStockThresholdDays: _lowStockThresholdDays,

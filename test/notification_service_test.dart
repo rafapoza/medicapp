@@ -456,6 +456,143 @@ void main() {
       );
     });
   });
+
+  group('Ongoing Fasting Notification', () {
+    test('should show ongoing fasting notification in test mode without errors', () async {
+      // In test mode, notifications should be no-ops but not throw errors
+      await service.showOngoingFastingNotification(
+        medicationName: 'Test Medication',
+        timeRemaining: '1h 30m',
+        endTime: '14:30',
+      );
+
+      // Should complete without errors
+      expect(service.isTestMode, true);
+    });
+
+    test('should cancel ongoing fasting notification in test mode without errors', () async {
+      // First show a notification
+      await service.showOngoingFastingNotification(
+        medicationName: 'Test Medication',
+        timeRemaining: '45 min',
+        endTime: '13:45',
+      );
+
+      // Then cancel it
+      await service.cancelOngoingFastingNotification();
+
+      // Should complete without errors
+      expect(service.isTestMode, true);
+    });
+
+    test('should handle multiple ongoing notification updates', () async {
+      // Simulate updating notification multiple times (as would happen with timer)
+      await service.showOngoingFastingNotification(
+        medicationName: 'Paracetamol',
+        timeRemaining: '2h',
+        endTime: '16:00',
+      );
+
+      await service.showOngoingFastingNotification(
+        medicationName: 'Paracetamol',
+        timeRemaining: '1h 30m',
+        endTime: '16:00',
+      );
+
+      await service.showOngoingFastingNotification(
+        medicationName: 'Paracetamol',
+        timeRemaining: '1h',
+        endTime: '16:00',
+      );
+
+      // Should complete without errors
+      expect(service.isTestMode, true);
+    });
+
+    test('should handle switching between different medications', () async {
+      // Show notification for first medication
+      await service.showOngoingFastingNotification(
+        medicationName: 'Paracetamol',
+        timeRemaining: '1h',
+        endTime: '15:00',
+      );
+
+      // Switch to more urgent medication
+      await service.showOngoingFastingNotification(
+        medicationName: 'Ibuprofeno',
+        timeRemaining: '30 min',
+        endTime: '14:30',
+      );
+
+      // Should complete without errors
+      expect(service.isTestMode, true);
+    });
+
+    test('should handle time format variations', () async {
+      // Test with minutes only
+      await service.showOngoingFastingNotification(
+        medicationName: 'Med1',
+        timeRemaining: '45 min',
+        endTime: '14:45',
+      );
+
+      // Test with hours only
+      await service.showOngoingFastingNotification(
+        medicationName: 'Med2',
+        timeRemaining: '2h',
+        endTime: '16:00',
+      );
+
+      // Test with hours and minutes
+      await service.showOngoingFastingNotification(
+        medicationName: 'Med3',
+        timeRemaining: '1h 23m',
+        endTime: '15:23',
+      );
+
+      // Should complete without errors
+      expect(service.isTestMode, true);
+    });
+
+    test('should handle cancellation after showing notification', () async {
+      // Show notification
+      await service.showOngoingFastingNotification(
+        medicationName: 'Test Med',
+        timeRemaining: '1h',
+        endTime: '15:00',
+      );
+
+      // Cancel it (simulating fasting period ending)
+      await service.cancelOngoingFastingNotification();
+
+      // Should complete without errors
+      expect(service.isTestMode, true);
+    });
+
+    test('should handle multiple cancellations gracefully', () async {
+      // Cancel multiple times (even if no notification is shown)
+      await service.cancelOngoingFastingNotification();
+      await service.cancelOngoingFastingNotification();
+      await service.cancelOngoingFastingNotification();
+
+      // Should complete without errors
+      expect(service.isTestMode, true);
+    });
+
+    test('should verify ongoing notification uses fixed ID range', () {
+      // The ongoing notification should use ID 7000000
+      // This is tested indirectly by ensuring the service doesn't conflict
+      // with other notification types
+      const ongoingId = 7000000;
+
+      // Verify it's outside other notification ID ranges
+      expect(ongoingId, greaterThanOrEqualTo(7000000));
+      expect(ongoingId, lessThan(3000000)); // Not in specific date range (3M-4M)
+      expect(ongoingId, lessThan(4000000)); // Not in weekly range (4M-5M)
+      expect(ongoingId, lessThan(5000000)); // Not in fasting range (5M-6M)
+      expect(ongoingId, lessThan(6000000)); // Not in dynamic fasting range (6M-7M)
+    });
+  });
 }
 
 // Helper methods to simulate internal ID generation

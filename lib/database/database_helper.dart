@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/medication.dart';
 import '../models/dose_history_entry.dart';
 import '../models/person.dart';
+import '../models/person_medication.dart';
 
 class DatabaseHelper {
   // Singleton pattern
@@ -45,7 +46,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 17,
+      version: 18,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -102,12 +103,14 @@ class DatabaseHelper {
         medicationId $textType,
         medicationName $textType,
         medicationType $textType,
+        personId $textType,
         scheduledDateTime $textType,
         registeredDateTime $textType,
         status $textType,
         quantity REAL NOT NULL,
         isExtraDose $integerType DEFAULT 0,
-        notes $textNullableType
+        notes $textNullableType,
+        FOREIGN KEY (personId) REFERENCES persons (id) ON DELETE CASCADE
       )
     ''');
 
@@ -129,6 +132,30 @@ class DatabaseHelper {
         name $textType,
         isDefault $integerType DEFAULT 0
       )
+    ''');
+
+    // Create person_medications table for many-to-many relationship
+    await db.execute('''
+      CREATE TABLE person_medications (
+        id $idType,
+        personId $textType,
+        medicationId $textType,
+        assignedDate $textType,
+        FOREIGN KEY (personId) REFERENCES persons (id) ON DELETE CASCADE,
+        FOREIGN KEY (medicationId) REFERENCES medications (id) ON DELETE CASCADE,
+        UNIQUE(personId, medicationId)
+      )
+    ''');
+
+    // Create index for faster queries
+    await db.execute('''
+      CREATE INDEX idx_person_medications_person
+      ON person_medications(personId)
+    ''');
+
+    await db.execute('''
+      CREATE INDEX idx_person_medications_medication
+      ON person_medications(medicationId)
     ''');
   }
 
@@ -299,6 +326,58 @@ class DatabaseHelper {
           isDefault $integerType DEFAULT 0
         )
       ''');
+    }
+
+    if (oldVersion < 18) {
+      // Version 18: Implement many-to-many relationship between persons and medications
+      const idType = 'TEXT PRIMARY KEY';
+      const textType = 'TEXT NOT NULL';
+
+      // Create person_medications table for many-to-many relationship
+      await db.execute('''
+        CREATE TABLE person_medications (
+          id $idType,
+          personId $textType,
+          medicationId $textType,
+          assignedDate $textType,
+          FOREIGN KEY (personId) REFERENCES persons (id) ON DELETE CASCADE,
+          FOREIGN KEY (medicationId) REFERENCES medications (id) ON DELETE CASCADE,
+          UNIQUE(personId, medicationId)
+        )
+      ''');
+
+      // Create indexes
+      await db.execute('''
+        CREATE INDEX idx_person_medications_person
+        ON person_medications(personId)
+      ''');
+
+      await db.execute('''
+        CREATE INDEX idx_person_medications_medication
+        ON person_medications(medicationId)
+      ''');
+
+      // Add personId column to dose_history
+      await db.execute('''
+        ALTER TABLE dose_history ADD COLUMN personId TEXT
+      ''');
+
+      // Assign all existing dose history entries to default person
+      final defaultPerson = await db.query(
+        'persons',
+        where: 'isDefault = ?',
+        whereArgs: [1],
+        limit: 1,
+      );
+
+      if (defaultPerson.isNotEmpty) {
+        final defaultPersonId = defaultPerson.first['id'] as String;
+        await db.execute('''
+          UPDATE dose_history
+          SET personId = ?
+          WHERE personId IS NULL
+        ''', [defaultPersonId]);
+      }
     }
   }
 
@@ -617,6 +696,108 @@ class DatabaseHelper {
   Future<bool> hasDefaultPerson() async {
     final defaultPerson = await getDefaultPerson();
     return defaultPerson != null;
+  }
+
+  // === PERSON-MEDICATION RELATIONSHIP METHODS ===
+
+  // Create - Assign a medication to a person
+  Future<int> insertPersonMedication(PersonMedication personMedication) async {
+    final db = await database;
+    return await db.insert(
+      'person_medications',
+      personMedication.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // Helper - Assign medication to person with automatic ID generation
+  Future<int> assignMedicationToPerson({
+    required String personId,
+    required String medicationId,
+  }) async {
+    final personMedication = PersonMedication(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      personId: personId,
+      medicationId: medicationId,
+      assignedDate: DateTime.now().toIso8601String(),
+    );
+    return await insertPersonMedication(personMedication);
+  }
+
+  // Delete - Unassign medication from person
+  Future<int> unassignMedicationFromPerson({
+    required String personId,
+    required String medicationId,
+  }) async {
+    final db = await database;
+    return await db.delete(
+      'person_medications',
+      where: 'personId = ? AND medicationId = ?',
+      whereArgs: [personId, medicationId],
+    );
+  }
+
+  // Read - Get all persons assigned to a medication
+  Future<List<Person>> getPersonsForMedication(String medicationId) async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT p.* FROM persons p
+      INNER JOIN person_medications pm ON p.id = pm.personId
+      WHERE pm.medicationId = ?
+      ORDER BY p.name ASC
+    ''', [medicationId]);
+
+    return result.map((json) => Person.fromJson(json)).toList();
+  }
+
+  // Read - Get all medications assigned to a person
+  Future<List<Medication>> getMedicationsForPerson(String personId) async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT m.* FROM medications m
+      INNER JOIN person_medications pm ON m.id = pm.medicationId
+      WHERE pm.personId = ?
+    ''', [personId]);
+
+    return result.map((json) => Medication.fromJson(json)).toList();
+  }
+
+  // Read - Check if a person is assigned to a medication
+  Future<bool> isPersonAssignedToMedication({
+    required String personId,
+    required String medicationId,
+  }) async {
+    final db = await database;
+    final result = await db.query(
+      'person_medications',
+      where: 'personId = ? AND medicationId = ?',
+      whereArgs: [personId, medicationId],
+      limit: 1,
+    );
+    return result.isNotEmpty;
+  }
+
+  // Read - Get all person-medication relationships
+  Future<List<PersonMedication>> getAllPersonMedications() async {
+    final db = await database;
+    final result = await db.query('person_medications');
+    return result.map((json) => PersonMedication.fromJson(json)).toList();
+  }
+
+  // Delete - Delete a specific person-medication relationship by ID
+  Future<int> deletePersonMedication(String id) async {
+    final db = await database;
+    return await db.delete(
+      'person_medications',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // Delete - Delete all person-medication relationships (useful for testing)
+  Future<int> deleteAllPersonMedications() async {
+    final db = await database;
+    return await db.delete('person_medications');
   }
 
   // Close the database

@@ -6,6 +6,7 @@ class DoseHistoryEntry {
   final String medicationId;
   final String medicationName;
   final MedicationType medicationType;
+  final String personId; // Person who took/skipped the dose
   final DateTime scheduledDateTime; // When it was supposed to be taken
   final DateTime registeredDateTime; // When it was actually registered
   final DoseStatus status; // taken or skipped
@@ -18,6 +19,7 @@ class DoseHistoryEntry {
     required this.medicationId,
     required this.medicationName,
     required this.medicationType,
+    required this.personId,
     required this.scheduledDateTime,
     required this.registeredDateTime,
     required this.status,
@@ -33,6 +35,7 @@ class DoseHistoryEntry {
       'medicationId': medicationId,
       'medicationName': medicationName,
       'medicationType': medicationType.name,
+      'personId': personId,
       'scheduledDateTime': scheduledDateTime.toIso8601String(),
       'registeredDateTime': registeredDateTime.toIso8601String(),
       'status': status.name,
@@ -52,6 +55,7 @@ class DoseHistoryEntry {
         (e) => e.name == map['medicationType'],
         orElse: () => MedicationType.pill,
       ),
+      personId: map['personId'] as String? ?? '', // Backward compatibility
       scheduledDateTime: DateTime.parse(map['scheduledDateTime'] as String),
       registeredDateTime: DateTime.parse(map['registeredDateTime'] as String),
       status: DoseStatus.values.firstWhere(
@@ -70,6 +74,7 @@ class DoseHistoryEntry {
     String? medicationId,
     String? medicationName,
     MedicationType? medicationType,
+    String? personId,
     DateTime? scheduledDateTime,
     DateTime? registeredDateTime,
     DoseStatus? status,
@@ -82,6 +87,7 @@ class DoseHistoryEntry {
       medicationId: medicationId ?? this.medicationId,
       medicationName: medicationName ?? this.medicationName,
       medicationType: medicationType ?? this.medicationType,
+      personId: personId ?? this.personId,
       scheduledDateTime: scheduledDateTime ?? this.scheduledDateTime,
       registeredDateTime: registeredDateTime ?? this.registeredDateTime,
       status: status ?? this.status,

@@ -47,6 +47,7 @@ void main() {
         medicationId: medication.id,
         medicationName: medication.name,
         medicationType: medication.type,
+        personId: 'test-person-id',
         scheduledDateTime: now, // For as-needed, scheduled = registered
         registeredDateTime: now,
         status: DoseStatus.taken,
@@ -81,6 +82,7 @@ void main() {
         medicationId: medication.id,
         medicationName: medication.name,
         medicationType: medication.type,
+        personId: 'test-person-id',
         scheduledDateTime: now,
         registeredDateTime: now,
         status: DoseStatus.skipped, // Skipped, not taken
@@ -114,6 +116,7 @@ void main() {
         medicationId: medication.id,
         medicationName: medication.name,
         medicationType: medication.type,
+        personId: 'test-person-id',
         scheduledDateTime: yesterday,
         registeredDateTime: yesterday, // Registered yesterday
         status: DoseStatus.taken,
@@ -148,6 +151,7 @@ void main() {
         medicationId: medication.id,
         medicationName: medication.name,
         medicationType: medication.type,
+        personId: 'test-person-id',
         scheduledDateTime: todayAt(10, 0),
         registeredDateTime: todayAt(10, 0),
         status: DoseStatus.taken,
@@ -161,6 +165,7 @@ void main() {
         medicationId: medication.id,
         medicationName: medication.name,
         medicationType: medication.type,
+        personId: 'test-person-id',
         scheduledDateTime: todayAt(15, 0),
         registeredDateTime: todayAt(15, 0),
         status: DoseStatus.taken,
@@ -203,6 +208,7 @@ void main() {
         medicationId: med1.id,
         medicationName: med1.name,
         medicationType: med1.type,
+        personId: 'test-person-id',
         scheduledDateTime: now,
         registeredDateTime: now,
         status: DoseStatus.taken,
@@ -216,6 +222,7 @@ void main() {
         medicationId: med2.id,
         medicationName: med2.name,
         medicationType: med2.type,
+        personId: 'test-person-id',
         scheduledDateTime: now,
         registeredDateTime: now,
         status: DoseStatus.taken,
@@ -252,6 +259,7 @@ void main() {
         medicationId: medication.id,
         medicationName: medication.name,
         medicationType: medication.type,
+        personId: 'test-person-id',
         scheduledDateTime: todayAt(20, 0),
         registeredDateTime: now,
         status: DoseStatus.taken,
@@ -287,6 +295,7 @@ void main() {
         medicationId: medication.id,
         medicationName: medication.name,
         medicationType: medication.type,
+        personId: 'test-person-id',
         scheduledDateTime: yesterday, // Scheduled yesterday
         registeredDateTime: today, // But registered today
         status: DoseStatus.taken,

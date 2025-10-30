@@ -686,11 +686,16 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         int.parse(selectedDoseTime.split(':')[1]),
       );
 
+      // Get default person for history entry
+      final defaultPerson = await DatabaseHelper.instance.getDefaultPerson();
+      final personId = defaultPerson?.id ?? '';
+
       final historyEntry = DoseHistoryEntry(
         id: '${freshMedication.id}_${now.millisecondsSinceEpoch}',
         medicationId: freshMedication.id,
         medicationName: freshMedication.name,
         medicationType: freshMedication.type,
+        personId: personId,
         scheduledDateTime: scheduledDateTime,
         registeredDateTime: now,
         status: DoseStatus.taken,
@@ -817,11 +822,17 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
 
       // Create history entry with current time
       final now = DateTime.now();
+
+      // Get default person for history entry
+      final defaultPerson = await DatabaseHelper.instance.getDefaultPerson();
+      final personId = defaultPerson?.id ?? '';
+
       final historyEntry = DoseHistoryEntry(
         id: '${medication.id}_${now.millisecondsSinceEpoch}',
         medicationId: medication.id,
         medicationName: medication.name,
         medicationType: medication.type,
+        personId: personId,
         scheduledDateTime: now, // For manual doses, scheduled time = actual time
         registeredDateTime: now,
         status: DoseStatus.taken,

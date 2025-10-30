@@ -56,11 +56,17 @@ class DoseActionService {
 
     // Save to history
     final scheduledDateTime = _parseDoseDateTime(today, doseTime);
+
+    // Get default person for history entry
+    final defaultPerson = await DatabaseHelper.instance.getDefaultPerson();
+    final personId = defaultPerson?.id ?? '';
+
     final historyEntry = DoseHistoryEntry(
       id: '${medication.id}_${DateTime.now().millisecondsSinceEpoch}',
       medicationId: medication.id,
       medicationName: medication.name,
       medicationType: medication.type,
+      personId: personId,
       scheduledDateTime: scheduledDateTime,
       registeredDateTime: DateTime.now(),
       status: DoseStatus.taken,
@@ -115,11 +121,17 @@ class DoseActionService {
 
     // Save to history
     final scheduledDateTime = _parseDoseDateTime(today, doseTime);
+
+    // Get default person for history entry
+    final defaultPerson = await DatabaseHelper.instance.getDefaultPerson();
+    final personId = defaultPerson?.id ?? '';
+
     final historyEntry = DoseHistoryEntry(
       id: '${medication.id}_${DateTime.now().millisecondsSinceEpoch}',
       medicationId: medication.id,
       medicationName: medication.name,
       medicationType: medication.type,
+      personId: personId,
       scheduledDateTime: scheduledDateTime,
       registeredDateTime: DateTime.now(),
       status: DoseStatus.skipped,
@@ -181,11 +193,17 @@ class DoseActionService {
 
     // Save to history
     final now = DateTime.now();
+
+    // Get default person for history entry
+    final defaultPerson = await DatabaseHelper.instance.getDefaultPerson();
+    final personId = defaultPerson?.id ?? '';
+
     final historyEntry = DoseHistoryEntry(
       id: '${medication.id}_${now.millisecondsSinceEpoch}',
       medicationId: medication.id,
       medicationName: medication.name,
       medicationType: medication.type,
+      personId: personId,
       scheduledDateTime: now,
       registeredDateTime: now,
       status: DoseStatus.taken,
@@ -271,12 +289,17 @@ class DoseActionService {
     // Update in database
     await DatabaseHelper.instance.updateMedication(updatedMedication);
 
+    // Get default person for history entry
+    final defaultPerson = await DatabaseHelper.instance.getDefaultPerson();
+    final personId = defaultPerson?.id ?? '';
+
     // Save to history with isExtraDose=true
     final historyEntry = DoseHistoryEntry(
       id: '${medication.id}_${now.millisecondsSinceEpoch}',
       medicationId: medication.id,
       medicationName: medication.name,
       medicationType: medication.type,
+      personId: personId,
       scheduledDateTime: now, // For extra doses, scheduled time = actual time
       registeredDateTime: now,
       status: DoseStatus.taken,

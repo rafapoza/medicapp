@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
 import 'package:medicapp/services/notification_service.dart';
@@ -101,19 +100,11 @@ void main() {
     });
 
     test('should NOT schedule if fastingDurationMinutes is null', () async {
-      // Using manual Medication constructor for edge case with null duration
-      final medication = Medication(
-        id: 'test_5',
-        name: 'Test Medication',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        requiresFasting: true,
-        fastingType: 'after',
-        fastingDurationMinutes: null, // Invalid duration - edge case
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('test_5')
+          .withSingleDose('08:00', 1.0)
+          .withFastingEdgeCase(type: 'after', duration: null) // Invalid duration - edge case
+          .build();
 
       final actualDoseTime = DateTime(2025, 10, 16, 10, 30);
 
@@ -127,19 +118,11 @@ void main() {
     });
 
     test('should NOT schedule if fastingDurationMinutes is zero', () async {
-      // Using manual Medication constructor for edge case with zero duration
-      final medication = Medication(
-        id: 'test_6',
-        name: 'Test Medication',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        requiresFasting: true,
-        fastingType: 'after',
-        fastingDurationMinutes: 0, // Invalid duration - edge case
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('test_6')
+          .withSingleDose('08:00', 1.0)
+          .withFastingEdgeCase(type: 'after', duration: 0) // Invalid duration - edge case
+          .build();
 
       final actualDoseTime = DateTime(2025, 10, 16, 10, 30);
 

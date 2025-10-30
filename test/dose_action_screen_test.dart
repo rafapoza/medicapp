@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
 import 'package:medicapp/database/database_helper.dart';
 import 'package:medicapp/services/notification_service.dart';
 import 'package:medicapp/screens/dose_action_screen.dart';
 import 'package:medicapp/l10n/app_localizations.dart';
+import 'helpers/medication_builder.dart';
 
 // NOTA: Los tests de DoseActionScreen se han deshabilitado temporalmente debido a un problema
 // con el framework de testing de Flutter. Los tests se cuelgan al intentar montar el widget
@@ -76,15 +76,15 @@ void main() {
   /*
   group('DoseActionScreen - Loading and Error States', () {
     testWidgets('should load and display medication information', (WidgetTester tester) async {
-      final medication = Medication(
-        id: 'med1',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+        .withId('med1')
+        .withName('Test Med')
+        .withType(MedicationType.pill)
+        .withDosageInterval(8)
+        .withDurationType(TreatmentDurationType.everyday)
+        .withSingleDose('08:00', 1.0)
+        .withStock(10.0)
+        .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 

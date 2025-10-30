@@ -146,6 +146,20 @@ class MedicationBuilder {
     return this;
   }
 
+  /// Configura el medicamento con valores de ayuno inválidos para tests de edge cases.
+  /// Permite establecer duraciones nulas o cero para validar comportamiento de error.
+  MedicationBuilder withFastingEdgeCase({
+    required String type,
+    required int? duration,
+    bool notify = true,
+  }) {
+    _requiresFasting = true;
+    _fastingType = type;
+    _fastingDurationMinutes = duration;
+    _notifyFasting = notify;
+    return this;
+  }
+
   MedicationBuilder suspended([bool suspended = true]) {
     _isSuspended = suspended;
     return this;

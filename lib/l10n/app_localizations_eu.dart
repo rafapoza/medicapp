@@ -1505,6 +1505,16 @@ class AppLocalizationsEu extends AppLocalizations {
   String get settingsTitle => 'Ezarpenak';
 
   @override
+  String get settingsDisplaySection => 'Bistaratzea';
+
+  @override
+  String get settingsShowActualTimeTitle => 'Erakutsi dosiaren benetako ordua';
+
+  @override
+  String get settingsShowActualTimeSubtitle =>
+      'Dosiak hartu ziren benetako ordua erakusten du programatutako orduaren ordez';
+
+  @override
   String get settingsBackupSection => 'Segurtasun Kopia';
 
   @override

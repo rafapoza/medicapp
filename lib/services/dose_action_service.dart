@@ -236,7 +236,11 @@ class DoseActionService {
     );
 
     // Reschedule medication notifications to restore future notifications
-    await NotificationService.instance.scheduleMedicationNotifications(medication);
+    // Use excludeToday: true to prevent rescheduling for today (dose already taken)
+    await NotificationService.instance.scheduleMedicationNotifications(
+      medication,
+      excludeToday: true,
+    );
 
     // Cancel today's fasting notification if needed
     await NotificationService.instance.cancelTodaysFastingNotification(
@@ -266,7 +270,11 @@ class DoseActionService {
     );
 
     // Reschedule medication notifications
-    await NotificationService.instance.scheduleMedicationNotifications(medication);
+    // Use excludeToday: true to prevent rescheduling for today (dose already skipped)
+    await NotificationService.instance.scheduleMedicationNotifications(
+      medication,
+      excludeToday: true,
+    );
 
     // Cancel today's fasting notification
     await NotificationService.instance.cancelTodaysFastingNotification(

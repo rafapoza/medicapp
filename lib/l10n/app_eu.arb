@@ -847,6 +847,9 @@
 
   "@_SETTINGS_SCREEN": {},
   "settingsTitle": "Ezarpenak",
+  "settingsDisplaySection": "Bistaratzea",
+  "settingsShowActualTimeTitle": "Erakutsi dosiaren benetako ordua",
+  "settingsShowActualTimeSubtitle": "Dosiak hartu ziren benetako ordua erakusten du programatutako orduaren ordez",
   "settingsBackupSection": "Segurtasun Kopia",
   "settingsExportTitle": "Esportatu Datu Basea",
   "settingsExportSubtitle": "Gorde zure botika eta historia guztien kopia bat",

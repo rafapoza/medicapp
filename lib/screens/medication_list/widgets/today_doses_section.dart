@@ -5,11 +5,15 @@ import '../../../models/medication.dart';
 class TodayDosesSection extends StatelessWidget {
   final Medication medication;
   final Function(String doseTime, bool isTaken) onDoseTap;
+  final Map<String, DateTime>? actualDoseTimes;
+  final bool showActualTime;
 
   const TodayDosesSection({
     super.key,
     required this.medication,
     required this.onDoseTap,
+    this.actualDoseTimes,
+    this.showActualTime = false,
   });
 
   @override
@@ -43,6 +47,13 @@ class TodayDosesSection extends StatelessWidget {
               final status = dose['status'] as String;
               final isTaken = status == 'taken';
 
+              // Determine which time to show
+              String displayTime = time;
+              if (isTaken && showActualTime && actualDoseTimes != null && actualDoseTimes!.containsKey(time)) {
+                final actualTime = actualDoseTimes![time]!;
+                displayTime = '${actualTime.hour.toString().padLeft(2, '0')}:${actualTime.minute.toString().padLeft(2, '0')}';
+              }
+
               return InkWell(
                 onTap: () => onDoseTap(time, isTaken),
                 borderRadius: BorderRadius.circular(8),
@@ -66,7 +77,7 @@ class TodayDosesSection extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        time,
+                        displayTime,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

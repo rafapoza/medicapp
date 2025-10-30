@@ -388,7 +388,8 @@ class NotificationService {
   }
 
   /// Schedule notifications for a medication based on its dose times
-  Future<void> scheduleMedicationNotifications(Medication medication) async {
+  /// If [excludeToday] is true, notifications will not be scheduled for today (useful when a dose was already taken)
+  Future<void> scheduleMedicationNotifications(Medication medication, {bool excludeToday = false}) async {
     // Skip in test mode
     if (_isTestMode) return;
 
@@ -450,7 +451,7 @@ class NotificationService {
         break;
       default:
         // For everyday and untilFinished: use daily recurring notifications
-        await _scheduleDailyNotifications(medication);
+        await _scheduleDailyNotifications(medication, excludeToday: excludeToday);
         break;
     }
 
@@ -465,7 +466,7 @@ class NotificationService {
   }
 
   /// Schedule daily recurring notifications (for everyday and untilFinished)
-  Future<void> _scheduleDailyNotifications(Medication medication) async {
+  Future<void> _scheduleDailyNotifications(Medication medication, {bool excludeToday = false}) async {
     final now = tz.TZDateTime.now(tz.local);
 
     // Phase 2: If treatment has an end date, schedule individual notifications for each day
@@ -483,6 +484,12 @@ class NotificationService {
       // Schedule notifications for each day until end date
       for (int day = 0; day < daysToSchedule; day++) {
         final targetDate = today.add(Duration(days: day));
+
+        // Skip today if excludeToday is true (dose already taken today)
+        if (excludeToday && day == 0) {
+          print('⏭️  Skipping today (dose already taken)');
+          continue;
+        }
 
         for (int i = 0; i < medication.doseTimes.length; i++) {
           final doseTime = medication.doseTimes[i];
@@ -542,6 +549,7 @@ class NotificationService {
           hour: hour,
           minute: minute,
           payload: '${medication.id}|$i',
+          excludeToday: excludeToday,
         );
       }
     }
@@ -882,6 +890,7 @@ class NotificationService {
     required int hour,
     required int minute,
     String? payload,
+    bool excludeToday = false,
   }) async {
     // Skip in test mode
     if (_isTestMode) return;
@@ -899,8 +908,13 @@ class NotificationService {
       minute,
     );
 
-    // If the scheduled time has already passed today, schedule for tomorrow
-    if (scheduledDate.isBefore(now)) {
+    // If excludeToday is true (dose already taken today), always schedule for tomorrow
+    if (excludeToday) {
+      print('⏰ Excluding today (dose already taken), scheduling for tomorrow');
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+    // Otherwise, if the scheduled time has already passed today, schedule for tomorrow
+    else if (scheduledDate.isBefore(now)) {
       print('⏰ Time has passed for today, scheduling for tomorrow');
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }

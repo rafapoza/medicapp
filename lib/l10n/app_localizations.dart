@@ -2660,6 +2660,24 @@ abstract class AppLocalizations {
   /// **'Configuración'**
   String get settingsTitle;
 
+  /// No description provided for @settingsDisplaySection.
+  ///
+  /// In es, this message translates to:
+  /// **'Visualización'**
+  String get settingsDisplaySection;
+
+  /// No description provided for @settingsShowActualTimeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrar hora real de toma'**
+  String get settingsShowActualTimeTitle;
+
+  /// No description provided for @settingsShowActualTimeSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Muestra la hora real en que se tomaron las dosis en lugar de la hora programada'**
+  String get settingsShowActualTimeSubtitle;
+
   /// No description provided for @settingsBackupSection.
   ///
   /// In es, this message translates to:

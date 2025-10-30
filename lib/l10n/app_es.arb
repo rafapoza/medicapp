@@ -847,6 +847,9 @@
 
   "@_SETTINGS_SCREEN": {},
   "settingsTitle": "Configuración",
+  "settingsDisplaySection": "Visualización",
+  "settingsShowActualTimeTitle": "Mostrar hora real de toma",
+  "settingsShowActualTimeSubtitle": "Muestra la hora real en que se tomaron las dosis en lugar de la hora programada",
   "settingsBackupSection": "Copia de Seguridad",
   "settingsExportTitle": "Exportar Base de Datos",
   "settingsExportSubtitle": "Guarda una copia de todos tus medicamentos e historial",

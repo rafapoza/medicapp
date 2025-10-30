@@ -1482,6 +1482,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitle => 'Settings';
 
   @override
+  String get settingsDisplaySection => 'Display';
+
+  @override
+  String get settingsShowActualTimeTitle => 'Show actual dose time';
+
+  @override
+  String get settingsShowActualTimeSubtitle =>
+      'Display the actual time doses were taken instead of the scheduled time';
+
+  @override
   String get settingsBackupSection => 'Backup & Restore';
 
   @override

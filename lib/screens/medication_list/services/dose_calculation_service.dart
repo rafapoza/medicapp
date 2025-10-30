@@ -212,6 +212,40 @@ class DoseCalculationService {
     }
   }
 
+  /// Get actual time when doses were taken today
+  ///
+  /// Returns a map of scheduled time -> actual time taken
+  /// Only includes doses that were actually taken today (not skipped)
+  static Future<Map<String, DateTime>> getActualDoseTimes(Medication medication) async {
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    final doses = await DatabaseHelper.instance.getDoseHistoryForDateRange(
+      startDate: todayStart,
+      endDate: todayEnd,
+      medicationId: medication.id,
+    );
+
+    // Filter to only taken doses registered today
+    final takenDosesToday = doses.where((dose) =>
+      dose.status == DoseStatus.taken &&
+      dose.registeredDateTime.year == now.year &&
+      dose.registeredDateTime.month == now.month &&
+      dose.registeredDateTime.day == now.day
+    );
+
+    // Create map of scheduled time -> actual time
+    final Map<String, DateTime> actualTimes = {};
+    for (final dose in takenDosesToday) {
+      // Extract time (HH:mm) from scheduledDateTime
+      final scheduledTime = '${dose.scheduledDateTime.hour.toString().padLeft(2, '0')}:${dose.scheduledDateTime.minute.toString().padLeft(2, '0')}';
+      actualTimes[scheduledTime] = dose.registeredDateTime;
+    }
+
+    return actualTimes;
+  }
+
   /// Calculate total daily consumption for "as needed" medications
   ///
   /// Returns the total quantity consumed today plus any additional quantity.

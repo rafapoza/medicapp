@@ -790,6 +790,30 @@
   },
   "noScheduledTimes": "Este medicamento no tiene horarios configurados",
   "allDosesTakenToday": "Ya has tomado todas las dosis de hoy",
+  "extraDoseOption": "Toma extra",
+  "extraDoseConfirmationMessage": "Xa rexistraches todas as tomas programadas de hoxe. Queres rexistrar unha toma extra de {name}?",
+  "@extraDoseConfirmationMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "extraDoseConfirm": "Rexistrar toma extra",
+  "extraDoseRegistered": "Toma extra de {name} rexistrada ás {time} ({stock} dispoñible)",
+  "@extraDoseRegistered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
   "registerDoseOfMedication": "Registrar toma de {name}",
   "@registerDoseOfMedication": {
     "placeholders": {
@@ -850,6 +874,74 @@
   "settingsDisplaySection": "Visualización",
   "settingsShowActualTimeTitle": "Mostrar hora real de toma",
   "settingsShowActualTimeSubtitle": "Mostra a hora real na que se tomaron as doses en lugar da hora programada",
+  "settingsShowFastingCountdownTitle": "Mostrar conta atrás de xaxún",
+  "settingsShowFastingCountdownSubtitle": "Mostra o tempo restante de xaxún na pantalla principal",
+  "settingsShowFastingNotificationTitle": "Notificación fixa de conta atrás",
+  "settingsShowFastingNotificationSubtitle": "Mostra unha notificación fixa co tempo restante de xaxún (só Android)",
+  "fastingNotificationTitle": "Xaxún en curso",
+  "fastingNotificationBody": "{medication} • {timeRemaining} restantes (ata {endTime})",
+  "@fastingNotificationBody": {
+    "placeholders": {
+      "medication": {
+        "type": "String"
+      },
+      "timeRemaining": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingRemainingMinutes": "{minutes} min",
+  "@fastingRemainingMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHours": "{hours}h",
+  "@fastingRemainingHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHoursMinutes": "{hours}h {minutes}m",
+  "@fastingRemainingHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingActive": "Xaxún: {time} restantes (ata as {endTime})",
+  "@fastingActive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingUpcoming": "Próximo xaxún: {time} (ata as {endTime})",
+  "@fastingUpcoming": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
   "settingsBackupSection": "Copia de Seguridade",
   "settingsExportTitle": "Exportar Base de Datos",
   "settingsExportSubtitle": "Garda unha copia de todos os teus medicamentos e historial",

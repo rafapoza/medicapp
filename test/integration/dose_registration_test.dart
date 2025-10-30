@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:medicapp/main.dart';
 import 'package:medicapp/database/database_helper.dart';
@@ -24,6 +25,9 @@ void main() {
     final binding = TestWidgetsFlutterBinding.instance;
     binding.platformDispatcher.implicitView!.physicalSize = const Size(1200, 1800);
     binding.platformDispatcher.implicitView!.devicePixelRatio = 1.0;
+
+    // Mock SharedPreferences to avoid plugin errors in tests
+    SharedPreferences.setMockInitialValues({});
 
     // Close and reset the database to get a fresh in-memory instance
     await DatabaseHelper.resetDatabase();
@@ -79,14 +83,19 @@ void main() {
     // Tap "Registrar toma"
     await tester.tap(find.text(getL10n(tester).medicineCabinetRegisterDose));
 
-    // Wait for the registration to complete
+    // Wait for the dialog to appear
     await tester.runAsync(() async {
       await Future.delayed(const Duration(milliseconds: 500));
     });
     await tester.pumpAndSettle();
 
-    // Verify the dialog was NOT shown (because there's only 1 dose per day)
-    expect(find.text('¿Qué toma has tomado?'), findsNothing);
+    // With the new extra dose feature, the dialog is now shown even with 1 dose
+    // (to allow registering an extra dose)
+    expect(find.text('¿Qué toma has tomado?'), findsOneWidget);
+
+    // Select the scheduled dose (08:00)
+    await tester.tap(find.text('08:00'));
+    await tester.pumpAndSettle();
 
     // The medication list should have reloaded - verify the medication is still there
     expect(find.text('Vitamina C'), findsOneWidget);
@@ -400,8 +409,20 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
     }
 
-    // Verify the dialog was NOT shown (because only 1 dose was left)
-    expect(find.text('¿Qué toma has tomado?'), findsNothing);
+    // With the new extra dose feature, the dialog is now shown even with 1 dose
+    // (to allow registering an extra dose)
+    expect(find.text('¿Qué toma has tomado?'), findsOneWidget);
+
+    // Select the remaining scheduled dose (20:00)
+    await tester.tap(find.text('20:00'));
+    await tester.pumpAndSettle();
+
+    // Wait for dose registration to complete
+    await waitForDatabase(tester);
+    await tester.runAsync(() async {
+      await Future.delayed(const Duration(milliseconds: 500));
+    });
+    await tester.pumpAndSettle();
 
     // Verify the medication is still in the list (operation completed successfully)
     expect(find.text('MedDual'), findsOneWidget);

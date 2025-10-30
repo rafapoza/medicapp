@@ -44,7 +44,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 15,
+      version: 16,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -79,6 +79,7 @@ class DatabaseHelper {
         stockQuantity $realType,
         takenDosesToday $textType,
         skippedDosesToday $textType,
+        extraDosesToday $textType,
         takenDosesDate $textNullableType,
         lastRefillAmount REAL,
         lowStockThresholdDays $integerType DEFAULT 3,
@@ -104,6 +105,7 @@ class DatabaseHelper {
         registeredDateTime $textType,
         status $textType,
         quantity REAL NOT NULL,
+        isExtraDose $integerType DEFAULT 0,
         notes $textNullableType
       )
     ''');
@@ -259,6 +261,18 @@ class DatabaseHelper {
       // Add lastDailyConsumption column for version 15 (track last day consumption for "as needed" medications)
       await db.execute('''
         ALTER TABLE medications ADD COLUMN lastDailyConsumption REAL
+      ''');
+    }
+
+    if (oldVersion < 16) {
+      // Add extraDosesToday column for version 16 (track extra doses taken outside of schedule)
+      await db.execute('''
+        ALTER TABLE medications ADD COLUMN extraDosesToday TEXT NOT NULL DEFAULT ''
+      ''');
+
+      // Add isExtraDose column to dose_history for version 16
+      await db.execute('''
+        ALTER TABLE dose_history ADD COLUMN isExtraDose INTEGER NOT NULL DEFAULT 0
       ''');
     }
   }

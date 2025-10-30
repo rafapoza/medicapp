@@ -7,6 +7,7 @@ class MedicationCard extends StatelessWidget {
   final Map<String, dynamic>? nextDoseInfo;
   final String? nextDoseText;
   final Map<String, dynamic>? asNeededDoseInfo;
+  final Map<String, dynamic>? fastingPeriod;
   final Widget? todayDosesWidget;
   final VoidCallback onTap;
 
@@ -16,6 +17,7 @@ class MedicationCard extends StatelessWidget {
     this.nextDoseInfo,
     this.nextDoseText,
     this.asNeededDoseInfo,
+    this.fastingPeriod,
     this.todayDosesWidget,
     required this.onTap,
   });
@@ -195,6 +197,69 @@ class MedicationCard extends StatelessWidget {
                                 text,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: Colors.green.shade700,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                  // Show fasting countdown if available
+                  if (fastingPeriod != null) ...[
+                    const SizedBox(height: 4),
+                    Builder(
+                      builder: (context) {
+                        final remainingMinutes = fastingPeriod!['remainingMinutes'] as int;
+                        final fastingType = fastingPeriod!['fastingType'] as String;
+                        final isActive = fastingPeriod!['isActive'] as bool;
+                        final fastingEndTime = fastingPeriod!['fastingEndTime'] as DateTime;
+
+                        final l10n = AppLocalizations.of(context)!;
+
+                        // Format remaining time
+                        String timeText;
+                        if (remainingMinutes < 60) {
+                          timeText = l10n.fastingRemainingMinutes(remainingMinutes);
+                        } else {
+                          final hours = remainingMinutes ~/ 60;
+                          final minutes = remainingMinutes % 60;
+                          if (minutes == 0) {
+                            timeText = l10n.fastingRemainingHours(hours);
+                          } else {
+                            timeText = l10n.fastingRemainingHoursMinutes(hours, minutes);
+                          }
+                        }
+
+                        // Format end time
+                        final endTimeStr = '${fastingEndTime.hour.toString().padLeft(2, '0')}:${fastingEndTime.minute.toString().padLeft(2, '0')}';
+
+                        final text = isActive
+                            ? l10n.fastingActive(timeText, endTimeStr)
+                            : l10n.fastingUpcoming(timeText, endTimeStr);
+
+                        final iconColor = isActive
+                            ? Colors.orange.shade700
+                            : Colors.blue.shade700;
+                        final textColor = isActive
+                            ? Colors.orange.shade700
+                            : Colors.blue.shade700;
+
+                        return Row(
+                          children: [
+                            Icon(
+                              Icons.restaurant,
+                              size: 18,
+                              color: iconColor,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                text,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: textColor,
                                       fontWeight: FontWeight.w600,
                                     ),
                                 overflow: TextOverflow.ellipsis,

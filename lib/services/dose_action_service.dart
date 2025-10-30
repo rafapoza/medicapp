@@ -207,6 +207,98 @@ class DoseActionService {
     return updatedMedication;
   }
 
+  /// Register an extra dose for scheduled medications (outside of regular schedule)
+  static Future<Medication> registerExtraDose({
+    required Medication medication,
+    required double quantity,
+  }) async {
+    // Validate stock
+    if (medication.stockQuantity < quantity) {
+      throw InsufficientStockException(
+        doseQuantity: quantity,
+        availableStock: medication.stockQuantity,
+        unit: medication.type.stockUnit,
+      );
+    }
+
+    final now = DateTime.now();
+    final todayString = _getTodayString(now);
+    final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+
+    // Update extra doses for today
+    List<String> updatedExtraDoses;
+    List<String> updatedTakenDoses = List.from(medication.takenDosesToday);
+    List<String> updatedSkippedDoses = List.from(medication.skippedDosesToday);
+
+    if (medication.takenDosesDate == todayString) {
+      updatedExtraDoses = List.from(medication.extraDosesToday);
+      updatedExtraDoses.add(currentTime);
+    } else {
+      // New day, reset all lists
+      updatedExtraDoses = [currentTime];
+      updatedTakenDoses = [];
+      updatedSkippedDoses = [];
+    }
+
+    // Create updated medication with reduced stock
+    final updatedMedication = Medication(
+      id: medication.id,
+      name: medication.name,
+      type: medication.type,
+      dosageIntervalHours: medication.dosageIntervalHours,
+      durationType: medication.durationType,
+      doseSchedule: medication.doseSchedule,
+      stockQuantity: medication.stockQuantity - quantity,
+      takenDosesToday: updatedTakenDoses,
+      skippedDosesToday: updatedSkippedDoses,
+      extraDosesToday: updatedExtraDoses,
+      takenDosesDate: todayString,
+      lastRefillAmount: medication.lastRefillAmount,
+      lowStockThresholdDays: medication.lowStockThresholdDays,
+      selectedDates: medication.selectedDates,
+      weeklyDays: medication.weeklyDays,
+      dayInterval: medication.dayInterval,
+      startDate: medication.startDate,
+      endDate: medication.endDate,
+      requiresFasting: medication.requiresFasting,
+      fastingType: medication.fastingType,
+      fastingDurationMinutes: medication.fastingDurationMinutes,
+      notifyFasting: medication.notifyFasting,
+      isSuspended: medication.isSuspended,
+      lastDailyConsumption: medication.lastDailyConsumption,
+    );
+
+    // Update in database
+    await DatabaseHelper.instance.updateMedication(updatedMedication);
+
+    // Save to history with isExtraDose=true
+    final historyEntry = DoseHistoryEntry(
+      id: '${medication.id}_${now.millisecondsSinceEpoch}',
+      medicationId: medication.id,
+      medicationName: medication.name,
+      medicationType: medication.type,
+      scheduledDateTime: now, // For extra doses, scheduled time = actual time
+      registeredDateTime: now,
+      status: DoseStatus.taken,
+      quantity: quantity,
+      isExtraDose: true,
+    );
+
+    await DatabaseHelper.instance.insertDoseHistory(historyEntry);
+
+    // Handle fasting notifications for "after" type
+    if (updatedMedication.requiresFasting &&
+        updatedMedication.fastingType == 'after' &&
+        updatedMedication.notifyFasting) {
+      await NotificationService.instance.scheduleDynamicFastingNotification(
+        medication: updatedMedication,
+        actualDoseTime: now,
+      );
+    }
+
+    return updatedMedication;
+  }
+
   // Private helper methods
 
   static String _getTodayString(DateTime date) {

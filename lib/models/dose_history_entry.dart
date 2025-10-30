@@ -10,6 +10,7 @@ class DoseHistoryEntry {
   final DateTime registeredDateTime; // When it was actually registered
   final DoseStatus status; // taken or skipped
   final double quantity; // Amount taken
+  final bool isExtraDose; // Whether this is an extra dose (not part of the regular schedule)
   final String? notes; // Optional notes
 
   DoseHistoryEntry({
@@ -21,6 +22,7 @@ class DoseHistoryEntry {
     required this.registeredDateTime,
     required this.status,
     required this.quantity,
+    this.isExtraDose = false,
     this.notes,
   });
 
@@ -35,6 +37,7 @@ class DoseHistoryEntry {
       'registeredDateTime': registeredDateTime.toIso8601String(),
       'status': status.name,
       'quantity': quantity,
+      'isExtraDose': isExtraDose ? 1 : 0,
       'notes': notes,
     };
   }
@@ -56,6 +59,7 @@ class DoseHistoryEntry {
         orElse: () => DoseStatus.taken,
       ),
       quantity: map['quantity'] as double,
+      isExtraDose: (map['isExtraDose'] as int?) == 1,
       notes: map['notes'] as String?,
     );
   }
@@ -70,6 +74,7 @@ class DoseHistoryEntry {
     DateTime? registeredDateTime,
     DoseStatus? status,
     double? quantity,
+    bool? isExtraDose,
     String? notes,
   }) {
     return DoseHistoryEntry(
@@ -81,6 +86,7 @@ class DoseHistoryEntry {
       registeredDateTime: registeredDateTime ?? this.registeredDateTime,
       status: status ?? this.status,
       quantity: quantity ?? this.quantity,
+      isExtraDose: isExtraDose ?? this.isExtraDose,
       notes: notes ?? this.notes,
     );
   }

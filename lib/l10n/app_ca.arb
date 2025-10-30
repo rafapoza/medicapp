@@ -790,6 +790,30 @@
   },
   "noScheduledTimes": "Aquest medicament no té horaris configurats",
   "allDosesTakenToday": "Ja has pres totes les dosis d'avui",
+  "extraDoseOption": "Presa extra",
+  "extraDoseConfirmationMessage": "Ja has registrat totes les preses programades d'avui. Vols registrar una presa extra de {name}?",
+  "@extraDoseConfirmationMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "extraDoseConfirm": "Registrar presa extra",
+  "extraDoseRegistered": "Presa extra de {name} registrada a les {time} ({stock} disponible)",
+  "@extraDoseRegistered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
   "registerDoseOfMedication": "Registrar presa de {name}",
   "@registerDoseOfMedication": {
     "placeholders": {
@@ -850,6 +874,74 @@
   "settingsDisplaySection": "Visualització",
   "settingsShowActualTimeTitle": "Mostrar hora real de presa",
   "settingsShowActualTimeSubtitle": "Mostra l'hora real en què es van prendre les dosis en lloc de l'hora programada",
+  "settingsShowFastingCountdownTitle": "Mostrar compte enrere de dejuni",
+  "settingsShowFastingCountdownSubtitle": "Mostra el temps restant de dejuni a la pantalla principal",
+  "settingsShowFastingNotificationTitle": "Notificació fixa de compte enrere",
+  "settingsShowFastingNotificationSubtitle": "Mostra una notificació fixa amb el temps restant de dejuni (només Android)",
+  "fastingNotificationTitle": "Dejuni en curs",
+  "fastingNotificationBody": "{medication} • {timeRemaining} restants (fins a {endTime})",
+  "@fastingNotificationBody": {
+    "placeholders": {
+      "medication": {
+        "type": "String"
+      },
+      "timeRemaining": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingRemainingMinutes": "{minutes} min",
+  "@fastingRemainingMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHours": "{hours}h",
+  "@fastingRemainingHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHoursMinutes": "{hours}h {minutes}m",
+  "@fastingRemainingHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingActive": "Dejuni: {time} restants (fins a les {endTime})",
+  "@fastingActive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingUpcoming": "Proper dejuni: {time} (fins a les {endTime})",
+  "@fastingUpcoming": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
   "settingsBackupSection": "Còpia de Seguretat",
   "settingsExportTitle": "Exportar Base de Dades",
   "settingsExportSubtitle": "Desa una còpia de tots els teus medicaments i historial",

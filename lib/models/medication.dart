@@ -13,6 +13,7 @@ class Medication {
   final double stockQuantity; // Quantity of medication in stock
   final List<String> takenDosesToday; // List of doses taken today in "HH:mm" format (reduces stock)
   final List<String> skippedDosesToday; // List of doses skipped today in "HH:mm" format (doesn't reduce stock)
+  final List<String> extraDosesToday; // List of extra doses taken today in "HH:mm" format (not scheduled, reduces stock)
   final String? takenDosesDate; // Date when doses were taken/skipped in "yyyy-MM-dd" format
   final double? lastRefillAmount; // Last refill amount (used as suggestion for future refills)
   final int lowStockThresholdDays; // Days before running out to show low stock warning
@@ -44,6 +45,7 @@ class Medication {
     this.stockQuantity = 0,
     this.takenDosesToday = const [],
     this.skippedDosesToday = const [],
+    this.extraDosesToday = const [],
     this.takenDosesDate,
     this.lastRefillAmount,
     this.lowStockThresholdDays = 3, // Default to 3 days
@@ -75,6 +77,7 @@ class Medication {
       'stockQuantity': stockQuantity,
       'takenDosesToday': takenDosesToday.join(','), // Store as comma-separated string
       'skippedDosesToday': skippedDosesToday.join(','), // Store as comma-separated string
+      'extraDosesToday': extraDosesToday.join(','), // Store as comma-separated string
       'takenDosesDate': takenDosesDate,
       'lastRefillAmount': lastRefillAmount,
       'lowStockThresholdDays': lowStockThresholdDays,
@@ -131,6 +134,12 @@ class Medication {
         ? skippedDosesTodayString.split(',').where((s) => s.isNotEmpty).toList()
         : <String>[];
 
+    // Parse extra doses today from comma-separated string
+    final extraDosesTodayString = json['extraDosesToday'] as String?;
+    final extraDosesToday = extraDosesTodayString != null && extraDosesTodayString.isNotEmpty
+        ? extraDosesTodayString.split(',').where((s) => s.isNotEmpty).toList()
+        : <String>[];
+
     // Parse selected dates from comma-separated string
     final selectedDatesString = json['selectedDates'] as String?;
     final selectedDates = selectedDatesString != null && selectedDatesString.isNotEmpty
@@ -185,6 +194,7 @@ class Medication {
       stockQuantity: (json['stockQuantity'] as num?)?.toDouble() ?? 0,
       takenDosesToday: takenDosesToday,
       skippedDosesToday: skippedDosesToday,
+      extraDosesToday: extraDosesToday,
       takenDosesDate: json['takenDosesDate'] as String?,
       lastRefillAmount: (json['lastRefillAmount'] as num?)?.toDouble(),
       lowStockThresholdDays: json['lowStockThresholdDays'] as int? ?? 3, // Default to 3 days for backward compatibility

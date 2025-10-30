@@ -246,6 +246,111 @@ class DoseCalculationService {
     return actualTimes;
   }
 
+  /// Get active fasting period for a medication
+  ///
+  /// Returns information about the current or next fasting period:
+  /// - fastingEndTime: DateTime when fasting period ends
+  /// - remainingMinutes: Minutes remaining until fasting ends
+  /// - fastingType: 'before' or 'after'
+  /// - isActive: true if currently in fasting period
+  ///
+  /// Returns null if medication doesn't require fasting or no active period
+  static Future<Map<String, dynamic>?> getActiveFastingPeriod(Medication medication) async {
+    if (!medication.requiresFasting ||
+        medication.fastingType == null ||
+        medication.fastingDurationMinutes == null ||
+        medication.fastingDurationMinutes! <= 0) {
+      return null;
+    }
+
+    final now = DateTime.now();
+
+    // Handle "before" fasting (before taking the dose)
+    if (medication.fastingType == 'before') {
+      // Find the next dose time
+      DateTime? nextDoseTime;
+
+      for (final doseTime in medication.doseTimes) {
+        final parts = doseTime.split(':');
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+
+        var doseDateTime = DateTime(now.year, now.month, now.day, hour, minute);
+
+        // If dose time has passed today, use tomorrow
+        if (doseDateTime.isBefore(now)) {
+          doseDateTime = doseDateTime.add(const Duration(days: 1));
+        }
+
+        // Find the earliest dose
+        if (nextDoseTime == null || doseDateTime.isBefore(nextDoseTime)) {
+          nextDoseTime = doseDateTime;
+        }
+      }
+
+      if (nextDoseTime == null) return null;
+
+      // Calculate fasting period
+      final fastingStart = nextDoseTime.subtract(Duration(minutes: medication.fastingDurationMinutes!));
+      final fastingEnd = nextDoseTime;
+
+      // Check if we're currently in the fasting period or it's coming up soon
+      if (now.isAfter(fastingStart) && now.isBefore(fastingEnd)) {
+        // Currently fasting
+        final remainingMinutes = fastingEnd.difference(now).inMinutes;
+        return {
+          'fastingEndTime': fastingEnd,
+          'remainingMinutes': remainingMinutes,
+          'fastingType': 'before',
+          'isActive': true,
+        };
+      } else if (fastingStart.difference(now).inHours < 24) {
+        // Fasting period is within the next 24 hours
+        final remainingMinutes = fastingEnd.difference(now).inMinutes;
+        return {
+          'fastingEndTime': fastingEnd,
+          'remainingMinutes': remainingMinutes,
+          'fastingType': 'before',
+          'isActive': false,
+        };
+      }
+    }
+
+    // Handle "after" fasting (after taking the dose)
+    else if (medication.fastingType == 'after') {
+      // Check if any dose was taken today
+      final actualTimes = await getActualDoseTimes(medication);
+
+      if (actualTimes.isEmpty) return null;
+
+      // Find the most recent dose taken
+      DateTime? mostRecentDoseTime;
+      for (final actualTime in actualTimes.values) {
+        if (mostRecentDoseTime == null || actualTime.isAfter(mostRecentDoseTime)) {
+          mostRecentDoseTime = actualTime;
+        }
+      }
+
+      if (mostRecentDoseTime == null) return null;
+
+      // Calculate fasting end time
+      final fastingEnd = mostRecentDoseTime.add(Duration(minutes: medication.fastingDurationMinutes!));
+
+      // Check if we're still in the fasting period
+      if (now.isBefore(fastingEnd)) {
+        final remainingMinutes = fastingEnd.difference(now).inMinutes;
+        return {
+          'fastingEndTime': fastingEnd,
+          'remainingMinutes': remainingMinutes,
+          'fastingType': 'after',
+          'isActive': true,
+        };
+      }
+    }
+
+    return null;
+  }
+
   /// Calculate total daily consumption for "as needed" medications
   ///
   /// Returns the total quantity consumed today plus any additional quantity.

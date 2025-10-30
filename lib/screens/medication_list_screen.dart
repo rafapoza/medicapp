@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
@@ -8,6 +9,7 @@ import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
 import '../services/preferences_service.dart';
+import '../services/dose_action_service.dart';
 import '../utils/medication_sorter.dart';
 import 'medication_info_screen.dart';
 import 'edit_medication_menu_screen.dart';
@@ -18,6 +20,7 @@ import 'medication_list/widgets/today_doses_section.dart';
 import 'medication_list/widgets/debug_menu.dart';
 import 'medication_list/dialogs/medication_options_sheet.dart';
 import 'medication_list/dialogs/dose_selection_dialog.dart';
+import 'medication_list/dialogs/extra_dose_confirmation_dialog.dart';
 import 'medication_list/dialogs/manual_dose_input_dialog.dart';
 import 'medication_list/dialogs/refill_input_dialog.dart';
 import 'medication_list/dialogs/edit_today_dose_dialog.dart';
@@ -43,8 +46,16 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   final Map<String, Map<String, dynamic>> _asNeededDosesInfo = {};
   // Cache for actual dose times (scheduled time -> actual time)
   final Map<String, Map<String, DateTime>> _actualDoseTimes = {};
+  // Cache for fasting periods
+  final Map<String, Map<String, dynamic>> _fastingPeriods = {};
   // User preference for showing actual time
   bool _showActualTime = false;
+  // User preference for showing fasting countdown
+  bool _showFastingCountdown = false;
+  // User preference for showing fasting notification
+  bool _showFastingNotification = false;
+  // Timer for updating ongoing fasting notification
+  Timer? _fastingNotificationTimer;
 
   @override
   void initState() {
@@ -52,8 +63,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     WidgetsBinding.instance.addObserver(this); // Add lifecycle observer
     _loadBatteryBannerPreference();
     _loadShowActualTimePreference();
+    _loadShowFastingCountdownPreference();
+    _loadShowFastingNotificationPreference();
     _loadMedications();
     _checkNotificationPermissions();
+    _startFastingNotificationTimer();
   }
 
   /// Load show actual time preference
@@ -66,8 +80,29 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     }
   }
 
+  /// Load show fasting countdown preference
+  Future<void> _loadShowFastingCountdownPreference() async {
+    final showFastingCountdown = await PreferencesService.getShowFastingCountdown();
+    if (mounted) {
+      setState(() {
+        _showFastingCountdown = showFastingCountdown;
+      });
+    }
+  }
+
+  /// Load show fasting notification preference
+  Future<void> _loadShowFastingNotificationPreference() async {
+    final showFastingNotification = await PreferencesService.getShowFastingNotification();
+    if (mounted) {
+      setState(() {
+        _showFastingNotification = showFastingNotification;
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _fastingNotificationTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this); // Remove lifecycle observer
     super.dispose();
   }
@@ -124,6 +159,73 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       context: context,
       hasMedications: _medications.isNotEmpty,
     );
+  }
+
+  /// Start timer to update ongoing fasting notification every minute
+  void _startFastingNotificationTimer() {
+    _fastingNotificationTimer?.cancel();
+    _fastingNotificationTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      _updateOngoingFastingNotification();
+    });
+    // Update immediately
+    _updateOngoingFastingNotification();
+  }
+
+  /// Update or cancel the ongoing fasting notification based on current state
+  Future<void> _updateOngoingFastingNotification() async {
+    // Only show on Android and if both preferences are enabled
+    if (!Platform.isAndroid || !_showFastingCountdown || !_showFastingNotification) {
+      await NotificationService.instance.cancelOngoingFastingNotification();
+      return;
+    }
+
+    // Find the most urgent active fasting period
+    Map<String, dynamic>? mostUrgentFasting;
+    Medication? mostUrgentMedication;
+
+    for (final med in _medications) {
+      if (med.requiresFasting) {
+        final fastingInfo = await DoseCalculationService.getActiveFastingPeriod(med);
+        if (fastingInfo != null && fastingInfo['isActive'] == true) {
+          final remainingMinutes = fastingInfo['remainingMinutes'] as int;
+          if (mostUrgentFasting == null || remainingMinutes < (mostUrgentFasting['remainingMinutes'] as int)) {
+            mostUrgentFasting = fastingInfo;
+            mostUrgentMedication = med;
+          }
+        }
+      }
+    }
+
+    // Show or cancel notification based on whether we have an active fasting
+    if (mostUrgentFasting != null && mostUrgentMedication != null) {
+      final remainingMinutes = mostUrgentFasting['remainingMinutes'] as int;
+      final endTime = mostUrgentFasting['fastingEndTime'] as DateTime;
+
+      // Format time remaining
+      String timeRemaining;
+      if (remainingMinutes < 60) {
+        timeRemaining = '$remainingMinutes min';
+      } else {
+        final hours = remainingMinutes ~/ 60;
+        final minutes = remainingMinutes % 60;
+        if (minutes == 0) {
+          timeRemaining = '${hours}h';
+        } else {
+          timeRemaining = '${hours}h ${minutes}m';
+        }
+      }
+
+      // Format end time
+      final endTimeFormatted = '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
+
+      await NotificationService.instance.showOngoingFastingNotification(
+        medicationName: mostUrgentMedication.name,
+        timeRemaining: timeRemaining,
+        endTime: endTimeFormatted,
+      );
+    } else {
+      await NotificationService.instance.cancelOngoingFastingNotification();
+    }
   }
 
   void _onTitleTap() {
@@ -213,6 +315,19 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       }
     }
 
+    // Load fasting periods if user preference is enabled
+    _fastingPeriods.clear();
+    if (_showFastingCountdown) {
+      for (final med in medications) {
+        if (med.requiresFasting) {
+          final fastingInfo = await DoseCalculationService.getActiveFastingPeriod(med);
+          if (fastingInfo != null) {
+            _fastingPeriods[med.id] = fastingInfo;
+          }
+        }
+      }
+    }
+
     // Sort medications by next dose proximity
     MedicationSorter.sortByNextDose(medications);
 
@@ -226,6 +341,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     });
 
     print('UI updated with ${_medications.length} medications');
+
+    // Update ongoing fasting notification
+    _updateOngoingFastingNotification();
 
     // Schedule notifications in background without blocking UI
     _scheduleNotificationsInBackground(medications);
@@ -397,29 +515,95 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     // Get available doses (doses that haven't been taken today)
     final availableDoses = freshMedication.getAvailableDosesToday();
 
+    String? selectedDoseTime;
+    bool isExtraDose = false;
+
     // Check if there are available doses
     if (availableDoses.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.allDosesTakenToday),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    String? selectedDoseTime;
-
-    // If only one dose is available, register it directly
-    if (availableDoses.length == 1) {
-      selectedDoseTime = availableDoses.first;
-    } else {
-      // If multiple doses are available, show dialog to select which one was taken
-      selectedDoseTime = await DoseSelectionDialog.show(
+      // No doses available, ask if they want to register an extra dose
+      final confirmExtra = await ExtraDoseConfirmationDialog.show(
         context,
         medicationName: freshMedication.name,
-        availableDoses: availableDoses,
       );
+
+      if (confirmExtra == true) {
+        isExtraDose = true;
+      } else {
+        return;
+      }
+    } else {
+      // If only one dose is available, show dialog with both options
+      if (availableDoses.length == 1) {
+        selectedDoseTime = await DoseSelectionDialog.show(
+          context,
+          medicationName: freshMedication.name,
+          availableDoses: availableDoses,
+          showExtraOption: true,
+        );
+      } else {
+        // If multiple doses are available, show dialog to select which one was taken
+        selectedDoseTime = await DoseSelectionDialog.show(
+          context,
+          medicationName: freshMedication.name,
+          availableDoses: availableDoses,
+          showExtraOption: true,
+        );
+      }
+
+      // Check if user selected extra dose option
+      if (selectedDoseTime == DoseSelectionDialog.extraDoseOption) {
+        isExtraDose = true;
+        selectedDoseTime = null;
+      } else if (selectedDoseTime == null) {
+        return; // User cancelled
+      }
+    }
+
+    // Handle extra dose registration
+    if (isExtraDose) {
+      try {
+        // Get default dose quantity (first dose in schedule)
+        final doseQuantity = freshMedication.doseSchedule.values.first;
+
+        // Register extra dose using service
+        final updatedMedication = await DoseActionService.registerExtraDose(
+          medication: freshMedication,
+          quantity: doseQuantity,
+        );
+
+        // Reload medications
+        await _loadMedications();
+
+        // Show success message
+        final now = DateTime.now();
+        final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.extraDoseRegistered(
+                freshMedication.name,
+                currentTime,
+                updatedMedication.stockDisplayText,
+              ),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } on InsufficientStockException catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.insufficientStockForThisDose(
+                e.doseQuantity.toString(),
+                e.unit,
+                freshMedication.stockDisplayText,
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+      return;
     }
 
     if (selectedDoseTime != null) {
@@ -1196,6 +1380,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                         final nextDoseInfo = DoseCalculationService.getNextDoseInfo(medication);
                         final nextDoseText = nextDoseInfo != null ? DoseCalculationService.formatNextDose(nextDoseInfo, context) : null;
                         final asNeededDoseInfo = _asNeededDosesInfo.containsKey(medication.id) ? _asNeededDosesInfo[medication.id] : null;
+                        final fastingPeriod = _fastingPeriods.containsKey(medication.id) ? _fastingPeriods[medication.id] : null;
                         final todayDosesWidget = (medication.isTakenDosesDateToday &&
                             (medication.takenDosesToday.isNotEmpty || medication.skippedDosesToday.isNotEmpty))
                             ? _buildTodayDosesSection(medication)
@@ -1206,6 +1391,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                           nextDoseInfo: nextDoseInfo,
                           nextDoseText: nextDoseText,
                           asNeededDoseInfo: asNeededDoseInfo,
+                          fastingPeriod: fastingPeriod,
                           todayDosesWidget: todayDosesWidget,
                           onTap: () => _showDeleteModal(medication),
                         );

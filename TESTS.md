@@ -10,13 +10,15 @@ flutter test
 
 - **test/as_needed_stock_test.dart** (15): Gestión de stock para ocasionales, cálculo basado en consumo real, serialización
 - **test/medication_model_test.dart** (2): Modelo de medicamento, cálculo de stock y dosis
-- **test/notification_service_test.dart** (13): Servicio de notificaciones, singleton, permisos, notificaciones pospuestas
+- **test/preferences_service_test.dart** (12): Gestión de preferencias de usuario, independencia entre preferencias, valores por defecto, preferencia de notificación fija de ayuno
+- **test/notification_service_test.dart** (42): Servicio de notificaciones, singleton, permisos, notificaciones pospuestas, notificación ongoing persistente con actualización automática
 - **test/notification_cancellation_test.dart** (11): Cancelación inteligente, múltiples dosis, casos edge
 - **test/early_dose_notification_test.dart** (5): Reprogramación de dosis tempranas, parámetro excludeToday, fix de duplicados
 - **test/database_refill_test.dart** (6): Persistencia de recargas en SQLite
 - **test/integration/** (45): Suite modular de widgets e integración con helpers i18n compartidos
 - **test/dose_management_test.dart** (11): Historial de dosis, eliminación, cambio de estado, recálculo de estadísticas
 - **test/fasting_test.dart** (13): Configuración de ayuno, serialización JSON, compatibilidad legacy
+- **test/fasting_countdown_test.dart** (14): Cuenta atrás visual de ayuno, cálculo de períodos activos/próximos, diferenciación before/after, validación de estructura de datos
 - **test/dynamic_fasting_notification_test.dart** (13): Notificaciones dinámicas basadas en hora real, diferentes duraciones
 - **test/fasting_notification_scheduling_test.dart** (13): Lógica de programación de ayuno (before/after), casos edge
 - **test/early_dose_with_fasting_test.dart** (8): Toma temprana con ayuno, cancelación correcta, uso de hora real
@@ -26,8 +28,9 @@ flutter test
 - **test/edit_fasting_screen_test.dart** (18): EditFastingScreen, state management, cobertura 84.6%
 - **test/edit_duration_screen_test.dart** (23): EditDurationScreen, validación de fechas, cobertura 82.7%
 - **test/database_export_import_test.dart** (12): Export/import con validación, backup automático, restauración
+- **test/extra_dose_test.dart** (13): Tomas extra/excepcionales, reducción de stock, historial con isExtraDose, múltiples extras, reset diario, ayuno "after" dinámico, cantidades fraccionarias
 
-**Total**: 306 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock, pantallas de edición, backup/restore y widgets de integración
+**Total**: 374 tests cubriendo modelo, servicios, preferencias, persistencia, historial, funcionalidad de ayuno (incluida cuenta atrás visual y notificación ongoing), tomas extra, notificaciones, stock, pantallas de edición, backup/restore y widgets de integración
 
 **Cobertura global**: 45.7% (2710 de 5927 líneas)
 
@@ -35,6 +38,9 @@ flutter test
 
 ### Mejoras recientes
 
+- **Tomas extra/excepcionales** (octubre 2025): Registro de dosis fuera del horario programado, 13 tests nuevos, soporte de ayuno "after" dinámico, visualización con badge púrpura en historial y pantalla principal, campo `isExtraDose` en historial, actualización de 2 tests de integración
+- **Notificación fija de cuenta atrás** (octubre 2025): Notificación ongoing persistente (Android), timer de actualización automática, 19 tests nuevos (PreferencesService + NotificationService), gestión del medicamento más urgente
+- **Cuenta atrás visual de ayuno** (octubre 2025): Nueva preferencia configurable, visualización de tiempo restante en pantalla principal, 14 tests de cálculo y validación, fix de SharedPreferences en tests de integración
 - **Refactorización con Helpers** (enero 2025): 3 nuevos módulos (medication_builder, database_test_helper, test_helpers), 13 archivos refactorizados, -751 líneas (-38%), mejoras en legibilidad
 - **Tests de pantallas de edición** (74 tests): EditQuantity (18), EditSchedule (15), EditFasting (18), EditDuration (23), cobertura +1.9%
 - **Internacionalización** (enero 2025): 43 tests migrados a i18n, ~140 cadenas reemplazadas, 24 nuevas claves ES/EN, 100% cobertura i18n

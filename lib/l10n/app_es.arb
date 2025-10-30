@@ -790,6 +790,30 @@
   },
   "noScheduledTimes": "Este medicamento no tiene horarios configurados",
   "allDosesTakenToday": "Ya has tomado todas las dosis de hoy",
+  "extraDoseOption": "Toma extra",
+  "extraDoseConfirmationMessage": "Ya has registrado todas las tomas programadas de hoy. ¿Quieres registrar una toma extra de {name}?",
+  "@extraDoseConfirmationMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "extraDoseConfirm": "Registrar toma extra",
+  "extraDoseRegistered": "Toma extra de {name} registrada a las {time} ({stock} disponible)",
+  "@extraDoseRegistered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
   "registerDoseOfMedication": "Registrar toma de {name}",
   "@registerDoseOfMedication": {
     "placeholders": {
@@ -850,6 +874,74 @@
   "settingsDisplaySection": "Visualización",
   "settingsShowActualTimeTitle": "Mostrar hora real de toma",
   "settingsShowActualTimeSubtitle": "Muestra la hora real en que se tomaron las dosis en lugar de la hora programada",
+  "settingsShowFastingCountdownTitle": "Mostrar cuenta atrás de ayuno",
+  "settingsShowFastingCountdownSubtitle": "Muestra el tiempo restante de ayuno en la pantalla principal",
+  "settingsShowFastingNotificationTitle": "Notificación fija de cuenta atrás",
+  "settingsShowFastingNotificationSubtitle": "Muestra una notificación fija con el tiempo restante de ayuno (solo Android)",
+  "fastingNotificationTitle": "Ayuno en curso",
+  "fastingNotificationBody": "{medication} • {timeRemaining} restantes (hasta {endTime})",
+  "@fastingNotificationBody": {
+    "placeholders": {
+      "medication": {
+        "type": "String"
+      },
+      "timeRemaining": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingRemainingMinutes": "{minutes} min",
+  "@fastingRemainingMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHours": "{hours}h",
+  "@fastingRemainingHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHoursMinutes": "{hours}h {minutes}m",
+  "@fastingRemainingHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingActive": "Ayuno: {time} restantes (hasta las {endTime})",
+  "@fastingActive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingUpcoming": "Próximo ayuno: {time} (hasta las {endTime})",
+  "@fastingUpcoming": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
   "settingsBackupSection": "Copia de Seguridad",
   "settingsExportTitle": "Exportar Base de Datos",
   "settingsExportSubtitle": "Guarda una copia de todos tus medicamentos e historial",

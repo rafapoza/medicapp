@@ -790,6 +790,30 @@
   },
   "noScheduledTimes": "Este medicamento no tiene horarios configurados",
   "allDosesTakenToday": "Ya has tomado todas las dosis de hoy",
+  "extraDoseOption": "Hartze estra",
+  "extraDoseConfirmationMessage": "Gaurko programatutako hartze guztiak erregistratu dituzu jada. {name} hartze estra bat erregistratu nahi duzu?",
+  "@extraDoseConfirmationMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "extraDoseConfirm": "Erregistratu hartze estra",
+  "extraDoseRegistered": "{name} hartze estra erregistratua {time}etan ({stock} eskuragarri)",
+  "@extraDoseRegistered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
   "registerDoseOfMedication": "Erregistratu hartzea de {name}",
   "@registerDoseOfMedication": {
     "placeholders": {

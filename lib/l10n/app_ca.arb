@@ -790,6 +790,30 @@
   },
   "noScheduledTimes": "Aquest medicament no té horaris configurats",
   "allDosesTakenToday": "Ja has pres totes les dosis d'avui",
+  "extraDoseOption": "Presa extra",
+  "extraDoseConfirmationMessage": "Ja has registrat totes les preses programades d'avui. Vols registrar una presa extra de {name}?",
+  "@extraDoseConfirmationMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "extraDoseConfirm": "Registrar presa extra",
+  "extraDoseRegistered": "Presa extra de {name} registrada a les {time} ({stock} disponible)",
+  "@extraDoseRegistered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
   "registerDoseOfMedication": "Registrar presa de {name}",
   "@registerDoseOfMedication": {
     "placeholders": {

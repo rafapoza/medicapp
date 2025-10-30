@@ -9,6 +9,7 @@ import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
 import '../services/preferences_service.dart';
+import '../services/dose_action_service.dart';
 import '../utils/medication_sorter.dart';
 import 'medication_info_screen.dart';
 import 'edit_medication_menu_screen.dart';
@@ -19,6 +20,7 @@ import 'medication_list/widgets/today_doses_section.dart';
 import 'medication_list/widgets/debug_menu.dart';
 import 'medication_list/dialogs/medication_options_sheet.dart';
 import 'medication_list/dialogs/dose_selection_dialog.dart';
+import 'medication_list/dialogs/extra_dose_confirmation_dialog.dart';
 import 'medication_list/dialogs/manual_dose_input_dialog.dart';
 import 'medication_list/dialogs/refill_input_dialog.dart';
 import 'medication_list/dialogs/edit_today_dose_dialog.dart';
@@ -513,29 +515,95 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     // Get available doses (doses that haven't been taken today)
     final availableDoses = freshMedication.getAvailableDosesToday();
 
+    String? selectedDoseTime;
+    bool isExtraDose = false;
+
     // Check if there are available doses
     if (availableDoses.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.allDosesTakenToday),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    String? selectedDoseTime;
-
-    // If only one dose is available, register it directly
-    if (availableDoses.length == 1) {
-      selectedDoseTime = availableDoses.first;
-    } else {
-      // If multiple doses are available, show dialog to select which one was taken
-      selectedDoseTime = await DoseSelectionDialog.show(
+      // No doses available, ask if they want to register an extra dose
+      final confirmExtra = await ExtraDoseConfirmationDialog.show(
         context,
         medicationName: freshMedication.name,
-        availableDoses: availableDoses,
       );
+
+      if (confirmExtra == true) {
+        isExtraDose = true;
+      } else {
+        return;
+      }
+    } else {
+      // If only one dose is available, show dialog with both options
+      if (availableDoses.length == 1) {
+        selectedDoseTime = await DoseSelectionDialog.show(
+          context,
+          medicationName: freshMedication.name,
+          availableDoses: availableDoses,
+          showExtraOption: true,
+        );
+      } else {
+        // If multiple doses are available, show dialog to select which one was taken
+        selectedDoseTime = await DoseSelectionDialog.show(
+          context,
+          medicationName: freshMedication.name,
+          availableDoses: availableDoses,
+          showExtraOption: true,
+        );
+      }
+
+      // Check if user selected extra dose option
+      if (selectedDoseTime == DoseSelectionDialog.extraDoseOption) {
+        isExtraDose = true;
+        selectedDoseTime = null;
+      } else if (selectedDoseTime == null) {
+        return; // User cancelled
+      }
+    }
+
+    // Handle extra dose registration
+    if (isExtraDose) {
+      try {
+        // Get default dose quantity (first dose in schedule)
+        final doseQuantity = freshMedication.doseSchedule.values.first;
+
+        // Register extra dose using service
+        final updatedMedication = await DoseActionService.registerExtraDose(
+          medication: freshMedication,
+          quantity: doseQuantity,
+        );
+
+        // Reload medications
+        await _loadMedications();
+
+        // Show success message
+        final now = DateTime.now();
+        final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.extraDoseRegistered(
+                freshMedication.name,
+                currentTime,
+                updatedMedication.stockDisplayText,
+              ),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } on InsufficientStockException catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.insufficientStockForThisDose(
+                e.doseQuantity.toString(),
+                e.unit,
+                freshMedication.stockDisplayText,
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+      return;
     }
 
     if (selectedDoseTime != null) {

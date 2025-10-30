@@ -1363,6 +1363,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allDosesTakenToday => 'You\'ve taken all doses for today';
 
   @override
+  String get extraDoseOption => 'Extra dose';
+
+  @override
+  String extraDoseConfirmationMessage(String name) {
+    return 'You\'ve already registered all scheduled doses for today. Do you want to register an extra dose of $name?';
+  }
+
+  @override
+  String get extraDoseConfirm => 'Register extra dose';
+
+  @override
+  String extraDoseRegistered(String name, String time, String stock) {
+    return 'Extra dose of $name registered at $time ($stock available)';
+  }
+
+  @override
   String registerDoseOfMedication(String name) {
     return 'Register dose of $name';
   }

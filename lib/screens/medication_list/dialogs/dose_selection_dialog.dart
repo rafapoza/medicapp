@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 
 class DoseSelectionDialog {
+  static const String extraDoseOption = '__EXTRA_DOSE__';
+
   static Future<String?> show(
     BuildContext context, {
     required String medicationName,
     required List<String> availableDoses,
+    bool showExtraOption = false,
   }) {
     final l10n = AppLocalizations.of(context)!;
 
@@ -23,6 +26,7 @@ class DoseSelectionDialog {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 16),
+              // Regular scheduled doses
               ...availableDoses.map((doseTime) {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
@@ -37,6 +41,23 @@ class DoseSelectionDialog {
                   ),
                 );
               }),
+              // Extra dose option
+              if (showExtraOption) ...[
+                const SizedBox(height: 8),
+                const Divider(),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  child: FilledButton.tonalIcon(
+                    onPressed: () => Navigator.pop(context, extraDoseOption),
+                    icon: const Icon(Icons.add_circle_outline),
+                    label: Text(l10n.extraDoseOption),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
           actions: [

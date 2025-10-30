@@ -1363,6 +1363,22 @@ class AppLocalizationsEu extends AppLocalizations {
   String get allDosesTakenToday => 'Ya has tomado todas las dosis de hoy';
 
   @override
+  String get extraDoseOption => 'Hartze estra';
+
+  @override
+  String extraDoseConfirmationMessage(String name) {
+    return 'Gaurko programatutako hartze guztiak erregistratu dituzu jada. $name hartze estra bat erregistratu nahi duzu?';
+  }
+
+  @override
+  String get extraDoseConfirm => 'Erregistratu hartze estra';
+
+  @override
+  String extraDoseRegistered(String name, String time, String stock) {
+    return '$name hartze estra erregistratua ${time}etan ($stock eskuragarri)';
+  }
+
+  @override
   String registerDoseOfMedication(String name) {
     return 'Erregistratu hartzea de $name';
   }

@@ -2561,6 +2561,30 @@ abstract class AppLocalizations {
   /// **'Ya has tomado todas las dosis de hoy'**
   String get allDosesTakenToday;
 
+  /// No description provided for @extraDoseOption.
+  ///
+  /// In es, this message translates to:
+  /// **'Toma extra'**
+  String get extraDoseOption;
+
+  /// No description provided for @extraDoseConfirmationMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya has registrado todas las tomas programadas de hoy. ¿Quieres registrar una toma extra de {name}?'**
+  String extraDoseConfirmationMessage(String name);
+
+  /// No description provided for @extraDoseConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar toma extra'**
+  String get extraDoseConfirm;
+
+  /// No description provided for @extraDoseRegistered.
+  ///
+  /// In es, this message translates to:
+  /// **'Toma extra de {name} registrada a las {time} ({stock} disponible)'**
+  String extraDoseRegistered(String name, String time, String stock);
+
   /// No description provided for @registerDoseOfMedication.
   ///
   /// In es, this message translates to:

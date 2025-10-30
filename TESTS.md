@@ -28,8 +28,9 @@ flutter test
 - **test/edit_fasting_screen_test.dart** (18): EditFastingScreen, state management, cobertura 84.6%
 - **test/edit_duration_screen_test.dart** (23): EditDurationScreen, validación de fechas, cobertura 82.7%
 - **test/database_export_import_test.dart** (12): Export/import con validación, backup automático, restauración
+- **test/extra_dose_test.dart** (13): Tomas extra/excepcionales, reducción de stock, historial con isExtraDose, múltiples extras, reset diario, ayuno "after" dinámico, cantidades fraccionarias
 
-**Total**: 361 tests cubriendo modelo, servicios, preferencias, persistencia, historial, funcionalidad de ayuno (incluida cuenta atrás visual y notificación ongoing), notificaciones, stock, pantallas de edición, backup/restore y widgets de integración
+**Total**: 374 tests cubriendo modelo, servicios, preferencias, persistencia, historial, funcionalidad de ayuno (incluida cuenta atrás visual y notificación ongoing), tomas extra, notificaciones, stock, pantallas de edición, backup/restore y widgets de integración
 
 **Cobertura global**: 45.7% (2710 de 5927 líneas)
 
@@ -37,6 +38,7 @@ flutter test
 
 ### Mejoras recientes
 
+- **Tomas extra/excepcionales** (octubre 2025): Registro de dosis fuera del horario programado, 13 tests nuevos, soporte de ayuno "after" dinámico, visualización con badge púrpura en historial y pantalla principal, campo `isExtraDose` en historial, actualización de 2 tests de integración
 - **Notificación fija de cuenta atrás** (octubre 2025): Notificación ongoing persistente (Android), timer de actualización automática, 19 tests nuevos (PreferencesService + NotificationService), gestión del medicamento más urgente
 - **Cuenta atrás visual de ayuno** (octubre 2025): Nueva preferencia configurable, visualización de tiempo restante en pantalla principal, 14 tests de cálculo y validación, fix de SharedPreferences en tests de integración
 - **Refactorización con Helpers** (enero 2025): 3 nuevos módulos (medication_builder, database_test_helper, test_helpers), 13 archivos refactorizados, -751 líneas (-38%), mejoras en legibilidad

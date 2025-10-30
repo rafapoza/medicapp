@@ -1363,6 +1363,22 @@ class AppLocalizationsCa extends AppLocalizations {
   String get allDosesTakenToday => 'Ja has pres totes les dosis d\'avui';
 
   @override
+  String get extraDoseOption => 'Presa extra';
+
+  @override
+  String extraDoseConfirmationMessage(String name) {
+    return 'Ja has registrat totes les preses programades d\'avui. Vols registrar una presa extra de $name?';
+  }
+
+  @override
+  String get extraDoseConfirm => 'Registrar presa extra';
+
+  @override
+  String extraDoseRegistered(String name, String time, String stock) {
+    return 'Presa extra de $name registrada a les $time ($stock disponible)';
+  }
+
+  @override
   String registerDoseOfMedication(String name) {
     return 'Registrar presa de $name';
   }

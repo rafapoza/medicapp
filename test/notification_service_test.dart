@@ -585,12 +585,16 @@ void main() {
       // with other notification types
       const ongoingId = 7000000;
 
-      // Verify it's outside other notification ID ranges
-      expect(ongoingId, greaterThanOrEqualTo(7000000));
-      expect(ongoingId, lessThan(3000000)); // Not in specific date range (3M-4M)
-      expect(ongoingId, lessThan(4000000)); // Not in weekly range (4M-5M)
-      expect(ongoingId, lessThan(5000000)); // Not in fasting range (5M-6M)
-      expect(ongoingId, lessThan(6000000)); // Not in dynamic fasting range (6M-7M)
+      // Verify it's the exact expected value
+      expect(ongoingId, equals(7000000));
+
+      // Verify it's outside all other notification ID ranges (they're all below 7M)
+      expect(ongoingId, greaterThan(6999999)); // Above dynamic fasting range (6M-7M)
+      expect(ongoingId, greaterThan(5999999)); // Above fasting range (5M-6M)
+      expect(ongoingId, greaterThan(4999999)); // Above weekly range (4M-5M)
+      expect(ongoingId, greaterThan(3999999)); // Above specific date range (3M-4M)
+      expect(ongoingId, greaterThan(2999999)); // Above postponed range (2M-3M)
+      expect(ongoingId, greaterThan(1999999)); // Above regular range (0-2M)
     });
   });
 }

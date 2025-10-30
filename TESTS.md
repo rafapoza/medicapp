@@ -10,8 +10,8 @@ flutter test
 
 - **test/as_needed_stock_test.dart** (15): Gestión de stock para ocasionales, cálculo basado en consumo real, serialización
 - **test/medication_model_test.dart** (2): Modelo de medicamento, cálculo de stock y dosis
-- **test/preferences_service_test.dart** (11): Gestión de preferencias de usuario, independencia entre preferencias, valores por defecto
-- **test/notification_service_test.dart** (21): Servicio de notificaciones, singleton, permisos, notificaciones pospuestas, notificación ongoing persistente
+- **test/preferences_service_test.dart** (12): Gestión de preferencias de usuario, independencia entre preferencias, valores por defecto, preferencia de notificación fija de ayuno
+- **test/notification_service_test.dart** (42): Servicio de notificaciones, singleton, permisos, notificaciones pospuestas, notificación ongoing persistente con actualización automática
 - **test/notification_cancellation_test.dart** (11): Cancelación inteligente, múltiples dosis, casos edge
 - **test/early_dose_notification_test.dart** (5): Reprogramación de dosis tempranas, parámetro excludeToday, fix de duplicados
 - **test/database_refill_test.dart** (6): Persistencia de recargas en SQLite
@@ -29,7 +29,7 @@ flutter test
 - **test/edit_duration_screen_test.dart** (23): EditDurationScreen, validación de fechas, cobertura 82.7%
 - **test/database_export_import_test.dart** (12): Export/import con validación, backup automático, restauración
 
-**Total**: 339 tests cubriendo modelo, servicios, preferencias, persistencia, historial, funcionalidad de ayuno (incluida cuenta atrás visual y notificación ongoing), notificaciones, stock, pantallas de edición, backup/restore y widgets de integración
+**Total**: 361 tests cubriendo modelo, servicios, preferencias, persistencia, historial, funcionalidad de ayuno (incluida cuenta atrás visual y notificación ongoing), notificaciones, stock, pantallas de edición, backup/restore y widgets de integración
 
 **Cobertura global**: 45.7% (2710 de 5927 líneas)
 

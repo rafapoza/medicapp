@@ -850,6 +850,57 @@
   "settingsDisplaySection": "Visualización",
   "settingsShowActualTimeTitle": "Mostrar hora real de toma",
   "settingsShowActualTimeSubtitle": "Muestra la hora real en que se tomaron las dosis en lugar de la hora programada",
+  "settingsShowFastingCountdownTitle": "Mostrar cuenta atrás de ayuno",
+  "settingsShowFastingCountdownSubtitle": "Muestra el tiempo restante de ayuno en la pantalla principal",
+  "fastingRemainingMinutes": "{minutes} min",
+  "@fastingRemainingMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHours": "{hours}h",
+  "@fastingRemainingHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHoursMinutes": "{hours}h {minutes}m",
+  "@fastingRemainingHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingActive": "Ayuno: {time} restantes (hasta las {endTime})",
+  "@fastingActive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingUpcoming": "Próximo ayuno: {time} (hasta las {endTime})",
+  "@fastingUpcoming": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
   "settingsBackupSection": "Copia de Seguridad",
   "settingsExportTitle": "Exportar Base de Datos",
   "settingsExportSubtitle": "Guarda una copia de todos tus medicamentos e historial",

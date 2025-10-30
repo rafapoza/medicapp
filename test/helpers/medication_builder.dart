@@ -112,6 +112,12 @@ class MedicationBuilder {
     return this;
   }
 
+  /// Limpia el schedule de dosis (sin dosis configuradas)
+  MedicationBuilder withNoDoses() {
+    _doseSchedule = {};
+    return this;
+  }
+
   /// Configura el medicamento como "as needed" (a demanda)
   MedicationBuilder withAsNeeded() {
     _durationType = TreatmentDurationType.asNeeded;

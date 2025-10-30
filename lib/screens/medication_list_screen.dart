@@ -43,8 +43,12 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   final Map<String, Map<String, dynamic>> _asNeededDosesInfo = {};
   // Cache for actual dose times (scheduled time -> actual time)
   final Map<String, Map<String, DateTime>> _actualDoseTimes = {};
+  // Cache for fasting periods
+  final Map<String, Map<String, dynamic>> _fastingPeriods = {};
   // User preference for showing actual time
   bool _showActualTime = false;
+  // User preference for showing fasting countdown
+  bool _showFastingCountdown = false;
 
   @override
   void initState() {
@@ -52,6 +56,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     WidgetsBinding.instance.addObserver(this); // Add lifecycle observer
     _loadBatteryBannerPreference();
     _loadShowActualTimePreference();
+    _loadShowFastingCountdownPreference();
     _loadMedications();
     _checkNotificationPermissions();
   }
@@ -62,6 +67,16 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     if (mounted) {
       setState(() {
         _showActualTime = showActualTime;
+      });
+    }
+  }
+
+  /// Load show fasting countdown preference
+  Future<void> _loadShowFastingCountdownPreference() async {
+    final showFastingCountdown = await PreferencesService.getShowFastingCountdown();
+    if (mounted) {
+      setState(() {
+        _showFastingCountdown = showFastingCountdown;
       });
     }
   }
@@ -208,6 +223,19 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
           final actualTimes = await DoseCalculationService.getActualDoseTimes(med);
           if (actualTimes.isNotEmpty) {
             _actualDoseTimes[med.id] = actualTimes;
+          }
+        }
+      }
+    }
+
+    // Load fasting periods if user preference is enabled
+    _fastingPeriods.clear();
+    if (_showFastingCountdown) {
+      for (final med in medications) {
+        if (med.requiresFasting) {
+          final fastingInfo = await DoseCalculationService.getActiveFastingPeriod(med);
+          if (fastingInfo != null) {
+            _fastingPeriods[med.id] = fastingInfo;
           }
         }
       }
@@ -1196,6 +1224,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                         final nextDoseInfo = DoseCalculationService.getNextDoseInfo(medication);
                         final nextDoseText = nextDoseInfo != null ? DoseCalculationService.formatNextDose(nextDoseInfo, context) : null;
                         final asNeededDoseInfo = _asNeededDosesInfo.containsKey(medication.id) ? _asNeededDosesInfo[medication.id] : null;
+                        final fastingPeriod = _fastingPeriods.containsKey(medication.id) ? _fastingPeriods[medication.id] : null;
                         final todayDosesWidget = (medication.isTakenDosesDateToday &&
                             (medication.takenDosesToday.isNotEmpty || medication.skippedDosesToday.isNotEmpty))
                             ? _buildTodayDosesSection(medication)
@@ -1206,6 +1235,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
                           nextDoseInfo: nextDoseInfo,
                           nextDoseText: nextDoseText,
                           asNeededDoseInfo: asNeededDoseInfo,
+                          fastingPeriod: fastingPeriod,
                           todayDosesWidget: todayDosesWidget,
                           onTap: () => _showDeleteModal(medication),
                         );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:medicapp/main.dart';
 import 'package:medicapp/database/database_helper.dart';
@@ -24,6 +25,9 @@ void main() {
     final binding = TestWidgetsFlutterBinding.instance;
     binding.platformDispatcher.implicitView!.physicalSize = const Size(1200, 1800);
     binding.platformDispatcher.implicitView!.devicePixelRatio = 1.0;
+
+    // Mock SharedPreferences to avoid plugin errors in tests
+    SharedPreferences.setMockInitialValues({});
 
     // Close and reset the database to get a fresh in-memory instance
     await DatabaseHelper.resetDatabase();

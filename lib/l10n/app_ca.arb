@@ -850,6 +850,57 @@
   "settingsDisplaySection": "Visualització",
   "settingsShowActualTimeTitle": "Mostrar hora real de presa",
   "settingsShowActualTimeSubtitle": "Mostra l'hora real en què es van prendre les dosis en lloc de l'hora programada",
+  "settingsShowFastingCountdownTitle": "Mostrar compte enrere de dejuni",
+  "settingsShowFastingCountdownSubtitle": "Mostra el temps restant de dejuni a la pantalla principal",
+  "fastingRemainingMinutes": "{minutes} min",
+  "@fastingRemainingMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHours": "{hours}h",
+  "@fastingRemainingHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHoursMinutes": "{hours}h {minutes}m",
+  "@fastingRemainingHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingActive": "Dejuni: {time} restants (fins a les {endTime})",
+  "@fastingActive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingUpcoming": "Proper dejuni: {time} (fins a les {endTime})",
+  "@fastingUpcoming": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
   "settingsBackupSection": "Còpia de Seguretat",
   "settingsExportTitle": "Exportar Base de Dades",
   "settingsExportSubtitle": "Desa una còpia de tots els teus medicaments i historial",

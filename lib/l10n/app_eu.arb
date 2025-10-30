@@ -850,6 +850,57 @@
   "settingsDisplaySection": "Bistaratzea",
   "settingsShowActualTimeTitle": "Erakutsi dosiaren benetako ordua",
   "settingsShowActualTimeSubtitle": "Dosiak hartu ziren benetako ordua erakusten du programatutako orduaren ordez",
+  "settingsShowFastingCountdownTitle": "Erakutsi barauaren atzeko kontaketa",
+  "settingsShowFastingCountdownSubtitle": "Pantaila nagusian barauaren gainerako denbora erakusten du",
+  "fastingRemainingMinutes": "{minutes} min",
+  "@fastingRemainingMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHours": "{hours}h",
+  "@fastingRemainingHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHoursMinutes": "{hours}h {minutes}m",
+  "@fastingRemainingHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingActive": "Baraua: {time} geratzen dira ({endTime}(e)ra arte)",
+  "@fastingActive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingUpcoming": "Hurrengo baraua: {time} ({endTime}(e)ra arte)",
+  "@fastingUpcoming": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
   "settingsBackupSection": "Segurtasun Kopia",
   "settingsExportTitle": "Esportatu Datu Basea",
   "settingsExportSubtitle": "Gorde zure botika eta historia guztien kopia bat",

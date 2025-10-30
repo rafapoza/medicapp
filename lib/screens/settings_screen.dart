@@ -20,6 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isExporting = false;
   bool _isImporting = false;
   bool _showActualTime = false;
+  bool _showFastingCountdown = false;
 
   @override
   void initState() {
@@ -30,9 +31,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// Load preferences from storage
   Future<void> _loadPreferences() async {
     final showActualTime = await PreferencesService.getShowActualTimeForTakenDoses();
+    final showFastingCountdown = await PreferencesService.getShowFastingCountdown();
     if (mounted) {
       setState(() {
         _showActualTime = showActualTime;
+        _showFastingCountdown = showFastingCountdown;
       });
     }
   }
@@ -43,6 +46,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) {
       setState(() {
         _showActualTime = value;
+      });
+    }
+  }
+
+  /// Handle show fasting countdown toggle
+  Future<void> _handleShowFastingCountdownChanged(bool value) async {
+    await PreferencesService.setShowFastingCountdown(value);
+    if (mounted) {
+      setState(() {
+        _showFastingCountdown = value;
       });
     }
   }
@@ -227,6 +240,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: l10n.settingsShowActualTimeSubtitle,
             value: _showActualTime,
             onChanged: _handleShowActualTimeChanged,
+          ),
+
+          // Show Fasting Countdown Switch
+          SettingSwitchCard(
+            icon: Icons.restaurant,
+            iconColor: theme.colorScheme.secondary,
+            title: l10n.settingsShowFastingCountdownTitle,
+            subtitle: l10n.settingsShowFastingCountdownSubtitle,
+            value: _showFastingCountdown,
+            onChanged: _handleShowFastingCountdownChanged,
           ),
 
           const SizedBox(height: 16),

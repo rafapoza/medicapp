@@ -850,6 +850,57 @@
   "settingsDisplaySection": "Visualización",
   "settingsShowActualTimeTitle": "Mostrar hora real de toma",
   "settingsShowActualTimeSubtitle": "Mostra a hora real na que se tomaron as doses en lugar da hora programada",
+  "settingsShowFastingCountdownTitle": "Mostrar conta atrás de xaxún",
+  "settingsShowFastingCountdownSubtitle": "Mostra o tempo restante de xaxún na pantalla principal",
+  "fastingRemainingMinutes": "{minutes} min",
+  "@fastingRemainingMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHours": "{hours}h",
+  "@fastingRemainingHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingRemainingHoursMinutes": "{hours}h {minutes}m",
+  "@fastingRemainingHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fastingActive": "Xaxún: {time} restantes (ata as {endTime})",
+  "@fastingActive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingUpcoming": "Próximo xaxún: {time} (ata as {endTime})",
+  "@fastingUpcoming": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
   "settingsBackupSection": "Copia de Seguridade",
   "settingsExportTitle": "Exportar Base de Datos",
   "settingsExportSubtitle": "Garda unha copia de todos os teus medicamentos e historial",

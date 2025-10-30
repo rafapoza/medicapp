@@ -32,8 +32,9 @@ flutter test
 - **test/dose_history_service_test.dart** (12): Servicio de historial, eliminación de entradas, restauración de stock, cambio de estado, validación de fechas, excepciones
 - **test/dose_action_service_test.dart** (28): Registro de dosis tomadas/omitidas/manuales, validación de stock, persistencia, reset diario, cantidades fraccionarias, fasting notifications
 - **test/dose_action_screen_test.dart** (20): Tests de widgets para pantalla de acciones de dosis, loading states, error handling, registro taken/skipped, postpone (15 min y custom), navegación, diferentes tipos de medicación
+- **test/settings_screen_test.dart** (19): Pantalla de configuración, preferencias de visualización (hora real, cuenta atrás de ayuno, notificación fija), export/import de base de datos, navegación, estado de UI
 
-**Total**: 434 tests cubriendo modelo, servicios (incluidos dose_history y dose_action), preferencias, persistencia, historial, funcionalidad de ayuno (incluida cuenta atrás visual y notificación ongoing), tomas extra, notificaciones, stock, pantallas principales (dose_action_screen), pantallas de edición, backup/restore y widgets de integración
+**Total**: 453 tests cubriendo modelo, servicios (incluidos dose_history y dose_action), preferencias, persistencia, historial, funcionalidad de ayuno (incluida cuenta atrás visual y notificación ongoing), tomas extra, notificaciones, stock, pantallas principales (dose_action_screen, settings_screen), pantallas de edición, backup/restore y widgets de integración
 
 **Cobertura global**: 45.7% (2710 de 5927 líneas)
 

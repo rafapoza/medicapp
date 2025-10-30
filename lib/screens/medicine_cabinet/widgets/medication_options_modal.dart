@@ -9,6 +9,7 @@ class MedicationOptionsModal extends StatelessWidget {
   final VoidCallback? onRegisterDose;
   final VoidCallback onRefill;
   final VoidCallback onEdit;
+  final VoidCallback onAssignPersons;
   final VoidCallback onDelete;
 
   const MedicationOptionsModal({
@@ -18,6 +19,7 @@ class MedicationOptionsModal extends StatelessWidget {
     this.onRegisterDose,
     required this.onRefill,
     required this.onEdit,
+    required this.onAssignPersons,
     required this.onDelete,
   });
 
@@ -28,6 +30,7 @@ class MedicationOptionsModal extends StatelessWidget {
     VoidCallback? onRegisterDose,
     required VoidCallback onRefill,
     required VoidCallback onEdit,
+    required VoidCallback onAssignPersons,
     required VoidCallback onDelete,
   }) {
     return showModalBottomSheet(
@@ -45,6 +48,7 @@ class MedicationOptionsModal extends StatelessWidget {
           onRegisterDose: onRegisterDose,
           onRefill: onRefill,
           onEdit: onEdit,
+          onAssignPersons: onAssignPersons,
           onDelete: onDelete,
         );
       },
@@ -175,6 +179,21 @@ class MedicationOptionsModal extends StatelessWidget {
               },
               icon: const Icon(Icons.edit_outlined, size: 18),
               label: Text(l10n.medicineCabinetEditMedication),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                onAssignPersons();
+              },
+              icon: const Icon(Icons.people_outline, size: 18),
+              label: const Text('Asignar Personas'),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),

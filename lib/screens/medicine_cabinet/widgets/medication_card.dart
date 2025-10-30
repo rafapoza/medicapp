@@ -10,6 +10,7 @@ import '../../edit_medication_menu_screen.dart';
 import 'medication_options_modal.dart';
 import '../../medication_list/dialogs/refill_input_dialog.dart';
 import '../../medication_list/dialogs/manual_dose_input_dialog.dart';
+import '../medication_person_assignment_screen.dart';
 
 class MedicationCard extends StatefulWidget {
   final Medication medication;
@@ -37,8 +38,22 @@ class _MedicationCardState extends State<MedicationCard> {
           : null,
       onRefill: _refillMedication,
       onEdit: _editMedication,
+      onAssignPersons: _assignPersons,
       onDelete: _deleteMedication,
     );
+  }
+
+  void _assignPersons() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MedicationPersonAssignmentScreen(
+          medication: widget.medication,
+        ),
+      ),
+    );
+    // Reload medications after assignment
+    widget.onMedicationUpdated();
   }
 
   void _refillMedication() async {

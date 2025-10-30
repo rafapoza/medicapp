@@ -3,24 +3,13 @@ import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
 import 'package:medicapp/database/database_helper.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'helpers/medication_builder.dart';
+import 'helpers/database_test_helper.dart';
 
 /// Tests to verify that fasting fields are preserved when updating medications
 /// This ensures that the bug where fasting configuration was lost is fixed
 void main() {
-  setUpAll(() async {
-    // Initialize SQLite FFI for testing
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-    // Use in-memory database for testing
-    DatabaseHelper.setInMemoryDatabase(true);
-  });
-
-  setUp(() async {
-    // Reset database before each test
-    await DatabaseHelper.resetDatabase();
-  });
+  DatabaseTestHelper.setup();
 
   tearDownAll(() async {
     await DatabaseHelper.instance.close();
@@ -45,31 +34,11 @@ void main() {
       final today = DateTime.now();
       final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-      final updatedMedication = Medication(
-        id: medication.id,
-        name: medication.name,
-        type: medication.type,
-        dosageIntervalHours: medication.dosageIntervalHours,
-        durationType: medication.durationType,
-        doseSchedule: medication.doseSchedule,
-        stockQuantity: medication.stockQuantity - 1.0,
-        takenDosesToday: ['08:00'],
-        skippedDosesToday: [],
-        takenDosesDate: todayString,
-        lastRefillAmount: medication.lastRefillAmount,
-        lowStockThresholdDays: medication.lowStockThresholdDays,
-        selectedDates: medication.selectedDates,
-        weeklyDays: medication.weeklyDays,
-        dayInterval: medication.dayInterval,
-        startDate: medication.startDate,
-        endDate: medication.endDate,
-        requiresFasting: medication.requiresFasting,
-        fastingType: medication.fastingType,
-        fastingDurationMinutes: medication.fastingDurationMinutes,
-        notifyFasting: medication.notifyFasting,
-        isSuspended: medication.isSuspended,
-        lastDailyConsumption: medication.lastDailyConsumption,
-      );
+      final updatedMedication = MedicationBuilder.from(medication)
+          .withStock(medication.stockQuantity - 1.0)
+          .withTakenDoses(['08:00'], todayString)
+          .withSkippedDoses([], todayString)
+          .build();
 
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
@@ -101,31 +70,11 @@ void main() {
       final today = DateTime.now();
       final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-      final updatedMedication = Medication(
-        id: medication.id,
-        name: medication.name,
-        type: medication.type,
-        dosageIntervalHours: medication.dosageIntervalHours,
-        durationType: medication.durationType,
-        doseSchedule: medication.doseSchedule,
-        stockQuantity: medication.stockQuantity - 1.0,
-        takenDosesToday: ['08:00'],
-        skippedDosesToday: [],
-        takenDosesDate: todayString,
-        lastRefillAmount: medication.lastRefillAmount,
-        lowStockThresholdDays: medication.lowStockThresholdDays,
-        selectedDates: medication.selectedDates,
-        weeklyDays: medication.weeklyDays,
-        dayInterval: medication.dayInterval,
-        startDate: medication.startDate,
-        endDate: medication.endDate,
-        requiresFasting: medication.requiresFasting,
-        fastingType: medication.fastingType,
-        fastingDurationMinutes: medication.fastingDurationMinutes,
-        notifyFasting: medication.notifyFasting,
-        isSuspended: medication.isSuspended,
-        lastDailyConsumption: medication.lastDailyConsumption,
-      );
+      final updatedMedication = MedicationBuilder.from(medication)
+          .withStock(medication.stockQuantity - 1.0)
+          .withTakenDoses(['08:00'], todayString)
+          .withSkippedDoses([], todayString)
+          .build();
 
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
@@ -152,31 +101,10 @@ void main() {
       await DatabaseHelper.instance.insertMedication(medication);
 
       // Simulate refilling stock (what happens in medication_list_screen.dart)
-      final updatedMedication = Medication(
-        id: medication.id,
-        name: medication.name,
-        type: medication.type,
-        dosageIntervalHours: medication.dosageIntervalHours,
-        durationType: medication.durationType,
-        doseSchedule: medication.doseSchedule,
-        stockQuantity: medication.stockQuantity + 30.0,
-        takenDosesToday: medication.takenDosesToday,
-        skippedDosesToday: medication.skippedDosesToday,
-        takenDosesDate: medication.takenDosesDate,
-        lastRefillAmount: 30.0,
-        lowStockThresholdDays: medication.lowStockThresholdDays,
-        selectedDates: medication.selectedDates,
-        weeklyDays: medication.weeklyDays,
-        dayInterval: medication.dayInterval,
-        startDate: medication.startDate,
-        endDate: medication.endDate,
-        requiresFasting: medication.requiresFasting,
-        fastingType: medication.fastingType,
-        fastingDurationMinutes: medication.fastingDurationMinutes,
-        notifyFasting: medication.notifyFasting,
-        isSuspended: medication.isSuspended,
-        lastDailyConsumption: medication.lastDailyConsumption,
-      );
+      final updatedMedication = MedicationBuilder.from(medication)
+          .withStock(medication.stockQuantity + 30.0)
+          .withLastRefill(30.0)
+          .build();
 
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
@@ -206,31 +134,10 @@ void main() {
       await DatabaseHelper.instance.insertMedication(medication);
 
       // Simulate editing schedule (what happens in edit_schedule_screen.dart)
-      final updatedMedication = Medication(
-        id: medication.id,
-        name: medication.name,
-        type: medication.type,
-        dosageIntervalHours: 6, // Changed
-        durationType: medication.durationType,
-        selectedDates: medication.selectedDates,
-        weeklyDays: medication.weeklyDays,
-        dayInterval: medication.dayInterval,
-        doseSchedule: {'06:00': 1.0, '12:00': 1.0, '18:00': 1.5}, // Changed
-        stockQuantity: medication.stockQuantity,
-        takenDosesToday: medication.takenDosesToday,
-        skippedDosesToday: medication.skippedDosesToday,
-        takenDosesDate: medication.takenDosesDate,
-        lastRefillAmount: medication.lastRefillAmount,
-        lowStockThresholdDays: medication.lowStockThresholdDays,
-        startDate: medication.startDate,
-        endDate: medication.endDate,
-        requiresFasting: medication.requiresFasting,
-        fastingType: medication.fastingType,
-        fastingDurationMinutes: medication.fastingDurationMinutes,
-        notifyFasting: medication.notifyFasting,
-        isSuspended: medication.isSuspended,
-        lastDailyConsumption: medication.lastDailyConsumption,
-      );
+      final updatedMedication = MedicationBuilder.from(medication)
+          .withDosageInterval(6) // Changed
+          .withDoseSchedule({'06:00': 1.0, '12:00': 1.0, '18:00': 1.5}) // Changed
+          .build();
 
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
@@ -261,31 +168,9 @@ void main() {
       await DatabaseHelper.instance.insertMedication(medication);
 
       // Simulate editing frequency (what happens in edit_frequency_screen.dart)
-      final updatedMedication = Medication(
-        id: medication.id,
-        name: medication.name,
-        type: medication.type,
-        dosageIntervalHours: medication.dosageIntervalHours,
-        durationType: TreatmentDurationType.weeklyPattern, // Changed
-        selectedDates: null,
-        weeklyDays: [1, 3, 5], // Changed - Monday, Wednesday, Friday
-        dayInterval: null,
-        doseSchedule: medication.doseSchedule,
-        stockQuantity: medication.stockQuantity,
-        takenDosesToday: medication.takenDosesToday,
-        skippedDosesToday: medication.skippedDosesToday,
-        takenDosesDate: medication.takenDosesDate,
-        lastRefillAmount: medication.lastRefillAmount,
-        lowStockThresholdDays: medication.lowStockThresholdDays,
-        startDate: medication.startDate,
-        endDate: medication.endDate,
-        requiresFasting: medication.requiresFasting,
-        fastingType: medication.fastingType,
-        fastingDurationMinutes: medication.fastingDurationMinutes,
-        notifyFasting: medication.notifyFasting,
-        isSuspended: medication.isSuspended,
-        lastDailyConsumption: medication.lastDailyConsumption,
-      );
+      final updatedMedication = MedicationBuilder.from(medication)
+          .withWeeklyPattern([1, 3, 5]) // Changed - Monday, Wednesday, Friday
+          .build();
 
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
@@ -319,31 +204,9 @@ void main() {
       final newStartDate = DateTime(2025, 11, 1);
       final newEndDate = DateTime(2025, 11, 30);
 
-      final updatedMedication = Medication(
-        id: medication.id,
-        name: medication.name,
-        type: medication.type,
-        dosageIntervalHours: medication.dosageIntervalHours,
-        durationType: medication.durationType,
-        selectedDates: medication.selectedDates,
-        weeklyDays: medication.weeklyDays,
-        dayInterval: medication.dayInterval,
-        doseSchedule: medication.doseSchedule,
-        stockQuantity: medication.stockQuantity,
-        takenDosesToday: medication.takenDosesToday,
-        skippedDosesToday: medication.skippedDosesToday,
-        takenDosesDate: medication.takenDosesDate,
-        lastRefillAmount: medication.lastRefillAmount,
-        lowStockThresholdDays: medication.lowStockThresholdDays,
-        startDate: newStartDate, // Changed
-        endDate: newEndDate, // Changed
-        requiresFasting: medication.requiresFasting,
-        fastingType: medication.fastingType,
-        fastingDurationMinutes: medication.fastingDurationMinutes,
-        notifyFasting: medication.notifyFasting,
-        isSuspended: medication.isSuspended,
-        lastDailyConsumption: medication.lastDailyConsumption,
-      );
+      final updatedMedication = MedicationBuilder.from(medication)
+          .withDateRange(newStartDate, newEndDate) // Changed
+          .build();
 
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
@@ -375,31 +238,10 @@ void main() {
       await DatabaseHelper.instance.insertMedication(medication);
 
       // Simulate editing quantity (what happens in edit_quantity_screen.dart)
-      final updatedMedication = Medication(
-        id: medication.id,
-        name: medication.name,
-        type: medication.type,
-        dosageIntervalHours: medication.dosageIntervalHours,
-        durationType: medication.durationType,
-        selectedDates: medication.selectedDates,
-        weeklyDays: medication.weeklyDays,
-        dayInterval: medication.dayInterval,
-        doseSchedule: medication.doseSchedule,
-        stockQuantity: 50.0, // Changed
-        takenDosesToday: medication.takenDosesToday,
-        skippedDosesToday: medication.skippedDosesToday,
-        takenDosesDate: medication.takenDosesDate,
-        lastRefillAmount: medication.lastRefillAmount,
-        lowStockThresholdDays: 5, // Changed
-        startDate: medication.startDate,
-        endDate: medication.endDate,
-        requiresFasting: medication.requiresFasting,
-        fastingType: medication.fastingType,
-        fastingDurationMinutes: medication.fastingDurationMinutes,
-        notifyFasting: medication.notifyFasting,
-        isSuspended: medication.isSuspended,
-        lastDailyConsumption: medication.lastDailyConsumption,
-      );
+      final updatedMedication = MedicationBuilder.from(medication)
+          .withStock(50.0) // Changed
+          .withLowStockThreshold(5) // Changed
+          .build();
 
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
@@ -430,31 +272,10 @@ void main() {
       await DatabaseHelper.instance.insertMedication(medication);
 
       // Simulate editing basic info (what happens in edit_basic_info_screen.dart)
-      final updatedMedication = Medication(
-        id: medication.id,
-        name: 'Updated Name', // Changed
-        type: MedicationType.capsule, // Changed
-        dosageIntervalHours: medication.dosageIntervalHours,
-        durationType: medication.durationType,
-        selectedDates: medication.selectedDates,
-        weeklyDays: medication.weeklyDays,
-        dayInterval: medication.dayInterval,
-        doseSchedule: medication.doseSchedule,
-        stockQuantity: medication.stockQuantity,
-        takenDosesToday: medication.takenDosesToday,
-        skippedDosesToday: medication.skippedDosesToday,
-        takenDosesDate: medication.takenDosesDate,
-        lastRefillAmount: medication.lastRefillAmount,
-        lowStockThresholdDays: medication.lowStockThresholdDays,
-        startDate: medication.startDate,
-        endDate: medication.endDate,
-        requiresFasting: medication.requiresFasting,
-        fastingType: medication.fastingType,
-        fastingDurationMinutes: medication.fastingDurationMinutes,
-        notifyFasting: medication.notifyFasting,
-        isSuspended: medication.isSuspended,
-        lastDailyConsumption: medication.lastDailyConsumption,
-      );
+      final updatedMedication = MedicationBuilder.from(medication)
+          .withName('Updated Name') // Changed
+          .withType(MedicationType.capsule) // Changed
+          .build();
 
       await DatabaseHelper.instance.updateMedication(updatedMedication);
 
@@ -492,31 +313,11 @@ void main() {
       final today = DateTime.now();
       final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-      var updated = Medication(
-        id: medication.id,
-        name: medication.name,
-        type: medication.type,
-        dosageIntervalHours: medication.dosageIntervalHours,
-        durationType: medication.durationType,
-        doseSchedule: medication.doseSchedule,
-        stockQuantity: medication.stockQuantity - 1.0,
-        takenDosesToday: ['08:00'],
-        skippedDosesToday: [],
-        takenDosesDate: todayString,
-        lastRefillAmount: medication.lastRefillAmount,
-        lowStockThresholdDays: medication.lowStockThresholdDays,
-        selectedDates: medication.selectedDates,
-        weeklyDays: medication.weeklyDays,
-        dayInterval: medication.dayInterval,
-        startDate: medication.startDate,
-        endDate: medication.endDate,
-        requiresFasting: medication.requiresFasting,
-        fastingType: medication.fastingType,
-        fastingDurationMinutes: medication.fastingDurationMinutes,
-        notifyFasting: medication.notifyFasting,
-        isSuspended: medication.isSuspended,
-        lastDailyConsumption: medication.lastDailyConsumption,
-      );
+      var updated = MedicationBuilder.from(medication)
+          .withStock(medication.stockQuantity - 1.0)
+          .withTakenDoses(['08:00'], todayString)
+          .withSkippedDoses([], todayString)
+          .build();
       await DatabaseHelper.instance.updateMedication(updated);
 
       // Verify after dose
@@ -527,31 +328,10 @@ void main() {
       expect(retrieved.notifyFasting, true);
 
       // Operation 2: Refill stock
-      updated = Medication(
-        id: retrieved.id,
-        name: retrieved.name,
-        type: retrieved.type,
-        dosageIntervalHours: retrieved.dosageIntervalHours,
-        durationType: retrieved.durationType,
-        doseSchedule: retrieved.doseSchedule,
-        stockQuantity: retrieved.stockQuantity + 20.0,
-        takenDosesToday: retrieved.takenDosesToday,
-        skippedDosesToday: retrieved.skippedDosesToday,
-        takenDosesDate: retrieved.takenDosesDate,
-        lastRefillAmount: 20.0,
-        lowStockThresholdDays: retrieved.lowStockThresholdDays,
-        selectedDates: retrieved.selectedDates,
-        weeklyDays: retrieved.weeklyDays,
-        dayInterval: retrieved.dayInterval,
-        startDate: retrieved.startDate,
-        endDate: retrieved.endDate,
-        requiresFasting: retrieved.requiresFasting,
-        fastingType: retrieved.fastingType,
-        fastingDurationMinutes: retrieved.fastingDurationMinutes,
-        notifyFasting: retrieved.notifyFasting,
-        isSuspended: retrieved.isSuspended,
-        lastDailyConsumption: retrieved.lastDailyConsumption,
-      );
+      updated = MedicationBuilder.from(retrieved)
+          .withStock(retrieved.stockQuantity + 20.0)
+          .withLastRefill(20.0)
+          .build();
       await DatabaseHelper.instance.updateMedication(updated);
 
       // Verify after refill
@@ -562,31 +342,10 @@ void main() {
       expect(retrieved.notifyFasting, true);
 
       // Operation 3: Edit schedule
-      updated = Medication(
-        id: retrieved.id,
-        name: retrieved.name,
-        type: retrieved.type,
-        dosageIntervalHours: 6,
-        durationType: retrieved.durationType,
-        selectedDates: retrieved.selectedDates,
-        weeklyDays: retrieved.weeklyDays,
-        dayInterval: retrieved.dayInterval,
-        doseSchedule: {'06:00': 1.0, '12:00': 1.0, '18:00': 1.0},
-        stockQuantity: retrieved.stockQuantity,
-        takenDosesToday: retrieved.takenDosesToday,
-        skippedDosesToday: retrieved.skippedDosesToday,
-        takenDosesDate: retrieved.takenDosesDate,
-        lastRefillAmount: retrieved.lastRefillAmount,
-        lowStockThresholdDays: retrieved.lowStockThresholdDays,
-        startDate: retrieved.startDate,
-        endDate: retrieved.endDate,
-        requiresFasting: retrieved.requiresFasting,
-        fastingType: retrieved.fastingType,
-        fastingDurationMinutes: retrieved.fastingDurationMinutes,
-        notifyFasting: retrieved.notifyFasting,
-        isSuspended: retrieved.isSuspended,
-        lastDailyConsumption: retrieved.lastDailyConsumption,
-      );
+      updated = MedicationBuilder.from(retrieved)
+          .withDosageInterval(6)
+          .withDoseSchedule({'06:00': 1.0, '12:00': 1.0, '18:00': 1.0})
+          .build();
       await DatabaseHelper.instance.updateMedication(updated);
 
       // Final verification - fasting should still be intact

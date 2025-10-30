@@ -91,21 +91,21 @@ lib/
 │   ├── dose_history_service.dart       # Servicio de gestión de historial
 │   └── preferences_service.dart        # Servicio de preferencias de usuario
 ├── main.dart                            # Punto de entrada con inicialización de notificaciones
-└── test/                                # Suite completa de tests (434 tests)
+└── test/                                # Suite completa de tests (389 tests)
     ├── # Tests de modelos (2 tests)
     ├── medication_model_test.dart       # Modelo de medicamento, cálculo de stock
     │
-    ├── # Tests de servicios (80 tests)
+    ├── # Tests de servicios críticos (94 tests)
     ├── notification_service_test.dart   # Notificaciones, permisos, postpone, ongoing (42 tests)
     ├── dose_action_service_test.dart    # Registro de dosis, validaciones (28 tests)
-    ├── dose_history_service_test.dart   # Historial, eliminación, cambio estado (12 tests)
+    ├── dose_history_service_test.dart   # Historial, eliminación, cambio estado (20 tests)
     ├── preferences_service_test.dart    # Preferencias de usuario (12 tests)
     │
     ├── # Tests de database y persistencia (18 tests)
     ├── database_refill_test.dart        # Persistencia de recargas (6 tests)
     ├── database_export_import_test.dart # Export/import con backup (12 tests)
     │
-    ├── # Tests de funcionalidad principal (104 tests)
+    ├── # Tests de funcionalidad principal (79 tests)
     ├── dose_management_test.dart        # Historial de dosis, eliminación (11 tests)
     ├── extra_dose_test.dart             # Tomas excepcionales (13 tests)
     ├── notification_cancellation_test.dart # Cancelación inteligente (11 tests)
@@ -115,11 +115,11 @@ lib/
     ├── as_needed_stock_test.dart        # Stock para ocasionales (15 tests)
     ├── as_needed_main_screen_display_test.dart # Display de ocasionales (10 tests)
     │
-    ├── # Tests de funcionalidad de ayuno (40 tests)
+    ├── # Tests de funcionalidad de ayuno (61 tests)
     ├── fasting_test.dart                # Configuración de ayuno (13 tests)
     ├── fasting_countdown_test.dart      # Cuenta atrás visual (14 tests)
-    ├── dynamic_fasting_notification_test.dart # Notificaciones dinámicas (13 tests)
-    ├── fasting_notification_scheduling_test.dart # Programación de ayuno (13 tests)
+    ├── fasting_notification_test.dart   # Notificaciones y programación de ayuno (26 tests)
+    ├── fasting_field_preservation_test.dart # Preservación de campos de ayuno (8 tests)
     │
     ├── # Tests de pantallas de edición (74 tests)
     ├── edit_screens_validation_test.dart # EditQuantityScreen (18 tests)
@@ -127,19 +127,24 @@ lib/
     ├── edit_fasting_screen_test.dart    # EditFastingScreen (18 tests)
     ├── edit_duration_screen_test.dart   # EditDurationScreen (23 tests)
     │
-    ├── # Tests de widgets principales (20 tests)
-    ├── dose_action_screen_test.dart     # Pantalla de acciones de dosis (1 test - ver nota en archivo)
+    ├── # Tests de widgets principales (19 tests)
     ├── settings_screen_test.dart        # Pantalla de configuración (19 tests)
     │
-    ├── # Tests de integración (45 tests)
-    └── integration/                     # Suite modular de tests de integración
-        ├── helpers/                     # Helpers compartidos i18n
-        ├── delete_medication_test.dart
-        ├── dose_registration_test.dart
-        ├── edit_medication_test.dart
-        ├── medication_modal_test.dart
-        ├── navigation_test.dart
-        └── stock_management_test.dart
+    ├── # Tests de integración (63 tests)
+    ├── integration/                     # Suite modular de tests de integración
+    │   ├── add_medication_test.dart
+    │   ├── app_startup_test.dart
+    │   ├── debug_menu_test.dart
+    │   ├── delete_medication_test.dart
+    │   ├── dose_registration_test.dart
+    │   ├── edit_medication_test.dart
+    │   ├── medication_modal_test.dart
+    │   ├── navigation_test.dart
+    │   └── stock_management_test.dart
+    │
+    └── helpers/                         # Test helpers
+        └── medication_builder.dart      # Builder pattern para crear Medication en tests
+                                         # Métodos: .withExtraDoses(), .withFastingEdgeCase()
 ```
 
 ## Arquitectura Modular

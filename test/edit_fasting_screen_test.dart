@@ -4,16 +4,17 @@ import 'package:medicapp/screens/edit_sections/edit_fasting_screen.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'helpers/test_helpers.dart';
+import 'helpers/medication_builder.dart';
 
 void main() {
   setupTestDatabase();
 
   group('EditFastingScreen Rendering', () {
     testWidgets('should render edit fasting screen', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-1',
-        requiresFasting: false,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-1')
+          .withFastingDisabled()
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -23,13 +24,10 @@ void main() {
     });
 
     testWidgets('should display fasting configuration form', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-2',
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 60,
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-2')
+          .withFasting(type: 'before', duration: 60)
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -38,10 +36,10 @@ void main() {
     });
 
     testWidgets('should initialize with no fasting', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-3',
-        requiresFasting: false,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-3')
+          .withFastingDisabled()
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -51,13 +49,10 @@ void main() {
     });
 
     testWidgets('should initialize with existing fasting configuration', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-4',
-        requiresFasting: true,
-        fastingType: 'after',
-        fastingDurationMinutes: 90, // 1 hour 30 minutes
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-4')
+          .withFasting(type: 'after', duration: 90) // 1 hour 30 minutes
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -72,10 +67,10 @@ void main() {
 
   group('EditFastingScreen Validation', () {
     testWidgets('should allow saving when fasting is disabled', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-5',
-        requiresFasting: false,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-5')
+          .withFastingDisabled()
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -89,10 +84,10 @@ void main() {
     });
 
     testWidgets('should show error when fasting type is not selected', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-6',
-        requiresFasting: false,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-6')
+          .withFastingDisabled()
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -113,12 +108,10 @@ void main() {
     });
 
     testWidgets('should show error when duration is zero', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-7',
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 0,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-7')
+          .withFasting(type: 'before', duration: 0)
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -135,12 +128,10 @@ void main() {
     });
 
     testWidgets('should show error when hours and minutes are both empty', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-8',
-        requiresFasting: true,
-        fastingType: 'after',
-        fastingDurationMinutes: 60,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-8')
+          .withFasting(type: 'after', duration: 60)
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -163,12 +154,10 @@ void main() {
     });
 
     testWidgets('should accept minimum valid duration (1 minute)', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-9',
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 60,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-9')
+          .withFasting(type: 'before', duration: 60)
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -193,10 +182,10 @@ void main() {
 
   group('EditFastingScreen Navigation', () {
     testWidgets('should navigate back when cancel is pressed', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-10',
-        requiresFasting: false,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-10')
+          .withFastingDisabled()
+          .build();
 
       await testCancelNavigation(
         tester,
@@ -208,10 +197,10 @@ void main() {
 
   group('EditFastingScreen Button States', () {
     testWidgets('should have save button enabled initially', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-11',
-        requiresFasting: false,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-11')
+          .withFastingDisabled()
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -219,10 +208,10 @@ void main() {
     });
 
     testWidgets('should have cancel button enabled initially', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-12',
-        requiresFasting: false,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-12')
+          .withFastingDisabled()
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -232,13 +221,10 @@ void main() {
 
   group('EditFastingScreen Edge Cases', () {
     testWidgets('should handle medication with long fasting duration', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-13',
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 480, // 8 hours,
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-13')
+          .withFasting(type: 'before', duration: 480) // 8 hours
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -248,13 +234,10 @@ void main() {
     });
 
     testWidgets('should handle medication with only minutes', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-14',
-        requiresFasting: true,
-        fastingType: 'after',
-        fastingDurationMinutes: 45, // 0 hours, 45 minutes,
-        notifyFasting: false,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-14')
+          .withFasting(type: 'after', duration: 45, notify: false) // 0 hours, 45 minutes
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -264,14 +247,11 @@ void main() {
     });
 
     testWidgets('should handle different medication types', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-15',
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 30,
-        notifyFasting: true,
-        type: MedicationType.syrup,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-15')
+          .withType(MedicationType.syrup)
+          .withFasting(type: 'before', duration: 30)
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -280,11 +260,10 @@ void main() {
     });
 
     testWidgets('should handle null fasting configuration', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-16',
-        requiresFasting: false,
-        notifyFasting: false,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-16')
+          .withFastingDisabled()
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -293,13 +272,10 @@ void main() {
     });
 
     testWidgets('should handle complex time combinations', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-17',
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 125, // 2 hours, 5 minutes,
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-17')
+          .withFasting(type: 'before', duration: 125) // 2 hours, 5 minutes
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 
@@ -311,13 +287,10 @@ void main() {
 
   group('EditFastingScreen State Management', () {
     testWidgets('should reset fasting configuration when switching off requiresFasting', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-18',
-        requiresFasting: true,
-        fastingType: 'before',
-        fastingDurationMinutes: 60,
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-18')
+          .withFasting(type: 'before', duration: 60)
+          .build();
 
       await pumpScreen(tester, EditFastingScreen(medication: medication));
 

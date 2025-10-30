@@ -22,6 +22,7 @@ class MedicationBuilder {
   double _stockQuantity = 10.0;
   List<String> _takenDosesToday = [];
   List<String> _skippedDosesToday = [];
+  List<String> _extraDosesToday = [];
   String? _takenDosesDate;
   double? _lastRefillAmount;
   int _lowStockThresholdDays = 3;
@@ -97,6 +98,12 @@ class MedicationBuilder {
     return this;
   }
 
+  MedicationBuilder withExtraDoses(List<String> doses, [String? date]) {
+    _extraDosesToday = doses;
+    _takenDosesDate = date ?? _getTodayString();
+    return this;
+  }
+
   MedicationBuilder withLastRefill(double amount) {
     _lastRefillAmount = amount;
     return this;
@@ -143,6 +150,20 @@ class MedicationBuilder {
     _fastingType = null;
     _fastingDurationMinutes = null;
     _notifyFasting = false;
+    return this;
+  }
+
+  /// Configura el medicamento con valores de ayuno inválidos para tests de edge cases.
+  /// Permite establecer duraciones nulas o cero para validar comportamiento de error.
+  MedicationBuilder withFastingEdgeCase({
+    required String type,
+    required int? duration,
+    bool notify = true,
+  }) {
+    _requiresFasting = true;
+    _fastingType = type;
+    _fastingDurationMinutes = duration;
+    _notifyFasting = notify;
     return this;
   }
 
@@ -223,6 +244,7 @@ class MedicationBuilder {
       stockQuantity: _stockQuantity,
       takenDosesToday: _takenDosesToday,
       skippedDosesToday: _skippedDosesToday,
+      extraDosesToday: _extraDosesToday,
       takenDosesDate: _takenDosesDate,
       lastRefillAmount: _lastRefillAmount,
       lowStockThresholdDays: _lowStockThresholdDays,

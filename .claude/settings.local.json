@@ -1,11 +1,29 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git add:*)",
+      "Bash(if [ -f \"coverage/lcov.info\" ])",
+      "Bash(then genhtml coverage/lcov.info -o coverage/html)",
+      "Bash(else echo \"Archivo de cobertura no encontrado\")",
       "Bash(flutter test:*)",
-      "Bash(flutter pub get:*)",
-      "Bash(sort:*)",
-      "Bash(git restore:*)"
+      "Bash(pkill:*)",
+      "Bash(timeout 30 flutter test:*)",
+      "Bash(timeout 15 flutter test:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(timeout 90 flutter test:*)",
+      "Bash(git restore:*)",
+      "Bash(/bashes)",
+      "Bash(for file in test/as_needed_main_screen_display_test.dart test/database_refill_test.dart test/dose_action_screen_test.dart test/dose_management_test.dart test/dynamic_fasting_notification_test.dart test/edit_screens_validation_test.dart test/fasting_countdown_test.dart test/fasting_field_preservation_test.dart)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)",
+      "Bash(flutter analyze:*)",
+      "Bash(while read file)",
+      "Bash(for file in test/fasting_test.dart test/fasting_notification_scheduling_test.dart test/dynamic_fasting_notification_test.dart test/fasting_countdown_test.dart)",
+      "Bash(python3:*)",
+      "Bash(awk:*)",
+      "Bash(xargs:*)",
+      "Bash(timeout 180 flutter test:*)",
+      "Bash(tee:*)"
     ],
     "deny": [],
     "ask": []

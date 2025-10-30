@@ -4,15 +4,16 @@ import 'package:medicapp/screens/edit_sections/edit_duration_screen.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
 import 'helpers/test_helpers.dart';
+import 'helpers/medication_builder.dart';
 
 void main() {
   setupTestDatabase();
 
   group('EditDurationScreen Rendering', () {
     testWidgets('should render edit duration screen', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-1',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-1')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -22,9 +23,9 @@ void main() {
     });
 
     testWidgets('should display current duration type', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-2',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-2')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -33,9 +34,9 @@ void main() {
     });
 
     testWidgets('should display info message about changing duration type', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-3',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-3')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -43,9 +44,9 @@ void main() {
     });
 
     testWidgets('should display date fields for everyday duration type', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-4',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-4')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -58,11 +59,10 @@ void main() {
       final startDate = DateTime(2025, 1, 15);
       final endDate = DateTime(2025, 2, 14);
 
-      final medication = createTestMedication(
-        id: 'test-med-5',
-        startDate: startDate,
-        endDate: endDate,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-5')
+          .withDateRange(startDate, endDate)
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -75,11 +75,10 @@ void main() {
       final startDate = DateTime(2025, 1, 15);
       final endDate = DateTime(2025, 2, 14); // 31 days
 
-      final medication = createTestMedication(
-        id: 'test-med-6',
-        startDate: startDate,
-        endDate: endDate,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-6')
+          .withDateRange(startDate, endDate)
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -88,10 +87,10 @@ void main() {
     });
 
     testWidgets('should not display date fields for asNeeded duration type', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-7',
-        durationType: TreatmentDurationType.asNeeded,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-7')
+          .withAsNeeded()
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -102,9 +101,9 @@ void main() {
 
   group('EditDurationScreen Validation', () {
     testWidgets('should show error when dates are not selected for everyday', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-8',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-8')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -121,9 +120,9 @@ void main() {
     });
 
     testWidgets('should show error when only start date is selected', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-9',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-9')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -140,10 +139,10 @@ void main() {
     });
 
     testWidgets('should show error for untilFinished without dates', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-10',
-        durationType: TreatmentDurationType.untilFinished,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-10')
+          .withDurationType(TreatmentDurationType.untilFinished)
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -160,10 +159,10 @@ void main() {
     });
 
     testWidgets('should not require dates for asNeeded', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-11',
-        durationType: TreatmentDurationType.asNeeded,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-11')
+          .withAsNeeded()
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -182,9 +181,9 @@ void main() {
 
   group('EditDurationScreen Navigation', () {
     testWidgets('should navigate back when cancel is pressed', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-12',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-12')
+          .build();
 
       await testCancelNavigation(
         tester,
@@ -196,9 +195,9 @@ void main() {
 
   group('EditDurationScreen Button States', () {
     testWidgets('should have save button enabled initially', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-13',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-13')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -206,9 +205,9 @@ void main() {
     });
 
     testWidgets('should have cancel button enabled initially', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-14',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-14')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -218,11 +217,10 @@ void main() {
 
   group('EditDurationScreen Edge Cases', () {
     testWidgets('should handle medication with weeklyPattern duration type', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-15',
-        durationType: TreatmentDurationType.weeklyPattern,
-        weeklyDays: [1, 3, 5],
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-15')
+          .withWeeklyPattern([1, 3, 5])
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -231,11 +229,10 @@ void main() {
     });
 
     testWidgets('should handle medication with intervalDays duration type', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-16',
-        durationType: TreatmentDurationType.intervalDays,
-        dayInterval: 2,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-16')
+          .withIntervalDays(2)
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -244,11 +241,10 @@ void main() {
     });
 
     testWidgets('should handle medication with specificDates duration type', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-17',
-        durationType: TreatmentDurationType.specificDates,
-        selectedDates: ['2025-01-15', '2025-01-20', '2025-01-25'],
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-17')
+          .withSpecificDates(['2025-01-15', '2025-01-20', '2025-01-25'])
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -260,11 +256,10 @@ void main() {
       final startDate = DateTime(2025, 1, 15);
       final endDate = DateTime(2025, 1, 15); // Same day = 1 day
 
-      final medication = createTestMedication(
-        id: 'test-med-18',
-        startDate: startDate,
-        endDate: endDate,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-18')
+          .withDateRange(startDate, endDate)
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -276,11 +271,10 @@ void main() {
       final startDate = DateTime(2025, 1, 1);
       final endDate = DateTime(2025, 12, 31); // 365 days
 
-      final medication = createTestMedication(
-        id: 'test-med-19',
-        startDate: startDate,
-        endDate: endDate,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-19')
+          .withDateRange(startDate, endDate)
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -289,9 +283,9 @@ void main() {
     });
 
     testWidgets('should handle different medication types', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-20',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-20')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -300,11 +294,9 @@ void main() {
     });
 
     testWidgets('should show "No seleccionada" when dates are null', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-21',
-        startDate: null,
-        endDate: null,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-21')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -315,12 +307,9 @@ void main() {
 
   group('EditDurationScreen Duration Display', () {
     testWidgets('should display duration info section when both dates are set', (WidgetTester tester) async {
-      final startDate = DateTime(2025, 1, 15);
-      final endDate = DateTime(2025, 2, 14);
-
-      final medication = createTestMedication(
-        id: 'test-med-22',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-22')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 
@@ -329,9 +318,9 @@ void main() {
     });
 
     testWidgets('should not display duration info when only start date is set', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-23',
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-23')
+          .build();
 
       await pumpScreen(tester, EditDurationScreen(medication: medication));
 

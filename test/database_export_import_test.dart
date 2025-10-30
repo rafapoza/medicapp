@@ -8,6 +8,7 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'helpers/medication_builder.dart';
+import 'helpers/database_test_helper.dart';
 
 /// Mock de PathProviderPlatform para tests
 class MockPathProviderPlatform extends Fake
@@ -28,12 +29,9 @@ class MockPathProviderPlatform extends Fake
 }
 
 void main() {
-  // Configuración inicial para todos los tests
-  setUpAll(() {
-    // Inicializar FFI para sqflite
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
+  DatabaseTestHelper.setupAll();
 
+  setUpAll(() {
     // Configurar mock de path provider
     PathProviderPlatform.instance = MockPathProviderPlatform();
   });

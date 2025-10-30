@@ -4,6 +4,7 @@ import 'package:medicapp/screens/edit_sections/edit_quantity_screen.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'helpers/test_helpers.dart';
+import 'helpers/medication_builder.dart';
 
 void main() {
   setupTestDatabase();
@@ -12,7 +13,11 @@ void main() {
     late Medication testMedication;
 
     setUp(() {
-      testMedication = createTestMedication(id: 'test-med-1');
+      testMedication = MedicationBuilder()
+          .withId('test-med-1')
+          .withStock(20.0)
+          .withLowStockThreshold(3)
+          .build();
     });
 
     testWidgets('should render edit quantity screen', (WidgetTester tester) async {
@@ -184,15 +189,15 @@ void main() {
     late Medication testMedication;
 
     setUp(() {
-      testMedication = createTestMedication(
-        id: 'test-med-2',
-        name: 'Test Medicine 2',
-        type: MedicationType.capsule,
-        dosageIntervalHours: 12,
-        doseSchedule: {'08:00': 1.0, '20:00': 1.0},
-        stockQuantity: 50.5,
-        lowStockThresholdDays: 5,
-      );
+      testMedication = MedicationBuilder()
+          .withId('test-med-2')
+          .withName('Test Medicine 2')
+          .withType(MedicationType.capsule)
+          .withDosageInterval(12)
+          .withDoseSchedule({'08:00': 1.0, '20:00': 1.0})
+          .withStock(50.5)
+          .withLowStockThreshold(5)
+          .build();
     });
 
     testWidgets('should accept decimal stock quantities', (WidgetTester tester) async {
@@ -230,14 +235,14 @@ void main() {
 
   group('EditQuantityScreen Edge Cases', () {
     testWidgets('should handle medication with large stock quantity', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-3',
-        name: 'Test Medicine 3',
-        type: MedicationType.syrup,
-        doseSchedule: {'08:00': 5.0},
-        stockQuantity: 999.99,
-        lowStockThresholdDays: 10,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-3')
+          .withName('Test Medicine 3')
+          .withType(MedicationType.syrup)
+          .withDoseSchedule({'08:00': 5.0})
+          .withStock(999.99)
+          .withLowStockThreshold(10)
+          .build();
 
       await pumpScreen(tester, EditQuantityScreen(medication: medication));
 
@@ -245,15 +250,15 @@ void main() {
     });
 
     testWidgets('should handle medication with threshold at boundaries', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-4',
-        name: 'Test Medicine 4',
-        type: MedicationType.inhaler,
-        dosageIntervalHours: 12,
-        doseSchedule: {'08:00': 2.0},
-        stockQuantity: 10.0,
-        lowStockThresholdDays: 1, // Minimum valid value
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-4')
+          .withName('Test Medicine 4')
+          .withType(MedicationType.inhaler)
+          .withDosageInterval(12)
+          .withDoseSchedule({'08:00': 2.0})
+          .withStock(10.0)
+          .withLowStockThreshold(1) // Minimum valid value
+          .build();
 
       await pumpScreen(tester, EditQuantityScreen(medication: medication));
 

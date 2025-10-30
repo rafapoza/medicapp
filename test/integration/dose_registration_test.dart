@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:medicapp/main.dart';
 import 'package:medicapp/database/database_helper.dart';
 import 'package:medicapp/services/notification_service.dart';
 import '../helpers/widget_test_helpers.dart';
+import '../helpers/database_test_helper.dart';
 
 void main() {
-  // Initialize sqflite for testing on desktop/VM
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  setUpAll(() {
-    // Initialize ffi implementation for desktop testing
-    sqfliteFfiInit();
-    // Set global factory to use ffi implementation
-    databaseFactory = databaseFactoryFfi;
-  });
+  DatabaseTestHelper.setupAll();
 
   // Clean up database before each test to ensure test isolation
   setUp(() async {

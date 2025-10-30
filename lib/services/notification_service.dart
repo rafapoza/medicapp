@@ -1582,4 +1582,72 @@ class NotificationService {
     // Use range 6000000+ for dynamic fasting notifications
     return 6000000 + (hash % 1000000);
   }
+
+  /// Fixed ID for the ongoing fasting countdown notification
+  /// Only one ongoing notification is shown at a time
+  static const int _ongoingFastingNotificationId = 7000000;
+
+  /// Show or update the ongoing fasting countdown notification
+  /// This notification is persistent (cannot be dismissed by the user)
+  /// and displays the remaining fasting time for the most urgent medication
+  Future<void> showOngoingFastingNotification({
+    required String medicationName,
+    required String timeRemaining,
+    required String endTime,
+  }) async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    // Only show on Android (iOS doesn't support ongoing notifications)
+    if (!Platform.isAndroid) return;
+
+    try {
+      // Android notification details with ongoing flag
+      final androidDetails = fln.AndroidNotificationDetails(
+        'fasting_ongoing',
+        'Cuenta atrás de ayuno',
+        channelDescription: 'Notificación fija que muestra el tiempo restante de ayuno',
+        importance: fln.Importance.low,
+        priority: fln.Priority.low,
+        ongoing: true, // This makes the notification persistent
+        autoCancel: false, // User cannot dismiss it
+        showWhen: false, // Don't show the time when notification was posted
+        icon: '@mipmap/ic_launcher',
+      );
+
+      final platformDetails = fln.NotificationDetails(
+        android: androidDetails,
+      );
+
+      // Format the notification body
+      final body = '$medicationName • $timeRemaining restantes (hasta $endTime)';
+
+      await _notificationsPlugin.show(
+        _ongoingFastingNotificationId,
+        'Ayuno en curso',
+        body,
+        platformDetails,
+      );
+
+      print('Ongoing fasting notification shown/updated for $medicationName');
+    } catch (e) {
+      print('Error showing ongoing fasting notification: $e');
+    }
+  }
+
+  /// Cancel the ongoing fasting countdown notification
+  Future<void> cancelOngoingFastingNotification() async {
+    // Skip in test mode
+    if (_isTestMode) return;
+
+    // Only relevant for Android
+    if (!Platform.isAndroid) return;
+
+    try {
+      await _notificationsPlugin.cancel(_ongoingFastingNotificationId);
+      print('Ongoing fasting notification cancelled');
+    } catch (e) {
+      print('Error cancelling ongoing fasting notification: $e');
+    }
+  }
 }

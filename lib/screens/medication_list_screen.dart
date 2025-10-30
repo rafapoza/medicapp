@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
@@ -49,6 +50,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   bool _showActualTime = false;
   // User preference for showing fasting countdown
   bool _showFastingCountdown = false;
+  // User preference for showing fasting notification
+  bool _showFastingNotification = false;
+  // Timer for updating ongoing fasting notification
+  Timer? _fastingNotificationTimer;
 
   @override
   void initState() {
@@ -57,8 +62,10 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     _loadBatteryBannerPreference();
     _loadShowActualTimePreference();
     _loadShowFastingCountdownPreference();
+    _loadShowFastingNotificationPreference();
     _loadMedications();
     _checkNotificationPermissions();
+    _startFastingNotificationTimer();
   }
 
   /// Load show actual time preference
@@ -81,8 +88,19 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     }
   }
 
+  /// Load show fasting notification preference
+  Future<void> _loadShowFastingNotificationPreference() async {
+    final showFastingNotification = await PreferencesService.getShowFastingNotification();
+    if (mounted) {
+      setState(() {
+        _showFastingNotification = showFastingNotification;
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _fastingNotificationTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this); // Remove lifecycle observer
     super.dispose();
   }
@@ -139,6 +157,73 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
       context: context,
       hasMedications: _medications.isNotEmpty,
     );
+  }
+
+  /// Start timer to update ongoing fasting notification every minute
+  void _startFastingNotificationTimer() {
+    _fastingNotificationTimer?.cancel();
+    _fastingNotificationTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      _updateOngoingFastingNotification();
+    });
+    // Update immediately
+    _updateOngoingFastingNotification();
+  }
+
+  /// Update or cancel the ongoing fasting notification based on current state
+  Future<void> _updateOngoingFastingNotification() async {
+    // Only show on Android and if both preferences are enabled
+    if (!Platform.isAndroid || !_showFastingCountdown || !_showFastingNotification) {
+      await NotificationService.instance.cancelOngoingFastingNotification();
+      return;
+    }
+
+    // Find the most urgent active fasting period
+    Map<String, dynamic>? mostUrgentFasting;
+    Medication? mostUrgentMedication;
+
+    for (final med in _medications) {
+      if (med.requiresFasting) {
+        final fastingInfo = await DoseCalculationService.getActiveFastingPeriod(med);
+        if (fastingInfo != null && fastingInfo['isActive'] == true) {
+          final remainingMinutes = fastingInfo['remainingMinutes'] as int;
+          if (mostUrgentFasting == null || remainingMinutes < (mostUrgentFasting['remainingMinutes'] as int)) {
+            mostUrgentFasting = fastingInfo;
+            mostUrgentMedication = med;
+          }
+        }
+      }
+    }
+
+    // Show or cancel notification based on whether we have an active fasting
+    if (mostUrgentFasting != null && mostUrgentMedication != null) {
+      final remainingMinutes = mostUrgentFasting['remainingMinutes'] as int;
+      final endTime = mostUrgentFasting['fastingEndTime'] as DateTime;
+
+      // Format time remaining
+      String timeRemaining;
+      if (remainingMinutes < 60) {
+        timeRemaining = '$remainingMinutes min';
+      } else {
+        final hours = remainingMinutes ~/ 60;
+        final minutes = remainingMinutes % 60;
+        if (minutes == 0) {
+          timeRemaining = '${hours}h';
+        } else {
+          timeRemaining = '${hours}h ${minutes}m';
+        }
+      }
+
+      // Format end time
+      final endTimeFormatted = '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
+
+      await NotificationService.instance.showOngoingFastingNotification(
+        medicationName: mostUrgentMedication.name,
+        timeRemaining: timeRemaining,
+        endTime: endTimeFormatted,
+      );
+    } else {
+      await NotificationService.instance.cancelOngoingFastingNotification();
+    }
   }
 
   void _onTitleTap() {
@@ -254,6 +339,9 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     });
 
     print('UI updated with ${_medications.length} medications');
+
+    // Update ongoing fasting notification
+    _updateOngoingFastingNotification();
 
     // Schedule notifications in background without blocking UI
     _scheduleNotificationsInBackground(medications);

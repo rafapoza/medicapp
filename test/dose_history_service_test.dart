@@ -6,6 +6,7 @@ import 'package:medicapp/models/dose_history_entry.dart';
 import 'package:medicapp/database/database_helper.dart';
 import 'package:medicapp/services/dose_history_service.dart';
 import 'helpers/database_test_helper.dart';
+import 'helpers/medication_builder.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -17,17 +18,12 @@ void main() {
       final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
       // Create medication with taken dose today
-      final medication = Medication(
-        id: 'med1',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-        stockQuantity: 9.0, // Stock was reduced when dose was taken
-        takenDosesToday: ['08:00'],
-        takenDosesDate: todayString,
-      );
+      final medication = MedicationBuilder()
+          .withId('med1')
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .withStock(9.0) // Stock was reduced when dose was taken
+          .withTakenDoses(['08:00'], todayString)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -64,17 +60,12 @@ void main() {
       final today = DateTime.now();
       final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-      final medication = Medication(
-        id: 'med2',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10.0, // Stock unchanged because dose was skipped
-        skippedDosesToday: ['08:00'],
-        takenDosesDate: todayString,
-      );
+      final medication = MedicationBuilder()
+          .withId('med2')
+          .withSingleDose('08:00', 1.0)
+          .withStock(10.0) // Stock unchanged because dose was skipped
+          .withSkippedDoses(['08:00'], todayString)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -104,17 +95,12 @@ void main() {
       final yesterday = today.subtract(const Duration(days: 1));
       final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-      final medication = Medication(
-        id: 'med3',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 9.0,
-        takenDosesToday: ['08:00'], // Today's dose
-        takenDosesDate: todayString,
-      );
+      final medication = MedicationBuilder()
+          .withId('med3')
+          .withSingleDose('08:00', 1.0)
+          .withStock(9.0)
+          .withTakenDoses(['08:00'], todayString) // Today's dose
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -170,17 +156,12 @@ void main() {
       final today = DateTime.now();
       final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-      final medication = Medication(
-        id: 'med5',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0, '22:00': 1.0},
-        stockQuantity: 7.0,
-        takenDosesToday: ['08:00', '16:00', '22:00'],
-        takenDosesDate: todayString,
-      );
+      final medication = MedicationBuilder()
+          .withId('med5')
+          .withMultipleDoses(['08:00', '16:00', '22:00'], 1.0)
+          .withStock(7.0)
+          .withTakenDoses(['08:00', '16:00', '22:00'], todayString)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -209,17 +190,12 @@ void main() {
       final today = DateTime.now();
       final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-      final medication = Medication(
-        id: 'med6',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 12,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 0.5},
-        stockQuantity: 9.5,
-        takenDosesToday: ['08:00'],
-        takenDosesDate: todayString,
-      );
+      final medication = MedicationBuilder()
+          .withId('med6')
+          .withSingleDose('08:00', 0.5)
+          .withStock(9.5)
+          .withTakenDoses(['08:00'], todayString)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 

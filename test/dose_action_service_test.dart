@@ -7,6 +7,7 @@ import 'package:medicapp/database/database_helper.dart';
 import 'package:medicapp/services/dose_action_service.dart';
 import 'package:medicapp/services/notification_service.dart';
 import 'helpers/database_test_helper.dart';
+import 'helpers/medication_builder.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -18,15 +19,11 @@ void main() {
 
   group('DoseActionService - registerTakenDose', () {
     test('should register taken dose and reduce stock', () async {
-      final medication = Medication(
-        id: 'med1',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med1')
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .withStock(10.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -41,15 +38,11 @@ void main() {
     });
 
     test('should throw InsufficientStockException when stock is too low', () async {
-      final medication = Medication(
-        id: 'med2',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 2.0},
-        stockQuantity: 1.0, // Not enough for dose of 2.0
-      );
+      final medication = MedicationBuilder()
+          .withId('med2')
+          .withSingleDose('08:00', 2.0)
+          .withStock(1.0) // Not enough for dose of 2.0
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -63,15 +56,12 @@ void main() {
     });
 
     test('should create history entry for taken dose', () async {
-      final medication = Medication(
-        id: 'med3',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 12,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.5},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med3')
+          .withName('Test Med')
+          .withSingleDose('08:00', 1.5)
+          .withStock(10.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -91,17 +81,12 @@ void main() {
       final today = DateTime.now();
       final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-      final medication = Medication(
-        id: 'med4',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0, '22:00': 1.0},
-        stockQuantity: 10.0,
-        takenDosesToday: ['08:00'],
-        takenDosesDate: todayString,
-      );
+      final medication = MedicationBuilder()
+          .withId('med4')
+          .withDoseSchedule({'08:00': 1.0, '16:00': 1.0, '22:00': 1.0})
+          .withStock(10.0)
+          .withTakenDoses(['08:00'], todayString)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -118,18 +103,12 @@ void main() {
       final yesterday = DateTime.now().subtract(const Duration(days: 1));
       final yesterdayString = '${yesterday.year}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}';
 
-      final medication = Medication(
-        id: 'med5',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-        stockQuantity: 10.0,
-        takenDosesToday: ['08:00', '16:00'],
-        skippedDosesToday: [],
-        takenDosesDate: yesterdayString,
-      );
+      final medication = MedicationBuilder()
+          .withId('med5')
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .withStock(10.0)
+          .withTakenDoses(['08:00', '16:00'], yesterdayString)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -143,15 +122,11 @@ void main() {
     });
 
     test('should handle fractional dose quantities', () async {
-      final medication = Medication(
-        id: 'med6',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 12,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 0.5, '20:00': 0.5},
-        stockQuantity: 5.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med6')
+          .withMultipleDoses(['08:00', '20:00'], 0.5)
+          .withStock(5.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -164,15 +139,11 @@ void main() {
     });
 
     test('should persist changes to database', () async {
-      final medication = Medication(
-        id: 'med7',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med7')
+          .withSingleDose('08:00', 1.0)
+          .withStock(10.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -213,15 +184,11 @@ void main() {
     });
 
     test('should create history entry for skipped dose', () async {
-      final medication = Medication(
-        id: 'med9',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 12,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med9')
+          .withSingleDose('08:00', 1.0)
+          .withStock(10.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -240,17 +207,12 @@ void main() {
       final today = DateTime.now();
       final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-      final medication = Medication(
-        id: 'med10',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0, '22:00': 1.0},
-        stockQuantity: 10.0,
-        skippedDosesToday: ['08:00'],
-        takenDosesDate: todayString,
-      );
+      final medication = MedicationBuilder()
+          .withId('med10')
+          .withMultipleDoses(['08:00', '16:00', '22:00'], 1.0)
+          .withStock(10.0)
+          .withSkippedDoses(['08:00'], todayString)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -266,18 +228,13 @@ void main() {
       final yesterday = DateTime.now().subtract(const Duration(days: 1));
       final yesterdayString = '${yesterday.year}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}';
 
-      final medication = Medication(
-        id: 'med11',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10.0,
-        takenDosesToday: ['08:00'],
-        skippedDosesToday: ['16:00'],
-        takenDosesDate: yesterdayString,
-      );
+      final medication = MedicationBuilder()
+          .withId('med11')
+          .withSingleDose('08:00', 1.0)
+          .withStock(10.0)
+          .withTakenDoses(['08:00'], yesterdayString)
+          .withSkippedDoses(['16:00'], yesterdayString)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -291,15 +248,11 @@ void main() {
     });
 
     test('should persist changes to database', () async {
-      final medication = Medication(
-        id: 'med12',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 8,
-        durationType: TreatmentDurationType.everyday,
-        doseSchedule: {'08:00': 1.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med12')
+          .withSingleDose('08:00', 1.0)
+          .withStock(10.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -316,15 +269,11 @@ void main() {
 
   group('DoseActionService - registerManualDose', () {
     test('should register manual dose and reduce stock', () async {
-      final medication = Medication(
-        id: 'med13',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 0,
-        durationType: TreatmentDurationType.asNeeded,
-        doseSchedule: {'00:00': 1.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med13')
+          .withAsNeeded()
+          .withStock(10.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -337,15 +286,11 @@ void main() {
     });
 
     test('should throw InsufficientStockException when stock is too low', () async {
-      final medication = Medication(
-        id: 'med14',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 0,
-        durationType: TreatmentDurationType.asNeeded,
-        doseSchedule: {'00:00': 1.0},
-        stockQuantity: 1.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med14')
+          .withAsNeeded()
+          .withStock(1.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -359,15 +304,11 @@ void main() {
     });
 
     test('should create history entry for manual dose', () async {
-      final medication = Medication(
-        id: 'med15',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 0,
-        durationType: TreatmentDurationType.asNeeded,
-        doseSchedule: {'00:00': 1.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med15')
+          .withAsNeeded()
+          .withStock(10.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -384,15 +325,11 @@ void main() {
     });
 
     test('should update lastDailyConsumption when provided', () async {
-      final medication = Medication(
-        id: 'med16',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 0,
-        durationType: TreatmentDurationType.asNeeded,
-        doseSchedule: {'00:00': 1.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med16')
+          .withAsNeeded()
+          .withStock(10.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -406,19 +343,13 @@ void main() {
     });
 
     test('should handle fasting "after" notifications', () async {
-      final medication = Medication(
-        id: 'med17',
-        name: 'Test Med with Fasting',
-        type: MedicationType.pill,
-        dosageIntervalHours: 0,
-        durationType: TreatmentDurationType.asNeeded,
-        doseSchedule: {'00:00': 1.0},
-        stockQuantity: 10.0,
-        requiresFasting: true,
-        fastingType: 'after',
-        fastingDurationMinutes: 60,
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('med17')
+          .withName('Test Med with Fasting')
+          .withAsNeeded()
+          .withStock(10.0)
+          .withFasting(type: 'after', duration: 60, notify: true)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -433,19 +364,12 @@ void main() {
     });
 
     test('should NOT schedule fasting for "before" type', () async {
-      final medication = Medication(
-        id: 'med18',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 0,
-        durationType: TreatmentDurationType.asNeeded,
-        doseSchedule: {'00:00': 1.0},
-        stockQuantity: 10.0,
-        requiresFasting: true,
-        fastingType: 'before', // "before" type should not trigger notification
-        fastingDurationMinutes: 60,
-        notifyFasting: true,
-      );
+      final medication = MedicationBuilder()
+          .withId('med18')
+          .withAsNeeded()
+          .withStock(10.0)
+          .withFasting(type: 'before', duration: 60, notify: true)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -458,15 +382,11 @@ void main() {
     });
 
     test('should handle fractional quantities', () async {
-      final medication = Medication(
-        id: 'med19',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 0,
-        durationType: TreatmentDurationType.asNeeded,
-        doseSchedule: {'00:00': 1.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med19')
+          .withAsNeeded()
+          .withStock(10.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 
@@ -479,15 +399,11 @@ void main() {
     });
 
     test('should persist changes to database', () async {
-      final medication = Medication(
-        id: 'med20',
-        name: 'Test Med',
-        type: MedicationType.pill,
-        dosageIntervalHours: 0,
-        durationType: TreatmentDurationType.asNeeded,
-        doseSchedule: {'00:00': 1.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('med20')
+          .withAsNeeded()
+          .withStock(10.0)
+          .build();
 
       await DatabaseHelper.instance.insertMedication(medication);
 

@@ -4,6 +4,7 @@ import 'package:medicapp/screens/edit_sections/edit_schedule_screen.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'helpers/test_helpers.dart';
+import 'helpers/medication_builder.dart';
 
 void main() {
   setupTestDatabase();
@@ -12,10 +13,10 @@ void main() {
     late Medication testMedication;
 
     setUp(() {
-      testMedication = createTestMedication(
-        id: 'test-med-1',
-        doseSchedule: {'08:00': 1.0, '16:00': 1.0},
-      );
+      testMedication = MedicationBuilder()
+          .withId('test-med-1')
+          .withMultipleDoses(['08:00', '16:00'], 1.0)
+          .build();
     });
 
     testWidgets('should render edit schedule screen', (WidgetTester tester) async {
@@ -54,10 +55,10 @@ void main() {
     late Medication testMedication;
 
     setUp(() {
-      testMedication = createTestMedication(
-        id: 'test-med-2',
-        dosageIntervalHours: 12,
-      );
+      testMedication = MedicationBuilder()
+          .withId('test-med-2')
+          .withDosageInterval(12)
+          .build();
     });
 
     testWidgets('should add a dose when add button is pressed', (WidgetTester tester) async {
@@ -81,7 +82,9 @@ void main() {
 
   group('EditScheduleScreen Validation', () {
     testWidgets('should show error for invalid quantities', (WidgetTester tester) async {
-      final medication = createTestMedication(id: 'test-med-3');
+      final medication = MedicationBuilder()
+          .withId('test-med-3')
+          .build();
 
       await pumpScreen(tester, EditScheduleScreen(medication: medication));
 
@@ -101,7 +104,9 @@ void main() {
     });
 
     testWidgets('should accept negative quantities in text field but reject on save', (WidgetTester tester) async {
-      final medication = createTestMedication(id: 'test-med-5');
+      final medication = MedicationBuilder()
+          .withId('test-med-5')
+          .build();
 
       await pumpScreen(tester, EditScheduleScreen(medication: medication));
 
@@ -121,7 +126,9 @@ void main() {
     });
 
     testWidgets('should accept empty quantities in text field but reject on save', (WidgetTester tester) async {
-      final medication = createTestMedication(id: 'test-med-6');
+      final medication = MedicationBuilder()
+          .withId('test-med-6')
+          .build();
 
       await pumpScreen(tester, EditScheduleScreen(medication: medication));
 
@@ -143,7 +150,9 @@ void main() {
 
   group('EditScheduleScreen Navigation', () {
     testWidgets('should navigate back when cancel is pressed', (WidgetTester tester) async {
-      final medication = createTestMedication(id: 'test-med-7');
+      final medication = MedicationBuilder()
+          .withId('test-med-7')
+          .build();
 
       await testCancelNavigation(
         tester,
@@ -155,7 +164,9 @@ void main() {
 
   group('EditScheduleScreen Button States', () {
     testWidgets('should have save button enabled initially', (WidgetTester tester) async {
-      final medication = createTestMedication(id: 'test-med-8');
+      final medication = MedicationBuilder()
+          .withId('test-med-8')
+          .build();
 
       await pumpScreen(tester, EditScheduleScreen(medication: medication));
 
@@ -163,7 +174,9 @@ void main() {
     });
 
     testWidgets('should have cancel button enabled initially', (WidgetTester tester) async {
-      final medication = createTestMedication(id: 'test-med-9');
+      final medication = MedicationBuilder()
+          .withId('test-med-9')
+          .build();
 
       await pumpScreen(tester, EditScheduleScreen(medication: medication));
 
@@ -173,15 +186,15 @@ void main() {
 
   group('EditScheduleScreen Edge Cases', () {
     testWidgets('should handle medication with single dose', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-10',
-        name: 'Single Dose Medicine',
-        type: MedicationType.syrup,
-        dosageIntervalHours: 24,
-        doseSchedule: {'08:00': 5.0},
-        stockQuantity: 100.0,
-        lowStockThresholdDays: 5,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-10')
+          .withName('Single Dose Medicine')
+          .withType(MedicationType.syrup)
+          .withDosageInterval(24)
+          .withSingleDose('08:00', 5.0)
+          .withStock(100.0)
+          .withLowStockThreshold(5)
+          .build();
 
       await pumpScreen(tester, EditScheduleScreen(medication: medication));
 
@@ -190,19 +203,14 @@ void main() {
     });
 
     testWidgets('should handle medication with multiple doses', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-11',
-        name: 'Multiple Dose Medicine',
-        dosageIntervalHours: 6,
-        doseSchedule: {
-          '08:00': 1.0,
-          '14:00': 1.0,
-          '20:00': 1.0,
-          '02:00': 1.0,
-        },
-        stockQuantity: 30.0,
-        lowStockThresholdDays: 7,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-11')
+          .withName('Multiple Dose Medicine')
+          .withDosageInterval(6)
+          .withMultipleDoses(['08:00', '14:00', '20:00', '02:00'], 1.0)
+          .withStock(30.0)
+          .withLowStockThreshold(7)
+          .build();
 
       await pumpScreen(tester, EditScheduleScreen(medication: medication));
 
@@ -210,16 +218,13 @@ void main() {
     });
 
     testWidgets('should handle medication with decimal quantities', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-12',
-        name: 'Decimal Dose Medicine',
-        dosageIntervalHours: 12,
-        doseSchedule: {
-          '08:00': 0.5,
-          '20:00': 1.5,
-        },
-        lowStockThresholdDays: 5,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-12')
+          .withName('Decimal Dose Medicine')
+          .withDosageInterval(12)
+          .withDoseSchedule({'08:00': 0.5, '20:00': 1.5})
+          .withLowStockThreshold(5)
+          .build();
 
       await pumpScreen(tester, EditScheduleScreen(medication: medication));
 
@@ -228,13 +233,13 @@ void main() {
     });
 
     testWidgets('should display medication type stock unit', (WidgetTester tester) async {
-      final medication = createTestMedication(
-        id: 'test-med-13',
-        type: MedicationType.inhaler,
-        dosageIntervalHours: 12,
-        doseSchedule: {'08:00': 2.0},
-        stockQuantity: 10.0,
-      );
+      final medication = MedicationBuilder()
+          .withId('test-med-13')
+          .withType(MedicationType.inhaler)
+          .withDosageInterval(12)
+          .withSingleDose('08:00', 2.0)
+          .withStock(10.0)
+          .build();
 
       await pumpScreen(tester, EditScheduleScreen(medication: medication));
 

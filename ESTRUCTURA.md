@@ -86,14 +86,59 @@ lib/
 │   ├── specific_dates_selector_screen.dart # Selector de fechas específicas
 │   └── weekly_days_selector_screen.dart    # Selector de días de la semana
 ├── services/
-│   └── notification_service.dart       # Servicio de notificaciones locales (singleton)
+│   ├── notification_service.dart       # Servicio de notificaciones locales (singleton)
+│   ├── dose_action_service.dart        # Servicio de registro de dosis (taken/skipped/manual/extra)
+│   ├── dose_history_service.dart       # Servicio de gestión de historial
+│   └── preferences_service.dart        # Servicio de preferencias de usuario
 ├── main.dart                            # Punto de entrada con inicialización de notificaciones
-└── test/
-    ├── medication_model_test.dart       # Tests del modelo de medicamento (19 tests)
-    ├── notification_service_test.dart   # Tests del servicio de notificaciones
-    ├── database_refill_test.dart        # Tests de persistencia de recargas (7 tests)
-    ├── dose_management_test.dart        # Tests de historial de dosis
-    └── widget_test.dart                 # Tests de widgets e integración (80+ tests)
+└── test/                                # Suite completa de tests (434 tests)
+    ├── # Tests de modelos (2 tests)
+    ├── medication_model_test.dart       # Modelo de medicamento, cálculo de stock
+    │
+    ├── # Tests de servicios (80 tests)
+    ├── notification_service_test.dart   # Notificaciones, permisos, postpone, ongoing (42 tests)
+    ├── dose_action_service_test.dart    # Registro de dosis, validaciones (28 tests)
+    ├── dose_history_service_test.dart   # Historial, eliminación, cambio estado (12 tests)
+    ├── preferences_service_test.dart    # Preferencias de usuario (12 tests)
+    │
+    ├── # Tests de database y persistencia (18 tests)
+    ├── database_refill_test.dart        # Persistencia de recargas (6 tests)
+    ├── database_export_import_test.dart # Export/import con backup (12 tests)
+    │
+    ├── # Tests de funcionalidad principal (104 tests)
+    ├── dose_management_test.dart        # Historial de dosis, eliminación (11 tests)
+    ├── extra_dose_test.dart             # Tomas excepcionales (13 tests)
+    ├── notification_cancellation_test.dart # Cancelación inteligente (11 tests)
+    ├── early_dose_notification_test.dart # Reprogramación de dosis tempranas (5 tests)
+    ├── early_dose_with_fasting_test.dart # Dosis tempranas con ayuno (8 tests)
+    ├── medication_sorting_test.dart     # Ordenamiento por urgencia (6 tests)
+    ├── as_needed_stock_test.dart        # Stock para ocasionales (15 tests)
+    ├── as_needed_main_screen_display_test.dart # Display de ocasionales (10 tests)
+    │
+    ├── # Tests de funcionalidad de ayuno (40 tests)
+    ├── fasting_test.dart                # Configuración de ayuno (13 tests)
+    ├── fasting_countdown_test.dart      # Cuenta atrás visual (14 tests)
+    ├── dynamic_fasting_notification_test.dart # Notificaciones dinámicas (13 tests)
+    ├── fasting_notification_scheduling_test.dart # Programación de ayuno (13 tests)
+    │
+    ├── # Tests de pantallas de edición (74 tests)
+    ├── edit_screens_validation_test.dart # EditQuantityScreen (18 tests)
+    ├── edit_schedule_screen_test.dart   # EditScheduleScreen (15 tests)
+    ├── edit_fasting_screen_test.dart    # EditFastingScreen (18 tests)
+    ├── edit_duration_screen_test.dart   # EditDurationScreen (23 tests)
+    │
+    ├── # Tests de widgets principales (20 tests)
+    ├── dose_action_screen_test.dart     # Pantalla de acciones de dosis (20 tests)
+    │
+    ├── # Tests de integración (45 tests)
+    └── integration/                     # Suite modular de tests de integración
+        ├── helpers/                     # Helpers compartidos i18n
+        ├── delete_medication_test.dart
+        ├── dose_registration_test.dart
+        ├── edit_medication_test.dart
+        ├── medication_modal_test.dart
+        ├── navigation_test.dart
+        └── stock_management_test.dart
 ```
 
 ## Arquitectura Modular

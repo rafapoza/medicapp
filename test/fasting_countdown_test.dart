@@ -1,31 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/dose_history_entry.dart';
 import 'package:medicapp/database/database_helper.dart';
 import 'package:medicapp/screens/medication_list/services/dose_calculation_service.dart';
 import 'helpers/medication_builder.dart';
+import 'helpers/database_test_helper.dart';
 
 void main() {
-  // Initialize sqflite for testing on desktop/VM
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  setUpAll(() {
-    // Initialize ffi implementation for desktop testing
-    sqfliteFfiInit();
-    // Set global factory to use ffi implementation
-    databaseFactory = databaseFactoryFfi;
-  });
+  DatabaseTestHelper.setup();
 
   group('Fasting Countdown Display - DoseCalculationService.getActiveFastingPeriod', () {
-    setUp(() async {
-      await DatabaseHelper.resetDatabase();
-      DatabaseHelper.setInMemoryDatabase(true);
-    });
-
-    tearDown(() async {
-      await DatabaseHelper.resetDatabase();
-    });
 
     group('Ayuno tipo "before" (antes de la toma)', () {
       test('debe mostrar cuenta atrás cuando el ayuno está activo (ya comenzó)', () async {

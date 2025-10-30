@@ -3,24 +3,13 @@ import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
 import 'package:medicapp/database/database_helper.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'helpers/medication_builder.dart';
+import 'helpers/database_test_helper.dart';
 
 /// Tests to verify that fasting fields are preserved when updating medications
 /// This ensures that the bug where fasting configuration was lost is fixed
 void main() {
-  setUpAll(() async {
-    // Initialize SQLite FFI for testing
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-    // Use in-memory database for testing
-    DatabaseHelper.setInMemoryDatabase(true);
-  });
-
-  setUp(() async {
-    // Reset database before each test
-    await DatabaseHelper.resetDatabase();
-  });
+  DatabaseTestHelper.setup();
 
   tearDownAll(() async {
     await DatabaseHelper.instance.close();

@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
@@ -7,28 +6,14 @@ import 'package:medicapp/models/dose_history_entry.dart';
 import 'package:medicapp/database/database_helper.dart';
 import 'package:medicapp/services/dose_action_service.dart';
 import 'package:medicapp/services/notification_service.dart';
+import 'helpers/database_test_helper.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  DatabaseTestHelper.setup();
 
-  setUpAll(() {
-    // Initialize FFI
-    sqfliteFfiInit();
-    // Set global factory to use ffi implementation
-    databaseFactory = databaseFactoryFfi;
-  });
-
-  setUp(() async {
-    // Use in-memory database for testing
-    DatabaseHelper.setInMemoryDatabase(true);
-    await DatabaseHelper.resetDatabase();
-
-    // Set notification service to test mode
+  setUp(() {
     NotificationService.instance.enableTestMode();
-  });
-
-  tearDown(() async {
-    await DatabaseHelper.resetDatabase();
   });
 
   group('Extra Dose Registration', () {

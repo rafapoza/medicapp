@@ -1,28 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:medicapp/models/medication.dart';
 import 'package:medicapp/models/medication_type.dart';
 import 'package:medicapp/models/treatment_duration_type.dart';
 import 'package:medicapp/models/dose_history_entry.dart';
 import 'package:medicapp/database/database_helper.dart';
 import 'package:medicapp/services/dose_history_service.dart';
+import 'helpers/database_test_helper.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  setUpAll(() {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  });
-
-  setUp(() async {
-    DatabaseHelper.setInMemoryDatabase(true);
-    await DatabaseHelper.resetDatabase();
-  });
-
-  tearDown(() async {
-    await DatabaseHelper.resetDatabase();
-  });
+  DatabaseTestHelper.setup();
 
   group('DoseHistoryService - deleteHistoryEntry', () {
     test('should delete history entry from today and restore stock for taken dose', () async {

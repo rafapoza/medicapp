@@ -852,6 +852,23 @@
   "settingsShowActualTimeSubtitle": "Dosiak hartu ziren benetako ordua erakusten du programatutako orduaren ordez",
   "settingsShowFastingCountdownTitle": "Erakutsi barauaren atzeko kontaketa",
   "settingsShowFastingCountdownSubtitle": "Pantaila nagusian barauaren gainerako denbora erakusten du",
+  "settingsShowFastingNotificationTitle": "Atzeko kontaketa jakinarazpen finkoa",
+  "settingsShowFastingNotificationSubtitle": "Barauaren gainerako denborarekin jakinarazpen finko bat erakusten du (Android bakarrik)",
+  "fastingNotificationTitle": "Baraua abian",
+  "fastingNotificationBody": "{medication} • {timeRemaining} gelditzen dira ({endTime}ra arte)",
+  "@fastingNotificationBody": {
+    "placeholders": {
+      "medication": {
+        "type": "String"
+      },
+      "timeRemaining": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
   "fastingRemainingMinutes": "{minutes} min",
   "@fastingRemainingMinutes": {
     "placeholders": {

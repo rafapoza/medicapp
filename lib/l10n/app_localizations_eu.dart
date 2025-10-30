@@ -1429,6 +1429,20 @@ class AppLocalizationsEu extends AppLocalizations {
   String get settingsShowFastingCountdownSubtitle => 'Pantaila nagusian barauaren gainerako denbora erakusten du';
 
   @override
+  String get settingsShowFastingNotificationTitle => 'Atzeko kontaketa jakinarazpen finkoa';
+
+  @override
+  String get settingsShowFastingNotificationSubtitle => 'Barauaren gainerako denborarekin jakinarazpen finko bat erakusten du (Android bakarrik)';
+
+  @override
+  String get fastingNotificationTitle => 'Baraua abian';
+
+  @override
+  String fastingNotificationBody(String medication, String timeRemaining, String endTime) {
+    return '$medication • $timeRemaining gelditzen dira (${endTime}ra arte)';
+  }
+
+  @override
   String fastingRemainingMinutes(int minutes) {
     return '$minutes min';
   }

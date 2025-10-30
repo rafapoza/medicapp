@@ -1429,6 +1429,20 @@ class AppLocalizationsGl extends AppLocalizations {
   String get settingsShowFastingCountdownSubtitle => 'Mostra o tempo restante de xaxún na pantalla principal';
 
   @override
+  String get settingsShowFastingNotificationTitle => 'Notificación fixa de conta atrás';
+
+  @override
+  String get settingsShowFastingNotificationSubtitle => 'Mostra unha notificación fixa co tempo restante de xaxún (só Android)';
+
+  @override
+  String get fastingNotificationTitle => 'Xaxún en curso';
+
+  @override
+  String fastingNotificationBody(String medication, String timeRemaining, String endTime) {
+    return '$medication • $timeRemaining restantes (ata $endTime)';
+  }
+
+  @override
   String fastingRemainingMinutes(int minutes) {
     return '$minutes min';
   }

@@ -852,6 +852,23 @@
   "settingsShowActualTimeSubtitle": "Mostra a hora real na que se tomaron as doses en lugar da hora programada",
   "settingsShowFastingCountdownTitle": "Mostrar conta atrás de xaxún",
   "settingsShowFastingCountdownSubtitle": "Mostra o tempo restante de xaxún na pantalla principal",
+  "settingsShowFastingNotificationTitle": "Notificación fixa de conta atrás",
+  "settingsShowFastingNotificationSubtitle": "Mostra unha notificación fixa co tempo restante de xaxún (só Android)",
+  "fastingNotificationTitle": "Xaxún en curso",
+  "fastingNotificationBody": "{medication} • {timeRemaining} restantes (ata {endTime})",
+  "@fastingNotificationBody": {
+    "placeholders": {
+      "medication": {
+        "type": "String"
+      },
+      "timeRemaining": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
   "fastingRemainingMinutes": "{minutes} min",
   "@fastingRemainingMinutes": {
     "placeholders": {

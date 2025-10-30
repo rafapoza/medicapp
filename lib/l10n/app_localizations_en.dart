@@ -1429,6 +1429,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsShowFastingCountdownSubtitle => 'Display remaining fasting time on main screen';
 
   @override
+  String get settingsShowFastingNotificationTitle => 'Fixed countdown notification';
+
+  @override
+  String get settingsShowFastingNotificationSubtitle => 'Show a fixed notification with remaining fasting time (Android only)';
+
+  @override
+  String get fastingNotificationTitle => 'Fasting in progress';
+
+  @override
+  String fastingNotificationBody(String medication, String timeRemaining, String endTime) {
+    return '$medication • $timeRemaining remaining (until $endTime)';
+  }
+
+  @override
   String fastingRemainingMinutes(int minutes) {
     return '$minutes min';
   }

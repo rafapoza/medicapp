@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
@@ -21,6 +22,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isImporting = false;
   bool _showActualTime = false;
   bool _showFastingCountdown = false;
+  bool _showFastingNotification = false;
 
   @override
   void initState() {
@@ -32,10 +34,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadPreferences() async {
     final showActualTime = await PreferencesService.getShowActualTimeForTakenDoses();
     final showFastingCountdown = await PreferencesService.getShowFastingCountdown();
+    final showFastingNotification = await PreferencesService.getShowFastingNotification();
     if (mounted) {
       setState(() {
         _showActualTime = showActualTime;
         _showFastingCountdown = showFastingCountdown;
+        _showFastingNotification = showFastingNotification;
       });
     }
   }
@@ -56,6 +60,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) {
       setState(() {
         _showFastingCountdown = value;
+        // If disabling countdown, also disable notification
+        if (!value && _showFastingNotification) {
+          _showFastingNotification = false;
+          PreferencesService.setShowFastingNotification(false);
+        }
+      });
+    }
+  }
+
+  /// Handle show fasting notification toggle
+  Future<void> _handleShowFastingNotificationChanged(bool value) async {
+    await PreferencesService.setShowFastingNotification(value);
+    if (mounted) {
+      setState(() {
+        _showFastingNotification = value;
       });
     }
   }
@@ -251,6 +270,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             value: _showFastingCountdown,
             onChanged: _handleShowFastingCountdownChanged,
           ),
+
+          // Show Fasting Notification Switch (only on Android and if countdown is enabled)
+          if (Platform.isAndroid && _showFastingCountdown)
+            SettingSwitchCard(
+              icon: Icons.notifications_active,
+              iconColor: Colors.orange,
+              title: l10n.settingsShowFastingNotificationTitle,
+              subtitle: l10n.settingsShowFastingNotificationSubtitle,
+              value: _showFastingNotification,
+              onChanged: _handleShowFastingNotificationChanged,
+            ),
 
           const SizedBox(height: 16),
 

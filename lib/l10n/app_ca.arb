@@ -852,6 +852,23 @@
   "settingsShowActualTimeSubtitle": "Mostra l'hora real en què es van prendre les dosis en lloc de l'hora programada",
   "settingsShowFastingCountdownTitle": "Mostrar compte enrere de dejuni",
   "settingsShowFastingCountdownSubtitle": "Mostra el temps restant de dejuni a la pantalla principal",
+  "settingsShowFastingNotificationTitle": "Notificació fixa de compte enrere",
+  "settingsShowFastingNotificationSubtitle": "Mostra una notificació fixa amb el temps restant de dejuni (només Android)",
+  "fastingNotificationTitle": "Dejuni en curs",
+  "fastingNotificationBody": "{medication} • {timeRemaining} restants (fins a {endTime})",
+  "@fastingNotificationBody": {
+    "placeholders": {
+      "medication": {
+        "type": "String"
+      },
+      "timeRemaining": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
   "fastingRemainingMinutes": "{minutes} min",
   "@fastingRemainingMinutes": {
     "placeholders": {

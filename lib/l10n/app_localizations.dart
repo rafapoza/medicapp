@@ -2669,6 +2669,30 @@ abstract class AppLocalizations {
   /// **'Muestra el tiempo restante de ayuno en la pantalla principal'**
   String get settingsShowFastingCountdownSubtitle;
 
+  /// No description provided for @settingsShowFastingNotificationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificación fija de cuenta atrás'**
+  String get settingsShowFastingNotificationTitle;
+
+  /// No description provided for @settingsShowFastingNotificationSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Muestra una notificación fija con el tiempo restante de ayuno (solo Android)'**
+  String get settingsShowFastingNotificationSubtitle;
+
+  /// No description provided for @fastingNotificationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayuno en curso'**
+  String get fastingNotificationTitle;
+
+  /// No description provided for @fastingNotificationBody.
+  ///
+  /// In es, this message translates to:
+  /// **'{medication} • {timeRemaining} restantes (hasta {endTime})'**
+  String fastingNotificationBody(String medication, String timeRemaining, String endTime);
+
   /// No description provided for @fastingRemainingMinutes.
   ///
   /// In es, this message translates to:

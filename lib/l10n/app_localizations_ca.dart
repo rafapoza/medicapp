@@ -1429,6 +1429,20 @@ class AppLocalizationsCa extends AppLocalizations {
   String get settingsShowFastingCountdownSubtitle => 'Mostra el temps restant de dejuni a la pantalla principal';
 
   @override
+  String get settingsShowFastingNotificationTitle => 'Notificació fixa de compte enrere';
+
+  @override
+  String get settingsShowFastingNotificationSubtitle => 'Mostra una notificació fixa amb el temps restant de dejuni (només Android)';
+
+  @override
+  String get fastingNotificationTitle => 'Dejuni en curs';
+
+  @override
+  String fastingNotificationBody(String medication, String timeRemaining, String endTime) {
+    return '$medication • $timeRemaining restants (fins a $endTime)';
+  }
+
+  @override
   String fastingRemainingMinutes(int minutes) {
     return '$minutes min';
   }

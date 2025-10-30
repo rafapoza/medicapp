@@ -852,6 +852,23 @@
   "settingsShowActualTimeSubtitle": "Muestra la hora real en que se tomaron las dosis en lugar de la hora programada",
   "settingsShowFastingCountdownTitle": "Mostrar cuenta atrás de ayuno",
   "settingsShowFastingCountdownSubtitle": "Muestra el tiempo restante de ayuno en la pantalla principal",
+  "settingsShowFastingNotificationTitle": "Notificación fija de cuenta atrás",
+  "settingsShowFastingNotificationSubtitle": "Muestra una notificación fija con el tiempo restante de ayuno (solo Android)",
+  "fastingNotificationTitle": "Ayuno en curso",
+  "fastingNotificationBody": "{medication} • {timeRemaining} restantes (hasta {endTime})",
+  "@fastingNotificationBody": {
+    "placeholders": {
+      "medication": {
+        "type": "String"
+      },
+      "timeRemaining": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
   "fastingRemainingMinutes": "{minutes} min",
   "@fastingRemainingMinutes": {
     "placeholders": {

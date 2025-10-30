@@ -1429,6 +1429,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsShowFastingCountdownSubtitle => 'Muestra el tiempo restante de ayuno en la pantalla principal';
 
   @override
+  String get settingsShowFastingNotificationTitle => 'Notificación fija de cuenta atrás';
+
+  @override
+  String get settingsShowFastingNotificationSubtitle => 'Muestra una notificación fija con el tiempo restante de ayuno (solo Android)';
+
+  @override
+  String get fastingNotificationTitle => 'Ayuno en curso';
+
+  @override
+  String fastingNotificationBody(String medication, String timeRemaining, String endTime) {
+    return '$medication • $timeRemaining restantes (hasta $endTime)';
+  }
+
+  @override
   String fastingRemainingMinutes(int minutes) {
     return '$minutes min';
   }

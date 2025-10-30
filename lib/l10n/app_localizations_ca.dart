@@ -1502,6 +1502,16 @@ class AppLocalizationsCa extends AppLocalizations {
   String get settingsTitle => 'Configuració';
 
   @override
+  String get settingsDisplaySection => 'Visualització';
+
+  @override
+  String get settingsShowActualTimeTitle => 'Mostrar hora real de presa';
+
+  @override
+  String get settingsShowActualTimeSubtitle =>
+      'Mostra l\'hora real en què es van prendre les dosis en lloc de l\'hora programada';
+
+  @override
   String get settingsBackupSection => 'Còpia de Seguretat';
 
   @override

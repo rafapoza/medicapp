@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import '../database/database_helper.dart';
+import '../services/preferences_service.dart';
 import '../l10n/app_localizations.dart';
 import 'settings/widgets/setting_option_card.dart';
+import 'settings/widgets/setting_switch_card.dart';
 import 'settings/widgets/info_card.dart';
 
 /// Settings screen with backup/restore functionality
@@ -17,6 +19,33 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isExporting = false;
   bool _isImporting = false;
+  bool _showActualTime = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  /// Load preferences from storage
+  Future<void> _loadPreferences() async {
+    final showActualTime = await PreferencesService.getShowActualTimeForTakenDoses();
+    if (mounted) {
+      setState(() {
+        _showActualTime = showActualTime;
+      });
+    }
+  }
+
+  /// Handle show actual time toggle
+  Future<void> _handleShowActualTimeChanged(bool value) async {
+    await PreferencesService.setShowActualTimeForTakenDoses(value);
+    if (mounted) {
+      setState(() {
+        _showActualTime = value;
+      });
+    }
+  }
 
   /// Export the database and share it
   Future<void> _exportDatabase() async {
@@ -178,6 +207,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: ListView(
         children: [
+          // Display Section
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              l10n.settingsDisplaySection,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+
+          // Show Actual Time Switch
+          SettingSwitchCard(
+            icon: Icons.access_time,
+            iconColor: theme.colorScheme.tertiary,
+            title: l10n.settingsShowActualTimeTitle,
+            subtitle: l10n.settingsShowActualTimeSubtitle,
+            value: _showActualTime,
+            onChanged: _handleShowActualTimeChanged,
+          ),
+
+          const SizedBox(height: 16),
+
           // Backup & Restore Section
           Padding(
             padding: const EdgeInsets.all(16.0),

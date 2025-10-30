@@ -7,6 +7,7 @@ import '../models/treatment_duration_type.dart';
 import '../models/dose_history_entry.dart';
 import '../database/database_helper.dart';
 import '../services/notification_service.dart';
+import '../services/preferences_service.dart';
 import '../utils/medication_sorter.dart';
 import 'medication_info_screen.dart';
 import 'edit_medication_menu_screen.dart';
@@ -40,14 +41,29 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
   bool _batteryBannerDismissed = false;
   // Cache for "as needed" medication doses taken today
   final Map<String, Map<String, dynamic>> _asNeededDosesInfo = {};
+  // Cache for actual dose times (scheduled time -> actual time)
+  final Map<String, Map<String, DateTime>> _actualDoseTimes = {};
+  // User preference for showing actual time
+  bool _showActualTime = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this); // Add lifecycle observer
     _loadBatteryBannerPreference();
+    _loadShowActualTimePreference();
     _loadMedications();
     _checkNotificationPermissions();
+  }
+
+  /// Load show actual time preference
+  Future<void> _loadShowActualTimePreference() async {
+    final showActualTime = await PreferencesService.getShowActualTimeForTakenDoses();
+    if (mounted) {
+      setState(() {
+        _showActualTime = showActualTime;
+      });
+    }
   }
 
   @override
@@ -180,6 +196,19 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
         final dosesInfo = await DoseCalculationService.getAsNeededDosesInfo(med);
         if (dosesInfo != null) {
           _asNeededDosesInfo[med.id] = dosesInfo;
+        }
+      }
+    }
+
+    // Load actual dose times if user preference is enabled
+    _actualDoseTimes.clear();
+    if (_showActualTime) {
+      for (final med in medications) {
+        if (med.isTakenDosesDateToday && med.takenDosesToday.isNotEmpty) {
+          final actualTimes = await DoseCalculationService.getActualDoseTimes(med);
+          if (actualTimes.isNotEmpty) {
+            _actualDoseTimes[med.id] = actualTimes;
+          }
         }
       }
     }
@@ -907,6 +936,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> with Widget
     return TodayDosesSection(
       medication: medication,
       onDoseTap: (doseTime, isTaken) => _showEditTodayDoseDialog(medication, doseTime, isTaken),
+      actualDoseTimes: _actualDoseTimes[medication.id],
+      showActualTime: _showActualTime,
     );
   }
 

@@ -1504,6 +1504,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsTitle => 'Configuración';
 
   @override
+  String get settingsDisplaySection => 'Visualización';
+
+  @override
+  String get settingsShowActualTimeTitle => 'Mostrar hora real de toma';
+
+  @override
+  String get settingsShowActualTimeSubtitle =>
+      'Muestra la hora real en que se tomaron las dosis en lugar de la hora programada';
+
+  @override
   String get settingsBackupSection => 'Copia de Seguridad';
 
   @override

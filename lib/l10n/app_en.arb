@@ -478,6 +478,9 @@
 
   "@_SETTINGS_SCREEN": {},
   "settingsTitle": "Settings",
+  "settingsDisplaySection": "Display",
+  "settingsShowActualTimeTitle": "Show actual dose time",
+  "settingsShowActualTimeSubtitle": "Display the actual time doses were taken instead of the scheduled time",
   "settingsBackupSection": "Backup & Restore",
   "settingsExportTitle": "Export Database",
   "settingsExportSubtitle": "Save a copy of all your medications and history",

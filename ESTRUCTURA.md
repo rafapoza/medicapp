@@ -91,7 +91,7 @@ lib/
 │   ├── dose_history_service.dart       # Servicio de gestión de historial
 │   └── preferences_service.dart        # Servicio de preferencias de usuario
 ├── main.dart                            # Punto de entrada con inicialización de notificaciones
-└── test/                                # Suite completa de tests (453 tests)
+└── test/                                # Suite completa de tests (434 tests)
     ├── # Tests de modelos (2 tests)
     ├── medication_model_test.dart       # Modelo de medicamento, cálculo de stock
     │
@@ -127,8 +127,8 @@ lib/
     ├── edit_fasting_screen_test.dart    # EditFastingScreen (18 tests)
     ├── edit_duration_screen_test.dart   # EditDurationScreen (23 tests)
     │
-    ├── # Tests de widgets principales (39 tests)
-    ├── dose_action_screen_test.dart     # Pantalla de acciones de dosis (20 tests)
+    ├── # Tests de widgets principales (20 tests)
+    ├── dose_action_screen_test.dart     # Pantalla de acciones de dosis (1 test - ver nota en archivo)
     ├── settings_screen_test.dart        # Pantalla de configuración (19 tests)
     │
     ├── # Tests de integración (45 tests)

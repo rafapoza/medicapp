@@ -196,18 +196,15 @@ class _DoseActionScreenState extends State<DoseActionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.doseActionLoading),
-        ),
-        body: const Center(
+      return const Scaffold(
+        body: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
+
+    final l10n = AppLocalizations.of(context)!;
 
     if (_medication == null) {
       return Scaffold(

@@ -27,6 +27,12 @@ flutter test
   - Cancelación junto con notificaciones pospuestas
   - Manejo correcto de casos edge (horario inexistente, medicación nunca programada)
   - Compatibilidad con todos los tipos de medicamento
+- **test/early_dose_notification_test.dart**: Tests de reprogramación de notificaciones para dosis tempranas (5 tests)
+  - Verifica que las notificaciones NO se reprograman para el mismo día cuando se toma una dosis antes de tiempo
+  - Tests con parámetro `excludeToday` para evitar notificaciones duplicadas el mismo día
+  - Validación para medicamentos con fecha de fin y sin fecha de fin
+  - Tests para medicamentos con múltiples dosis diarias
+  - Documentación del bug original y su corrección
 - **test/database_refill_test.dart**: Tests de persistencia de recargas (6 tests)
   - Integración con base de datos SQLite
   - Verificación de persistencia de `lastRefillAmount`
@@ -145,7 +151,7 @@ flutter test
     - Maneja múltiples ciclos de exportación/importación
     - Preserva datos complejos con múltiples horarios, ayunos y configuraciones
 
-**Total**: 327 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock, pantallas de edición, backup/restore y widgets de integración
+**Total**: 306 tests cubriendo modelo, servicios, persistencia, historial, funcionalidad de ayuno, notificaciones, stock, pantallas de edición, backup/restore y widgets de integración
 
 **Cobertura global**: 45.7% (2710 de 5927 líneas)
 
@@ -231,3 +237,17 @@ flutter test
   - Uso de `tester.view.physicalSize` para forzar tamaños específicos
   - Total de tests tras navegación adaptativa: 305 → 307
   - Total de tests tras toma temprana con ayuno: 307 → 315
+
+#### Fix de reprogramación de notificaciones (octubre 2025)
+- **Corrección de bug crítico**: Notificaciones duplicadas cuando se toma una dosis antes de tiempo
+- **Problema**: Al tomar una medicación antes de la hora programada (ej: 13:45 vs 14:00), el sistema reprogramaba la notificación para el mismo día
+- **Solución implementada**:
+  - Nuevo parámetro `excludeToday` en `scheduleMedicationNotifications()` y métodos relacionados
+  - Fuerza programación para el día siguiente cuando una dosis ya fue tomada hoy
+  - Propagado a través de `_scheduleNotification()`, `_scheduleDailyNotifications()` y `DoseActionService`
+- **Nueva suite de tests**: `early_dose_notification_test.dart` (5 tests)
+  - Tests de reprogramación con `excludeToday=true`
+  - Validación para medicamentos con y sin fecha de fin
+  - Tests con múltiples dosis diarias
+  - Documentación del bug y verificación del fix
+- **Mejoras al menú de depuración**: Fechas más visibles con fondo de color y formato destacado

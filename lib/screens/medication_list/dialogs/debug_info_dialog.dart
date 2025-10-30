@@ -64,7 +64,33 @@ class DebugInfoDialog {
               final duration = medication.fastingDurationMinutes ?? 0;
 
               scheduledTime = '$fastingType ($duration min)';
-              scheduledDate = isDynamic ? l10n.basedOnActualDose : l10n.basedOnSchedule;
+
+              // For fasting notifications, try to infer date from the actual dose notification
+              // Dynamic fasting is based on actual dose (unknown until taken)
+              // Scheduled fasting is based on the medication's dose schedule
+              if (isDynamic) {
+                scheduledDate = '${l10n.basedOnActualDose} - ${l10n.todayOrLater}';
+              } else {
+                // Infer date from medication's dose schedule
+                // Try to find the corresponding dose time
+                if (medication.doseTimes.isNotEmpty) {
+                  final firstDoseTime = medication.doseTimes.first;
+                  final timeParts = firstDoseTime.split(':');
+                  final schedHour = int.parse(timeParts[0]);
+                  final schedMin = int.parse(timeParts[1]);
+                  final currentMinutes = now.hour * 60 + now.minute;
+                  final scheduledMinutes = schedHour * 60 + schedMin;
+
+                  if (scheduledMinutes > currentMinutes) {
+                    scheduledDate = '${l10n.basedOnSchedule} - ${l10n.today(now.day, now.month, now.year)}';
+                  } else {
+                    final tomorrow = now.add(const Duration(days: 1));
+                    scheduledDate = '${l10n.basedOnSchedule} - ${l10n.tomorrow(tomorrow.day, tomorrow.month, tomorrow.year)}';
+                  }
+                } else {
+                  scheduledDate = l10n.basedOnSchedule;
+                }
+              }
             } else if (parts.length > 1) {
               // Regular dose notification
               final doseIndexOrTime = parts[1];
@@ -311,25 +337,34 @@ class DebugInfoDialog {
                               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                             ),
                           ],
-                          if (notificationType != null) ...[
-                            const SizedBox(height: 2),
-                            Text(
-                              l10n.notificationType(notificationType),
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade700,
-                                fontStyle: FontStyle.italic,
+                          if (scheduledDate != null) ...[
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: isPastDue
+                                    ? Colors.red.withOpacity(0.15)
+                                    : Colors.green.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                l10n.scheduleDate(scheduledDate),
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: isPastDue ? Colors.red.shade800 : Colors.green.shade800,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],
-                          if (scheduledDate != null) ...[
-                            const SizedBox(height: 4),
+                          if (notificationType != null) ...[
+                            const SizedBox(height: 3),
                             Text(
-                              l10n.scheduleDate(scheduledDate),
+                              l10n.notificationType(notificationType),
                               style: TextStyle(
-                                fontSize: 14,
-                                color: isPastDue ? Colors.red.shade700 : Colors.green.shade700,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                                fontStyle: FontStyle.italic,
                               ),
                             ),
                           ],

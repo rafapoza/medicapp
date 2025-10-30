@@ -53,7 +53,9 @@
     - Validación de stock disponible para la dosis específica antes de permitir el registro
     - Validación de tomas disponibles (no permite registrar más tomas de las programadas)
     - Confirmación visual con stock restante y tomas pendientes
-    - Reprogramación automática de notificaciones tras cada registro
+    - Reprogramación inteligente de notificaciones tras cada registro:
+      - Si tomas una dosis antes de tiempo (ej: a las 13:45 cuando estaba programada para las 14:00), la próxima notificación se programa correctamente para el día siguiente
+      - Previene notificaciones duplicadas el mismo día después de tomar una dosis temprano
   - **Registro manual**: Para medicamentos "según necesidad" o sin medicación activa
     - Botón "Registrar toma manual" para medicamentos suspendidos, sin horarios, o fuera de su calendario
     - Diálogo para introducir la cantidad exacta tomada

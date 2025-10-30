@@ -4,6 +4,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/medication.dart';
 import '../models/dose_history_entry.dart';
+import '../models/person.dart';
 
 class DatabaseHelper {
   // Singleton pattern
@@ -44,7 +45,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 16,
+      version: 17,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: (db) async {
@@ -119,6 +120,15 @@ class DatabaseHelper {
     await db.execute('''
       CREATE INDEX idx_dose_history_date
       ON dose_history(scheduledDateTime)
+    ''');
+
+    // Create persons table for multi-user support
+    await db.execute('''
+      CREATE TABLE persons (
+        id $idType,
+        name $textType,
+        isDefault $integerType DEFAULT 0
+      )
     ''');
   }
 
@@ -273,6 +283,21 @@ class DatabaseHelper {
       // Add isExtraDose column to dose_history for version 16
       await db.execute('''
         ALTER TABLE dose_history ADD COLUMN isExtraDose INTEGER NOT NULL DEFAULT 0
+      ''');
+    }
+
+    if (oldVersion < 17) {
+      // Create persons table for version 17 (multi-user support)
+      const idType = 'TEXT PRIMARY KEY';
+      const textType = 'TEXT NOT NULL';
+      const integerType = 'INTEGER NOT NULL';
+
+      await db.execute('''
+        CREATE TABLE persons (
+          id $idType,
+          name $textType,
+          isDefault $integerType DEFAULT 0
+        )
       ''');
     }
   }
@@ -509,6 +534,89 @@ class DatabaseHelper {
   Future<int> deleteAllDoseHistory() async {
     final db = await database;
     return await db.delete('dose_history');
+  }
+
+  // === PERSON MANAGEMENT METHODS ===
+
+  // Create - Insert a person
+  Future<int> insertPerson(Person person) async {
+    final db = await database;
+    return await db.insert(
+      'persons',
+      person.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // Read - Get all persons
+  Future<List<Person>> getAllPersons() async {
+    final db = await database;
+    final result = await db.query('persons', orderBy: 'name ASC');
+    return result.map((json) => Person.fromJson(json)).toList();
+  }
+
+  // Read - Get a single person by ID
+  Future<Person?> getPerson(String id) async {
+    final db = await database;
+    final maps = await db.query(
+      'persons',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Person.fromJson(maps.first);
+    }
+    return null;
+  }
+
+  // Read - Get the default person
+  Future<Person?> getDefaultPerson() async {
+    final db = await database;
+    final maps = await db.query(
+      'persons',
+      where: 'isDefault = ?',
+      whereArgs: [1],
+      limit: 1,
+    );
+
+    if (maps.isNotEmpty) {
+      return Person.fromJson(maps.first);
+    }
+    return null;
+  }
+
+  // Update - Update a person
+  Future<int> updatePerson(Person person) async {
+    final db = await database;
+    return await db.update(
+      'persons',
+      person.toJson(),
+      where: 'id = ?',
+      whereArgs: [person.id],
+    );
+  }
+
+  // Delete - Delete a person
+  Future<int> deletePerson(String id) async {
+    final db = await database;
+    return await db.delete(
+      'persons',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // Delete all persons (useful for testing)
+  Future<int> deleteAllPersons() async {
+    final db = await database;
+    return await db.delete('persons');
+  }
+
+  // Check if default person exists
+  Future<bool> hasDefaultPerson() async {
+    final defaultPerson = await getDefaultPerson();
+    return defaultPerson != null;
   }
 
   // Close the database

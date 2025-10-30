@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:uuid/uuid.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/main_screen.dart';
 import 'services/notification_service.dart';
+import 'database/database_helper.dart';
+import 'models/person.dart';
 
 // Global navigator key to enable navigation from notification callbacks
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -31,7 +34,33 @@ void main() async {
     print('Error initializing notifications: $e');
   }
 
+  // Initialize default person if needed
+  try {
+    await _initializeDefaultPerson();
+    print('Default person initialized successfully');
+  } catch (e) {
+    print('Error initializing default person: $e');
+  }
+
   runApp(const MedicApp());
+}
+
+/// Initialize default person if it doesn't exist
+Future<void> _initializeDefaultPerson() async {
+  final hasDefaultPerson = await DatabaseHelper.instance.hasDefaultPerson();
+
+  if (!hasDefaultPerson) {
+    final defaultPerson = Person(
+      id: const Uuid().v4(),
+      name: 'Yo',
+      isDefault: true,
+    );
+
+    await DatabaseHelper.instance.insertPerson(defaultPerson);
+    print('Default person created with name: ${defaultPerson.name}');
+  } else {
+    print('Default person already exists');
+  }
 }
 
 class MedicApp extends StatelessWidget {

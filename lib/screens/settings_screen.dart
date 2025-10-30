@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import 'settings/widgets/setting_option_card.dart';
 import 'settings/widgets/setting_switch_card.dart';
 import 'settings/widgets/info_card.dart';
+import 'persons/persons_management_screen.dart';
 
 /// Settings screen with backup/restore functionality
 class SettingsScreen extends StatefulWidget {
@@ -77,6 +78,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _showFastingNotification = value;
       });
     }
+  }
+
+  /// Navigate to persons management screen
+  void _navigateToPersonsManagement() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PersonsManagementScreen(),
+      ),
+    );
   }
 
   /// Export the database and share it
@@ -239,6 +250,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: ListView(
         children: [
+          // Persons Management Section
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Gestión de Personas',
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+
+          // Manage Persons Card
+          SettingOptionCard(
+            icon: Icons.people,
+            iconColor: theme.colorScheme.tertiary,
+            title: 'Personas',
+            subtitle: 'Gestiona las personas que usan la aplicación',
+            isLoading: false,
+            enabled: true,
+            onTap: _navigateToPersonsManagement,
+          ),
+
+          const SizedBox(height: 16),
+
           // Display Section
           Padding(
             padding: const EdgeInsets.all(16.0),

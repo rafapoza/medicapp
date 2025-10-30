@@ -29,8 +29,10 @@ flutter test
 - **test/edit_duration_screen_test.dart** (23): EditDurationScreen, validación de fechas, cobertura 82.7%
 - **test/database_export_import_test.dart** (12): Export/import con validación, backup automático, restauración
 - **test/extra_dose_test.dart** (13): Tomas extra/excepcionales, reducción de stock, historial con isExtraDose, múltiples extras, reset diario, ayuno "after" dinámico, cantidades fraccionarias
+- **test/dose_history_service_test.dart** (12): Servicio de historial, eliminación de entradas, restauración de stock, cambio de estado, validación de fechas, excepciones
+- **test/dose_action_service_test.dart** (28): Registro de dosis tomadas/omitidas/manuales, validación de stock, persistencia, reset diario, cantidades fraccionarias, fasting notifications
 
-**Total**: 374 tests cubriendo modelo, servicios, preferencias, persistencia, historial, funcionalidad de ayuno (incluida cuenta atrás visual y notificación ongoing), tomas extra, notificaciones, stock, pantallas de edición, backup/restore y widgets de integración
+**Total**: 414 tests cubriendo modelo, servicios (incluidos dose_history y dose_action), preferencias, persistencia, historial, funcionalidad de ayuno (incluida cuenta atrás visual y notificación ongoing), tomas extra, notificaciones, stock, pantallas de edición, backup/restore y widgets de integración
 
 **Cobertura global**: 45.7% (2710 de 5927 líneas)
 
@@ -38,6 +40,7 @@ flutter test
 
 ### Mejoras recientes
 
+- **Tests de servicios críticos** (octubre 2025): 40 tests nuevos para dose_history_service (12) y dose_action_service (28), cobertura de servicios críticos aumentada significativamente, validación completa de lógica de negocio
 - **Tomas extra/excepcionales** (octubre 2025): Registro de dosis fuera del horario programado, 13 tests nuevos, soporte de ayuno "after" dinámico, visualización con badge púrpura en historial y pantalla principal, campo `isExtraDose` en historial, actualización de 2 tests de integración
 - **Notificación fija de cuenta atrás** (octubre 2025): Notificación ongoing persistente (Android), timer de actualización automática, 19 tests nuevos (PreferencesService + NotificationService), gestión del medicamento más urgente
 - **Cuenta atrás visual de ayuno** (octubre 2025): Nueva preferencia configurable, visualización de tiempo restante en pantalla principal, 14 tests de cálculo y validación, fix de SharedPreferences en tests de integración
